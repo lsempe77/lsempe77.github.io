@@ -38,7 +38,7 @@ sections:
     content:
       title: '📚 My Research'
       subtitle: ''
-      text: 'I am a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie), Research Fellow at Queen Margaret University, and Visiting Fellow at the University of Oxford (Psychiatry) and University of East Anglia (Social Work). My strengths include impact evaluations, evidence synthesis, educational, social protection and health research and policy, mental health in youth, and the use of large language models (LLMs) in research and applications. I lead and collaborate on projects to advance evidence-based decision-making in low- and middle-income countries.
+      text: 'Hello! I am a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie), Research Fellow at Queen Margaret University, and Visiting Fellow at the University of Oxford (Psychiatry) and University of East Anglia (Social Work). My strengths include impact evaluations, evidence synthesis, educational, social protection and health research and policy, mental health in youth, and the use of large language models (LLMs) in research and applications. I lead and collaborate on projects to advance evidence-based decision-making in low- and middle-income countries.
       
         Interested in collaborating or discussing research? Please reach out!'
     design:
