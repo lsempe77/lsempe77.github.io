@@ -4,7 +4,7 @@
 title: Lucas Sempé
 first_name: Lucas
 last_name: Sempé
-pronouns: he/him
+pronouns: ''
 status:
   icon: ☕️
 superuser: true
@@ -13,10 +13,10 @@ role: Senior Evaluation Specialist | Research Fellow
 organizations:
   - name: International Initiative for Impact Evaluation (3ie)
     url: https://www.3ieimpact.org/
-  - name: University of Oxford
+  - name: University of Oxford (Visiting fellow)
     url: https://www.psych.ox.ac.uk/
-  - name: Queen Margaret University
-    url: https://www.qmu.ac.uk/
+  - name: University of East Anglia (Visiting fellow)
+    url: https://www.uea.ac.uk/
 
 # Social network links
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
