@@ -1,7 +1,7 @@
 ---
-title: 🎉 Easily create your own simple yet highly customizable blog
-summary: Take full control of your personal brand and privacy by migrating away from the big tech platforms!
-date: 2023-10-27
+title: Thoughts on research and life
+summary: Just a postholder so I can start writing.
+date: 2025-08-29
 
 # Featured image
 # Place an image named `featured.jpg/png` in this page's folder and customize its options here.
