@@ -1,20 +1,20 @@
 ---
 # Display name
-title: 吳健雄
+title: Lucas Sempé
 
 # Name pronunciation (optional)
-name_pronunciation: Chien Shiung Wu
+name_pronunciation: Lucas Sempe
 
 # Full name (for SEO)
-first_name: Shiung Wu
-last_name: Chien
+first_name: Lucas
+last_name: Sempé
 
 # Pronouns (optional)
-pronouns: she/her
+pronouns: he/him
 
 # Status emoji
 status:
-  icon: ☕️
+  icon: 🎓
 
 # Is this the primary user of the site?
 superuser: true
@@ -23,167 +23,171 @@ superuser: true
 highlight_name: true
 
 # Role/position/tagline
-role: Chief Scientist
+role: Senior Evaluation Specialist
 
 # Organizations/Affiliations to display in Biography blox
 organizations:
-  - name: OpenAI
-    url: https://openai.com/
+  - name: International Initiative for Impact Evaluation (3ie)
+    url: https://www.3ieimpact.org/
+  - name: University of Oxford
+    url: https://www.psych.ox.ac.uk/
+  - name: Queen Margaret University
+    url: https://www.qmu.ac.uk/
 
 # Social network links
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
 profiles:
   - icon: at-symbol
-    url: 'mailto:your-email@example.com'
+    url: 'mailto:lsempe@3ieimpact.org'
     label: E-mail Me
-  - icon: brands/x
-    url: https://twitter.com/GetResearchDev
-  - icon: brands/instagram
-    url: https://www.instagram.com/
-  - icon: brands/github
-    url: https://github.com/gcushen
   - icon: brands/linkedin
-    url: https://www.linkedin.com/
-  - icon: academicons/google-scholar
-    url: https://scholar.google.com/
-  - icon: academicons/orcid
-    url: https://orcid.org/
+    url: https://www.linkedin.com/in/lucas-sempe/
+  - icon: brands/github
+    url: https://github.com/lsempe77
 
 interests:
-  - Artificial Intelligence
-  - Computational Linguistics
-  - Information Retrieval
+  - Impact Evaluation
+  - International Development
+  - Evidence Synthesis
+  - Health Systems
+  - Education Policy
 
 education:
-  - area: PhD Artificial Intelligence
-    institution: Stanford University
-    date_start: 2016-01-01
-    date_end: 2020-12-31
+  - area: PhD International Development
+    institution: University of East Anglia, UK
+    date_start: 2017-01-01
+    date_end: 2022-12-31
     summary: |
-      Thesis on _Why LLMs are awesome_. Supervised by [Prof Joe Smith](https://example.com). Presented papers at 5 IEEE conferences with the contributions being published in 2 Springer journals.
-    button:
-      text: 'Read Thesis'
-      url: 'https://example.com'
-  - area: MEng Artificial Intelligence
-    institution: Massachusetts Institute of Technology
-    date_start: 2016-01-01
-    date_end: 2020-12-31
+      Measurement and effects of wealth inequality and schools: evidence from PISA
+  - area: MSc Poverty Reduction: Policy and Practice
+    institution: University of London (SOAS), UK
+    date_start: 2013-09-01
+    date_end: 2014-09-01
     summary: |
-      GPA: 3.8/4.0
+      Appraisal of a learning coaching strategy in Peru in a results-based rationality
 
-      Courses included:
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - area: BSc Artificial Intelligence
-    institution: Massachusetts Institute of Technology
-    date_start: 2016-01-01
-    date_end: 2020-12-31
-    summary: |
-      GPA: 3.4/4.0
-      
-      Courses included:
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
 work:
-  - position: Director of Cloud Infrastructure
-    company_name: GenCoin
-    company_url: ''
-    company_logo: ''
-    date_start: 2021-01-01
+  - position: Senior Evaluation Specialist
+    company_name: International Initiative for Impact Evaluation (3ie)
+    company_url: https://www.3ieimpact.org/
+    date_start: 2024-01-01
     date_end: ''
-    summary: |2-
-      Responsibilities include:
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - position: Backend Software Engineer
-    company_name: X
-    company_url: ''
-    company_logo: ''
-    date_start: 2016-01-01
-    date_end: 2020-12-31
     summary: |
-      Responsibilities include:
-      - Migrated infrastructure to a new data center
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
-      - lorem ipsum dolor sit amet, consectetur adipiscing elit
+      - Research manager of multiple RCC projects: Artificial Intelligence and agriculture; the impact of climate change on railways.
+      - Project lead of rapid synthesis project: leveraging the use of AI in evidence synthesis.
+      - Director of RCC Impact and Open Access Fund.
+      - Research lead in RCC in developing a theory of change of evidence use in policy in LMICs.
+      - Grants reviewer (methodological expertise).
+      - Lead a mapping review studying alternative approaches to addressing impact evaluation and causality in fragile and conflict-affected settings.
+      - Creation of an innovation lab for schools in rural areas in Peru.
+  - position: Honorary Visiting Fellow
+    company_name: University of Oxford, Department of Psychiatry
+    company_url: https://www.psych.ox.ac.uk/
+    date_start: 2023-01-01
+    date_end: ''
+    summary: |
+      - Oxwell Student research group: quasi-experimental analysis of wellbeing and mental health of school-aged children and young people. Focusing on self-harm and online exposure.
+  - position: Research Fellow
+    company_name: Queen Margaret University - Institute of Global Health and Development
+    company_url: https://www.qmu.ac.uk/
+    date_start: 2022-01-01
+    date_end: 2024-01-01
+    summary: |
+      - REDRESS Project: systematic review of economic evaluations on skin NTDS; evaluation design, sampling strategy, data collection and analysis of health financing system and health workers costs; epidemiological analysis, quantitative evaluation of intervention to increase access of people with skin neglected tropical diseases to the health system in Liberia.
+      - UNCHR Project: quantitative analysis of secondary data (quasi experimental) on access to health for refugees and vulnerable migrant communities across six countries.
+      - Health financing: role of diaspora strengthening health systems; financial autonomy of primary health providers (for WHO); performance based budgeting (for WHO).
+      - Design and teaching MSc module on Epidemiology and biostatistics.
+  - position: Research Assistant / Associate
+    company_name: University of East Anglia - School of International Development
+    company_url: https://www.uea.ac.uk/
+    date_start: 2017-01-01
+    date_end: 2021-12-31
+    summary: |
+      - Quasi-experimental analysis of interventions in Brazil, Peru and Argentina integrating health and social protection for older and disabled people
+      - Data analysis on excess mortality and vaccination rollout for COVID-19 for Low- and Middle-Income Countries
+      - Evaluation of a programme for the prevention of young offenders in Norfolk, UK.
+  - position: Executive Director
+    company_name: Centro de Investigación del desarrollo educativo y liderazgo - Peru
+    company_url: ''
+    date_start: 2014-01-01
+    date_end: 2015-12-31
+    summary: |
+      - Led educational development and leadership initiatives in Peru.
 
 # Skills
 # Add your own SVG icons to `assets/media/icons/`
 skills:
   - name: Technical Skills
     items:
-      - name: Python
-        description: ''
-        percent: 80
-        icon: code-bracket
-      - name: Data Science
+      - name: Impact Evaluation
         description: ''
         percent: 100
         icon: chart-bar
-      - name: SQL
+      - name: Data Analysis
         description: ''
-        percent: 40
+        percent: 90
+        icon: code-bracket
+      - name: Evidence Synthesis
+        description: ''
+        percent: 90
         icon: circle-stack
+      - name: Epidemiology
+        description: ''
+        percent: 80
+        icon: stethoscope
+      - name: Policy Analysis
+        description: ''
+        percent: 80
+        icon: document
   - name: Hobbies
     color: '#eeac02'
     color_border: '#f0bf23'
     items:
       - name: Hiking
         description: ''
-        percent: 60
+        percent: 80
         icon: person-simple-walk
-      - name: Cats
-        description: ''
-        percent: 100
-        icon: cat
       - name: Photography
         description: ''
-        percent: 80
+        percent: 70
         icon: camera
+      - name: Music
+        description: ''
+        percent: 60
+        icon: music
 
 languages:
   - name: English
     percent: 100
-  - name: Chinese
-    percent: 75
+  - name: Spanish
+    percent: 100
   - name: Portuguese
-    percent: 25
+    percent: 60
 
 # Awards.
 #   Add/remove as many awards below as you like.
 #   Only `title`, `awarder`, and `date` are required.
 #   Begin multi-line `summary` with YAML's `|` or `|2-` multi-line prefix and indent 2 spaces below.
 awards:
-  - title: Neural Networks and Deep Learning
-    url: https://www.coursera.org/learn/neural-networks-deep-learning
-    date: '2023-11-25'
-    awarder: Coursera
-    icon: coursera
+  - title: Director of RCC Impact and Open Access Fund
+    date: '2024-01-01'
+    awarder: International Initiative for Impact Evaluation (3ie)
     summary: |
-      I studied the foundational concept of neural networks and deep learning. By the end, I was familiar with the significant technological trends driving the rise of deep learning; build, train, and apply fully connected deep neural networks; implement efficient (vectorized) neural networks; identify key parameters in a neural network’s architecture; and apply deep learning to your own applications.
-  - title: Blockchain Fundamentals
-    url: https://www.edx.org/professional-certificate/uc-berkeleyx-blockchain-fundamentals
-    date: '2023-07-01'
-    awarder: edX
-    icon: edx
+      Led the RCC Impact and Open Access Fund to promote evidence-based policy and open access research.
+  - title: REDRESS Project Lead
+    date: '2022-01-01'
+    awarder: Queen Margaret University
     summary: |
-      Learned:
-      - Synthesize your own blockchain solutions
-      - Gain an in-depth understanding of the specific mechanics of Bitcoin
-      - Understand Bitcoin’s real-life applications and learn how to attack and destroy Bitcoin, Ethereum, smart contracts and Dapps, and alternatives to Bitcoin’s Proof-of-Work consensus algorithm
-  - title: 'Object-Oriented Programming in R'
-    url: https://www.datacamp.com/courses/object-oriented-programming-with-s3-and-r6-in-r
-    certificate_url: https://www.datacamp.com
-    date: '2023-01-21'
-    awarder: datacamp
-    icon: datacamp
+      Led systematic review and evaluation projects on skin neglected tropical diseases in Liberia.
+  - title: Innovation Lab Creator
+    date: '2024-01-01'
+    awarder: 3ie
     summary: |
-      Object-oriented programming (OOP) lets you specify relationships between functions and the objects that they can act on, helping you manage complexity in your code. This is an intermediate level course, providing an introduction to OOP, using the S3 and R6 systems. S3 is a great day-to-day R programming tool that simplifies some of the functions that you write. R6 is especially useful for industry-specific analyses, working with web APIs, and building GUIs.
+      Created an innovation lab for schools in rural areas in Peru.
 ---
 
 ## About Me
 
-Chien Shiung Wu is a professor of artificial intelligence at the Stanford AI Lab. Her research interests include distributed robotics, mobile computing and programmable matter. She leads the Robotic Neurobiology group, which develops self-reconfiguring robots, systems of self-organizing robots, and mobile sensor networks.
+Lucas Sempé is a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie), with research interests in impact evaluation, evidence synthesis, health systems, and education policy. He has held research and teaching positions at the University of Oxford, Queen Margaret University, and University of East Anglia, and has led multiple international projects in development and health.
+
+Contact: lsempe@3ieimpact.org | +44 79 07 99 41 51 | Norwich, UK
