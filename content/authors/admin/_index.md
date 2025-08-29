@@ -39,8 +39,8 @@ education:
     institution: University of East Anglia, UK
     date_start: 2022-01-01
     date_end: 2024-12-31
-    thesis: Measurement and effects of wealth inequality and schools: evidence from PISA
-  - area: MSc Poverty Reduction: Policy and Practice
+    thesis: Measurement and effects of wealth inequality and schools. Evidence from PISA
+  - area: MSc Poverty Reduction. Policy and Practice
     institution: University of London (SOAS), UK
     date_start: 2013-09-01
     date_end: 2014-09-01
