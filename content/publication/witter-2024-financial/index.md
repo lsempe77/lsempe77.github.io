@@ -12,6 +12,7 @@ authors:
 - Inke Mathauer
 date: '2024-01-01'
 publishDate: '2025-08-29T12:17:04.656367Z'
+featured: true
 publication_types:
 - article-journal
 ---
