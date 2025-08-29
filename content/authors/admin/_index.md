@@ -29,10 +29,9 @@ role: Senior Evaluation Specialist
 organizations:
   - name: International Initiative for Impact Evaluation (3ie)
     url: https://www.3ieimpact.org/
-  - name: University of Oxford
+  - name: University of Oxford (Visiting Fellow)
     url: https://www.psych.ox.ac.uk/
-  - name: Queen Margaret University
-    url: https://www.qmu.ac.uk/
+
 
 # Social network links
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
@@ -188,6 +187,6 @@ awards:
 
 ## About Me
 
-Lucas Sempé is a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie), with research interests in impact evaluation, evidence synthesis, health systems, and education policy. He has held research and teaching positions at the University of Oxford, Queen Margaret University, and University of East Anglia, and has led multiple international projects in development and health.
+Lucas Sempé is a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie), with expertise in impact evaluation, evidence synthesis, health systems, and education policy. He has held research and teaching positions at the University of Oxford, Queen Margaret University, and University of East Anglia, and has led multiple international projects in development and health. Lucas is passionate about advancing evidence-based policy and innovative approaches in global development.
 
-Contact: lsempe@3ieimpact.org | +44 79 07 99 41 51 | Norwich, UK
+Contact: lsempe@3ieimpact.org | Norwich, UK
