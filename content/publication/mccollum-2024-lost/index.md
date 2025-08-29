@@ -18,4 +18,5 @@ publishDate: '2025-08-29T12:17:04.675153Z'
 publication_types:
 - article-journal
 publication: '*Tropical Medicine and Infectious Disease*'
+featured: true
 ---
