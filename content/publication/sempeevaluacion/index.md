@@ -8,7 +8,7 @@ authors:
 - B Castillo
 - A Figallo
 - Ey Verona Morán
-date: -01-01
+date: 2017-01-01
 publishDate: '2025-08-29T12:17:04.630951Z'
 publication_types:
 - article-journal
