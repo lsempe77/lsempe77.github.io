@@ -28,7 +28,7 @@ sections:
         color: black
         image:
           # Add your image background to `assets/media/`.
-          filename: modern_waves.svg
+          filename: modern-waves.svg
           filters:
             brightness: 1.0
           size: cover
@@ -39,11 +39,9 @@ sections:
       title: '📚 My Research'
       subtitle: ''
       text: |-
-        Use this area to speak to your mission. I'm a research scientist in the Moonshot team at DeepMind. I blog about machine learning, deep learning, and moonshots.
+  I am a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie), Research Fellow at Queen Margaret University, and Visiting Fellow at the University of Oxford (Psychiatry) and University of East Anglia (Social Work). My strengths include impact evaluations, evidence synthesis, educational, social protection and health research and policy, mental health in youth, and the use of large language models (LLMs) in research and applications. I lead and collaborate on projects to advance evidence-based decision-making in low- and middle-income countries.
 
-        I apply a range of qualitative and quantitative methods to comprehensively investigate the role of science and technology in the economy.
-        
-        Please reach out to collaborate 😃
+  Interested in collaborating or discussing research? Please reach out!
     design:
       columns: '1'
   - block: collection

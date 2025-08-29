@@ -1,6 +1,6 @@
 ---
 title: Teaching
-summary: My courses
+summary: I have designed and taught MSc modules on Epidemiology and Biostatistics, and regularly contribute guest lectures on impact evaluation, health systems, and evidence synthesis in international development.
 type: landing
 
 cascade:
