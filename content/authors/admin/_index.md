@@ -33,6 +33,7 @@ interests:
   - Impact Evaluation
   - Evidence Synthesis
   - International Development
+
 education:
   - area: PhD International Development
     institution: University of East Anglia, UK
@@ -69,11 +70,11 @@ skills:
 
 languages:
   - name: English
-    percent: 100
-  - name: Spanish
     percent: 90
+  - name: Spanish
+    percent: 100
   - name: Portuguese
-    percent: 60
+    percent: 100
 
 # Awards.
 #   Add/remove as many awards below as you like.
