@@ -33,10 +33,6 @@ interests:
   - Impact Evaluation
   - Evidence Synthesis
   - International Development
-  - Health Systems
-  - Education Policy
-
-
 education:
   - area: PhD International Development
     institution: University of East Anglia, UK
