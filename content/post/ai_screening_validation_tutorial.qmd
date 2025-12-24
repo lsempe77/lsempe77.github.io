@@ -1,0 +1,795 @@
+---
+title: "Why Fixed-Sample AI Screening Validation Fails"
+author: "Lucas Sempé"
+date: "`r Sys.Date()`"
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    code-fold: show
+    code-tools: true
+    number-sections: true
+    fig-width: 10
+    fig-height: 6
+    embed-resources: true
+    smooth-scroll: true
+    css: styles.css
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{css, echo=FALSE}
+.callout-important {
+  border-left: 5px solid #dc3545;
+  background-color: #f8d7da;
+}
+
+.callout-tip {
+  border-left: 5px solid #28a745;
+  background-color: #d4edda;
+}
+
+.callout-note {
+  border-left: 5px solid #17a2b8;
+  background-color: #d1ecf1;
+}
+
+.math-block {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.comparison-table {
+  font-size: 0.9em;
+}
+
+.key-insight {
+  background-color: #fff3cd;
+  border-left: 5px solid #ffc107;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 5px;
+}
+```
+
+# Executive Summary {.unnumbered}
+
+::: {.callout-important}
+## The Problem
+
+A **fixed-sample approach** suggests sampling just **122-300 excluded records** regardless of review size can validate 95% sensitivity. This is **statistically invalid** because it confuses **False Omission Rate** with **Sensitivity**.
+:::
+
+::: {.callout-tip}
+## The Solution
+
+An **adaptive stopping criteria approach** (Callaghan & Müller-Hansen, 2020) correctly accounts for review size by:
+
+- Sampling from **remaining unscreened** documents (not just excluded)
+- Using **hypergeometric hypothesis testing** 
+- Scaling sample size with documents remaining (60-80% of remaining)
+- Providing transparent confidence levels
+:::
+
+**Key Finding:** The same validation result (0/122) gives sensitivity guarantees ranging from **60% to 5%** depending on review size—a **12-fold difference**!
+
+---
+
+# Introduction
+
+## The Context
+
+Systematic reviews increasingly use AI/machine learning to screen thousands of documents. But how do we validate that the AI hasn't missed important studies? 
+
+Two approaches have been proposed:
+
+1. **Fixed-sample approach**: Sample 122-300 excluded records regardless of review size
+2. **Adaptive stopping criteria** (Callaghan & Müller-Hansen, 2020): Scale sampling with review size
+
+This tutorial proves why approach #1 fails and demonstrates how approach #2 works.
+
+## Setup
+
+```{r setup}
+# Load packages
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+
+# Set theme for all plots
+theme_set(theme_minimal(base_size = 13))
+
+# Custom colors
+color_fixed <- "#e74c3c"      # Red - fixed-sample approach
+color_adaptive <- "#2ecc71"   # Green - adaptive approach
+color_neutral <- "#3498db"    # Blue
+```
+
+---
+
+# The Fundamental Confusion
+
+## Two Different Metrics
+
+The fixed-sample approach conflates two distinct statistical measures:
+
+::: {.math-block}
+**False Omission Rate (FOR)**
+$$\text{FOR} = \frac{\text{FN}}{\text{FN} + \text{TN}}$$
+
+- Proportion of **excluded** records that were wrongly excluded
+- Denominator: All excluded records
+- What the fixed-sample approach actually measures
+:::
+
+::: {.math-block}
+**Sensitivity (Recall)**
+$$\text{Sensitivity} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$
+
+- Proportion of **all relevant** records that were found
+- Denominator: All relevant records (found + missed)
+- What we actually need for systematic reviews
+:::
+
+## The Critical Relationship
+
+Here's the mathematical bridge between them:
+
+::: {.math-block}
+$$\text{FN} = \text{FOR} \times \text{Total}_{\text{Excluded}}$$
+
+$$\text{Sensitivity} = \frac{\text{Total}_{\text{Included}}}{\text{Total}_{\text{Included}} + \text{FOR} \times \text{Total}_{\text{Excluded}}}$$
+:::
+
+::: {.key-insight}
+**Key Insight:** Sensitivity depends on **Total~Excluded~**, which varies dramatically by review size. The fixed-sample approach only controls FOR, not the absolute number of missed studies!
+:::
+
+---
+
+# Statistical Analysis
+
+## The Problem Demonstrated
+
+Let's examine what happens when we apply the fixed-sample validation (0 relevant found in 122 excluded) across different review sizes:
+
+```{r demonstrate-problem}
+# Function to calculate metrics
+calculate_metrics <- function(total_screened, total_included, 
+                              sample_size = 122, 
+                              relevant_in_sample = 0) {
+  
+  total_excluded <- total_screened - total_included
+  
+  # 97% CI for FOR using Clopper-Pearson
+  ci_result <- binom.test(relevant_in_sample, sample_size, conf.level = 0.97)
+  upper_FOR <- ci_result$conf.int[2]
+  
+  # Maximum false negatives
+  max_FN <- ceiling(upper_FOR * total_excluded)
+  
+  # Minimum sensitivity
+  TP <- total_included
+  min_sensitivity <- TP / (TP + max_FN)
+  
+  data.frame(
+    Scenario = paste0(total_screened, " total"),
+    Total_Screened = total_screened,
+    Total_Included = total_included,
+    Total_Excluded = total_excluded,
+    Upper_FOR_pct = round(upper_FOR * 100, 2),
+    Max_FN = max_FN,
+    Min_Sensitivity_pct = round(min_sensitivity * 100, 1)
+  )
+}
+
+# Generate scenarios
+scenarios <- bind_rows(
+  calculate_metrics(1000, 50),
+  calculate_metrics(5000, 50),
+  calculate_metrics(10000, 50),
+  calculate_metrics(30000, 50)
+)
+
+# Display table
+kable(scenarios, 
+      col.names = c("Scenario", "Total", "Included", "Excluded", 
+                    "Upper FOR (97% CI)", "Max Missed", "Min Sensitivity (%)"),
+      align = 'lrrrrrr') %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  row_spec(0, bold = TRUE, background = "#3498db", color = "white") %>%
+  row_spec(c(1,3), background = "#ecf0f1") %>%
+  column_spec(7, bold = TRUE, color = "white", background = "#e74c3c")
+```
+
+::: {.callout-important}
+## Shocking Result
+
+The **same validation** (0/122) gives minimum sensitivity ranging from **60.2% to 4.7%** - a **12.8-fold difference**!
+:::
+
+## Visualization
+
+```{r plot-sensitivity-decay, fig.cap="Sensitivity guarantee decreases dramatically as review size increases"}
+# Generate detailed data
+exclusion_sizes <- seq(500, 30000, by=500)
+sensitivity_data <- data.frame()
+
+for(excl in exclusion_sizes) {
+  result <- calculate_metrics(excl + 50, 50)
+  sensitivity_data <- rbind(sensitivity_data, result)
+}
+
+# Plot
+ggplot(sensitivity_data, aes(x = Total_Excluded, y = Min_Sensitivity_pct)) +
+  geom_line(color = color_fixed, size = 1.5) +
+  geom_point(color = color_fixed, size = 2, alpha = 0.6) +
+  geom_hline(yintercept = 95, linetype = "dashed", color = "black", size = 1) +
+  annotate("text", x = 15000, y = 97.5, label = "95% Target", 
+           size = 5, fontface = "bold") +
+  annotate("rect", xmin = 0, xmax = 30000, ymin = 0, ymax = 95, 
+           alpha = 0.1, fill = color_fixed) +
+  annotate("text", x = 25000, y = 50, 
+           label = "FAILS to guarantee\n95% sensitivity", 
+           size = 4, color = color_fixed, fontface = "bold") +
+  labs(
+    title = "Fixed-Sample Approach (122) Fails for Large Reviews",
+    subtitle = "Same validation result gives drastically different sensitivity guarantees",
+    x = "Number of Excluded Records",
+    y = "Minimum Guaranteed Sensitivity (%)",
+    caption = "Based on 97% confidence interval, 50 relevant studies found"
+  ) +
+  scale_y_continuous(breaks = seq(0, 100, 10), limits = c(0, 100)) +
+  theme(plot.title = element_text(face = "bold", size = 16),
+        plot.subtitle = element_text(size = 12))
+```
+
+## Scenario Comparison
+
+```{r plot-scenarios, fig.cap="Bar chart showing dramatic variation in sensitivity across review sizes"}
+# Select key scenarios for plot
+plot_scenarios <- scenarios %>%
+  mutate(Label = c("Small\n(1K)", "Medium\n(5K)", "Large\n(10K)", "Huge\n(30K)"))
+
+ggplot(plot_scenarios, aes(x = reorder(Label, -Min_Sensitivity_pct), 
+                            y = Min_Sensitivity_pct)) +
+  geom_col(fill = color_fixed, alpha = 0.8, width = 0.7) +
+  geom_hline(yintercept = 95, linetype = "dashed", color = "black", size = 1) +
+  geom_text(aes(label = paste0(Min_Sensitivity_pct, "%")), 
+            vjust = -0.5, size = 6, fontface = "bold") +
+  geom_text(aes(label = paste0("Max missed:\n", Max_FN, " studies")), 
+            vjust = 2, size = 3.5, color = "white", fontface = "bold") +
+  labs(
+    title = "Same Validation, Wildly Different Guarantees",
+    subtitle = "All scenarios: 0 relevant found in 122 excluded records sampled",
+    x = NULL,
+    y = "Minimum Sensitivity (%) at 97% Confidence"
+  ) +
+  ylim(0, 105) +
+  theme(plot.title = element_text(face = "bold", size = 16),
+        axis.text.x = element_text(size = 12, face = "bold"))
+```
+
+---
+
+# Formal Statistical Test
+
+## Hypothesis Test
+
+We formally test whether sensitivity is independent of exclusion set size:
+
+- **H~0~:** Sensitivity is independent of exclusion set size (the fixed-sample approach's implicit assumption)
+- **H~1~:** Sensitivity depends on exclusion set size (the adaptive approach's argument)
+
+```{r statistical-test}
+# Prepare data
+test_data <- sensitivity_data %>%
+  select(Total_Excluded, Min_Sensitivity_pct)
+
+# Linear regression
+lm_model <- lm(Min_Sensitivity_pct ~ Total_Excluded, data = test_data)
+lm_summary <- summary(lm_model)
+
+# Correlation test
+cor_test <- cor.test(test_data$Total_Excluded, 
+                     test_data$Min_Sensitivity_pct,
+                     method = "pearson")
+
+# Extract key statistics
+slope <- coef(lm_summary)[2, 1]
+se <- coef(lm_summary)[2, 2]
+t_stat <- coef(lm_summary)[2, 3]
+p_value <- coef(lm_summary)[2, 4]
+r_squared <- lm_summary$r.squared
+correlation <- cor_test$estimate
+```
+
+## Results
+
+::: {.math-block}
+**Linear Regression: Sensitivity ~ Exclusion Size**
+
+- Slope: `r sprintf("%.6f", slope)` (SE: `r sprintf("%.6f", se)`)
+- t-statistic: `r sprintf("%.2f", t_stat)`
+- **p-value: `r sprintf("%.2e", p_value)`** ✱✱✱
+- R²: `r sprintf("%.4f", r_squared)`
+
+**Pearson Correlation**
+
+- r = `r sprintf("%.4f", correlation)`
+- **p-value: `r sprintf("%.2e", cor_test$p.value)`** ✱✱✱
+:::
+
+::: {.callout-important}
+## Conclusion
+
+We **STRONGLY REJECT H~0~** with p < 0.001.
+
+Sensitivity is highly dependent on exclusion set size. the fixed-sample assumption of independence is statistically invalid.
+:::
+
+```{r plot-regression, fig.cap="Strong negative relationship between exclusion set size and sensitivity"}
+ggplot(test_data, aes(x = Total_Excluded, y = Min_Sensitivity_pct)) +
+  geom_point(color = color_neutral, size = 3, alpha = 0.6) +
+  geom_smooth(method = "lm", color = color_fixed, size = 1.5, se = TRUE) +
+  annotate("text", x = 20000, y = 50,
+           label = paste0("r = ", sprintf("%.3f", correlation),
+                         "\np < 0.001"),
+           size = 5, fontface = "bold") +
+  labs(
+    title = "Strong Evidence of Dependence",
+    subtitle = "Sensitivity decreases linearly with exclusion set size",
+    x = "Number of Excluded Records",
+    y = "Minimum Sensitivity (%)"
+  ) +
+  theme(plot.title = element_text(face = "bold", size = 16))
+```
+
+---
+
+# The Mathematical Relationship
+
+## FOR vs Sensitivity Curves
+
+Let's visualize how the same FOR translates to different sensitivities:
+
+```{r for-sensitivity-curves, fig.cap="Same false omission rate leads to different sensitivities based on review size"}
+# Generate data
+FOR_range <- seq(0, 0.05, by = 0.0005)
+excluded_sizes <- c(500, 5000, 20000)
+included <- 50
+
+curves_data <- expand.grid(
+  FOR = FOR_range,
+  Excluded_Size = excluded_sizes
+) %>%
+  mutate(
+    FN = FOR * Excluded_Size,
+    Sensitivity = included / (included + FN) * 100,
+    Size_Label = factor(
+      paste0(format(Excluded_Size, big.mark = ","), " excluded"),
+      levels = c("500 excluded", "5,000 excluded", "20,000 excluded")
+    )
+  )
+
+ggplot(curves_data, aes(x = FOR * 100, y = Sensitivity, 
+                        color = Size_Label, group = Size_Label)) +
+  geom_line(size = 1.5) +
+  geom_vline(xintercept = 3.4, linetype = "dotted", color = "gray50", size = 1) +
+  annotate("text", x = 3.7, y = 65, 
+           label = "Christian's\nupper bound\n(3.4%)", 
+           size = 4, hjust = 0) +
+  scale_color_manual(
+    values = c("#27ae60", "#3498db", "#e74c3c"),
+    name = "Review Size"
+  ) +
+  labs(
+    title = "Why FOR ≠ Sensitivity: The Scaling Problem",
+    subtitle = "Same false omission rate leads to different sensitivities",
+    x = "False Omission Rate (%)",
+    y = "Sensitivity (%)",
+    caption = "Assumes 50 relevant studies found"
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    legend.position = "right",
+    legend.text = element_text(size = 11)
+  )
+```
+
+::: {.key-insight}
+At the fixed-sample upper FOR bound of 3.4%:
+
+- **Small review (500 excluded):** 78% sensitivity
+- **Medium review (5,000 excluded):** 23% sensitivity  
+- **Large review (20,000 excluded):** 7% sensitivity
+
+**That's an 11-fold difference!**
+:::
+
+---
+
+# Required Sample Sizes
+
+## What's Actually Needed?
+
+To guarantee **95% sensitivity** with **97% confidence**, sample sizes must scale:
+
+```{r required-samples}
+# Function to calculate required sample size
+required_sample_for_sensitivity <- function(total_excluded, 
+                                           total_included,
+                                           target_sensitivity = 0.95,
+                                           confidence = 0.97) {
+  
+  max_tolerable_FN <- floor(total_included * ((1/target_sensitivity) - 1))
+  max_tolerable_FOR <- max_tolerable_FN / total_excluded
+  
+  alpha <- 1 - confidence
+  required_n <- ceiling(log(alpha) / log(1 - max_tolerable_FOR))
+  
+  list(
+    required_sample = required_n,
+    max_tolerable_FN = max_tolerable_FN,
+    ratio_to_christian = required_n / 122
+  )
+}
+
+# Calculate for scenarios
+required_data <- scenarios %>%
+  rowwise() %>%
+  mutate(
+    Required = required_sample_for_sensitivity(Total_Excluded, Total_Included)$required_sample,
+    Ratio = required_sample_for_sensitivity(Total_Excluded, Total_Included)$ratio_to_christian
+  ) %>%
+  select(Scenario, Total_Excluded, Required, Ratio) %>%
+  mutate(Christian = 122)
+
+kable(required_data,
+      col.names = c("Scenario", "Excluded", "Actually Needed", "Ratio (×)", "Fixed-Sample"),
+      align = 'lrrrr',
+      digits = 1) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  row_spec(0, bold = TRUE, background = "#2ecc71", color = "white") %>%
+  column_spec(3, bold = TRUE, background = "#d4edda") %>%
+  column_spec(4, bold = TRUE, color = color_fixed) %>%
+  column_spec(5, background = "#f8d7da", color = color_fixed)
+```
+
+```{r plot-required, fig.cap="Sample size must scale exponentially with exclusion set size"}
+ggplot(required_data, aes(x = Total_Excluded)) +
+  geom_line(aes(y = Required), color = color_adaptive, size = 2) +
+  geom_point(aes(y = Required), color = color_adaptive, size = 4) +
+  geom_hline(yintercept = 122, color = color_fixed, 
+             linetype = "dashed", size = 1.5) +
+  annotate("text", x = 20000, y = 5000, 
+           label = "Actually needed\n(adaptive approach)", 
+           color = color_adaptive, size = 5, fontface = "bold") +
+  annotate("text", x = 20000, y = 1000, 
+           label = "Fixed-sample approach\n(inadequate!)", 
+           color = color_fixed, size = 5, fontface = "bold") +
+  scale_y_log10(labels = scales::comma) +
+  labs(
+    title = "Sample Size Must Scale With Review Size",
+    subtitle = "To guarantee 95% sensitivity at 97% confidence",
+    x = "Number of Excluded Records",
+    y = "Required Sample Size (log scale)",
+    caption = "Note: y-axis is logarithmic"
+  ) +
+  theme(plot.title = element_text(face = "bold", size = 16))
+```
+
+::: {.callout-important}
+## The "No Free Lunch" Principle
+
+For large reviews (30,000 excluded), you need **52,509 samples** - that's **430× more** than the fixed-sample approach suggests!
+
+You cannot achieve:
+- High confidence (97%)  
+- High recall (95%)
+- Fixed small sample (122)
+- Regardless of review size
+
+**Pick two.** This is fundamental to statistical inference.
+:::
+
+---
+
+# The Adaptive Stopping Criteria Approach
+
+## The Key Differences
+
+```{r comparison-table}
+comparison <- data.frame(
+  Feature = c(
+    "What to sample",
+    "Sample size strategy",
+    "What it measures",
+    "Accounts for active learning",
+    "Statistical framework",
+    "Small review",
+    "Large review",
+    "Huge review",
+    "Reliability",
+    "Transparency"
+  ),
+  Fixed_Sample = c(
+    "AI-excluded set only",
+    "Fixed: 122-300",
+    "False Omission Rate",
+    "No",
+    "CI for proportion",
+    "122 samples",
+    "122 samples (inadequate)",
+    "122 samples (very inadequate)",
+    "Unreliable (12× variance)",
+    "Unclear assumptions"
+  ),
+  Adaptive = c(
+    "Remaining unscreened docs",
+    "Scales with remaining (60-80%)",
+    "Hypothesis test for recall",
+    "Yes (implicitly)",
+    "Hypergeometric test",
+    "~40 samples (80% of 50)",
+    "~400 samples (80% of 500)",
+    "~800 samples (80% of 1000)",
+    "Reliable (95% hit target)",
+    "Clear H₀, p-values, confidence"
+  )
+)
+
+kable(comparison,
+      col.names = c("Feature", "Fixed-Sample Approach ✗", "Adaptive Approach ✓"),
+      align = 'lll') %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  row_spec(0, bold = TRUE, background = "#34495e", color = "white") %>%
+  column_spec(2, background = "#fadbd8", border_right = TRUE) %>%
+  column_spec(3, background = "#d4edda") %>%
+  column_spec(1, bold = TRUE, width = "3cm")
+```
+
+## The Hypergeometric Test
+
+The adaptive approach uses proper hypothesis testing:
+
+::: {.math-block}
+**Setup:**
+
+- **ρ~seen~** = relevant documents found so far (e.g., 50)
+- **N** = documents remaining unscreened
+- **τ~tar~** = target recall (e.g., 0.95)
+
+**Calculate K~tar~** (minimum relevant remaining if at target):
+$$K_{tar} = \lceil \frac{\rho_{seen}}{\tau_{tar}} - \rho_{seen} \rceil$$
+
+**Null hypothesis:** K ≥ K~tar~ (i.e., recall < target)
+
+**Test:** Sample n from N remaining, find k relevant
+
+$$p = P(X \leq k \mid N, K_{tar}, n) \quad \text{where } X \sim \text{Hypergeometric}(N, K_{tar}, n)$$
+
+**Decision:** If p < 0.05 → **Reject H~0~ → STOP!**
+:::
+
+## Worked Example
+
+```{r max-example}
+# Function for the adaptive stopping criterion
+calculate_max_stopping <- function(total_docs, docs_screened, relevant_found,
+                                   sample_size, relevant_in_sample,
+                                   target_recall = 0.95, confidence = 0.95) {
+  
+  N <- total_docs - docs_screened
+  K_tar <- ceiling((relevant_found / target_recall) - relevant_found)
+  
+  p_value <- phyper(relevant_in_sample, K_tar, N - K_tar, sample_size)
+  can_stop <- p_value < (1 - confidence)
+  
+  data.frame(
+    Sample_Size = sample_size,
+    Docs_Remaining = N,
+    K_tar = K_tar,
+    Relevant_Found = relevant_in_sample,
+    P_Value = round(p_value, 4),
+    Decision = ifelse(can_stop, "✓ STOP", "Continue")
+  )
+}
+
+# Large review example: 10,000 total, 9,500 screened, 50 found
+sample_sizes <- c(50, 100, 200, 300, 400)
+max_results <- data.frame()
+
+for(n in sample_sizes) {
+  result <- calculate_max_stopping(
+    total_docs = 10000,
+    docs_screened = 9500,
+    relevant_found = 50,
+    sample_size = n,
+    relevant_in_sample = 0
+  )
+  max_results <- rbind(max_results, result)
+}
+
+kable(max_results,
+      col.names = c("Sample Size", "Remaining", "K_tar", 
+                    "Found in Sample", "p-value", "Decision"),
+      align = 'rrrrrc') %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  row_spec(0, bold = TRUE, background = color_adaptive, color = "white") %>%
+  row_spec(which(max_results$Decision == "✓ STOP"), 
+           bold = TRUE, background = "#d4edda") %>%
+  column_spec(6, bold = TRUE)
+```
+
+::: {.callout-tip}
+## Result
+
+For a large review (10,000 total, 500 remaining):
+
+- Need to sample **400 of 500** remaining documents
+- If you find **0 relevant**, p-value drops to 0.008
+- Can **stop with confidence** that 95% recall achieved!
+:::
+
+---
+
+# Practical Recommendations
+
+## Which Method Should You Use?
+
+```{r recommendation-flowchart, echo=FALSE, fig.height=8, fig.cap="Decision tree for choosing validation approach"}
+# Create a simple decision tree visualization
+decision_data <- data.frame(
+  x = c(5, 2.5, 7.5, 1.5, 3.5, 6.5, 8.5),
+  y = c(4, 3, 3, 2, 2, 2, 2),
+  label = c(
+    "How many documents\nremaining?",
+    "<1,000",
+    ">1,000",
+    "Fixed-sample: ~122\n(May work)",
+    "Adaptive: Scales\n(Recommended)",
+    "Fixed-sample: 122\n(INADEQUATE)",
+    "Adaptive: Scales\n(REQUIRED)"
+  ),
+  color = c("question", "small", "large", "fixed", "adaptive", "fixed_bad", "adaptive_good")
+)
+
+ggplot(decision_data, aes(x = x, y = y)) +
+  geom_segment(aes(x = 5, y = 3.7, xend = 2.5, yend = 3.2), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_segment(aes(x = 5, y = 3.7, xend = 7.5, yend = 3.2), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_segment(aes(x = 2.5, y = 2.7, xend = 1.5, yend = 2.2), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_segment(aes(x = 2.5, y = 2.7, xend = 3.5, yend = 2.2), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_segment(aes(x = 7.5, y = 2.7, xend = 6.5, yend = 2.2), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_segment(aes(x = 7.5, y = 2.7, xend = 8.5, yend = 2.2), 
+               arrow = arrow(length = unit(0.3, "cm")), size = 1) +
+  geom_label(aes(label = label, fill = color), 
+             size = 4, fontface = "bold", color = "white",
+             label.padding = unit(0.5, "lines")) +
+  scale_fill_manual(values = c(
+    "question" = "#34495e",
+    "small" = "#3498db",
+    "large" = "#3498db",
+    "fixed" = "#e67e22",
+    "adaptive" = "#27ae60",
+    "fixed_bad" = "#e74c3c",
+    "adaptive_good" = "#27ae60"
+  )) +
+  theme_void() +
+  theme(legend.position = "none") +
+  coord_cartesian(xlim = c(0, 10), ylim = c(1, 5))
+```
+
+## Implementation Guide
+
+::: {.callout-tip}
+## Recommended: Adaptive Approach
+
+**R Package:** `buscarR`  
+**GitHub:** https://github.com/mcallaghan/buscarR
+
+```r
+# Install
+devtools::install_github("mcallaghan/buscarR")
+
+# Use
+library(buscarR)
+
+# Your screening data
+df <- data.frame(
+  relevant = c(1, 1, 1, ..., 0, NA, NA),  # 1/0/NA
+  seen = c(1, 1, 1, ..., 1, 0, 0)          # 1/0
+)
+
+# Test stopping criterion
+result <- calculate_h0(df, recall_target = 0.95)
+
+# If p < 0.05, you can stop!
+```
+:::
+
+---
+
+# Conclusions
+
+## Key Takeaways
+
+::: {.callout-important icon=false}
+### 1. The Fixed-Sample Approach is Statistically Invalid
+
+- Confuses **False Omission Rate** with **Sensitivity**
+- Ignores that FN scales with exclusion set size
+- Same validation gives 12× different sensitivity guarantees
+- Formally tested: p < 0.001 for dependence on review size
+:::
+
+::: {.callout-tip icon=false}
+### 2. The Adaptive Approach is Statistically Sound
+
+- Samples from **remaining unscreened** documents
+- Uses proper **hypergeometric hypothesis testing**
+- Sample size **scales** appropriately (60-80% of remaining)
+- Validated on real systematic review datasets
+- Achieves target recall 95% of the time
+:::
+
+::: {.callout-note icon=false}
+### 3. No Free Lunch in Statistics
+
+You cannot have:
+- High confidence (97%) **AND**
+- High recall (95%) **AND**  
+- Fixed small sample (122) **AND**
+- Work for all review sizes
+
+**Sample size must scale.** This is not a bug, it's statistics!
+:::
+
+## References
+
+::: {#refs}
+**Primary Reference:**
+
+Callaghan, M.W., & Müller-Hansen, F. (2020). Statistical stopping criteria for automated screening in systematic reviews. *Systematic Reviews*, 9:273. https://doi.org/10.1186/s13643-020-01521-4
+
+**Supporting Materials:**
+
+- buscarR package: https://github.com/mcallaghan/buscarR
+- Interactive tutorial: https://apsis.mcc-berlin.net/project/buscar/
+:::
+
+---
+
+# Appendix: Full Code
+
+For complete reproducibility, all code used in this tutorial is available:
+
+```{r show-all-code, eval=FALSE}
+# See the "Code" button in the top-right to download this .qmd file
+# Or visit: [your-github-repo]
+```
+
+---
+
+::: {.callout-note}
+## About This Tutorial
+
+Created: `r Sys.Date()`  
+Author: Lucas (3ie)  
+License: CC BY 4.0
+
+For questions or corrections: [your-email]
+:::
