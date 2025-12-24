@@ -12,7 +12,8 @@ authors:
 - Inke Mathauer
 date: '2024-01-01'
 publishDate: '2025-08-29T12:17:04.656367Z'
-featured: true
+featured: false
 publication_types:
 - article-journal
+summary: "Working paper version - see 2025 BMC Health Services Research publication for final version."
 ---

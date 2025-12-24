@@ -10,7 +10,7 @@ authors:
 - Inke Mathauer
 date: '2025-01-01'
 publishDate: '2025-01-01T00:00:00.000000Z'
-featured: false
+featured: true
 publication_types:
 - article-journal
 publication: "BMC Health Services Research"
