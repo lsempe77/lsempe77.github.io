@@ -1,5 +1,6 @@
 ---
 title: Systematic Review App
+date: 2024-06-01
 links:
   - type: site
     url: https://systematic-review.vercel.app/
@@ -10,6 +11,9 @@ tags:
   - Systematic Review
   - Evidence Synthesis
   - Web App
+image:
+  caption: 'Systematic Review App'
+  focal_point: Smart
 ---
 
 This app enables researchers to conduct systematic reviews efficiently, with features for data extraction, analysis, and interactive visualization.
