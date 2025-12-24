@@ -1,7 +1,7 @@
 ---
 title: "Mapping Research Institutions in Fragile States Using AI"
 summary: "Combining web search AI, fuzzy matching, and LLM-powered verification to map research capacity in conflict-affected regions."
-date: 2024-11-05
+date: 2025-11-05
 authors:
   - admin
 tags:

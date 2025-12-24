@@ -1,7 +1,7 @@
 ---
 title: "Polite Web Scraping for Development Research: FCDO Business Cases"
 summary: "Building an ethical web scraper to collect UK development programme documents for research and accountability analysis."
-date: 2024-11-15
+date: 2025-11-15
 authors:
   - admin
 tags:

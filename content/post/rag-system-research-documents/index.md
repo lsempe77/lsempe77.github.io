@@ -1,7 +1,7 @@
 ---
 title: "Building a RAG System for Research Document Search"
 summary: "Implementing a Retrieval-Augmented Generation system with FAISS, sentence transformers, and SQLite to query hundreds of research PDFs with semantic search."
-date: 2024-11-05
+date: 2025-11-05
 authors:
   - admin
 tags:

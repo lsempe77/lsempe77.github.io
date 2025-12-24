@@ -1,7 +1,7 @@
 ---
 title: "LLM-Powered Structured Data Extraction for Systematic Reviews"
 summary: "Building a production pipeline to extract structured metadata from hundreds of research PDFs using GPT-4 and local LLMs with carefully crafted prompts."
-date: 2024-11-20
+date: 2025-11-20
 authors:
   - admin
 tags:

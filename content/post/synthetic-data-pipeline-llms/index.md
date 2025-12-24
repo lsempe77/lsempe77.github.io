@@ -1,7 +1,7 @@
 ---
 title: "Building a Multi-Model Synthetic Data Pipeline for ML Training"
 summary: "How to create reproducible, auditable synthetic data using multiple LLM providers for training machine learning models in evidence synthesis."
-date: 2024-11-28
+date: 2025-11-28
 authors:
   - admin
 tags:

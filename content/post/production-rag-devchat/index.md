@@ -1,7 +1,7 @@
 ---
 title: "Building a Production RAG System for Development Research"
 summary: "Architecture and lessons learned from DevChat, a state-of-the-art retrieval-augmented generation system for exploring 3ie's Development Evidence Portal."
-date: 2024-12-10
+date: 2025-12-10
 authors:
   - admin
 tags:

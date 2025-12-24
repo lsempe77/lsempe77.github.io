@@ -15,8 +15,8 @@ tags:
 categories:
   - Tutorials
   - AI Tools
-date: 2024-12-24
-lastmod: 2024-12-24
+date: 2025-12-24
+lastmod: 2025-12-24
 featured: true
 draft: false
 

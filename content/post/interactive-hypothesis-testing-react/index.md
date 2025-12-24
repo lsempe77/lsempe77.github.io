@@ -1,7 +1,7 @@
 ---
 title: "Interactive Hypothesis Testing Visualization with React"
 summary: "Building an educational React component to teach statistical hypothesis testing, Type I/II errors, and statistical power through progressive disclosure."
-date: 2024-10-15
+date: 2025-10-15
 authors:
   - admin
 tags:

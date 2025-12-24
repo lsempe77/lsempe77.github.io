@@ -1,7 +1,7 @@
 ---
 title: "Spatial Analysis of Research in Conflict Zones with R"
 summary: "Combining LLM-extracted location data with Uppsala conflict data to map where research has been conducted relative to conflict intensity."
-date: 2024-10-25
+date: 2025-10-25
 authors:
   - admin
 tags:

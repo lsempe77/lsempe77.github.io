@@ -1,7 +1,7 @@
 ---
 title: "Building a Collaborative Study Review System with R Shiny"
 summary: "How to create a multi-user impact evaluation review platform with Google Drive integration, role-based access, and real-time collaboration."
-date: 2024-10-25
+date: 2025-10-25
 authors:
   - admin
 tags:
