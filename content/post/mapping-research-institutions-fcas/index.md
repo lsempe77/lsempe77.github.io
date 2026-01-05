@@ -39,6 +39,8 @@ Together, these provided broad coverage of development research with author affi
 
 ## The Multi-Step Verification Pipeline
 
+To tackle this data chaos, I designed a multi-stage verification pipeline that mimics how a human researcher would manually verify an institution, but at scale. We start by using AI to perform intelligent web searches, verifying the existence of each entity. This is followed by website-based deduplication and fuzzy string matching to consolidate variations. Finally, we employ an LLM-powered audit to catch subtle classification errors that traditional algorithms miss, resulting in a clean, verified directory derived from thousands of messy records.
+
 ```
 ┌────────────────────────────────────────────────────────────────┐
 │              INSTITUTION VERIFICATION PIPELINE                  │

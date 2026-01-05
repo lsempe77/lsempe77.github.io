@@ -21,13 +21,13 @@ featured: true
 
 ## From Prototype to Production
 
-DevChat evolved from a simple chatbot into a full **Research Workbench**—a production-grade RAG system for exploring academic studies from 3ie's Development Evidence Portal. This post shares the architecture decisions, implementation details, and lessons learned.
+DevChat began as a simple experiment—a basic chatbot prototype designed to see if we could chat with a few PDFs. However, as we scaled it up to ingest thousands of studies from 3ie's Development Evidence Portal, it quickly evolved into a full-fledged **Research Workbench**. Navigating the transition from a weekend prototype to a production-grade system required solving complex challenges in retrieval accuracy, hallucination control, and user interface design. This post breaks down the architectural decisions we made, the specific implementation details that mattered, and the hard-won lessons we learned along the way.
 
 **Live Demo:** [dev-chat-frontend.vercel.app](https://dev-chat-frontend.vercel.app/)
 
 ## Architecture Overview
 
-The system implements a modern RAG pipeline with multiple retrieval strategies and adaptive synthesis:
+To handle the complexity of academic queries, we couldn't rely on a simple "retrieve and generate" loop. Instead, the system implements a modern, sophisticated RAG pipeline that employs multiple retrieval strategies and an adaptive synthesis layer. This ensures that whether a user asks a simple factual question or requires a complex cross-study comparison, the system routes and processes the query effectively.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐

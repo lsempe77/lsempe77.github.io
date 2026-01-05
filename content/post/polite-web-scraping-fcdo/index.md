@@ -28,13 +28,7 @@ I wrote a scraper, but I wanted to do it right—no hammering the server, proper
 
 ## Ethical Scraping Principles
 
-Before writing any code, we established key principles:
-
-1. **Rate Limiting**: 2-second delays between requests
-2. **Identification**: Proper User-Agent headers identifying our research purpose
-3. **Graceful Failure**: Retry logic with exponential backoff
-4. **Respect for Resources**: Don't overwhelm the server
-5. **Compliance**: Adhere to open data licensing
+Ethical scraping of government data requires a "polite" approach that prioritizes server stability and transparency over speed. We established a strict protocol to ensure our research didn't disrupt public access: enforcing 2-second delays between requests to minimize load, sending proper User-Agent headers so administrators can identify us, and implementing logic to back off exponentially if errors occur. This approach ensures we gather the necessary data without mimicking a denial-of-service attack.
 
 ```python
 class FCDOScraper:

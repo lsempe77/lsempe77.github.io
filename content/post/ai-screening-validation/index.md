@@ -49,14 +49,9 @@ projects: []
 
 ### The Context
 
-Systematic reviews increasingly use AI/machine learning to screen thousands of documents. But how do we validate that the AI hasn't missed important studies? 
+Systematic reviews increasingly rely on artificial intelligence and machine learning to bear the load of screening thousands of documents. This automation promises efficiency, but it introduces a critical new risk: reliability. How do we statistically validatethat the AI hasn't discarded important, relevant studies? The field has seen two primary validation frameworks emerge to answer this question.
 
-Two approaches have been proposed:
-
-1. **Fixed-sample approach**: Sample 122-300 excluded records regardless of review size
-2. **Adaptive stopping criteria** (Callaghan & Müller-Hansen, 2020): Scale sampling with review size
-
-This tutorial proves why approach #1 fails and demonstrates how approach #2 works.
+The first is a **fixed-sample approach**, which suggests checking a set number (often 122-300) of excluded records regardless of the total volume. The second is an **adaptive stopping criteria approach** (proposed by Callaghan & Müller-Hansen, 2020), which scales the sampling effort relative to the review size. This tutorial demonstrates mathematically why the first approach is fundamentally flawed and how the second provides a robust statistical guarantee.
 
 ---
 
@@ -64,7 +59,7 @@ This tutorial proves why approach #1 fails and demonstrates how approach #2 work
 
 ### Two Different Metrics
 
-The fixed-sample approach conflates two distinct statistical measures:
+The core issue with the fixed-sample approach is a statistical conflation: it confuses two distinct measures of performance. By focusing on the wrong metric, researchers can end up with a false sense of security about their screening quality.
 
 **False Omission Rate (FOR)**
 

@@ -35,18 +35,13 @@ links:
 
 ## The Challenge
 
-Systematic reviews and evidence maps often contain thousands of studies. How do you make this wealth of information accessible to policymakers and researchers who need quick answers?
+Systematic reviews and evidence maps form the backbone of evidence-based policy, often aggregating thousands of individual studies. However, making this wealth of information accessible is a significant hurdle. Policymakers and researchers need quick, reliable answers, but they are often forced to choose between slow, expert-dependent manual searches or simple keyword searches that miss context and drown them in irrelevant results. Free-form LLM queries offer a modern alternative but lack grounding in the specific evidence base, making them prone to dangerous hallucinations.
 
-Traditional approaches require either:
-- **Manual search**: Time-consuming, requires expertise
-- **Simple keyword search**: Misses semantic meaning, returns too many irrelevant results
-- **Free-form ChatGPT queries**: Prone to hallucinations, no grounding in your actual evidence base
-
-I built a **Retrieval-Augmented Generation (RAG)** system that solves these problems by combining semantic search with LLM synthesis—grounded in actual research evidence.
+I built a **Retrieval-Augmented Generation (RAG)** system that bridges this gap. By combining semantic search with LLM synthesis, we can generate answers that are both instant and strictly grounded in the actual research evidence.
 
 ## The Solution: RAG Architecture
 
-The system uses a four-stage pipeline:
+To ensuring accuracy and relevance, the system uses a robust four-stage pipeline. This architecture is designed to progressively filter and refine information, ensuring that the LLM only receives high-quality, relevant context for its final synthesis.
 
 ```
 User Query → Domain Gating → Semantic Search (FAISS) → LLM Synthesis → Cited Answer

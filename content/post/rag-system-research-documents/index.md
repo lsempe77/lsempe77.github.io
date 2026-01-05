@@ -29,6 +29,8 @@ That's when I built this RAG system. It's not fancy, but it works: I can now ask
 
 ## System Architecture
 
+The architecture relies on a straightforward flow: documents are ingested, processed, and indexed for semantic retrieval. We use PyMuPDF for robust text extraction, identifying document structure before chopping text into manageable pieces. These chunks form the basis of our vector index, which allows us to find relevant passages based on meaning rather than just keyword matches.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      RAG ARCHITECTURE                           │
@@ -62,6 +64,8 @@ That's when I built this RAG system. It's not fancy, but it works: I can now ask
 ```
 
 ## Step 1: Text Extraction and Chunking
+
+The foundation of any RAG system is quality data ingestion. We start by extracting raw text from PDFs using PyMuPDF, which handles layout analysis better than older libraries. Once extracted, the text is split into overlapping chunks—overlapping is crucial because it ensures that context isn't lost at the arbitrary cut points between chunks.
 
 ```python
 import pymupdf  # PyMuPDF

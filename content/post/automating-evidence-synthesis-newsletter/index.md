@@ -36,13 +36,7 @@ So I automated it. Now a script monitors these sources, deduplicates by DOI, and
 
 ## The Solution: AI-Powered Newsletter Generator
 
-I built a pipeline that:
-
-1. **Fetches** the latest research from multiple sources
-2. **Deduplicates** by DOI to avoid repeats
-3. **Finds** open access PDFs via Unpaywall
-4. **Uses an AI Editor** to write practitioner-focused summaries
-5. **Outputs** a ready-to-publish Markdown newsletter
+To solve this, I architected an automated pipeline that acts as a comprehensive research assistant. It continuously scans multiple academic repositories—including OpenAlex, PubMed, and arXiv—to ingest the latest relevant papers. The system then automatically deduplicates these entries by DOI and retrieves available open-access PDFs, preparing a clean feed for the next stage of processing without me lifting a finger.
 
 ## Architecture Overview
 
@@ -86,7 +80,7 @@ The heart of the system is an LLM agent (via OpenRouter/OpenAI) that:
 
 Instead of academic titles like:
 > "A Systematic Evaluation of Large Language Model Performance in Risk of Bias Assessment Tasks"
-
+core of the value proposition is an AI Editor agent, powered by OpenRouter, which transforms dry metadata into a highly readable newsletter. Instead of just listing titles, the agent is prompted to act like a senior editor: it rewrites academic jargon into catchy, practitioner-focused headlines and generates "So What?" summaries that contextualize why a paper matters for evidence synthesis. It also handles the categorization and relevance scoring, ensuring that only the most impactful research makes it to my inbox.
 It generates:
 > "ChatGPT-4o Shows Promise for Data Extraction, Struggles with Bias Assessment"
 

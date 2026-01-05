@@ -54,10 +54,7 @@ Let's explore AI opportunities at each stage.
 
 ## Stage 1: Define Research Question
 
-### What AI Can Do
-- Suggest PICO/PECO elements from natural language descriptions
-- Refine and clarify research questions
-- Identify related systematic reviews to avoid duplication
+Defining a precise research question is the hardest part of any review. AI tools can act as a sparring partner here, helping to translate vague natural language ideas into structured PICO (Population, Intervention, Comparison, Outcome) frameworks. Beyond just refinement, they can help identify existing systematic reviews on the same topic—saving you from duplicating work that’s already been done.
 
 ### Tools & Resources
 | Tool | Use Case |
@@ -80,10 +77,7 @@ reduction in Sub-Saharan Africa. Help me define:
 
 ## Stage 2: Write Protocol & Register
 
-### What AI Can Do
-- Draft protocol sections based on templates
-- Ensure completeness against PRISMA-P checklist
-- Suggest methodology based on review type
+Once the question is set, writing the protocol ensures transparency and rigor. LLMs are excellent at drafting standard protocol sections based on templates and checking your draft against the PRISMA-P checklist for completeness. However, never let an AI write the methodology unsupervised—use it to generate drafts that you refine and validate carefully.
 
 ### Tools & Resources
 | Tool | Use Case |

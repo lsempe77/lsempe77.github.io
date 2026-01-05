@@ -64,7 +64,7 @@ Our synthetic data pipeline is an 8-step process that generates complete "study 
 
 ## Multi-Provider Support
 
-A key feature is support for multiple LLM providers, allowing comparison of output quality and cost-efficiency:
+To ensure the pipeline remains resilient and cost-effective, I engineered it to be provider-agnostic. Relying on a single LLM API is risky due to potential downtime or rate limit changes. By abstracting the client logic, the system can seamlessly switch between OpenAI, Claude, Grok, Mistral, or Gemini, allowing us to compare output quality across models and optimize for the best price-performance ratio for each specific generation step.
 
 ```python
 from src.core.llm_clients import (

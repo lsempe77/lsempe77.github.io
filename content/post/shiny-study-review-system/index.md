@@ -72,7 +72,7 @@ I spent a weekend building this Shiny app instead. It's not as polished as Covid
 
 ### 1. Authentication System
 
-Role-based access controls what users can do:
+We implemented a robust authentication system to ensure data security and proper workflow management. By strictly defining user roles, we control access privileges: administrators manage the overall project settings, while reviewers are restricted to their assigned tasks, preventing unauthorized changes to the core protocol.
 
 ```r
 # auth.R - Authentication and role management

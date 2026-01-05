@@ -26,12 +26,7 @@ The problem isn't the math—it's presenting everything at once. So I built an i
 
 ## The Pedagogical Approach
 
-Rather than presenting the full 2×2 decision matrix at once (which can overwhelm), we:
-
-1. Start with the **null hypothesis** explanation
-2. Progressively reveal each quadrant with context
-3. Build understanding of error types and power
-4. Summarize key takeaways
+The pedagogical core of this tool is the concept of "progressive disclosure." Presenting a full 2×2 decision matrix all at once often overwhelms students, leading to cognitive overload before they grasp the fundamental concepts. Instead, we guide the learner through a narrative journey: starting with the null hypothesis assumption, then revealing correct decisions, and finally introducing the nuanced concepts of errors. This scaffolding ensures that the student builds a solid intuition for each component before seeing how they interact in the complete statistical picture.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐

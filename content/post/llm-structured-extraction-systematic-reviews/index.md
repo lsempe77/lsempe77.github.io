@@ -51,12 +51,7 @@ Turns out, yes—with the right prompting. Here's the pipeline that now handles 
 
 ## The Extraction Prompt
 
-The key to reliable extraction is a carefully structured prompt that:
-
-1. Provides expert context
-2. Gives explicit formatting instructions
-3. Includes examples for each field
-4. Requests JSON output
+Reliable data extraction hinges on a carefully engineered prompt that acts less like a query and more like a detailed protocol for a research assistant. We structure the prompt to establish an expert persona, providing explicit formatting instructions and concrete examples for every single field. By forcing the model to output strict JSON and giving it the context of a systematic review, we significantly reduce hallucinations and ensure the output is machine-readable and ready for immediate analysis.
 
 ```python
 def build_prompt(record_id, text_block):

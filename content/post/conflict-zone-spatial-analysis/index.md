@@ -27,6 +27,8 @@ To test this, I overlaid our study locations onto Uppsala's conflict event data.
 
 ## Data Pipeline
 
+To map the evidence against conflict intensity, I constructed a spatial analysis pipeline. This workflow begins with raw research PDFs, uses Large Language Models to extract geographical metadata, and then geocodes these locations into coordinates. By spatially joining this research data with the Uppsala Conflict Data Program (GED) events, we can visualize exactly where research coverage overlaps—or fails to overlap—with conflict hotspots.
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    SPATIAL ANALYSIS PIPELINE                     │
@@ -103,6 +105,8 @@ entire_conflict_pattern <- paste0(
   "\\bWest Bank and Gaza\\b|\\bYemen\\b|\\bGaza\\b|\\bPalestine\\b"
 )
 ```
+
+Once we have the raw text, the next step is to robustly identify country mentions while handling the many variations in naming conventions. This involves checking against a predefined list of conflict-affected countries and their demonyms (e.g., "Nigeria" and "Nigerian"). The code below iterates through our standardized lists and uses regex matching to flag every relevant country mentioned in the study text.
 
 ## Country Detection from Text
 
