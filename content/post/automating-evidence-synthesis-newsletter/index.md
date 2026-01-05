@@ -26,17 +26,13 @@ image:
   preview_only: false
 ---
 
-## The Problem: Information Overload
+## I Couldn't Keep Up
 
-The intersection of **Large Language Models (LLMs)** and **Evidence Synthesis** is exploding. New tools, methodologies, and benchmarks appear weekly across:
+Three new papers on LLMs for systematic reviews dropped last week. I found out about them a month later.
 
-- PubMed
-- arXiv
-- OpenAlex
-- GitHub
-- Preprint servers
+The field moves too fast. Every week there's a new tool, a new benchmark, a new methodological paper across PubMed, arXiv, GitHub, and preprint servers. I was constantly behind.
 
-Manually tracking this is impossible. I needed an automated system.
+So I automated it. Now a script monitors these sources, deduplicates by DOI, and uses an LLM to write practitioner-focused summaries. Every Monday I get a newsletter draft in my inbox—I just review and publish.
 
 ## The Solution: AI-Powered Newsletter Generator
 

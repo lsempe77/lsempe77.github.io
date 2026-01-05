@@ -18,11 +18,11 @@ categories:
 featured: false
 ---
 
-## Teaching Statistics Visually
+## Why I Built This
 
-Hypothesis testing is foundational to impact evaluation, yet many practitioners struggle with concepts like Type I errors, Type II errors, and statistical power. Traditional explanations with formulas often fail to build intuition.
+Every time I explain hypothesis testing, I watch eyes glaze over the moment I draw the 2×2 matrix. "Type I error is alpha, Type II is beta, power is one minus beta..." By the time I finish, everyone's lost.
 
-This post describes building an interactive React component that teaches these concepts through progressive disclosure—revealing the decision matrix one quadrant at a time with clear explanations.
+The problem isn't the math—it's presenting everything at once. So I built an interactive component that reveals one quadrant at a time, letting concepts sink in before moving on. It's how I wish someone had taught me.
 
 ## The Pedagogical Approach
 

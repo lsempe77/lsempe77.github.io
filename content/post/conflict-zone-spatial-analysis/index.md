@@ -19,14 +19,11 @@ categories:
 featured: false
 ---
 
-## The Research Question
+## Where's the Evidence Actually From?
 
-Where does research on fragile and conflict-affected states (FCAS) actually take place? Do studies cluster in accessible areas while conflict zones remain under-researched? 
+We kept saying we had "research on conflict-affected areas"—but did we really? I had a suspicion that most studies were conducted in capital cities or relatively stable regions, while the actual conflict zones went unstudied.
 
-This analysis combines:
-1. **Study locations** extracted by LLMs from research papers
-2. **Conflict data** from Uppsala Georeferenced Event Dataset (GED)
-3. **Spatial analysis** in R to identify evidence gaps
+To test this, I overlaid our study locations onto Uppsala's conflict event data. The results were sobering: huge geographic gaps exactly where evidence is most needed. Here's how I ran the analysis.
 
 ## Data Pipeline
 

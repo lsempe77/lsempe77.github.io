@@ -25,11 +25,11 @@ image:
   preview_only: false
 ---
 
-## Introduction
+## Why This Guide Exists
 
-Systematic reviews are the gold standard for evidence synthesis, but they're **time-consuming** and **resource-intensive**. A typical review takes 12-18 months and requires screening thousands of abstracts.
+I keep getting asked: "Where can LLMs actually help in systematic reviews?" The honest answer is: almost everywhere, but with caveats.
 
-**Large Language Models (LLMs)** are changing this. Here's a practical guide to using AI at every stage of the systematic review pipeline.
+After two years of experimenting with AI tools across a dozen evidence projects, I've learned what works, what doesn't, and what's still risky. This is the guide I wish I'd had when I started—practical recommendations for each stage of the pipeline, with specific tool suggestions.
 
 ## The Systematic Review Pipeline
 

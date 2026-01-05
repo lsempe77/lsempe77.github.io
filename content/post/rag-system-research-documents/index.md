@@ -21,14 +21,11 @@ featured: false
 
 ## Why RAG for Research?
 
-When working with hundreds of research papers, finding relevant content becomes challenging. Traditional keyword search misses semantic relationships. RAG (Retrieval-Augmented Generation) solves this by:
+I was drowning in PDFs. Our team had accumulated 400+ research papers for an evidence map, and every time someone asked "what does the evidence say about X?", I'd spend an hour Ctrl+F-ing through documents.
 
-1. Converting text chunks to embeddings
-2. Storing embeddings in a vector index
-3. Finding semantically similar content
-4. Optionally generating answers with LLMs
+Keyword search was useless—searching for "impact" returned everything, searching for "cash transfer effects on nutrition" returned nothing (even though we had a dozen relevant studies using different terminology).
 
-This post shows how to build a complete RAG system for querying research documents.
+That's when I built this RAG system. It's not fancy, but it works: I can now ask natural language questions and get back the relevant chunks with source citations. Here's how I put it together.
 
 ## System Architecture
 

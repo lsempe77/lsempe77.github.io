@@ -18,11 +18,13 @@ categories:
 featured: false
 ---
 
-## The Research Need
+## Why I Needed 555 PDFs
 
-The UK Foreign, Commonwealth and Development Office (FCDO) publishes business cases for development programmes through the [UK Development Tracker](https://devtracker.fcdo.gov.uk/). These documents contain valuable information about programme design, expected outcomes, and theory of change—essential for research on development effectiveness.
+FCDO publishes business cases for every development programme they fund—these documents spell out the theory of change, expected outcomes, and budget justifications. Gold for anyone studying development effectiveness.
 
-However, manually downloading documents from 555+ programmes is impractical. This post describes building a "polite" web scraper that respects server resources while systematically collecting these documents.
+The catch? They're scattered across 555 programme pages on the [UK Development Tracker](https://devtracker.fcdo.gov.uk/). Clicking through each one would take days.
+
+I wrote a scraper, but I wanted to do it right—no hammering the server, proper identification, graceful error handling. Call it professional courtesy. Here's the "polite" approach I used.
 
 ## Ethical Scraping Principles
 

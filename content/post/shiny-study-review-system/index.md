@@ -20,13 +20,11 @@ featured: false
 
 ## The Review Challenge
 
-Systematic reviews require multiple reviewers to screen and evaluate studies—often hundreds or thousands of them. Commercial tools like Covidence are expensive, and ad-hoc solutions (shared spreadsheets) break down with multiple concurrent users.
+Our Covidence subscription ran out mid-project. We had 2,000 studies left to screen and three reviewers spread across different time zones.
 
-This post describes building a custom Shiny application for collaborative study review with:
-- Google Drive integration for data storage
-- Role-based access (admin vs. reviewer)
-- Real-time status tracking
-- Export capabilities
+"Let's just use a shared Google Sheet," someone suggested. Within two days, we had version conflicts, accidentally overwrote each other's work, and lost track of who had screened what.
+
+I spent a weekend building this Shiny app instead. It's not as polished as Covidence, but it's free, it syncs to Google Drive, and—critically—it doesn't let two people review the same study simultaneously. Here's how it works.
 
 ## Application Architecture
 

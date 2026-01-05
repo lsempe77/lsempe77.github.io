@@ -18,11 +18,13 @@ categories:
 featured: false
 ---
 
-## The Challenge
+## The Mess We Started With
 
-Understanding research capacity in fragile and conflict-affected states (FCAS) is essential for strengthening evidence ecosystems and identifying research partners. But bibliographic databases contain messy, inconsistent institution names—the same university might appear under dozens of variations, transliterations, and abbreviations.
+"University of Khartoum", "Univ. Khartoum", "جامعة الخرطوم", "Khartoum University"—same institution, four different names in our database.
 
-This project combined multiple AI-powered techniques to map research institutions across the Horn of Africa and Middle East, processing thousands of records into a verified, deduplicated directory.
+We were trying to map research capacity across fragile states, but the author affiliation data was chaos. Some entries had Arabic script, others were transliterated inconsistently, and many had typos or abbreviations. A simple string match caught maybe 30% of duplicates.
+
+So I built a multi-step pipeline: AI web search to verify institutions exist, fuzzy matching to catch typos, and LLM review for edge cases. It's not perfect, but it got us from 3,000 messy entries to a clean directory of ~800 verified institutions.
 
 ## Data Sources
 

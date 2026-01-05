@@ -18,11 +18,13 @@ categories:
 featured: false
 ---
 
-## The Challenge: Training Data for Evidence Synthesis
+## The Problem: Not Enough Training Data
 
-Machine learning models for systematic reviews and evidence synthesis require substantial training data—examples of well-structured studies, various methodologies, and different quality levels. However, obtaining enough labeled examples from real research is time-consuming and expensive.
+I wanted to train a classifier to identify study methodologies from abstracts. The problem? I had maybe 200 labeled examples—nowhere near enough.
 
-Synthetic data offers a solution: LLMs can generate realistic, structured examples that mirror the complexity of actual research papers. But doing this at scale, with reproducibility and quality control, requires careful engineering.
+Labeling more manually would take weeks. Hiring annotators was out of budget. Then I thought: what if I got LLMs to generate realistic fake studies?
+
+The first attempt was a mess—GPT kept producing the same generic RCT over and over. Getting diverse, realistic, reproducible synthetic data took real engineering. Here's the pipeline I ended up with.
 
 ## Architecture Overview
 

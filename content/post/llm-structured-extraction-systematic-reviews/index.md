@@ -19,11 +19,13 @@ categories:
 featured: true
 ---
 
-## The Extraction Challenge
+## The Extraction Nightmare
 
-Systematic reviews require extracting structured information from hundreds of papers—authors, methods, populations, sample sizes, data sources, and analytical approaches. Manual extraction is time-consuming and error-prone.
+Data extraction is the part of systematic reviews that nobody warns you about. You're staring at 300 PDFs, filling in the same spreadsheet columns over and over: authors, year, sample size, methodology, country...
 
-This post describes building an automated extraction pipeline using LLMs to process research PDFs and output structured data ready for synthesis.
+After doing this manually for our first evidence map, I swore never again. GPT-4 had just come out, and I wondered: could it extract structured data from papers reliably?
+
+Turns out, yes—with the right prompting. Here's the pipeline that now handles extraction for most of our projects.
 
 ## Pipeline Architecture
 
