@@ -34,25 +34,16 @@ sections:
           size: cover
           position: center
           parallax: false
-  - block: markdown
-    content:
-      title: '📚 My Research'
-      subtitle: ''
-      text: 'Hello, world! I am a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie), Research Fellow at Queen Margaret University, and Visiting Fellow at the University of Oxford (Psychiatry) and University of East Anglia (Social Work). My strengths include impact evaluations, evidence synthesis, educational, social protection and health research and policy, mental health in youth, and the use of large language models (LLMs) in research and applications. I lead and collaborate on projects to advance evidence-based decision-making in low- and middle-income countries.
-      
-        Interested in collaborating or discussing research? Please reach out!'
-    design:
-      columns: '1'
   - block: collection
     id: blog
     content:
-      title: '✍️ Blog & Tutorials'
-      subtitle: 'Insights on research methods, AI in evidence synthesis, and more'
+      title: 'Latest Writing'
+      subtitle: 'Research methods, AI tools, and lessons from the field'
       text: ''
       # Page type to display. E.g. post, talk, publication...
       page_type: post
       # Choose how many pages you would like to display (0 = all pages)
-      count: 5
+      count: 6
       # Filter on criteria
       filters:
         author: ""
@@ -69,9 +60,20 @@ sections:
     design:
       # Choose a layout view - card view is more prominent
       view: article-grid
-      columns: 2
+      columns: 3
       background:
         color: '#f8fafc'
+  - block: markdown
+    content:
+      title: 'About Me'
+      subtitle: ''
+      text: 'I work at the intersection of research methods and practical policy questions. Currently a Senior Evaluation Specialist at 3ie, I spend most of my time on impact evaluations and evidence synthesis—figuring out what works, for whom, and under what conditions.
+      
+        Lately I've been exploring how AI tools can make evidence synthesis faster without sacrificing rigor. I also hold research positions at Queen Margaret University, Oxford (Psychiatry), and UEA (Social Work).
+        
+        I write here about methods, tools I'm building, and things I learn along the way. Feel free to reach out if you want to collaborate or just chat about research.'
+    design:
+      columns: '1'
   - block: collection
     id: papers
     content:
