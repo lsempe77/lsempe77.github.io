@@ -26,17 +26,21 @@ image:
 projects: []
 ---
 
-Last month I reviewed a systematic review protocol that claimed to validate their AI screening using 122 sampled exclusions. "If we find zero relevant studies in 122 excluded records," the authors wrote, "we can be 95% confident our sensitivity exceeds 97%."
+A colleague sent me a link last month, excited about a new AI screening tool. The company selling it claimed their validation was solid: "122 sampled exclusions, zero missed—95% confident sensitivity exceeds 97%."
 
-I ran the numbers. Their review had 50,000 excluded records. By my calculation, finding zero in 122 tells you almost nothing—you could still be missing hundreds of relevant studies with high probability. The validation approach they cited conflates two different metrics in a way that produces dangerously misleading confidence.
+I ran the numbers. A typical large review has 50,000 excluded records. Finding zero in 122 tells almost nothing—I could still be missing hundreds of relevant studies.
 
-This isn't a minor statistical quibble. If this approach spreads, we'll have systematic reviews claiming high sensitivity while potentially missing substantial proportions of their evidence base. The math is unambiguous, and I want to show you exactly why.
+**The core problem in plain language:** When AI screens studies for a systematic review, it decides which studies to exclude. The danger is *false negatives*—relevant studies the AI wrongly threw out. If we miss important evidence, our review's conclusions could be wrong.
+
+To validate the AI, we sample from what it excluded and check: did it miss anything relevant? If we sample 122 and find zero missed, can we trust the AI caught everything?
+
+The answer depends on how big the excluded pile is. And that's where the "122 sample" claim falls apart. Let me walk through the numbers.
 
 ---
 
 The confusion centers on two metrics that sound similar but aren't.
 
-**False Omission Rate (FOR)** asks: of the records we excluded, what proportion should have been included? The denominator is excluded records. If you sample 122 excluded records and find zero relevant, you can bound the FOR with reasonable confidence.
+**False Omission Rate (FOR)** asks: of the records we excluded, what proportion should have been included? The denominator is excluded records. If I sample 122 excluded records and find zero relevant, I can bound the FOR with reasonable confidence.
 
 $$\text{FOR} = \frac{\text{False Negatives}}{\text{False Negatives} + \text{True Negatives}}$$
 
@@ -44,7 +48,7 @@ $$\text{FOR} = \frac{\text{False Negatives}}{\text{False Negatives} + \text{True
 
 $$\text{Sensitivity} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}$$
 
-The fixed-sample approach controls FOR. But sensitivity depends on FOR *and* the total number of excluded records. Here's the bridge:
+The claimed fixed-sample approach controls FOR. But sensitivity depends on FOR *and* the total number of excluded records. Here's the bridge:
 
 $$\text{False Negatives} = \text{FOR} \times \text{Total Excluded}$$
 
@@ -54,7 +58,7 @@ When Total Excluded is small, a bounded FOR translates to high sensitivity. When
 
 ---
 
-Let me make this concrete. Suppose you find zero relevant in 122 sampled exclusions. Using a binomial 97% confidence interval, your upper bound on FOR is about 2.4%. Now apply that to different review sizes:
+Let me make this concrete. Suppose I find zero relevant in 122 sampled exclusions. Using a binomial 97% confidence interval, my upper bound on FOR is about 2.4%. Now apply that to different review sizes:
 
 | Review Size | Excluded | Upper FOR | Max Missed | Min Sensitivity |
 |-------------|----------|-----------|------------|-----------------|
@@ -63,19 +67,19 @@ Let me make this concrete. Suppose you find zero relevant in 122 sampled exclusi
 | 10,000 | 9,500 | 2.4% | 228 | 47% |
 | 50,000 | 49,000 | 2.4% | 1,176 | 5% |
 
-The same validation result—zero in 122—gives you 91% minimum sensitivity in a small review and 5% minimum sensitivity in a large one. That's not a confidence interval; that's the difference between "validated" and "useless."
+The same validation result—zero in 122—gives I 91% minimum sensitivity in a small review and 5% minimum sensitivity in a large one. That's not a confidence interval; that's the difference between "validated" and "useless."
 
 The fixed-sample approach assumes the denominator doesn't matter. It does.
 
 ---
 
-The theoretically correct approach comes from Callaghan and Müller-Hansen (2020), and it's worth understanding why it works.
+The theoretically correct approach comes from [Callaghan and Müller-Hansen (2020)](https://doi.org/10.1186/s13643-020-01521-4), and it's worth understanding why it works.
 
-Instead of sampling from excluded records alone, you sample from *remaining unscreened records*—the pool that still might contain relevant studies. You use hypergeometric hypothesis testing, which accounts for the finite population and the proportion already screened. And critically, the sample size scales with the number of remaining records.
+Instead of sampling from excluded records alone, the method samples from *remaining unscreened records*—the pool that still might contain relevant studies. It uses hypergeometric hypothesis testing, which accounts for the finite population and the proportion already screened. And critically, the sample size scales with the number of remaining records.
 
-The intuition: if you've screened 80% of your database and found 200 relevant studies, the remaining 20% probably contains proportionally fewer relevant studies—but you need to sample enough to bound that remaining risk. A small fixed sample can't do this when the remaining pool is large.
+The intuition: if I've screened 80% of my database and found 200 relevant studies, the remaining 20% probably contains proportionally fewer relevant studies—but I need to sample enough to bound that remaining risk. A small fixed sample can't do this when the remaining pool is large.
 
-The stopping rule they propose continues sampling until you can reject the null hypothesis that sensitivity falls below your threshold (typically 95%). For large reviews, this means sampling 60-80% of remaining records before you can claim high sensitivity with confidence.
+The stopping rule they propose continues sampling until one can reject the null hypothesis that sensitivity falls below the target threshold (typically 95%). For large reviews, this means sampling 60-80% of remaining records before claiming high sensitivity with confidence.
 
 This is more expensive than checking 122 records. That's because validating high sensitivity in large reviews is genuinely harder—the fixed-sample approach just pretends it isn't.
 
@@ -83,9 +87,9 @@ This is more expensive than checking 122 records. That's because validating high
 
 I've implemented both approaches in a simulation. Generate 10,000 synthetic reviews with known sensitivity levels, apply each validation method, and check how often they correctly identify reviews with sensitivity below 95%.
 
-The fixed-sample approach has a false negative rate that scales with review size. For reviews with true sensitivity of 85%, the fixed-sample method fails to flag the problem in 60% of cases when the review is large. The adaptive approach catches it in 95% of cases regardless of size—exactly what you want from a validation method.
+The fixed-sample approach has a false negative rate that scales with review size. For reviews with true sensitivity of 85%, the fixed-sample method fails to flag the problem in 60% of cases when the review is large. The adaptive approach catches it in 95% of cases regardless of size—exactly what we want from a validation method.
 
-The code and simulation results are in my GitHub. The takeaway is simple: if someone tells you they validated AI screening sensitivity with 122 samples, ask how big their excluded pool was. If it's more than a few hundred, their validation is statistically meaningless.
+The code and simulation results are in my GitHub. The takeaway is simple: if someone claims they validated AI screening sensitivity with 122 samples, ask how big their excluded pool was. If it's more than a few hundred, their validation is statistically meaningless.
 
 ---
 
@@ -157,9 +161,9 @@ To guarantee **95% sensitivity** with **97% confidence**, sample sizes must scal
 {{% callout warning %}}
 **The "No Free Lunch" Principle**
 
-For large reviews (30,000 excluded), you need significantly more samples than the fixed-sample approach suggests!
+For large reviews (30,000 excluded), we need significantly more samples than the fixed-sample approach suggests!
 
-You cannot achieve:
+We cannot achieve:
 - High confidence (97%)  
 - High recall (95%)
 - Fixed small sample (122)
@@ -219,7 +223,7 @@ For a large review (10,000 total, 500 remaining):
 | 400 | 500 | 3 | 0 | 0.0077 | ✓ STOP |
 
 {{% callout note %}}
-**Result:** For a large review (10,000 total, 500 remaining), you need to sample **400 of 500** remaining documents. If you find **0 relevant**, p-value drops to 0.008 and you can **stop with confidence** that 95% recall achieved!
+**Result:** For a large review (10,000 total, 500 remaining), we need to sample **400 of 500** remaining documents. If we find **0 relevant**, p-value drops to 0.008 and we can **stop with confidence** that 95% recall achieved!
 {{% /callout %}}
 
 ---
@@ -238,7 +242,7 @@ devtools::install_github("mcallaghan/buscarR")
 # Use
 library(buscarR)
 
-# Your screening data
+# Screening data
 df <- data.frame(
   relevant = c(1, 1, 1, ..., 0, NA, NA),  # 1/0/NA
   seen = c(1, 1, 1, ..., 1, 0, 0)          # 1/0
@@ -247,7 +251,7 @@ df <- data.frame(
 # Test stopping criterion
 result <- calculate_h0(df, recall_target = 0.95)
 
-# If p < 0.05, you can stop!
+# If p < 0.05, stop early!
 ```
 
 ---
@@ -273,7 +277,7 @@ result <- calculate_h0(df, recall_target = 0.95)
 
 **3. No Free Lunch in Statistics**
 
-You cannot have:
+We cannot have:
 - High confidence (97%) **AND**
 - High recall (95%) **AND**  
 - Fixed small sample (122) **AND**
