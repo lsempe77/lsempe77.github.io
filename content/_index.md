@@ -9,12 +9,26 @@ design:
   spacing: "6rem"
 
 sections:
-  - block: about.biography
+  - block: resume-biography-3
     id: about
     content:
       # Choose a user profile to display (a folder name within `content/authors/`)
       username: admin
       text: ""
+    design:
+      background:
+        color: '#f8fafc'
+  - block: resume-skills
+    content:
+      title: Skills & Expertise
+      username: admin
+    design:
+      background:
+        color: white
+  - block: resume-languages
+    content:
+      title: Languages
+      username: admin
     design:
       background:
         color: '#f8fafc'
