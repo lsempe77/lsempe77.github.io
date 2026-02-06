@@ -15,27 +15,40 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
       <div class="grid gap-8">
         {posts.map(post => (
           <article class="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow">
-            <a href={`/blog/${post.slug}`} class="block p-6">
-              <div class="flex flex-wrap gap-2 mb-3">
-                {post.data.tags?.slice(0, 3).map(tag => (
-                  <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">{tag}</span>
-                ))}
-              </div>
-              <h2 class="text-2xl font-bold text-slate-900 mb-2 hover:text-emerald-600 transition-colors">
-                {post.data.title}
-              </h2>
-              {post.data.subtitle && (
-                <p class="text-lg text-emerald-600 mb-3">{post.data.subtitle}</p>
-              )}
-              {post.data.summary && (
-                <p class="text-slate-600 line-clamp-3">{post.data.summary}</p>
-              )}
-              <div class="mt-4 text-sm text-slate-500">
-                {post.data.date.toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
+            <a href={`/blog/${post.slug}`} class="block">
+              <div class="md:flex">
+                <div class="md:w-72 h-48 md:h-auto bg-slate-100 flex-shrink-0 overflow-hidden">
+                  <img 
+                    src={`/images/blog/${post.slug}.png`} 
+                    alt={post.data.title}
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                    onerror="this.style.display='none'"
+                  />
+                </div>
+                <div class="p-6 flex-1">
+                  <div class="flex flex-wrap gap-2 mb-3">
+                    {post.data.tags?.slice(0, 3).map(tag => (
+                      <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">{tag}</span>
+                    ))}
+                  </div>
+                  <h2 class="text-2xl font-bold text-slate-900 mb-2 hover:text-emerald-600 transition-colors">
+                    {post.data.title}
+                  </h2>
+                  {post.data.subtitle && (
+                    <p class="text-lg text-emerald-600 mb-3">{post.data.subtitle}</p>
+                  )}
+                  {post.data.summary && (
+                    <p class="text-slate-600 line-clamp-2">{post.data.summary}</p>
+                  )}
+                  <div class="mt-4 text-sm text-slate-500">
+                    {post.data.date.toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </div>
+                </div>
               </div>
             </a>
           </article>
