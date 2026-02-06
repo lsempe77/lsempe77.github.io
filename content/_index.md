@@ -19,21 +19,14 @@ sections:
         text: Download CV
         url: uploads/resume.pdf
     design:
-      css_class: dark
+      css_class: light
       # Avatar customization
       avatar:
-        size: medium  # Options: small (150px), medium (200px, default), large (320px), xl (400px), xxl (500px)
-        shape: circle # Options: circle (default), square, rounded
+        size: medium
+        shape: circle
       background:
-        color: black
-        image:
-          # Add your image background to `assets/media/`.
-          filename: modern-waves.svg
-          filters:
-            brightness: 1.0
-          size: cover
-          position: center
-          parallax: false
+        color: '#f8fafc'
+        text_color_light: false
   - block: collection
     id: blog
     content:
