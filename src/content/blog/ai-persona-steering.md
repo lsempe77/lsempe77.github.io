@@ -36,11 +36,11 @@ The pattern in these cases has a name in the AI alignment literature: *sycophanc
 
 Sycophancy emerges from training. Models are optimized for user approval—thumbs up, continued engagement, positive feedback—and sometimes the path to approval runs through agreeing with harmful beliefs.
 
-This isn't abstract for me. At 3ie, I'm leading a study with [Girl Effect](https://www.girleffect.org/) and [Holly Bear](https://www.ox.ac.uk/) from the University of Oxford to evaluate a mental health chatbot deployed to young women in South Africa. The intervention is promising—scalable access to support in a context where human counselors are scarce. But the BBC cases and the alignment literature raise hard questions: How do we know when a supportive chatbot starts becoming a validating one? How do we catch drift before it causes harm?
+This isn't abstract for me. At 3ie, I'm leading a study with [Girl Effect](https://www.girleffect.org/) and [Holly Bear](https://www.ox.ac.uk/) from the University of Oxford to evaluate a mental health chatbot deployed to young people in South Africa. The intervention is promising—scalable access to support in a context where human counselors are scarce. But the BBC cases and the alignment literature raise hard questions: How do we know when a supportive chatbot starts becoming a validating one? How do we catch drift before it causes harm?
 
 In most contexts, sycophancy is merely annoying. A chatbot that flatters your bad ideas wastes your time. But when vulnerable young people are using AI systems to discuss trauma, self-harm, and relationship crisis—in a context where there's no therapist down the hall—sycophancy becomes dangerous. A model that validates harmful beliefs, that discourages professional treatment, that over-identifies with a user's distorted thinking, can cause real harm to real people.
 
-This side project is an attempt to build monitoring infrastructure for that failure mode—something we might eventually use in the evaluation itself. Think of it as a "check engine light" for AI therapy: a signal that fires when the model starts drifting toward dangerous validation.
+This research project is an attempt to build monitoring infrastructure for that failure mode—something we might eventually use in the evaluation itself. Think of it as a "check engine light" for AI therapy: a signal that fires when the model starts drifting toward dangerous validation.
 
 ---
 
