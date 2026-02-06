@@ -1,7 +1,7 @@
 ---
-title: "LLMs Across the Systematic Review Pipeline: A Practical Guide"
-subtitle: "Mapping AI tools and resources to every stage of the evidence synthesis workflow"
-summary: "A comprehensive overview of how Large Language Models can assist at each stage of systematic reviews—from protocol development to dissemination—with specific tool recommendations."
+title: "Where AI Actually Helps in Systematic Reviews"
+subtitle: "A practical map of what works, what's risky, and what's still hype"
+summary: "After two years of experimenting with AI tools across a dozen evidence projects, I've learned what works at each stage of the systematic review pipeline. This is the guide I wish I'd had when I started."
 authors:
   - admin
 tags:
@@ -11,7 +11,6 @@ tags:
   - Evidence Synthesis
   - Research Methods
 categories:
-  - Tutorials
   - Research Methods
 date: 2025-12-22
 lastmod: 2025-12-22
@@ -25,28 +24,67 @@ image:
   preview_only: false
 ---
 
-## Why This Guide Exists
+"Can AI do systematic reviews now?"
 
-I keep getting asked: "Where can LLMs actually help in systematic reviews?" The honest answer is: almost everywhere, but with caveats.
+I get this question constantly. The honest answer is: AI can accelerate parts of the pipeline dramatically, make other parts marginally easier, and will actively hurt you in a few places if you trust it blindly. The nuance matters, and most overviews I've seen either oversell ("AI will replace reviewers!") or undersell ("AI is too error-prone for serious research").
 
-After two years of experimenting with AI tools across a dozen evidence projects, I've learned what works, what doesn't, and what's still risky. This is the guide I wish I'd had when I started—practical recommendations for each stage of the pipeline, with specific tool suggestions.
+After using these tools on about a dozen evidence synthesis projects—some successfully, some not—I have a practical sense of where they fit. This is the map I wish someone had given me two years ago.
 
-## The Systematic Review Pipeline
+---
 
-```mermaid
-flowchart LR
-    A1[Define Question] --> A2[Write Protocol]
-    A2 --> A3[Develop Search]
-    A3 --> A4[Retrieve References]
-    A4 --> A5[Screen Abstracts]
-    A5 --> A6[Retrieve Full Texts]
-    A6 --> A7[Extract Data]
-    A7 --> A8[Critical Appraisal]
-    A8 --> A9[Synthesis]
-    A9 --> A10[Meta-analysis]
-    A10 --> A11[Write Results]
-    A11 --> A12[Dissemination]
-```
+The systematic review pipeline has roughly twelve stages. At each stage, the question is: what can AI do, what's the risk, and is it worth the overhead?
+
+**Defining the research question.** This is fundamentally a human task, but LLMs make useful sparring partners. Describe your topic in plain language and ask Claude or GPT-4 to help structure it as PICO (Population, Intervention, Comparison, Outcome). The model will surface framings you hadn't considered. It's brainstorming, not automation. Risk is low because you're not taking the output as final—you're using it to think.
+
+**Writing the protocol.** LLMs can draft protocol sections from templates, especially the boilerplate (data management, dissemination plans). They can check your draft against the PRISMA-P checklist and flag missing elements. I wouldn't trust an LLM to write the methods unsupervised, but for generating a first draft that humans then refine, it saves time.
+
+**Developing the search strategy.** This is where I've seen both successes and disasters. LLMs are good at generating synonyms and related terms—ask for "all the ways researchers might describe cash transfer programs" and you'll get a useful list. They're reasonably good at constructing Boolean syntax. But they hallucinate database-specific operators, invent field codes that don't exist, and confidently produce searches that look correct but miss swathes of literature. Use them for ideation, then have a librarian or information specialist validate.
+
+---
+
+**Retrieving references.** AI doesn't help here. You're just running queries against databases. This is plumbing.
+
+**Screening titles and abstracts.** This is the killer app. Screening 10,000 abstracts manually takes 200-400 person-hours. AI-assisted screening can reduce workload by 50-80% while maintaining high sensitivity, if you set it up correctly.
+
+The key is using AI as a filter, not a decision-maker. Train a model (or use a tool like ASReview) on your first few hundred screened records, then let it prioritize the remaining records by predicted relevance. Screen the high-probability records first. Stop when you hit a threshold of consecutive irrelevant records—by then, you've likely seen all the relevant ones.
+
+The risk is false negatives: the AI excludes a relevant study that you never see. This is why you need validation—sample from the AI's exclusions and check. If you're finding relevant studies in the excluded pile, your threshold was wrong.
+
+**Retrieving full texts.** AI doesn't help much here either. You're clicking through library systems and emailing authors. Some tools automate the clicking, but that's not AI—it's scraping.
+
+---
+
+**Extracting data.** This is my second favorite use case. Extracting structured fields from hundreds of papers is tedious and error-prone. LLMs can do it faster and more consistently, with the right prompting.
+
+The trick is specificity. Don't ask "extract the metadata"—ask "extract the sample size, specifying whether it's the enrolled sample, analyzed sample, or intent-to-treat sample, and provide the page number where you found it." JSON output format, explicit examples for edge cases, and a request for the model's reasoning all improve accuracy.
+
+I see about 85-90% accuracy on most fields, higher for bibliographic data, lower for interpretive judgments. Use it as a first pass that humans verify.
+
+**Critical appraisal.** This is risky. Risk-of-bias assessment requires reading between the lines—understanding what "adequate" randomization means, detecting selective reporting, judging whether blinding was plausible. LLMs are inconsistent here. They'll confidently mark a study as "low risk" when the allocation concealment is ambiguous.
+
+Use LLMs to pre-fill the assessment form with citations to relevant text, but have humans make the final judgment. Don't automate this stage.
+
+---
+
+**Synthesis and meta-analysis.** For narrative synthesis, LLMs can help structure the argument and ensure you've addressed all included studies. For meta-analysis, they're useless—you need specialized statistical software, not a language model.
+
+The risk in narrative synthesis is that the LLM smooths over contradictions. If your studies disagree, a good synthesis highlights and explains the disagreement. An LLM might produce a fluent paragraph that papers over the conflict. Always compare the LLM's synthesis to your own reading of the primary studies.
+
+**Writing and editing.** LLMs are excellent editors. Paste in your draft; ask for clarity improvements, jargon reduction, or structural suggestions. I use Claude for this constantly. The output isn't final copy, but it surfaces issues I'd otherwise miss.
+
+**Dissemination.** Creating plain-language summaries, policy briefs, social media threads—LLMs handle this well. They're good at register shifts. A technical finding becomes an accessible explanation. Just verify that the simplification didn't introduce inaccuracy.
+
+---
+
+The meta-point is that AI tools are amplifiers, not replacements. They make good reviewers faster. They don't make bad reviewers good. If you don't understand methodology, you can't verify the LLM's methodology extraction. If you don't know what a rigorous search strategy looks like, you can't catch the LLM's hallucinated operators.
+
+I've seen projects where AI tools saved 60% of time with no loss in quality. I've also seen projects where over-reliance on AI produced reviews with systematic errors that took months to fix. The difference wasn't the tools—it was whether the humans using them understood the task well enough to verify the output.
+
+Start with the stages where risk is low (protocol drafting, literature monitoring, writing assistance) before moving to higher-risk stages (screening, extraction). Build confidence in the tools' failure modes. And never submit anything an LLM produced without human verification.
+
+{{< icon name="robot" pack="fas" >}} AI in Evidence Synthesis | Stage-by-Stage Guide | Practical Recommendations
+
+*Updated as tools evolve. Last reviewed December 2025.*
 
 Let's explore AI opportunities at each stage.
 

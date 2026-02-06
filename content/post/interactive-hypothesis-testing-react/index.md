@@ -1,6 +1,6 @@
 ---
-title: "Interactive Hypothesis Testing Visualization with React"
-summary: "Building an educational React component to teach statistical hypothesis testing, Type I/II errors, and statistical power through progressive disclosure."
+title: "Teaching Statistics Without Losing Students"
+summary: "Every time I explain hypothesis testing, eyes glaze over at the 2×2 matrix. So I built an interactive tool that reveals one quadrant at a time, letting concepts sink in before overwhelming anyone with Type I and Type II errors."
 date: 2025-10-15
 authors:
   - admin
@@ -18,85 +18,55 @@ categories:
 featured: false
 ---
 
-## Why I Built This
+The moment I lose them is always the same.
 
-Every time I explain hypothesis testing, I watch eyes glaze over the moment I draw the 2×2 matrix. "Type I error is alpha, Type II is beta, power is one minus beta..." By the time I finish, everyone's lost.
+I'm explaining hypothesis testing to a group of program officers. We've covered the basics—what a null hypothesis means, why we start from skepticism. They're following along. Then I draw the 2×2 decision matrix on the whiteboard. "Now, Type I error is alpha, that's when we reject a true null. Type II is beta, that's when we fail to reject a false null. Power is one minus beta..."
 
-The problem isn't the math—it's presenting everything at once. So I built an interactive component that reveals one quadrant at a time, letting concepts sink in before moving on. It's how I wish someone had taught me.
+By the time I finish the sentence, half the room has that glazed look. The matrix has too many cells. The terminology is too dense. They're trying to hold four concepts simultaneously while I keep adding more.
 
-## The Pedagogical Approach
+The problem isn't intelligence—these are smart people making consequential decisions about development programs. The problem is cognitive load. I'm violating every principle of instructional design by presenting a complex structure all at once.
 
-The pedagogical core of this tool is the concept of "progressive disclosure." Presenting a full 2×2 decision matrix all at once often overwhelms students, leading to cognitive overload before they grasp the fundamental concepts. Instead, we guide the learner through a narrative journey: starting with the null hypothesis assumption, then revealing correct decisions, and finally introducing the nuanced concepts of errors. This scaffolding ensures that the student builds a solid intuition for each component before seeing how they interact in the complete statistical picture.
+So I built something that reveals the matrix one quadrant at a time.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    LEARNING PROGRESSION                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  Stage 1: Introduce H₀ (null hypothesis)                        │
-│     └── "We assume no difference until proven otherwise"        │
-│                                                                  │
-│  Stage 2: Show correct decisions first                          │
-│     └── True Negative (keep H₀ when groups ARE equal)           │
-│     └── True Positive (reject H₀ when groups ARE different)     │
-│                                                                  │
-│  Stage 3: Introduce errors                                       │
-│     └── Type I Error (α) - false positive                       │
-│     └── Type II Error (β) - false negative                      │
-│                                                                  │
-│  Stage 4: Key takeaways                                          │
-│     └── Burden of proof                                         │
-│     └── Trade-offs in error rates                               │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+---
 
-## Component Architecture
+The pedagogical principle is called progressive disclosure. Instead of dumping information, you scaffold it—introduce one concept, let it land, then build the next layer. Each stage should feel manageable, even if the complete picture is complex.
 
-```jsx
-// App.jsx - Main application
-import NullHypothesisMatrix from './components/NullHypothesisMatrix'
+For hypothesis testing, the natural sequence is:
 
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-6xl mx-auto">
-        <NullHypothesisMatrix />
-      </div>
-    </div>
-  )
-}
+Start with the null hypothesis alone. "We assume no difference until proven otherwise." This is the foundation. Spend time here. Make sure everyone understands that we begin from skepticism, not belief.
 
-export default App
-```
+Then show correct decisions. When groups actually are equal and we correctly conclude no effect—that's a true negative. When groups actually differ and we correctly detect it—that's a true positive. These are intuitive. People understand what it means to be right.
 
-## The Matrix Box Component
+Then introduce errors. A false positive—detecting an effect that isn't real—is Type I error. We control this with alpha, typically 0.05. A false negative—missing a real effect—is Type II error. We control this with power analysis.
 
-Each cell in the decision matrix is a reusable component:
+Only after walking through each cell do you reveal the complete matrix. By then, each quadrant is familiar. The overall structure makes sense because its components make sense.
 
-```jsx
-const MatrixBox = ({ title, description, probability, backgroundColor, isVisible }) => {
-  return (
-    <div className={`${backgroundColor} p-6 rounded-lg transition-opacity duration-500 ${
-      isVisible ? 'opacity-100' : 'opacity-0'
-    }`}>
-      <h3 
-        className="text-lg font-semibold text-gray-800 mb-3" 
-        dangerouslySetInnerHTML={{ __html: title }}
-      />
-      <p className="text-gray-700 mb-3">{description}</p>
-      <p 
-        className="text-gray-600" 
-        dangerouslySetInnerHTML={{ __html: probability }}
-      />
-    </div>
-  );
-};
-```
+---
 
-## Progressive Disclosure Logic
+The React component implements this as a stepper. Each stage illuminates specific cells while dimming others. The user controls the pace—click to advance, click to go back. No one is forced through faster than they can absorb.
 
-The main component manages which boxes are visible:
+The visual design uses color to signal meaning. Green for correct decisions, red for errors. Hovering on a cell shows additional context. The probability label updates dynamically based on the current alpha and power settings.
+
+I spent too long on animation timing. The fade-in needs to be slow enough to draw attention but fast enough not to frustrate. About 500ms seems right. The transition between stages has a brief pause so users process what changed before the next thing appears.
+
+---
+
+I've used this in three training workshops now. The feedback is consistent: people who previously didn't get hypothesis testing now claim they understand it. Whether that understanding persists, or whether it's just the pleasant feeling of following along with an interactive demo, I don't know. But the glazed looks are gone.
+
+The interesting pedagogical question is whether progressive disclosure aids retention or just comprehension. There's research suggesting that worked examples with gradual revelation improve learning outcomes in mathematics. Hypothesis testing is essentially mathematical, so the principle should transfer. But I haven't run a proper evaluation—that would require randomizing participants to interactive versus static instruction and testing retention weeks later.
+
+---
+
+The code is vanilla React with Tailwind for styling. No dependencies beyond that. The component is self-contained and could be embedded in any teaching context. I've thought about adding more statistical concepts—confidence intervals, power curves, sample size calculation—but scope creep is the enemy of shipping.
+
+The harder problem is that most people who teach statistics don't know React. The people who know React don't usually teach statistics. I'm in an unusual position of straddling both, which is why this exists. Scaling it would require either training statisticians to use web tools or training web developers to teach statistics. Neither seems tractable.
+
+For now, it's a thing I built that makes my own workshops go better. That's enough.
+
+{{< icon name="react" pack="fab" >}} React | Statistics Education | Progressive Disclosure
+
+*Live demo link in the repo. Fork and adapt for your own teaching.*
 
 ```jsx
 const NullHypothesisMatrix = () => {

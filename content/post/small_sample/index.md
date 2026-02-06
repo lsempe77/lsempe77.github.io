@@ -1,6 +1,6 @@
 ---
-title: "Inference under scarcity: a practical guide to many-arm trials with tiny samples"
-summary: "What do you do when you have 19 treatment arms and barely 5 people per group? This tutorial walks through permutation-based methods in R—with real code and real output."
+title: "Inference Under Scarcity"
+summary: "Nineteen treatment arms. Five to ten participants each. Most effects are null, but three are real. Can standard methods find them? (No.) Can we still learn something useful? (Yes, but carefully.)"
 date: 2026-01-05
 authors:
   - admin
@@ -16,13 +16,17 @@ categories:
 featured: true
 ---
 
-Recently, some colleagues share their intention to analyse data (evidence first!) to improve their intervention. They've decided to pilot an intervention with different components and dosages. In the end, they ended up with a large number of treatment arms and small number of participants on each. 
+A colleague came to me with a problem that made me wince. They had piloted an intervention with different components and dosages—various combinations, various intensities. Reasonable experimental design. But by the time they'd crossed all the factors, they had 19 treatment arms with barely 5-10 participants in each.
 
-This tutorial shows you how to do that responsibly with some R code snippets for better learning.
+"How do we analyze this?" they asked.
 
-## The data
+The honest answer is: carefully, and with modest expectations. The textbook answer—"collect more data"—wasn't available. Budget spent, pilot complete, analysis required. This is the hand they were dealt.
 
-Let's simulate a scenario: 19 arms, unequal sample sizes (5–10 per arm), and a needle-in-haystack situation where **most treatments do nothing** but three of them (arms 17, 18, 19) have real effects of 0.8, 1.0, and 1.2 standard deviations. You can see that the real effects are quite big (that's one important caveat)
+The situation is common in practice, especially in fragile and conflict-affected settings where primary data collection is expensive, dangerous, or both. You can't always get the sample sizes you want. The question becomes: what can you responsibly learn from the sample you have?
+
+---
+
+Let me set up the problem concretely. Imagine 19 arms with unequal samples, where most treatments genuinely do nothing, but three of them—arms 17, 18, and 19—have real effects of 0.8, 1.0, and 1.2 standard deviations. These are large effects, and that matters: detecting small effects with this sample size is essentially impossible.
 
 ```r
 set.seed(42)
@@ -54,7 +58,7 @@ Total N: 124
 
 ## The question is: can we learn something relevant from this?  
 
-The usual (frequentist) statistical analysis won't find anything. Let's see a classical ANOVA:
+The usual frequentist machinery won't find anything. Let's watch it fail:
 
 **What ANOVA does:** It partitions the total variance in outcomes into two pieces: (1) variance *between* groups (do group means differ?) and (2) variance *within* groups (how noisy are individual observations?). The F-statistic is the ratio of between-group variance to within-group variance. A large F means the group means are more spread out than you'd expect from random noise alone.
 
@@ -87,9 +91,7 @@ Smallest adjusted p-value: 0.21. Complete silence.
 
 The standard toolkit has spoken: no significant differences. Move along, nothing to see here. 
 
-The textbook answer is "collect more data." But under certain circumstances, that's not possible. I've been looking at research in fragile and conflict affected countries, for example, where primary data collection is extremely challenging. That's just one example. 
-
-The *practical* answer is: you can still learn something, but you need to be honest about what that something is. You're not confirming effects. You're **screening**—figuring out what's worth a second look and what you can quietly drop.
+The textbook answer is "collect more data." But that's not always possible. The *practical* answer is: you can still learn something, but you need to be honest about what that something is. You're not confirming effects. You're **screening**—figuring out what's worth a second look and what you can quietly drop.
 
 ---
 

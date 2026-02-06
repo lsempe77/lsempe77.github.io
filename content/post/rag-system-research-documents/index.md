@@ -1,6 +1,6 @@
 ---
-title: "Building a RAG System for Research Document Search"
-summary: "Implementing a Retrieval-Augmented Generation system with FAISS, sentence transformers, and SQLite to query hundreds of research PDFs with semantic search."
+title: "400 PDFs, One Question"
+summary: "When keyword search fails and manual reading isn't feasible, semantic search changes how you interact with a research corpus. A practical RAG system for evidence synthesis."
 date: 2025-11-05
 authors:
   - admin
@@ -19,85 +19,59 @@ categories:
 featured: false
 ---
 
-## Why RAG for Research?
+"What does the evidence say about cash transfer effects on nutrition?" It's a simple question. We had 400 papers for an evidence map, and I knew at least a dozen were relevant. But when I searched for that exact phrase, I got nothing.
 
-I was drowning in PDFs. Our team had accumulated 400+ research papers for an evidence map, and every time someone asked "what does the evidence say about X?", I'd spend an hour Ctrl+F-ing through documents.
+The problem is vocabulary mismatch. One study discusses "unconditional money transfers and dietary diversity." Another examines "social protection programs and food security." A third measures "monetary assistance effects on child anthropometrics." They're all answering my question, but none uses my words.
 
-Keyword search was useless—searching for "impact" returned everything, searching for "cash transfer effects on nutrition" returned nothing (even though we had a dozen relevant studies using different terminology).
+I spent an afternoon with Ctrl+F, opening each PDF, searching variations of my query, noting relevant passages. Four hours later I had seven studies. There were more—I found them later—but I'd missed them because my keyword variations didn't match their terminology.
 
-That's when I built this RAG system. It's not fancy, but it works: I can now ask natural language questions and get back the relevant chunks with source citations. Here's how I put it together.
+This is the problem that retrieval-augmented generation solves. Not the generation part—that came later—but the retrieval. Semantic search finds documents by meaning, not keywords. "Cash transfer effects on nutrition" matches "unconditional money assistance and dietary outcomes" because the underlying concepts are similar, even though the words aren't.
 
-## System Architecture
+---
 
-The architecture relies on a straightforward flow: documents are ingested, processed, and indexed for semantic retrieval. We use PyMuPDF for robust text extraction, identifying document structure before chopping text into manageable pieces. These chunks form the basis of our vector index, which allows us to find relevant passages based on meaning rather than just keyword matches.
+The architecture is conceptually simple. PDFs become text. Text becomes chunks. Chunks become vectors. Queries become vectors. You find chunks whose vectors are close to the query vector and return them. The LLM part—synthesizing an answer from the retrieved chunks—is almost an afterthought.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      RAG ARCHITECTURE                           │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐    │
-│  │    PDFs     │───►│ Text Extract │───►│    Chunking     │    │
-│  └─────────────┘    └──────────────┘    └────────┬────────┘    │
-│                                                   │              │
-│                           ┌───────────────────────┤              │
-│                           ▼                       ▼              │
-│               ┌─────────────────┐    ┌─────────────────────┐    │
-│               │  Sentence       │    │  SQLite Database    │    │
-│               │  Transformer    │    │  (metadata)         │    │
-│               └────────┬────────┘    └─────────────────────┘    │
-│                        │                         ▲              │
-│                        ▼                         │              │
-│               ┌─────────────────┐                │              │
-│               │  FAISS Index    │◄───────────────┘              │
-│               │  (vectors)      │                               │
-│               └────────┬────────┘                               │
-│                        │                                        │
-│       ┌────────────────┴────────────────┐                       │
-│       ▼                                 ▼                       │
-│  ┌─────────┐                     ┌─────────────┐               │
-│  │  Query  │                     │ LLM Answer  │               │
-│  │ Results │                     │ Generation  │               │
-│  └─────────┘                     └─────────────┘               │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+The devil is in the chunking. Cut too small and you lose context. Cut too big and the embedding averages over too many concepts, losing precision. Overlap matters because relevant passages don't respect your arbitrary split points. I settled on 500-word chunks with 50-word overlap after experimenting with different sizes.
 
-## Step 1: Text Extraction and Chunking
+Text extraction is the other hidden complexity. Research PDFs are messy—two-column layouts, footnotes, tables, equations. Basic extraction produces garbled text where columns interleave incorrectly. PyMuPDF handles layout analysis reasonably well, but some documents still need manual cleanup. I've found that garbage in definitely means garbage out; a single paper with badly extracted text can pollute search results for related queries.
 
-The foundation of any RAG system is quality data ingestion. We start by extracting raw text from PDFs using PyMuPDF, which handles layout analysis better than older libraries. Once extracted, the text is split into overlapping chunks—overlapping is crucial because it ensures that context isn't lost at the arbitrary cut points between chunks.
+---
 
-```python
-import pymupdf  # PyMuPDF
-import os
-from typing import List, Dict
+The embedding model matters more than I initially thought. I started with a general-purpose sentence transformer, and it worked—mostly. But it struggled with domain-specific terminology. "Propensity score matching" and "matched comparison design" should be nearly synonymous, but the general model treated them as only vaguely related.
 
-def extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract text from PDF using PyMuPDF"""
-    doc = pymupdf.open(pdf_path)
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    doc.close()
-    return text
+Switching to an embedding model fine-tuned on academic text improved results noticeably. The retrieval became more precise for methodological queries. Authors' names started matching across papers. Citation formats stopped confusing the model.
 
-def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> List[str]:
-    """Split text into overlapping chunks"""
-    words = text.split()
-    chunks = []
-    
-    for i in range(0, len(words), chunk_size - overlap):
-        chunk = " ".join(words[i:i + chunk_size])
-        if chunk.strip():
-            chunks.append(chunk)
-    
-    return chunks
+FAISS handles the vector index efficiently. For 400 papers chunked into maybe 10,000 segments, it's overkill—SQLite with a brute-force cosine similarity would work fine. But FAISS scales, and I've since used the same architecture for much larger corpora where the efficiency matters.
 
-def process_pdfs(pdf_folder: str) -> List[Dict]:
-    """Process all PDFs in folder into chunks with metadata"""
-    all_chunks = []
-    
-    for filename in os.listdir(pdf_folder):
+---
+
+The query pipeline is straightforward: embed the question, find the 10 nearest chunks, return them with their source documents. For most questions, this is enough. "Which studies measured effects on school enrollment?" returns the relevant passages directly.
+
+The synthesis step—feeding those chunks to an LLM with a prompt like "answer the question based only on these passages"—adds convenience but isn't always necessary. Sometimes I just want the relevant paragraphs with citations. The LLM summary is helpful for complex questions that span multiple studies, less so for simple lookups.
+
+What changed my workflow wasn't sophistication; it was coverage. I now find relevant studies I would have missed with keyword search. The four-hour manual search became a two-minute query. More importantly, I stopped being limited to my vocabulary—the system surfaces studies using terminology I didn't think to search for.
+
+---
+
+The system has clear limitations. It's read-only; you can't ask follow-up questions that depend on previous answers. It doesn't reason across documents—it retrieves relevant passages but doesn't synthesize relationships between studies. It occasionally retrieves irrelevant passages that happen to share vocabulary with the query.
+
+For serious systematic review work, you still need structured extraction and formal quality assessment. This tool doesn't replace that. But for exploratory queries—"what exists on this topic?"—it's transformed how I interact with a research corpus.
+
+The code is relatively simple: PyMuPDF for extraction, sentence-transformers for embedding, FAISS for indexing, OpenAI for synthesis. The complexity isn't in any individual component but in tuning the pipeline end-to-end: chunk size, overlap, embedding model choice, retrieval count, prompt design.
+
+If you're building something similar, start with the retrieval and ignore the generation until retrieval works well. A good retrieval system with no LLM is useful. A fancy LLM on top of bad retrieval is just confidently wrong.
+
+---
+
+The deeper lesson from building this system is about the nature of search itself. Keyword search assumes you know what you're looking for. Semantic search assumes you know what you mean. These are different assumptions, and they fail in different ways.
+
+For research synthesis, semantic search is usually what you want. You have a question; you need studies that address it, regardless of their terminology. But occasionally keyword search is right—when you're looking for a specific citation, a particular author, an exact phrase from a methodology section.
+
+The production version of this system includes both: semantic search for conceptual queries, keyword search for exact matching, metadata filters for year, country, and methodology. The hybrid approach handles more query types than either alone.
+
+Building the system took a weekend. Tuning it to be actually useful took longer. Understanding when to use it versus other approaches took longer still.
+
+*Code available on GitHub. The architecture has since evolved into DevChat, described in a separate post.*
         if filename.endswith('.pdf'):
             pdf_path = os.path.join(pdf_folder, filename)
             text = extract_text_from_pdf(pdf_path)

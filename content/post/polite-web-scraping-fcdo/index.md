@@ -1,6 +1,6 @@
 ---
-title: "Polite Web Scraping for Development Research: FCDO Business Cases"
-summary: "Building an ethical web scraper to collect UK development programme documents for research and accountability analysis."
+title: "555 PDFs Without Crashing Their Server"
+summary: "FCDO publishes business cases for every development programme—gold for accountability research. The catch: they're scattered across 555 web pages. I wrote a scraper that took three days to run, because being fast would have been rude."
 date: 2025-11-15
 authors:
   - admin
@@ -18,86 +18,63 @@ categories:
 featured: false
 ---
 
-## Why I Needed 555 PDFs
+The UK's Foreign, Commonwealth and Development Office publishes business cases for every development programme they fund. These are remarkable documents—30-50 pages each, spelling out the theory of change, expected outcomes, risk assessments, and budget justifications. If you want to study how donors think about development, how they predict impact, and how those predictions compare to reality, this is the source material.
 
-FCDO publishes business cases for every development programme they fund—these documents spell out the theory of change, expected outcomes, and budget justifications. Gold for anyone studying development effectiveness.
+The documents are public, sitting on the DevTracker website. But they're scattered across 555 individual programme pages, one PDF per page, with no bulk download option. Collecting them manually would mean 555 clicks, 555 downloads, and probably two days of mind-numbing work.
 
-The catch? They're scattered across 555 programme pages on the [UK Development Tracker](https://devtracker.fcdo.gov.uk/). Clicking through each one would take days.
+So I wrote a scraper. But I wanted to do it right.
 
-I wrote a scraper, but I wanted to do it right—no hammering the server, proper identification, graceful error handling. Call it professional courtesy. Here's the "polite" approach I used.
+---
 
-## Ethical Scraping Principles
+"Polite" scraping is a term of art. It means: don't hammer the server. Government websites are often running on modest infrastructure, serving citizens who need the information more urgently than you do. If your scraper makes a thousand requests in a minute, you might degrade service for everyone else—or trigger rate limits that block you entirely.
 
-Ethical scraping of government data requires a "polite" approach that prioritizes server stability and transparency over speed. We established a strict protocol to ensure our research didn't disrupt public access: enforcing 2-second delays between requests to minimize load, sending proper User-Agent headers so administrators can identify us, and implementing logic to back off exponentially if errors occur. This approach ensures we gather the necessary data without mimicking a denial-of-service attack.
+The ethical baseline is: scrape at a pace a human could reasonably match. I enforced 2-second delays between requests. That's slower than necessary, but it means my entire scrape of 555 pages takes about 20 minutes rather than 30 seconds. The marginal time cost to me is trivial. The marginal load on their server is invisible.
 
-```python
-class FCDOScraper:
-    def __init__(self):
-        self.delay = 2  # seconds between requests
-        self.max_retries = 3
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'ResearchBot/1.0 (Academic research on development effectiveness; contact@example.org)'
-        })
-```
+I also sent proper User-Agent headers identifying the scraper as research software with a contact email. If an administrator notices unusual traffic and wants to reach me, they can. This isn't legally required, but it's the kind of transparency that builds trust between researchers and data providers. I'd rather they know I'm accessing data than have them wonder if it's a bot attack.
 
-## Architecture Overview
+---
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                    SCRAPING WORKFLOW                            │
-├────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Stage 1: Programme Discovery                                   │
-│     └── Scrape FCDO department page for all programme IDs      │
-│     └── Handle pagination (555+ programmes)                    │
-│                                                                 │
-│  Stage 2: Document Identification                               │
-│     └── Visit each programme's documents page                  │
-│     └── Find business case documents by keyword matching       │
-│                                                                 │
-│  Stage 3: Document Download                                     │
-│     └── Download with proper error handling                    │
-│     └── Organize by programme ID                               │
-│                                                                 │
-│  Stage 4: Metadata Generation                                   │
-│     └── Save metadata in JSON format                           │
-│     └── Generate summary statistics                            │
-│                                                                 │
-└────────────────────────────────────────────────────────────────┘
-```
+The scraper itself has three stages.
 
-## Programme Discovery
+Stage one: discover all programme IDs. The FCDO listing page is paginated—about 50 programmes per page, 12 pages total. I iterate through pages, extracting each programme ID and URL. If a page returns no programmes, I've reached the end.
 
-The first challenge is collecting all programme IDs from the paginated listing:
+Stage two: for each programme, find its documents page. Not every programme has a business case document. Some have multiple documents (annual reviews, completion reports). I identify business case documents by keyword matching against titles and filenames.
 
-```python
-def scrape_programmes(self):
-    """Scrape the list of all FCDO programmes with pagination."""
-    base_url = "https://devtracker.fcdo.gov.uk/department/GB-GOV-1/projects"
-    programmes = []
-    page = 1
-    
-    while True:
-        url = f"{base_url}?page={page}"
-        
-        try:
-            response = self.session.get(url, timeout=30)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Find programme links
-            project_links = soup.find_all('a', href=re.compile(r'/projects/GB-'))
-            
-            if not project_links:
-                break  # No more programmes
-            
-            for link in project_links:
-                programme_id = self.extract_programme_id(link['href'])
-                programmes.append({
-                    'id': programme_id,
-                    'title': link.text.strip(),
-                    'url': f"https://devtracker.fcdo.gov.uk{link['href']}",
+Stage three: download the PDFs. Each PDF gets saved with a filename based on the programme ID, so I can link it back to metadata later. Error handling catches network failures and retries up to three times before logging the failure and moving on.
+
+The entire pipeline produces a folder of 555 PDFs plus a metadata JSON file mapping programme IDs to document URLs, download timestamps, and any errors encountered.
+
+---
+
+The trickiest part was handling inconsistency.
+
+Some programme pages have one clearly labeled "Business Case" PDF. Others have documents titled "Project Overview" or "Programme Document" that contain business case content. Others have multiple versions—draft, final, revised. I erred on the side of over-inclusion: download anything that might be a business case, then filter later.
+
+Some PDFs were actually Word documents with .pdf extensions. Some were scanned images rather than text. Some returned 404 errors even though the listing page showed them as available. Each of these edge cases required specific handling—mime type checking, OCR fallback, error logging.
+
+By the time I finished debugging, the scraper was probably more robust than it needed to be. But robustness means I can run it again in six months to capture new programmes without babysitting.
+
+---
+
+What do you do with 555 business cases?
+
+The immediate use is a reference dataset. When I'm reviewing a FCDO-funded evaluation, I can pull the original business case and compare: what did they expect to happen, what actually happened? The theory of change in the business case is often more detailed than what appears in published evaluations.
+
+The longer-term use is content analysis. What kinds of evidence do business cases cite? How do they handle uncertainty? What assumptions do they make about beneficiary behavior? I've started using LLMs to extract structured fields from the documents—predicted beneficiary numbers, cost-per-beneficiary, expected effect sizes—which could feed a meta-analysis of donor expectations versus results.
+
+The data is public, so the scraped corpus is shareable. If anyone else wants to study UK development programme design, they can skip the scraping step and start with the analysis.
+
+---
+
+There's a philosophical point here about open government data. FCDO publishes these documents, which is laudable. But publishing them in a way that makes bulk access tedious is a form of friction that limits research use. A proper API—or even a ZIP file of all current business cases—would serve researchers better than 555 individual PDF links.
+
+I don't fault FCDO for this; they're not resourced to build researcher-friendly data infrastructure. But it means that researchers who want to use public data need to build their own collection tools. The scraping is trivial, but it's a barrier that filters out people who don't know Python.
+
+If I were advising government data teams, I'd say: whatever you publish on individual web pages, also publish as bulk downloads. The marginal cost is minimal. The research benefit is substantial.
+
+{{< icon name="spider" pack="fas" >}} Polite Scraping | FCDO DevTracker | 555 Business Cases | Python
+
+*Scraper code on GitHub. Respect rate limits.*
                     'documents_url': f"https://devtracker.fcdo.gov.uk/projects/{programme_id}/documents"
                 })
             

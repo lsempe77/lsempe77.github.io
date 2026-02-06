@@ -1,6 +1,6 @@
 ---
-title: "Building a Multi-Model Synthetic Data Pipeline for ML Training"
-summary: "How to create reproducible, auditable synthetic data using multiple LLM providers for training machine learning models in evidence synthesis."
+title: "Manufacturing Evidence (Responsibly)"
+summary: "When you need training data for an evidence synthesis classifier but only have 200 labeled examples, synthetic generation becomes attractive. Making it work without producing garbage took real engineering."
 date: 2025-11-28
 authors:
   - admin
@@ -18,86 +18,67 @@ categories:
 featured: false
 ---
 
-## The Problem: Not Enough Training Data
+I wanted to train a classifier to identify study methodologies from abstracts. Randomized trials, quasi-experiments, qualitative studies—the categories that matter for evidence synthesis. The problem was obvious: I had 200 labeled examples. Nowhere near enough for a neural classifier, barely enough for a traditional model.
 
-I wanted to train a classifier to identify study methodologies from abstracts. The problem? I had maybe 200 labeled examples—nowhere near enough.
+Manual labeling would take weeks. I tried to budget for annotators, but the numbers didn't work. Then the thought occurred: LLMs can write abstracts. What if I got them to generate realistic fake studies across all my categories?
 
-Labeling more manually would take weeks. Hiring annotators was out of budget. Then I thought: what if I got LLMs to generate realistic fake studies?
+The first attempt was embarrassing. I prompted GPT-4 to "generate an abstract for a randomized controlled trial studying education interventions in sub-Saharan Africa." It produced something plausible. Then I ran it 100 times and got essentially the same abstract with minor variations—same structure, same sample size range, same results pattern. The model had learned a template, and it was stuck in that template.
 
-The first attempt was a mess—GPT kept producing the same generic RCT over and over. Getting diverse, realistic, reproducible synthetic data took real engineering. Here's the pipeline I ended up with.
+Synthetic data generation requires diversity, realism, and labels you can trust. Achieving all three took substantially more engineering than I expected.
 
-## Architecture Overview
+---
 
-Our synthetic data pipeline is an 8-step process that generates complete "study entities" with full provenance tracking:
+The core insight came from thinking about what makes studies different. It's not just methodology—it's sector (education, health, agriculture), country context (high-income versus low-income, stable versus fragile), sample size (50 participants versus 50,000), outcome type (behavioral, economic, attitudinal), and a dozen other dimensions.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    SYNTHETIC DATA PIPELINE                       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  Step 1: Entity Generation                                       │
-│     └── Generate study metadata (method, sector, country, year) │
-│                                                                  │
-│  Step 2: Ground Truth Paper Generation                           │
-│     └── Create unbiased, methodologically sound papers          │
-│                                                                  │
-│  Step 3: Biased Paper Generation                                 │
-│     └── Introduce controlled methodological flaws               │
-│                                                                  │
-│  Step 4: Critical Appraisal                                      │
-│     └── Generate quality assessments                            │
-│                                                                  │
-│  Step 5: Validation                                              │
-│     └── Cross-check outputs for consistency                     │
-│                                                                  │
-│  Step 6: Training Data Generation                                │
-│     └── Format for ML training                                  │
-│                                                                  │
-│  Step 7: Summary Statistics                                      │
-│     └── Generate reports and metrics                            │
-│                                                                  │
-│  Step 8: Save Outputs                                            │
-│     └── Export to JSON/Excel with full provenance               │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+Instead of prompting for abstracts directly, I built a generator that first creates study metadata: methodology, sector, country, sample size, time period, outcome variables. Each dimension has a distribution calibrated from real evidence maps. RCTs are about 15% of the corpus. Education is 25%. Kenya appears more often than Timor-Leste because there's genuinely more research there.
 
-## Multi-Provider Support
+Then a separate step generates the abstract conditioned on the metadata. This decomposition helps because the model isn't trying to make all creative decisions at once. The methodology is fixed. The sector is fixed. The model just needs to write a realistic abstract consistent with those constraints.
 
-To ensure the pipeline remains resilient and cost-effective, I engineered it to be provider-agnostic. Relying on a single LLM API is risky due to potential downtime or rate limit changes. By abstracting the client logic, the system can seamlessly switch between OpenAI, Claude, Grok, Mistral, or Gemini, allowing us to compare output quality across models and optimize for the best price-performance ratio for each specific generation step.
+---
 
-```python
-from src.core.llm_clients import (
-    OpenAIClient, 
-    ClaudeClient, 
-    GrokClient, 
-    MistralClient, 
-    GeminiClient
-)
+Diversity required explicit intervention. Temperature adjustments helped, but not enough. I added constraint variations: some studies have positive findings, some negative, some null. Some have large samples, some tiny. Some report confidence intervals, some just p-values. Some are written in formal academic prose, some in the telegraphic style of certain journals.
 
-CLIENTS = {
-    'openai': OpenAIClient,
-    'claude': ClaudeClient,
-    'grok': GrokClient,
-    'mistral': MistralClient,
-    'gemini': GeminiClient
-}
+The key was tracking what had already been generated and adjusting sampling to fill gaps. If the first 100 generated studies are disproportionately from Kenya, the sampler reduces Kenya's probability. If quasi-experiments are underrepresented, the sampler boosts them. This produces a corpus that matches target distributions rather than whatever the model's priors prefer.
 
-FALLBACK_MODELS = {
-    'openai': 'gpt-4o-mini',
-    'claude': 'claude-3-5-haiku-20241022',
-    'grok': 'grok-3-mini',
-    'mistral': 'mistral-small-latest',
-    'gemini': 'gemini-2.5-flash'
-}
+I also rotated across multiple LLM providers. OpenAI, Claude, Gemini, Mistral—each has slightly different writing styles and biases. Mixing them produces more natural variation than any single model at high temperature.
 
-def create_provider_client(provider: str, step: int):
-    """Create a client for the specified provider and step"""
-    model = get_model_for_step(step, provider)
-    return CLIENTS[provider](api_key=API_KEYS[provider], model=model)
-```
+---
 
-## Proportional Method Distribution
+The controversial part of this pipeline is biased generation. Real studies have methodological flaws. Selection bias, attrition, spillover, weak instruments. A classifier trained only on methodologically pristine synthetic studies won't recognize flawed real ones.
+
+So I added a step that deliberately introduces problems. Take a "ground truth" RCT abstract and generate a version with randomization failures described. Take a clean difference-in-differences study and create a version with obvious parallel trends violations. The prompt explicitly describes what flaw to introduce, and the model rewrites the abstract accordingly.
+
+This felt uncomfortable at first—deliberately generating bad science. But the purpose is training a detector, not producing deceptive papers. Labeled flaws in synthetic data help classifiers recognize unlabeled flaws in real data.
+
+---
+
+Validation was non-negotiable. Synthetic data is useless if it doesn't actually resemble real data. I ran multiple checks.
+
+First, embedding similarity: synthetic abstracts should occupy the same region of embedding space as real abstracts from similar categories. An RCT about education should be close to real education RCTs, not randomly positioned.
+
+Second, discriminator training: I trained a model to distinguish synthetic from real. If it achieves high accuracy, the synthetic data is obviously fake. Good synthetic data should be hard to distinguish, achieving near-random discriminator performance.
+
+Third, human spot-checks: I mixed synthetic and real abstracts and asked colleagues to identify which was which. Experts could often tell, but not always. The synthetic examples that fooled experts had the right structure, terminology, and detail level.
+
+Fourth, downstream task performance: the whole point was training a methodology classifier. Does training on synthetic data actually help? I trained models on different mixtures of real and synthetic data and evaluated on held-out real examples. Synthetic data improved performance when real data was scarce, but the improvement had limits. Beyond a certain ratio, more synthetic examples didn't help.
+
+---
+
+Provenance tracking turned out to be essential. Every generated study carries metadata: which model generated it, with what prompt version, at what temperature, targeting what category. When something goes wrong downstream—the classifier behaves strangely, an evaluation metric is off—you need to trace back to generation parameters.
+
+The output structure includes the complete generation history. For the biased examples, it includes what flaw was introduced. For everything, it includes checksums so you can verify that the training data hasn't been modified after generation.
+
+Cost matters at scale. Generating 10,000 abstracts isn't cheap across multiple providers. I stratified by step complexity: metadata generation uses cheap, fast models (GPT-4o-mini, Haiku); abstract generation uses capable models (GPT-4o, Sonnet); validation uses cheap models again. This reduced per-example cost by about 60% compared to using expensive models throughout.
+
+---
+
+The classifier trained on synthetic data now runs in production, pre-screening studies for evidence maps. It's not perfect—nothing is—but it handles categories I couldn't have covered with 200 real examples. The synthetic pipeline runs on demand when we need training data for new classification tasks.
+
+Would I recommend this approach generally? With caveats. Synthetic data is a multiplier, not a replacement. You still need some real examples to calibrate distributions and validate quality. The generation pipeline is non-trivial to build correctly. And for some domains, synthetic examples may embed the model's biases rather than reflecting real-world variation.
+
+But for evidence synthesis, where real data is expensive and domain structure is well-defined, synthetic generation has become a standard part of my toolkit. It's manufacturing evidence in a specific, controlled sense—producing labeled examples for training, not producing fake research for publication.
+
+*Pipeline code available with documentation. Requires API keys for multiple LLM providers.*
 
 To ensure realistic training data, we generate studies with methodology proportions matching real-world distributions:
 

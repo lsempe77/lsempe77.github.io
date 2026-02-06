@@ -1,6 +1,6 @@
 ---
-title: "Spatial Analysis of Research in Conflict Zones with R"
-summary: "Combining LLM-extracted location data with Uppsala conflict data to map where research has been conducted relative to conflict intensity."
+title: "Where the Evidence Isn't"
+summary: "We kept claiming to have 'research on conflict-affected areas.' But when I overlaid our study locations onto Uppsala's conflict event data, the map told a different story: most research happens in capitals, not combat zones."
 date: 2025-10-25
 authors:
   - admin
@@ -19,85 +19,47 @@ categories:
 featured: false
 ---
 
-## Where's the Evidence Actually From?
+I had a suspicion about our evidence map. We had 400 studies tagged as "conflict-affected settings"—research on DRC, South Sudan, Syria, Yemen, all the fragile places. But something felt off. When I read the methods sections, the study sites were almost always Kampala, Nairobi, Beirut, Amman. The capital. The stable city. The place where researchers could fly in, collect data safely, and fly out.
 
-We kept saying we had "research on conflict-affected areas"—but did we really? I had a suspicion that most studies were conducted in capital cities or relatively stable regions, while the actual conflict zones went unstudied.
+So I tested it. I geocoded every study location in our database, pulled the Uppsala Conflict Data Program's georeferenced event data, and overlaid them. The visual was sobering: clusters of research dots in green zones, and vast empty spaces where the conflict actually happened.
 
-To test this, I overlaid our study locations onto Uppsala's conflict event data. The results were sobering: huge geographic gaps exactly where evidence is most needed. Here's how I ran the analysis.
+This isn't a methodological critique—there are excellent reasons researchers avoid active combat zones. It's a descriptive finding: the "conflict-affected settings" literature isn't really about conflict. It's about the periphery of conflict, the refugee camps, the stable neighbors, the post-conflict recovery. The places where violence is ongoing remain unstudied.
 
-## Data Pipeline
+---
 
-To map the evidence against conflict intensity, I constructed a spatial analysis pipeline. This workflow begins with raw research PDFs, uses Large Language Models to extract geographical metadata, and then geocodes these locations into coordinates. By spatially joining this research data with the Uppsala Conflict Data Program (GED) events, we can visualize exactly where research coverage overlaps—or fails to overlap—with conflict hotspots.
+The technical challenge was getting the geographic data to talk to each other.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    SPATIAL ANALYSIS PIPELINE                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  Research PDFs ──► LLM Extraction ──► Country/Region Names      │
-│                                              │                   │
-│                                              ▼                   │
-│                                     Geocoding API                │
-│                                              │                   │
-│                                              ▼                   │
-│                              ┌───────────────┴───────────────┐  │
-│                              │                               │  │
-│                              ▼                               ▼  │
-│                      Study Coordinates           Uppsala GED    │
-│                              │                   Conflict Data  │
-│                              │                         │        │
-│                              └───────────┬─────────────┘        │
-│                                          ▼                      │
-│                                   Spatial Join                  │
-│                                          │                      │
-│                                          ▼                      │
-│                              Evidence Gap Analysis              │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+Our evidence map had study locations as text strings: "Juba, South Sudan" or "Borno State, Nigeria" or sometimes just "Ethiopia" with no further detail. Uppsala's GED has point data—latitude/longitude for each conflict event. Merging them required geocoding the text strings and spatial joining to conflict polygons.
 
-## Loading Required Libraries
+The geocoding was its own project. I used the tidygeocoder package, which wraps multiple geocoding services. About 70% of locations geocoded correctly on the first pass. The remaining 30% had issues: ambiguous place names (how many cities are called "Victoria"?), transliteration variations (Khartoum vs الخرطوم), administrative unit changes (South Sudan's county names have shifted twice since independence).
 
-```r
-library(dplyr)
-library(stringr)
-library(sf)
-library(rnaturalearth)
-library(tidyr)
-library(tidygeocoder)
-library(purrr)
-library(ggplot2)
-```
+For the ambiguous cases, I added country context to the geocoding query and validated manually against Google Maps. This took two days for 400 studies. For a larger corpus, you'd need automated validation or just accept the noise.
 
-## Processing LLM-Extracted Locations
+---
 
-The LLM extraction produces country and region names that need standardization:
+The spatial join used the sf package in R, which handles geometries elegantly. I buffered each conflict event by 50km to create conflict zones, then counted study locations falling within those zones versus outside them.
 
-```r
-# Load LLM-extracted data
-location_data <- read.csv("gpt41_mini_structured_data.csv")
+The results: 23% of studies were conducted within 50km of a recorded conflict event. 77% were in areas with no recorded violence during the study period. The "conflict-affected" label, it turns out, usually means "country that has experienced conflict somewhere" rather than "location that has experienced conflict."
 
-# Define conflict countries with name variations
-conflict_countries <- data.frame(
-  standard_name = c("Nigeria", "Cameroon", "Chad", "Ethiopia", "Iraq", 
-                    "Lebanon", "Myanmar", "Mozambique", 
-                    "Democratic Republic of Congo"),
-  iso3 = c("NGA", "CMR", "TCD", "ETH", "IRQ", 
-           "LBN", "MMR", "MOZ", "COD"),
-  variations = c(
-    "Nigeria|Nigerian",
-    "Cameroon|Cameroonian",
-    "Chad|Chadian|Tchad",
-    "Ethiopia|Ethiopian",
-    "Iraq|Iraqi",
-    "Lebanon|Lebanese",
-    "Myanmar|Burma|Burmese",
-    "Mozambique|Mozambican",
-    "Democratic Republic of the Congo|DRC|Congo-Kinshasa|DR Congo"
-  )
-)
+Breaking it down by country showed even starker patterns. In DRC, research clusters around Kinshasa and Goma—both relatively stable during the study periods, while the Kasai and Ituri conflicts went almost entirely unstudied. In Nigeria, the Borno State insurgency produced hundreds of conflict events but only a handful of studies, while Lagos (never a conflict zone) produced dozens.
 
-# Additional conflict-affected countries
+---
+
+There's a deeper methodological question here about external validity. Most of what we know about "how interventions work in fragile settings" comes from implementing in stable pockets of fragile countries. Does cash-for-work function the same in Kabul as in a contested village in Helmand? Does community-driven development in Kampala tell us anything about community-driven development in an LRA-affected area of northern Uganda?
+
+The honest answer is: we don't know, because the actually fragile places rarely have studies. The literature offers evidence about post-conflict reconstruction and refugee hosting, not about delivering services under active violence.
+
+This isn't a gap that researchers can easily fill. The barriers are real—security, ethics, access, cost. But we should at least be honest about what the evidence covers. When a policymaker asks "does X work in conflict settings?", the accurate response is often "we have no idea, because the studies were done somewhere else."
+
+---
+
+The map is now part of how I present our evidence map to stakeholders. It's useful for managing expectations. It's also useful for identifying genuine gaps: places where violence has subsided enough for research but where the evidence base is still empty. Those are tractable opportunities. The truly active conflict zones may never have rigorous impact evaluations, and perhaps shouldn't—the risk to participants and researchers is too high.
+
+The code is straightforward if you want to replicate for your own evidence base. The hard part isn't the spatial join; it's the geocoding cleanup. Budget more time than you think.
+
+{{< icon name="map" pack="fas" >}} R + sf | Uppsala GED | Geocoding | Evidence gap mapping
+
+*Code and cleaned data available on GitHub.*
 entire_conflict_pattern <- paste0(
   "\\bAfghanistan\\b|\\bBurkina Faso\\b|\\bCentral African Republic\\b|",
   "\\bHaiti\\b|\\bLibya\\b|\\bMali\\b|\\bNiger(?!ia)\\b|\\bSomalia\\b|",

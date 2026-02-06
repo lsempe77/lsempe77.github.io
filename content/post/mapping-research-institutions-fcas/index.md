@@ -1,6 +1,6 @@
 ---
-title: "Mapping Research Institutions in Fragile States Using AI"
-summary: "Combining web search AI, fuzzy matching, and LLM-powered verification to map research capacity in conflict-affected regions."
+title: "3,000 Messy Rows, 800 Real Institutions"
+summary: "University of Khartoum, Univ. Khartoum, جامعة الخرطوم, Khartoum University—same institution, four names. We were trying to map research capacity in fragile states, but the data was chaos. Here's the pipeline that cleaned it."
 date: 2025-11-05
 authors:
   - admin
@@ -18,86 +18,53 @@ categories:
 featured: false
 ---
 
-## The Mess We Started With
+We wanted to know something simple: where is research capacity in fragile states? Not where international researchers fly in to collect data, but where local institutions produce their own scholarship. Which universities in DRC publish development research? Which think tanks in Somalia conduct impact evaluations? Which government agencies in South Sudan partner with academics?
 
-"University of Khartoum", "Univ. Khartoum", "جامعة الخرطوم", "Khartoum University"—same institution, four different names in our database.
+The answer should have been in our data. We had author affiliations from two major databases—thousands of studies tagged with institutional affiliations. But when I opened the spreadsheet, I understood why nobody had done this analysis before.
 
-We were trying to map research capacity across fragile states, but the author affiliation data was chaos. Some entries had Arabic script, others were transliterated inconsistently, and many had typos or abbreviations. A simple string match caught maybe 30% of duplicates.
+The data was chaos.
 
-So I built a multi-step pipeline: AI web search to verify institutions exist, fuzzy matching to catch typos, and LLM review for edge cases. It's not perfect, but it got us from 3,000 messy entries to a clean directory of ~800 verified institutions.
+"University of Khartoum" appeared seventeen different ways: full English name, abbreviated, Arabic script, transliterated Arabic, with and without "The." Some entries had typos. Some had the department name instead of the institution. Some just said "Sudan" with no institution at all.
 
-## Data Sources
+A simple string match would catch maybe 30% of duplicates. The other 70% would show up as separate institutions, inflating our count and making the data useless for capacity mapping.
 
-We combined two evidence databases:
+---
 
-| Source | Focus | Records |
-|--------|-------|---------|
-| Development Evidence Portal (DEP) | Impact evaluations and systematic reviews | Thousands |
-| FCAS Evidence Map | Conflict-affected settings research | Hundreds |
+The solution was a multi-step verification pipeline that mimics how a human researcher would clean this data—but at scale.
 
-Together, these provided broad coverage of development research with author affiliations in target countries.
+Step one: AI-powered web search. For each institution name, I queried Perplexity AI to verify existence and retrieve the official name and website. This caught cases where the database entry was garbled but the institution was real. It also flagged entries that weren't institutions at all—consulting firms, government ministries, international organizations with local offices.
 
-## The Multi-Step Verification Pipeline
+Step two: website-based deduplication. Institutions with the same official website are the same institution, regardless of how the name appears in the data. "جامعة الخرطوم" and "University of Khartoum" both resolve to uofk.edu—merge them.
 
-To tackle this data chaos, I designed a multi-stage verification pipeline that mimics how a human researcher would manually verify an institution, but at scale. We start by using AI to perform intelligent web searches, verifying the existence of each entity. This is followed by website-based deduplication and fuzzy string matching to consolidate variations. Finally, we employ an LLM-powered audit to catch subtle classification errors that traditional algorithms miss, resulting in a clean, verified directory derived from thousands of messy records.
+Step three: fuzzy string matching. RapidFuzz catches spelling variations that the web search missed. "Univeristy of Khartoum" (typo) matches "University of Khartoum" at 95% similarity—merge them. I set the threshold at 90% to avoid false positives.
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│              INSTITUTION VERIFICATION PIPELINE                  │
-├────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  Step 1: Web Search Verification                                │
-│     └── Use Perplexity AI to verify existence and get          │
-│         official names and websites                            │
-│                                                                 │
-│  Step 2: Website-Based Deduplication                            │
-│     └── Merge institutions sharing the same official website   │
-│                                                                 │
-│  Step 3: Fuzzy String Matching                                  │
-│     └── RapidFuzz algorithm to catch spelling variations       │
-│                                                                 │
-│  Step 4: Native Filtering                                       │
-│     └── Exclude international organizations and branches       │
-│                                                                 │
-│  Step 5: LLM-Powered Audit                                      │
-│     └── Claude reviews for classification errors               │
-│                                                                 │
-│  Step 6: Manual Review                                          │
-│     └── Human verification of edge cases                       │
-│                                                                 │
-└────────────────────────────────────────────────────────────────┘
-```
+Step four: native filtering. We only wanted institutions headquartered in fragile states, not international organizations with local branches. World Bank offices don't count as local research capacity, even if a World Bank economist in Juba co-authors a paper. This required LLM judgment on ambiguous cases.
 
-## Step 1: AI-Powered Web Search
+Step five: LLM-powered audit. Claude reviewed the final list for classification errors—entries that slipped through as institutions but were actually NGOs, or entries marked international that were actually domestic. This caught maybe 50 errors the previous steps missed.
 
-We used Perplexity AI for intelligent web searches:
+Step six: human review of edge cases. About 200 entries required manual judgment. These were cases where the AI was uncertain, or where the institution's status was genuinely ambiguous.
 
-```python
-import requests
-import json
+---
 
-def search_institution(institution_name, country):
-    """Use Perplexity AI to verify institution and get official info."""
-    
-    query = f"""
-    Find the official website and full name for this research institution:
-    Institution: {institution_name}
-    Country: {country}
-    
-    Return:
-    1. Official institution name
-    2. Institution type (University, Research Institute, Government, NGO, etc.)
-    3. Official website URL
-    4. Whether this is a native institution (headquartered in the country)
-    """
-    
-    response = requests.post(
-        "https://api.perplexity.ai/chat/completions",
-        headers={"Authorization": f"Bearer {API_KEY}"},
-        json={
-            "model": "sonar-pro",
-            "messages": [{"role": "user", "content": query}]
-        }
+The result: 3,000 messy rows became 800 verified institutions.
+
+Breaking it down by country revealed patterns I hadn't expected. Ethiopia has the most domestic research institutions—over 100 universities and research centers producing development-relevant scholarship. DRC has surprisingly few, given its size; most research there is produced by international collaborators. South Sudan has almost none—virtually all research on South Sudan is conducted by institutions in Kenya, Uganda, or the global North.
+
+The type breakdown was also instructive. Universities dominate, but government research agencies appear more often than I expected, particularly in Ethiopia and Nigeria. Think tanks and research NGOs are common in the Middle East (Lebanon, Iraq) but rare in sub-Saharan fragile states outside Kenya.
+
+---
+
+The harder question is what this means for research capacity.
+
+Having an institution that publishes research is necessary but not sufficient for research capacity. Many of the universities I verified produce one or two papers a decade—enough to appear in the database, not enough to constitute meaningful capacity. Others produce dozens but on topics tangential to development. A university with a strong physics department and no social science faculty shows up in my count but doesn't help policymakers understand what works in fragile settings.
+
+The next step—which I haven't taken yet—is to weight institutions by output and relevance. Not just "does this institution exist?" but "does this institution produce policy-relevant research, and how much?" That requires analyzing citation patterns, journal venues, and topic modeling across the publication corpus. It's a bigger project than the data cleaning exercise I've completed.
+
+For now, the clean list exists. Anyone doing capacity mapping in fragile states can use it as a starting point rather than starting from the same messy data I inherited. That's the modest contribution: fewer hours wasted on deduplication, more hours available for the analysis that actually matters.
+
+{{< icon name="university" pack="fas" >}} Institution Mapping | FCAS Research Capacity | Data Cleaning Pipeline
+
+*Dataset and code available on request.*
     )
     
     return parse_institution_response(response.json())

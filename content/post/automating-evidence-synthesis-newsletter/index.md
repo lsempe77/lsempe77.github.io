@@ -1,7 +1,7 @@
 ---
-title: "Automating Your Evidence Synthesis Newsletter with AI"
-subtitle: "How I built a pipeline that scans academic databases and generates weekly research digests using LLMs"
-summary: "A practical guide to building an automated newsletter system that monitors the latest research on LLMs in evidence synthesis, using OpenAlex, PubMed, arXiv, and an AI editor."
+title: "I Got Tired of Missing Papers"
+subtitle: "Automating a weekly evidence synthesis newsletter with AI"
+summary: "Three papers on LLMs for systematic reviews dropped last week. I found out about them a month later. So I built a pipeline that scans academic databases and writes practitioner-focused summaries while I sleep."
 authors:
   - admin
 tags:
@@ -12,8 +12,8 @@ tags:
   - Newsletter
   - Research Monitoring
 categories:
-  - Tutorials
-  - AI Tools
+  - Research Tools
+  - AI
 date: 2025-12-23
 lastmod: 2025-12-23
 featured: false
@@ -26,78 +26,53 @@ image:
   preview_only: false
 ---
 
-## I Couldn't Keep Up
+The field moves faster than I can read.
 
-Three new papers on LLMs for systematic reviews dropped last week. I found out about them a month later.
+Every week, someone publishes a new benchmark comparing LLMs for title-abstract screening. A startup releases a tool claiming 80% workload reduction. An arXiv preprint introduces a novel approach to data extraction that might actually work. And I find out about it three weeks later, when a colleague mentions it in passing, and I feel like an idiot for not knowing.
 
-The field moves too fast. Every week there's a new tool, a new benchmark, a new methodological paper across PubMed, arXiv, GitHub, and preprint servers. I was constantly behind.
+I tried setting up Google Scholar alerts. They're too noisy—hundreds of tangentially related papers burying the few that matter. I tried RSS feeds from key journals. The important papers often show up on preprint servers first. I tried checking Twitter daily. That way lies madness.
 
-So I automated it. Now a script monitors these sources, deduplicates by DOI, and uses an LLM to write practitioner-focused summaries. Every Monday I get a newsletter draft in my inbox—I just review and publish.
+So I automated it. Now a script runs every Sunday night, pulls from five academic sources, deduplicates by DOI, and sends the results to an LLM that writes the kind of summaries I actually want to read. Monday morning I get a newsletter draft in my inbox. I review it in fifteen minutes, publish it, and know I haven't missed anything important.
 
-## The Solution: AI-Powered Newsletter Generator
+---
 
-To solve this, I architected an automated pipeline that acts as a comprehensive research assistant. It continuously scans multiple academic repositories—including OpenAlex, PubMed, and arXiv—to ingest the latest relevant papers. The system then automatically deduplicates these entries by DOI and retrieves available open-access PDFs, preparing a clean feed for the next stage of processing without me lifting a finger.
+The architecture is simpler than it sounds. Five data sources feed into a pipeline that converges on a single output:
 
-## Architecture Overview
+OpenAlex provides the broadest coverage—170 million papers indexed, with decent metadata and open access links. PubMed catches the biomedical angle that OpenAlex sometimes misses. arXiv gives me preprints before they hit journals. Crossref fills gaps where OpenAlex metadata is incomplete. GitHub surfaces tools and codebases that never make it to academic databases.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Multi-Source Ingestion                        │
-├──────────┬──────────┬──────────┬──────────┬──────────┬──────────┤
-│ OpenAlex │  PubMed  │ Crossref │  arXiv   │  GitHub  │  Google  │
-└────┬─────┴────┬─────┴────┬─────┴────┬─────┴────┬─────┴────┬─────┘
-     │          │          │          │          │          │
-     └──────────┴──────────┴────┬─────┴──────────┴──────────┘
-                                │
-                    ┌───────────▼───────────┐
-                    │   Deduplication (DOI)  │
-                    └───────────┬───────────┘
-                                │
-                    ┌───────────▼───────────┐
-                    │   Unpaywall (PDF URLs) │
-                    └───────────┬───────────┘
-                                │
-                    ┌───────────▼───────────┐
-                    │      AI Editor        │
-                    │  - Headlines          │
-                    │  - Summaries          │
-                    │  - Categories         │
-                    │  - Model extraction   │
-                    │  - Relevance scoring  │
-                    └───────────┬───────────┘
-                                │
-                    ┌───────────▼───────────┐
-                    │   Markdown Output     │
-                    │  newsletter_draft.md  │
-                    └───────────────────────┘
-```
+Each source has its own quirks. PubMed's API returns XML that needs parsing. arXiv's OAI-PMH interface is slow but comprehensive. OpenAlex is fast but sometimes returns duplicates across affiliation variations. The first version of the pipeline crashed constantly because I assumed all APIs would return consistent formats. They don't.
 
-## The AI Editor
+The deduplication stage matches on DOI where available, falling back to fuzzy title matching for preprints without DOIs. This catches about 95% of duplicates. The remaining 5%—papers with slightly different titles across versions—I catch during manual review.
 
-The heart of the system is an LLM agent (via OpenRouter/OpenAI) that:
+---
 
-### 1. Writes Catchy, Practitioner-Focused Headlines
+The interesting part is the AI editor.
 
-Instead of academic titles like:
-> "A Systematic Evaluation of Large Language Model Performance in Risk of Bias Assessment Tasks"
-core of the value proposition is an AI Editor agent, powered by OpenRouter, which transforms dry metadata into a highly readable newsletter. Instead of just listing titles, the agent is prompted to act like a senior editor: it rewrites academic jargon into catchy, practitioner-focused headlines and generates "So What?" summaries that contextualize why a paper matters for evidence synthesis. It also handles the categorization and relevance scoring, ensuring that only the most impactful research makes it to my inbox.
-It generates:
-> "ChatGPT-4o Shows Promise for Data Extraction, Struggles with Bias Assessment"
+Academic titles are written for search algorithms, not humans. "A Systematic Evaluation of Large Language Model Performance in Risk of Bias Assessment Tasks for Randomized Controlled Trials" communicates nothing about why you should care. The AI rewrites it: "GPT-4 Shows Promise for Bias Assessment, Struggles with Complex Domains."
 
-### 2. Summarizes the "So What?" for Evidence Synthesis
+More importantly, the AI generates what I call "So What?" summaries. Not just what the paper does, but why it matters for practitioners. "This tool could reduce screening workload by 40% while maintaining 95% sensitivity—worth evaluating for living reviews with limited resources."
 
-Not just what the paper does, but why it matters:
+The prompt engineering took longer than the rest of the pipeline. Early versions produced corporate-speak ("leveraging cutting-edge AI capabilities") or buried the lede ("This paper, building on extensive prior work in the field, presents..."). I iterated until the outputs sounded like something I'd write if I had time to write it.
 
-> "This tool could reduce screening workload by 36-72% while maintaining high sensitivity—a game-changer for living systematic reviews."
+The model also categorizes each item—new tool, methodology paper, benchmark study, case study—and extracts any specific models mentioned (GPT-4, Claude, Gemini). This makes the newsletter scannable. Readers can jump to the section they care about.
 
-### 3. Categorizes Items
+---
 
-- **New Tool/App**: Software you can use today
-- **Methodology**: New approaches to synthesis tasks
-- **Benchmark**: Evaluation studies
-- **Case Study**: Applied examples
+The whole thing runs on a cron job. Sunday 11pm: fetch from all sources. Monday 12am: deduplicate and fetch PDFs where available. Monday 1am: run through the AI editor. Monday 6am: email me the draft.
 
-### 4. Extracts Mentioned Models
+Total cost per week is about $2 in API calls—mostly the LLM summarization. The academic APIs are free. Running it myself would take 4-5 hours of searching, reading abstracts, and writing summaries. I've been doing this for six months now, which works out to about 100 hours saved for $50.
+
+The newsletter has a few hundred subscribers, mostly evidence synthesis practitioners and research librarians. The feedback I get most often: "How do you find time to read all this?" The honest answer is that I don't—I outsourced the reading to a machine that doesn't get tired.
+
+---
+
+The code is messy but functional. If you want to build something similar, the hard parts are: (1) handling API rate limits gracefully, (2) getting the deduplication right without false negatives, and (3) writing prompts that produce consistently useful output. Everything else is plumbing.
+
+I've thought about making it a proper product—multi-topic support, customizable sources, subscriber management. But that would mean maintaining it, and I already have too many side projects. For now it just runs, every Sunday night, pulling papers I'd otherwise miss and turning them into something I can actually use.
+
+{{< icon name="envelope" pack="fas" >}} Newsletter automation | OpenAlex | PubMed | arXiv | LLM editing
+
+*The newsletter is free. Subscribe link in my bio.*
 
 Automatically identifies: GPT-4, Claude, Llama, Mistral, Gemini, etc.
 

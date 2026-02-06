@@ -1,7 +1,7 @@
 ---
-title: "Building an AI Research Q&A System for Evidence Synthesis"
-subtitle: "How I built a RAG-powered chatbot to query thousands of research studies on Fragile and Conflict-Affected Settings"
-summary: "A technical walkthrough of building a retrieval-augmented generation (RAG) system that synthesizes answers from academic research, with practical lessons on reducing hallucinations and ensuring citation accuracy."
+title: "Teaching an AI to Read 400 Papers"
+subtitle: "Building a RAG-powered Q&A system for fragile state research"
+summary: "Policymakers need answers from thousands of studies. Manual search is slow. Keyword search misses context. Free-form LLMs hallucinate. RAG gives you something in between: grounded synthesis with citations, if you build it right."
 authors:
   - admin
 tags:
@@ -13,8 +13,8 @@ tags:
   - Gemini
   - FAISS
 categories:
-  - Tutorials
-  - AI Tools
+  - Research Tools
+  - AI
 date: 2025-12-24
 lastmod: 2025-12-24
 featured: true
@@ -33,71 +33,51 @@ links:
   url: https://github.com/lsempe77/fcas
 ---
 
-## The Challenge
+A FCDO advisor asked me a question last year: "What does the evidence say about education interventions in active conflict zones?"
 
-Systematic reviews and evidence maps form the backbone of evidence-based policy, often aggregating thousands of individual studies. However, making this wealth of information accessible is a significant hurdle. Policymakers and researchers need quick, reliable answers, but they are often forced to choose between slow, expert-dependent manual searches or simple keyword searches that miss context and drown them in irrelevant results. Free-form LLM queries offer a modern alternative but lack grounding in the specific evidence base, making them prone to dangerous hallucinations.
+I had access to our evidence map—400+ studies on fragile and conflict-affected settings. I knew the answer was in there somewhere. But finding it meant Ctrl+F through dozens of PDFs, reading abstracts, cross-referencing methodologies, and mentally synthesizing findings across studies that used different outcome measures and contexts.
 
-I built a **Retrieval-Augmented Generation (RAG)** system that bridges this gap. By combining semantic search with LLM synthesis, we can generate answers that are both instant and strictly grounded in the actual research evidence.
+It took me four hours to produce a two-paragraph answer with citations.
 
-## The Solution: RAG Architecture
+The advisor needed to ask this kind of question weekly. We both knew that wasn't sustainable. So I built a system that does in seconds what I was doing in hours: ingest the full corpus, understand the question semantically, retrieve the relevant passages, and synthesize an answer with proper citations.
 
-To ensuring accuracy and relevance, the system uses a robust four-stage pipeline. This architecture is designed to progressively filter and refine information, ensuring that the LLM only receives high-quality, relevant context for its final synthesis.
+The system is live now. It works. But the path to "works" was paved with hallucinations.
 
-```
-User Query → Domain Gating → Semantic Search (FAISS) → LLM Synthesis → Cited Answer
-```
+---
 
-### 1. Domain Gating: Reject Non-Research Queries Early
+The core problem with giving LLMs access to research evidence is that they lie confidently. Ask GPT-4 about cash transfers in Somalia, and it will produce a fluent paragraph citing studies that don't exist, with authors whose names it invented, reporting findings that were never measured. The fluency makes the fabrication invisible unless you check every claim.
 
-```python
-# Prevent the system from answering unrelated questions
-if any(pattern in query_lower for pattern in non_research_patterns):
-    return False, 0.1, f"Query contains non-research pattern: '{pattern}'"
-```
+Retrieval-Augmented Generation solves this by constraining the model's knowledge. Instead of asking "what does the evidence say?", you ask "given these specific passages from these specific studies, what can you conclude?" The model can only cite what you give it. It can still misinterpret, but it can't fabricate sources.
 
-This prevents the model from attempting to answer questions outside its knowledge domain—a key anti-hallucination strategy.
+The architecture is a pipeline: user query → domain gating → semantic search → LLM synthesis → cited answer. Each stage reduces the risk of garbage output.
 
-### 2. Semantic Search with FAISS
+Domain gating rejects queries outside the system's competence. If someone asks about the weather or cryptocurrency, the system declines rather than hallucinating an answer from irrelevant passages. This sounds obvious but required explicit implementation—without it, the model would retrieve whatever was vaguely similar and pretend it was relevant.
 
-Instead of keyword matching, we embed queries using Google's Gemini embeddings and search against a pre-built FAISS index:
+Semantic search replaces keyword matching with meaning. "Impact of cash assistance on food security" should match studies about "unconditional transfers" and "nutrition outcomes" even if those exact words don't appear. I use Gemini embeddings with FAISS for fast vector lookup over the chunked corpus.
 
-```python
-embed_result = genai.embed_content(
-    model="models/gemini-embedding-001", 
-    content=query
-)
-query_embedding = np.array([embed_result['embedding']], dtype="float32")
-distances, indices = self.index.search(query_embedding, top_k)
-```
+---
 
-**Key insight**: The model only sees a small set of vetted evidence, not the entire web or its training data.
+The anti-hallucination strategies took the most iteration.
 
-### 3. Adaptive Filtering and Ranking
+First, the synthesis prompt explicitly requires citations. Every claim must be attributed to (Author, Year). The model can't make unsupported statements because the prompt forbids it and I validate outputs. This doesn't eliminate errors, but it makes them checkable.
 
-Not all retrieved chunks are equal. We apply:
-- **Similarity thresholds**: Reject low-confidence matches
-- **Metadata quality boosts**: Prioritize studies with complete methods, sample sizes, and validation
-- **Diversity**: Ensure geographic and methodological spread
+Second, I implemented similarity thresholds. If the best-matching passage has a cosine similarity below 0.6, the system admits ignorance rather than stretching a weak match. "I don't have strong evidence on that topic" is a better answer than a confabulated synthesis of tangentially related studies.
 
-### 4. Grounded Synthesis with Citation Requirements
+Third, I added metadata quality boosts in the ranking. Studies with complete methods sections, sample sizes, and explicit validation get ranked higher than abstracts-only or grey literature. This doesn't exclude weaker sources, but it weights the synthesis toward more credible evidence.
 
-The synthesis prompt explicitly requires citations:
+The result isn't perfect. I estimate about 85% of answers are accurate and useful. Another 10% are accurate but incomplete—missing relevant studies that didn't rank highly. About 5% contain errors, usually subtle mischaracterizations of study findings rather than outright fabrications.
 
-```text
-SYNTHESIS_INSTRUCTIONS:
-1. Direct Answer First: Start with a clear, direct answer
-2. Evidence-Based: Ground ALL claims in provided studies with citations (Author, Year)
-3. Acknowledge limitations when evidence is sparse
+For a policymaker who needs to survey the literature quickly and then verify the key studies manually, that's good enough. For a systematic reviewer who needs exhaustive coverage, it's a starting point, not an endpoint.
 
-STUDIES TO SYNTHESIZE:
-{studies_context}
-```
+---
 
-## Anti-Hallucination Strategies
+The live demo is on HuggingFace Spaces. It's free to use, but rate-limited to keep my API costs manageable. The interface lets you ask natural language questions and returns synthesized answers with clickable citations that link to source studies.
 
-This was my biggest concern. Here's what works:
+What I learned building this: RAG is not a silver bullet. The quality depends entirely on the corpus (garbage in, garbage out), the chunking strategy (too small loses context, too large loses precision), and the prompt engineering (vague prompts produce vague answers). The underlying models are impressive, but the system around them is where the work lives.
 
-| Strategy | Implementation | Impact |
+{{< icon name="robot" pack="fas" >}} RAG | FAISS | Gemini | 400+ studies | Live demo available
+
+*Try it: [huggingface.co/spaces/lsempe77/fcas](https://huggingface.co/spaces/lsempe77/fcas)*
 |----------|----------------|--------|
 | **Retrieval-first** | Model only sees vetted evidence chunks | High |
 | **Domain gating** | Reject out-of-scope queries | High |

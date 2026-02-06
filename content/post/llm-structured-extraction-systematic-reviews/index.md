@@ -1,6 +1,6 @@
 ---
-title: "LLM-Powered Structured Data Extraction for Systematic Reviews"
-summary: "Building a production pipeline to extract structured metadata from hundreds of research PDFs using GPT-4 and local LLMs with carefully crafted prompts."
+title: "The Spreadsheet That Filled Itself"
+summary: "Data extraction is the systematic review task nobody warns you about. After manually coding 300 PDFs once, I swore never again. GPT-4 can do it reliably—if you prompt it right."
 date: 2025-11-20
 authors:
   - admin
@@ -19,84 +19,53 @@ categories:
 featured: true
 ---
 
-## The Extraction Nightmare
+My first evidence map nearly broke me.
 
-Data extraction is the part of systematic reviews that nobody warns you about. You're staring at 300 PDFs, filling in the same spreadsheet columns over and over: authors, year, sample size, methodology, country...
+Not the searching—we had a librarian for that. Not the screening—we split it across three reviewers. The data extraction. Three hundred papers, each requiring forty fields: authors, year, country, methodology, sample size, intervention type, outcomes, effect sizes, risk of bias...
 
-After doing this manually for our first evidence map, I swore never again. GPT-4 had just come out, and I wondered: could it extract structured data from papers reliably?
+I spent three weeks filling in spreadsheets. My wrists hurt. My eyes hurt. I started making errors from fatigue—transposing digits, misremembering which paper I was coding. The quality control review found inconsistencies across my own coding sessions, let alone compared to other reviewers.
 
-Turns out, yes—with the right prompting. Here's the pipeline that now handles extraction for most of our projects.
+There had to be a better way. When GPT-4 came out, I tested it on extraction. The first attempts were a mess—hallucinated author names, inconsistent formats, fields that worked for some papers and failed for others. But with careful prompt engineering, I got it to reliably extract structured data from PDFs at about 90% accuracy.
 
-## Pipeline Architecture
+That's good enough to use as a first pass, with human verification for the remaining 10%. What took three weeks now takes three hours plus a few hours of cleanup.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    EXTRACTION PIPELINE                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  PDFs ──► Text Extraction ──► Chunking ──► LLM Extraction       │
-│                                    │              │              │
-│                                    ▼              ▼              │
-│                              FAISS Index    Structured JSON      │
-│                                    │              │              │
-│                                    └──────┬───────┘              │
-│                                           ▼                      │
-│                                    SQLite Database               │
-│                                           │                      │
-│                                           ▼                      │
-│                                    CSV for Analysis              │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+---
 
-## The Extraction Prompt
+The trick is treating the LLM like a meticulous but literal-minded research assistant. You can't say "extract the metadata"—that's too vague. You have to specify exactly what you want, in what format, with examples of edge cases.
 
-Reliable data extraction hinges on a carefully engineered prompt that acts less like a query and more like a detailed protocol for a research assistant. We structure the prompt to establish an expert persona, providing explicit formatting instructions and concrete examples for every single field. By forcing the model to output strict JSON and giving it the context of a systematic review, we significantly reduce hallucinations and ensure the output is machine-readable and ready for immediate analysis.
+The prompt I use establishes an expert persona ("You are an academic evidence synthesis researcher with extensive experience in systematic reviews"), provides explicit formatting for every field ("Authors: Last name, First name; semicolon separated"), and includes examples for ambiguous cases ("If multiple data collection periods are mentioned, list all: '2018-2020; 2021'").
 
-```python
-def build_prompt(record_id, text_block):
-    """Build extraction prompt with expert instructions"""
-    
-    prompt = f"""
-DOCUMENT ID: {record_id}
-TIMESTAMP: {int(time.time())}
+The output is JSON, because JSON is unambiguous and machine-parseable. Free-form text responses drift—one paper gets a paragraph summary, another gets bullet points. JSON forces consistency.
 
-You are an expert academic evidence synthesis researcher with extensive 
-experience in systematic reviews, meta-analyses, and research methodology.
+I also found that asking for reasoning improves accuracy. "Extract the study methodology and explain why you classified it this way" produces better classifications than "Extract the study methodology." The model's explanation reveals when it's uncertain, which flags cases for human review.
 
-Your task is to carefully read and analyze the following academic paper 
-and extract key information with precision and scholarly rigor.
+---
 
-EXTRACTION INSTRUCTIONS:
+The pipeline runs in stages. First, PDF text extraction using PyMuPDF, which handles academic layouts better than simpler parsers. Second, chunking into sections—abstract, methods, results—so the model can process without exceeding context limits. Third, the extraction prompt, sent section by section with accumulated context. Fourth, validation against known fields (is the year a plausible four-digit number? is the country in the ISO list?). Fifth, output to SQLite for storage and CSV for analysis.
 
-1. Extract all authors with format: Last name, First name (semicolon separated)
-   Example: "Smith, John; Garcia, Maria; Johnson, Sarah"
+The chunking matters more than I expected. If you send the full paper as one block, the model loses track of which section mentions what. Asking "what's the sample size?" when the methods and results sections are concatenated sometimes returns the wrong number—the one mentioned in passing during literature review, not the actual study sample. Sending sections separately, with clear labels, fixes this.
 
-2. Extract the year of publication
-   Example: "2023"
+I run everything through a local FAISS index as well, so I can later search across extracted metadata semantically. "Show me RCTs on cash transfers in East Africa" works because the methodology, intervention type, and country fields are all indexed.
 
-3. Extract first author country affiliation
-   Example: "United States" or "Not Specified"
+---
 
-4. Extract first author organisational affiliation
-   Example: "Harvard University" or "World Bank"
+Accuracy varies by field. Bibliographic metadata—authors, title, year—is near-perfect, around 98%. The model can read a header. Sample size is trickier, around 85%, because papers report multiple sample sizes (eligible, enrolled, analyzed) and the model sometimes picks the wrong one. Methodology classification (RCT vs. quasi-experimental vs. observational) is about 90%, with most errors being ambiguous cases that human coders would also struggle with.
 
-5. Extract data collection year(s)
-   Example: "2020" or "2018-2021"
+The hardest fields are the interpretive ones: risk of bias assessments, intervention complexity ratings, outcome effect directions. These require reading between the lines in ways that current models do inconsistently. For those, I use the LLM to pre-fill a draft that human coders review and correct.
 
-6. Provide a three sentence summary:
-   - Sentence 1: Topic and setting
-   - Sentence 2: Methods, data type, sample size
-   - Sentence 3: FCAS relevance (if any)
+The economics work out clearly. A research assistant costs maybe $30/hour. Manual extraction of 40 fields from one complex paper takes about 45 minutes—so roughly $22 per paper. LLM extraction costs about $0.50 per paper in API calls, plus maybe 5 minutes of human verification ($2.50). That's $3 per paper instead of $22. For a review with 300 papers, you're saving $5,700.
 
-7. Extract World Bank sector
-   Example: "Education" or "Health" or "Social Protection"
+---
 
-8. Extract World Bank sub-sector
-   Example: "Primary Education" or "Rural Health"
+I've shared the prompts and pipeline with a few colleagues doing their own reviews. The feedback is consistent: it works, but you have to trust-but-verify. The model is confident even when wrong. You need validation steps that catch errors before they propagate into your analysis.
 
-9. Extract most relevant SDG with justification
-   Example: "SDG 4: Quality Education. This study examines..."
+The philosophical question is whether LLM-assisted extraction counts as "human coding" for the purposes of systematic review methodology. I think it does, as long as humans verify—you're using a tool to accelerate a human process, not replacing human judgment. But methodologists may disagree. The Cochrane guidance on AI tools is still being written.
+
+For now, I'm just glad I never have to fill in another spreadsheet cell by cell. The robot does the tedious part. I do the part that requires judgment. That's a division of labor I can live with.
+
+{{< icon name="robot" pack="fas" >}} GPT-4 | Structured Extraction | Evidence Synthesis | Python
+
+*Prompt templates available on request.*
 
 10. Extract study country/countries (semicolon separated)
     Example: "Kenya; Tanzania; Uganda"
