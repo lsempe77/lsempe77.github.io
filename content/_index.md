@@ -19,14 +19,14 @@ sections:
         text: Download CV
         url: uploads/resume.pdf
     design:
-      css_class: light
       # Avatar customization
       avatar:
         size: medium
         shape: circle
       background:
-        color: '#f8fafc'
-        text_color_light: false
+        gradient_start: '#f8fafc'
+        gradient_end: '#e2e8f0'
+        gradient_angle: 180
   - block: collection
     id: blog
     content:
