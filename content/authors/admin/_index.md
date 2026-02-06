@@ -13,10 +13,14 @@ role: Senior Evaluation Specialist | Research Fellow
 organizations:
   - name: International Initiative for Impact Evaluation (3ie)
     url: https://www.3ieimpact.org/
-  - name: University of Oxford (Visiting fellow)
+  - name: University of Oxford, Department of Psychiatry  (UK, Visiting fellow)
     url: https://www.psych.ox.ac.uk/
-  - name: University of East Anglia (Visiting fellow)
+  - name: University of East Anglia, School of Social Work and School of Global Development (UK, Honorary Research fellow)
     url: https://www.uea.ac.uk/
+  - name: Queen Margaret University, Institute of Global Health and Development (UK, Honorary Research fellow)
+    url: https://www.qmu.ac.uk/schools-and-divisions/ighd/
+  - name: Universidad Catolica San Pablo, Centro de Gobierno José Luis Bustamante y Rivero (Peru, Visiting fellow)
+    url: https://ucsp.edu.pe/investigacion/institutos-centros/cegob/
 
 # Social network links
 # Need to use another icon? Simply download the SVG icon to your `assets/media/icons/` folder.
@@ -25,14 +29,18 @@ profiles:
   - icon: at-symbol
     url: 'mailto:lsempe@3ieimpact.org'
     label: E-mail Me
+  - icon: brands/github
+    url: https://github.com/lsempe77
   - icon: brands/linkedin
     url: https://www.linkedin.com/in/lucas-sempe/
 
 
 interests:
-  - Impact Evaluation
-  - Evidence Synthesis
-  - International Development
+  - Impact Evaluation & Evidence Synthesis
+  - AI/LLMs for Research Automation
+  - Fragile & Conflict-Affected Settings
+  - Health Systems & Financing
+  - Education Policy & Inequality
 
 education:
   - area: PhD International Development
@@ -44,29 +52,114 @@ education:
     institution: University of London (SOAS), UK
     date_start: 2013-09-01
     date_end: 2014-09-01
-    thesis: Appraisal of a learning coaching strategy in Peru in a results-based rationality
+    thesis: Appraisal of a learning coaching strategy in Peru in a results-based budgeting rationality
 
 # Skills
 # Add your own SVG icons to `assets/media/icons/`
 skills:
-  - name: Technical Skills
+  - name: Research Methods
     items:
       - name: Impact Evaluation
-        description: Quantitative and qualitative methods for evaluating development interventions
+        description: RCTs, quasi-experimental designs, mixed methods
         percent: 100
         icon: chart-bar
       - name: Evidence Synthesis
-        description: Systematic reviews, rapid synthesis, and meta-analysis
+        description: Systematic reviews, meta-analysis, evidence mapping
         percent: 100
+        icon: magnifying-glass
+      - name: Econometrics
+        description: Causal inference, panel data, spatial analysis
+        percent: 90
+        icon: calculator
+      - name: Cost-Benefit Analysis
+        description: Economic evaluation, discounting, sensitivity analysis
+        percent: 85
+        icon: currency-dollar
+  - name: Programming
+    items:
+      - name: Python
+        description: RAG systems, FastAPI, ML pipelines, web scraping
+        percent: 85
         icon: code-bracket
-      - name: Data Analysis
-        description: Statistical analysis, epidemiology, and biostatistics
+      - name: R & Stata
+        description: Statistical analysis, Shiny apps, visualization
         percent: 90
         icon: chart-bar
-      - name: Project Management
-        description: Research management and coordination
-        percent: 90
+      - name: SQL
+        description: Database queries, data management
+        percent: 75
         icon: circle-stack
+      - name: JavaScript
+        description: React, Next.js, interactive visualizations
+        percent: 70
+        icon: code-bracket
+  - name: AI & Data Infrastructure
+    items:
+      - name: LLM Engineering
+        description: Prompt design, embeddings, structured extraction
+        percent: 80
+        icon: cpu-chip
+      - name: Vector Databases
+        description: FAISS, Qdrant, semantic search
+        percent: 80
+        icon: server
+      - name: Cloud & Deployment
+        description: Vercel, Railway, Modal, GitHub Actions
+        percent: 75
+        icon: cloud
+      - name: GIS & Spatial
+        description: Geospatial analysis, mapping, ACLED data
+        percent: 70
+        icon: map
+  - name: Conceptual Foundations
+    items:
+      - name: Development Economics
+        description: Poverty dynamics, capability approach, policy analysis
+        percent: 95
+        icon: globe-alt
+      - name: Inequality & Stratification
+        description: Wealth measurement, education gaps, social mobility
+        percent: 95
+        icon: scale
+      - name: Philosophy of Science
+        description: Epistemology, research ethics, AI ethics
+        percent: 85
+        icon: light-bulb
+      - name: Political Economy
+        description: Institutions, governance, fragile states
+        percent: 85
+        icon: building-library
+  - name: Software & Tools
+    items:
+      - name: R & RMarkdown
+        description: Statistical analysis, Shiny apps, Quarto
+        percent: 95
+        icon: chart-bar
+      - name: Stata
+        description: Econometrics, panel data, causal inference
+        percent: 90
+        icon: calculator
+      - name: Python
+        description: RAG systems, FastAPI, ML pipelines
+        percent: 85
+        icon: code-bracket
+      - name: SPSS & MPlus
+        description: Structural equation modeling, factor analysis
+        percent: 75
+        icon: variable
+
+country_expertise:
+  - Argentina
+  - Brazil
+  - Chile
+  - Colombia
+  - DRC
+  - Ecuador
+  - El Salvador
+  - Liberia
+  - Mozambique
+  - Peru
+  - United Kingdom
 
 languages:
   - name: English
@@ -75,6 +168,8 @@ languages:
     percent: 100
   - name: Portuguese
     percent: 100
+  - name: French
+    percent: 50
 
 # Awards.
 #   Add/remove as many awards below as you like.
