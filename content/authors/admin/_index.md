@@ -36,9 +36,9 @@ profiles:
 
 
 interests:
+  - Public Policy & Results-Based Budgeting
   - Impact Evaluation & Evidence Synthesis
   - AI/LLMs for Research Automation
-  - Fragile & Conflict-Affected Settings
   - Health Systems & Financing
   - Education Policy & Inequality
 
@@ -111,6 +111,24 @@ skills:
         description: Geospatial analysis, mapping, ACLED data
         percent: 70
         icon: map
+  - name: Public Policy & Governance
+    items:
+      - name: Results-Based Budgeting
+        description: Performance indicators, fiscal policy, public expenditure
+        percent: 95
+        icon: banknotes
+      - name: Civil Service & Public Management
+        description: Policy implementation, intergovernmental coordination
+        percent: 95
+        icon: building-office-2
+      - name: Education Policy
+        description: Teacher training, school governance, curriculum reform
+        percent: 90
+        icon: academic-cap
+      - name: Social Protection
+        description: Conditional transfers, pension systems, inclusion programs
+        percent: 85
+        icon: user-group
   - name: Conceptual Foundations
     items:
       - name: Development Economics
@@ -180,4 +198,6 @@ awards: []
 
 ## About Me
 
-I am a Senior Evaluation Specialist at the International Initiative for Impact Evaluation (3ie) and a Research Fellow at Queen Margaret University. My work focuses on impact evaluation, evidence synthesis, and health systems in international development. I have led research projects on artificial intelligence in agriculture, health financing, and education policy, and collaborate with academic and policy institutions to improve evidence use in low- and middle-income countries.
+I am a Senior Evaluation Specialist at 3ie and Research Fellow at Queen Margaret University. Before transitioning to research, I spent over a decade in Peru's civil service, where I managed £2 billion in education budgets, led results-based budgeting reforms for the Ministry of Education, and served as political representative to regional governments. I oversaw teacher training programs, school governance systems, and the construction of 215 community centres (Tambos) serving indigenous populations in remote areas.
+
+This public sector experience shapes my research on impact evaluation, evidence synthesis, and policy implementation. My work spans education policy, health systems financing, and social protection across Latin America, Africa, and fragile settings. I combine rigorous methods with practical understanding of how evidence translates into government action.
