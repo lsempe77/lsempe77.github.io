@@ -1,6 +1,16 @@
 import type { APIContext } from 'astro';
 import { getCollection } from 'astro:content';
 
+// Escape XML special characters
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 export async function GET(context: APIContext) {
   const posts = (await getCollection('blog', ({ data }) => !data.draft))
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -12,7 +22,7 @@ export async function GET(context: APIContext) {
     const link = `${site}/blog/${post.slug}/`;
     const pubDate = new Date(post.data.date).toUTCString();
     const description = post.data.summary || post.data.subtitle || '';
-    const tags = post.data.tags?.map((t: string) => `<category>${t}</category>`).join('\n        ') || '';
+    const tags = post.data.tags?.map((t: string) => `<category>${escapeXml(t)}</category>`).join('\n        ') || '';
 
     return `
     <item>
@@ -28,8 +38,8 @@ export async function GET(context: APIContext) {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Lucas Sempé - Research & AI Blog</title>
-    <description>Impact evaluation, evidence synthesis, AI/LLMs for research automation, and lessons from policy and development work.</description>
+    <title>Lucas Sempé - Research and AI Blog</title>
+    <description>Impact evaluation, evidence synthesis, AI and LLMs for research automation, and lessons from policy and development work.</description>
     <link>${site}</link>
     <atom:link href="${site}/rss.xml" rel="self" type="application/rss+xml"/>
     <language>en-us</language>
