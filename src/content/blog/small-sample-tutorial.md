@@ -14,6 +14,15 @@ categories:
   - Statistics
   - Research Methods
 featured: false
+draft: false
+
+image:
+  caption: "Small sample inference tutorial"
+  focal_point: "Center"
+  placement: 2
+  preview_only: false
+
+projects: []
 ---
 
 This is the technical companion to [Inference Under Scarcity](../inference-under-scarcity). That post tells the story; this one shows you how to actually do the analysis. If you're facing a small-sample problem in practice, this is where to start.

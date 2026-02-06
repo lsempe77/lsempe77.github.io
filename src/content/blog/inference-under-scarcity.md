@@ -11,6 +11,15 @@ tags:
 categories:
   - Statistics
 featured: true
+draft: false
+
+image:
+  caption: "Inference under scarcity"
+  focal_point: "Center"
+  placement: 2
+  preview_only: false
+
+projects: []
 ---
 
 A colleague came to me with a problem that made me wince.
