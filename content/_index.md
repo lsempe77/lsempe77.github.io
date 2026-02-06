@@ -67,11 +67,12 @@ sections:
     content:
       title: 'About Me'
       subtitle: ''
-      text: 'I work at the intersection of research methods and practical policy questions. Currently a Senior Evaluation Specialist at 3ie, I spend most of my time on impact evaluations and evidence synthesis—figuring out what works, for whom, and under what conditions.
-      
+      text: |-
+        I work at the intersection of research methods and practical policy questions. Currently a Senior Evaluation Specialist at 3ie, I spend most of my time on impact evaluations and evidence synthesis—figuring out what works, for whom, and under what conditions.
+        
         Lately I've been exploring how AI tools can make evidence synthesis faster without sacrificing rigor. I also hold research positions at Queen Margaret University, Oxford (Psychiatry), and UEA (Social Work).
         
-        I write here about methods, tools I'm building, and things I learn along the way. Feel free to reach out if you want to collaborate or just chat about research.'
+        I write here about methods, tools I'm building, and things I learn along the way. Feel free to reach out if you want to collaborate or just chat about research.
     design:
       columns: '1'
   - block: collection
