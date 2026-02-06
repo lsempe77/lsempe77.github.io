@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout title={post.data.title} description={post.data.summary}>
+  <article class="py-16">
+    <div class="max-w-3xl mx-auto px-4">
+      <!-- Header -->
+      <header class="mb-12">
+        <div class="flex flex-wrap gap-2 mb-4">
+          {post.data.tags?.map(tag => (
+            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-xs font-medium">{tag}</span>
+          ))}
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
+          {post.data.title}
+        </h1>
+        {post.data.subtitle && (
+          <p class="text-2xl text-emerald-600 mb-4">{post.data.subtitle}</p>
+        )}
+        <div class="text-slate-500">
+          {post.data.date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="prose prose-lg prose-slate max-w-none 
+        prose-headings:text-slate-900 prose-headings:font-bold
+        prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
+        prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+        prose-p:text-slate-600 prose-p:leading-relaxed
+        prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline
+        prose-strong:text-slate-800
+        prose-code:text-emerald-700 prose-code:bg-emerald-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+        prose-pre:bg-slate-900 prose-pre:text-slate-100
+        prose-blockquote:border-emerald-500 prose-blockquote:text-slate-600
+        prose-ul:text-slate-600 prose-ol:text-slate-600
+        prose-li:text-slate-600
+        prose-hr:border-slate-200
+      ">
+        <Content />
+      </div>
+
+      <!-- Back link -->
+      <div class="mt-16 pt-8 border-t border-slate-200">
+        <a href="/blog" class="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to all posts
+        </a>
+      </div>
+    </div>
+  </article>
+</Layout>
