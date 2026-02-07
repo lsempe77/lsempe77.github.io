@@ -12,11 +12,22 @@ tags:
   - Training Data
 image:
   caption: 'Synthetic data generation pipeline'
+  focal_point: ''
+  placement: 2
+  preview_only: false
 categories:
   - AI Tools
   - Machine Learning
 featured: false
+draft: false
+projects: []
 ---
+
+*Code for the synthetic data pipeline is at [github.com/lsempe77/Synthetic-data](https://github.com/lsempe77/Synthetic-data).*
+
+---
+
+## The Problem
 
 I wanted to train a classifier to identify study methodologies from abstracts. Randomized trials, quasi-experiments, qualitative studies—the categories that matter for evidence synthesis. The problem was obvious: I had 200 labeled examples. Nowhere near enough for a neural classifier, barely enough for a traditional model.
 
@@ -28,59 +39,13 @@ Synthetic data generation requires diversity, realism, and labels you can trust.
 
 ---
 
+## Breaking the Template Problem
+
 The core insight came from thinking about what makes studies different. It's not just methodology—it's sector (education, health, agriculture), country context (high-income versus low-income, stable versus fragile), sample size (50 participants versus 50,000), outcome type (behavioral, economic, attitudinal), and a dozen other dimensions.
 
 Instead of prompting for abstracts directly, I built a generator that first creates study metadata: methodology, sector, country, sample size, time period, outcome variables. Each dimension has a distribution calibrated from real evidence maps. RCTs are about 15% of the corpus. Education is 25%. Kenya appears more often than Timor-Leste because there's genuinely more research there.
 
-Then a separate step generates the abstract conditioned on the metadata. This decomposition helps because the model isn't trying to make all creative decisions at once. The methodology is fixed. The sector is fixed. The model just needs to write a realistic abstract consistent with those constraints.
-
----
-
-Diversity required explicit intervention. Temperature adjustments helped, but not enough. I added constraint variations: some studies have positive findings, some negative, some null. Some have large samples, some tiny. Some report confidence intervals, some just p-values. Some are written in formal academic prose, some in the telegraphic style of certain journals.
-
-The key was tracking what had already been generated and adjusting sampling to fill gaps. If the first 100 generated studies are disproportionately from Kenya, the sampler reduces Kenya's probability. If quasi-experiments are underrepresented, the sampler boosts them. This produces a corpus that matches target distributions rather than whatever the model's priors prefer.
-
-I also rotated across multiple LLM providers. OpenAI, Claude, Gemini, Mistral—each has slightly different writing styles and biases. Mixing them produces more natural variation than any single model at high temperature.
-
----
-
-The controversial part of this pipeline is biased generation. Real studies have methodological flaws. Selection bias, attrition, spillover, weak instruments. A classifier trained only on methodologically pristine synthetic studies won't recognize flawed real ones.
-
-So I added a step that deliberately introduces problems. Take a "ground truth" RCT abstract and generate a version with randomization failures described. Take a clean difference-in-differences study and create a version with obvious parallel trends violations. The prompt explicitly describes what flaw to introduce, and the model rewrites the abstract accordingly.
-
-This felt uncomfortable at first—deliberately generating bad science. But the purpose is training a detector, not producing deceptive papers. Labeled flaws in synthetic data help classifiers recognize unlabeled flaws in real data.
-
----
-
-Validation was non-negotiable. Synthetic data is useless if it doesn't actually resemble real data. I ran multiple checks.
-
-First, embedding similarity: synthetic abstracts should occupy the same region of embedding space as real abstracts from similar categories. An RCT about education should be close to real education RCTs, not randomly positioned.
-
-Second, discriminator training: I trained a model to distinguish synthetic from real. If it achieves high accuracy, the synthetic data is obviously fake. Good synthetic data should be hard to distinguish, achieving near-random discriminator performance.
-
-Third, human spot-checks: I mixed synthetic and real abstracts and asked colleagues to identify which was which. Experts could often tell, but not always. The synthetic examples that fooled experts had the right structure, terminology, and detail level.
-
-Fourth, downstream task performance: the whole point was training a methodology classifier. Does training on synthetic data actually help? I trained models on different mixtures of real and synthetic data and evaluated on held-out real examples. Synthetic data improved performance when real data was scarce, but the improvement had limits. Beyond a certain ratio, more synthetic examples didn't help.
-
----
-
-Provenance tracking turned out to be essential. Every generated study carries metadata: which model generated it, with what prompt version, at what temperature, targeting what category. When something goes wrong downstream—the classifier behaves strangely, an evaluation metric is off—you need to trace back to generation parameters.
-
-The output structure includes the complete generation history. For the biased examples, it includes what flaw was introduced. For everything, it includes checksums so you can verify that the training data hasn't been modified after generation.
-
-Cost matters at scale. Generating 10,000 abstracts isn't cheap across multiple providers. I stratified by step complexity: metadata generation uses cheap, fast models (GPT-4o-mini, Haiku); abstract generation uses capable models (GPT-4o, Sonnet); validation uses cheap models again. This reduced per-example cost by about 60% compared to using expensive models throughout.
-
----
-
-The classifier trained on synthetic data now runs in production, pre-screening studies for evidence maps. It's not perfect—nothing is—but it handles categories I couldn't have covered with 200 real examples. The synthetic pipeline runs on demand when we need training data for new classification tasks.
-
-Would I recommend this approach generally? With caveats. Synthetic data is a multiplier, not a replacement. You still need some real examples to calibrate distributions and validate quality. The generation pipeline is non-trivial to build correctly. And for some domains, synthetic examples may embed the model's biases rather than reflecting real-world variation.
-
-But for evidence synthesis, where real data is expensive and domain structure is well-defined, synthetic generation has become a standard part of my toolkit. It's manufacturing evidence in a specific, controlled sense—producing labeled examples for training, not producing fake research for publication.
-
-*Pipeline code available with documentation. Requires API keys for multiple LLM providers.*
-
-To ensure realistic training data, we generate studies with methodology proportions matching real-world distributions:
+Here's how those proportions look in practice—these numbers come from analyzing thousands of real studies:
 
 ```python
 DEFAULT_PROMPT_PROPORTIONS = {
@@ -102,9 +67,15 @@ DEFAULT_PROMPT_PROPORTIONS = {
 }
 ```
 
-## Reproducibility Through Seeds
+Then a separate step generates the abstract conditioned on the metadata. This decomposition helps because the model isn't trying to make all creative decisions at once. The methodology is fixed. The sector is fixed. The model just needs to write a realistic abstract consistent with those constraints.
 
-Every generated entity includes seed tracking for complete reproducibility:
+---
+
+## Engineering Diversity
+
+Diversity required explicit intervention. Temperature adjustments helped, but not enough. I added constraint variations: some studies have positive findings, some negative, some null. Some have large samples, some tiny. Some report confidence intervals, some just p-values. Some are written in formal academic prose, some in the telegraphic style of certain journals.
+
+The key was tracking what had already been generated and adjusting sampling to fill gaps. The generation plan samples from target distributions while shuffling to avoid clustering:
 
 ```python
 def build_plan_with_proportions(n_entities, proportions, sectors, countries, years):
@@ -121,8 +92,65 @@ def build_plan_with_proportions(n_entities, proportions, sectors, countries, yea
     
     random.shuffle(plan)
     return plan[:n_entities]
+```
 
-# Each entity gets a unique, traceable seed
+If the first 100 generated studies are disproportionately from Kenya, the sampler reduces Kenya's probability. If quasi-experiments are underrepresented, the sampler boosts them. This produces a corpus that matches target distributions rather than whatever the model's priors prefer.
+
+I also rotated across multiple LLM providers. OpenAI, Claude, Gemini, Mistral—each has slightly different writing styles and biases. Mixing them produces more natural variation than any single model at high temperature.
+
+---
+
+## The Uncomfortable Part: Generating Flawed Studies
+
+The controversial part of this pipeline is biased generation. Real studies have methodological flaws. Selection bias, attrition, spillover, weak instruments. A classifier trained only on methodologically pristine synthetic studies won't recognize flawed real ones.
+
+So I added a step that deliberately introduces problems. Take a "ground truth" RCT abstract and generate a version with randomization failures described. Take a clean difference-in-differences study and create a version with obvious parallel trends violations. The prompt explicitly describes what flaw to introduce, and the model rewrites the abstract accordingly.
+
+This felt uncomfortable at first—deliberately generating bad science. But the purpose is training a detector, not producing deceptive papers. Labeled flaws in synthetic data help classifiers recognize unlabeled flaws in real data.
+
+---
+
+## Validation: Catching the Lies
+
+Validation was non-negotiable. Synthetic data is useless if it doesn't actually resemble real data. I ran multiple checks.
+
+**Embedding similarity**: synthetic abstracts should occupy the same region of embedding space as real abstracts from similar categories. An RCT about education should be close to real education RCTs, not randomly positioned.
+
+**Discriminator training**: I trained a model to distinguish synthetic from real. If it achieves high accuracy, the synthetic data is obviously fake. Good synthetic data should be hard to distinguish, achieving near-random discriminator performance.
+
+**Human spot-checks**: I mixed synthetic and real abstracts and asked colleagues to identify which was which. Experts could often tell, but not always. The synthetic examples that fooled experts had the right structure, terminology, and detail level.
+
+**Downstream task performance**: the whole point was training a methodology classifier. Does training on synthetic data actually help? I trained models on different mixtures of real and synthetic data and evaluated on held-out real examples. Synthetic data improved performance when real data was scarce, but the improvement had limits. Beyond a certain ratio, more synthetic examples didn't help.
+
+But automated validation can only catch so much. The real danger with LLM-generated training data is hallucination—plausible-sounding nonsense that slips through. I built layered defenses:
+
+```python
+# Schema validation: required fields must exist
+required = ['title', 'method', 'sample_size', 'outcomes']
+for field in required:
+    if field not in entity:
+        raise ValidationError(f"Missing required field: {field}")
+
+# Plausibility checks: numeric ranges must be realistic
+if entity['sample_size'] < 10 or entity['sample_size'] > 1000000:
+    flag_for_review(entity, "Implausible sample size")
+
+# Temporal consistency
+if entity['publication_year'] < entity['study_end_year']:
+    flag_for_review(entity, "Temporal inconsistency")
+```
+
+For high-stakes cases, I added second-opinion validation—using a different model to verify the first model's output. It's expensive, but it catches the worst failures.
+
+---
+
+## Making It Reproducible
+
+Provenance tracking turned out to be essential. Every generated study carries metadata: which model generated it, with what prompt version, at what temperature, targeting what category. When something goes wrong downstream—the classifier behaves strangely, an evaluation metric is off—you need to trace back to generation parameters.
+
+Every entity gets a unique, traceable seed:
+
+```python
 for i, (method, sector, country, year) in enumerate(batch_plan):
     entity_seed = seed + start_idx + i
     random.seed(entity_seed)
@@ -130,9 +158,13 @@ for i, (method, sector, country, year) in enumerate(batch_plan):
     entity['entity_seed'] = entity_seed
 ```
 
-## Batch Processing with Checkpointing
+The output structure includes the complete generation history. For the biased examples, it includes what flaw was introduced. For everything, it includes checksums so you can verify that the training data hasn't been modified after generation.
 
-For large-scale generation, the pipeline uses SQLite-based checkpointing:
+---
+
+## Making It Survive Failures
+
+Generating 10,000 abstracts across multiple providers means things will break. API timeouts, rate limits, random errors. The pipeline uses SQLite-based checkpointing so I don't lose work:
 
 ```python
 from src.core.checkpoints_db import CheckpointDB
@@ -149,105 +181,47 @@ br.ensure_batches(provider, total, batch_size, seed=provider_seed)
 all_items = br.run_all_batches(provider, worker_fn, max_workers=workers)
 ```
 
-## Addressing Hallucination Risk
+I learned this the hard way. The first version had no checkpointing. An API outage at 3 AM killed a run that had been going for six hours. I stared at the error message, did the math on re-running, and immediately added persistence.
 
-Synthetic data carries inherent hallucination risks. Our mitigations include:
+---
 
-### Schema Validation
-```python
-# Required fields must exist
-required = ['title', 'method', 'sample_size', 'outcomes']
-for field in required:
-    if field not in entity:
-        raise ValidationError(f"Missing required field: {field}")
-```
+## Cost Engineering
 
-### Plausibility Checks
-```python
-# Numeric ranges must be realistic
-if entity['sample_size'] < 10 or entity['sample_size'] > 1000000:
-    flag_for_review(entity, "Implausible sample size")
+Cost matters at scale. Generating 10,000 abstracts isn't cheap across multiple providers. I stratified by step complexity: metadata generation uses cheap, fast models (GPT-4o-mini, Haiku); abstract generation uses capable models (GPT-4o, Sonnet); validation uses cheap models again. This reduced per-example cost by about 60% compared to using expensive models throughout.
 
-# Dates must be consistent
-if entity['publication_year'] < entity['study_end_year']:
-    flag_for_review(entity, "Temporal inconsistency")
-```
-
-### Second-Opinion Validation
-```python
-# Cross-validate with another model
-validation_prompt = f"""
-Verify the following synthetic study for factual plausibility:
-{json.dumps(entity, indent=2)}
-
-Check for:
-1. Methodological consistency
-2. Realistic effect sizes
-3. Appropriate sample sizes for the method
-4. Geographic/temporal plausibility
-"""
-```
-
-## CLI Interface
-
-The pipeline provides a clean command-line interface:
+The CLI makes running the pipeline straightforward:
 
 ```powershell
-# Run single step for one provider
-python main.py pipeline --step 1 --llm_provider openai --n_entities 5 --seed 42
-
 # Bulk generation across all providers
 python main.py bulk --providers openai,claude,grok,mistral,gemini `
     --n 100 --batch_size 5 --workers 2 --seed 42
 
 # Merge outputs from all providers
 python main.py merge
-
-# Check status
-python main.py status --providers openai,claude
 ```
-
-## Output Structure
-
-Generated data is organized for easy consumption:
-
-```
-pipeline_outputs/
-├── checkpoints.db                    # SQLite checkpoint database
-├── openai_batch_001.json             # Provider-specific batches
-├── openai_batch_002.json
-├── claude_batch_001.json
-├── ...
-├── all_providers_entities.json       # Merged JSON output
-└── all_providers_entities.xlsx       # Excel format for analysis
-```
-
-## Quality Assurance Workflow
-
-Our recommended workflow for production use:
-
-1. **Smoke Test**: Run with `--smoke` flag to verify pipeline connectivity
-2. **Sample Generation**: Generate small batches and review manually
-3. **Full Generation**: Run complete pipeline with checkpointing
-4. **Automated Validation**: Apply schema and plausibility checks
-5. **Human Review**: Sample 10% for manual quality assurance
-6. **Training Data Export**: Format validated outputs for ML training
-
-## Lessons Learned
-
-1. **Seed Everything**: Complete reproducibility requires seeding at every random operation
-2. **Provider Diversity**: Different LLMs produce distinctly different outputs—this is a feature for training data
-3. **Checkpointing is Essential**: API calls fail; resume capability is not optional
-4. **Validate Early and Often**: Catch hallucinations before they propagate
-5. **Human-in-the-Loop**: No automated validation replaces human review for training data
-
-## Future Directions
-
-- **Automated factuality scoring** using citation verification
-- **Adversarial examples** for model robustness testing
-- **Domain adaptation** for specific research fields
-- **Cost optimization** through intelligent model routing
 
 ---
 
-This pipeline demonstrates how LLMs can be harnessed for systematic, reproducible synthetic data generation—essential infrastructure for training the next generation of evidence synthesis tools.
+## What I'd Tell Someone Starting This
+
+The classifier trained on synthetic data now runs in production, pre-screening studies for evidence maps. It's not perfect—nothing is—but it handles categories I couldn't have covered with 200 real examples. The synthetic pipeline runs on demand when we need training data for new classification tasks.
+
+Would I recommend this approach generally? With caveats.
+
+**Seed everything.** Complete reproducibility requires seeding at every random operation. You will need to debug generation six months from now, and you'll thank yourself.
+
+**Provider diversity is a feature.** Different LLMs produce distinctly different outputs. For training data, this variation is exactly what you want.
+
+**Checkpointing is not optional.** API calls fail. Runs get interrupted. Build resume capability from day one.
+
+**Validate early and often.** Catch hallucinations before they propagate into your training set.
+
+**Human-in-the-loop, always.** No automated validation replaces human review for training data. I sample 10% of every batch for manual inspection.
+
+Synthetic data is a multiplier, not a replacement. You still need some real examples to calibrate distributions and validate quality. The generation pipeline is non-trivial to build correctly. And for some domains, synthetic examples may embed the model's biases rather than reflecting real-world variation.
+
+But for evidence synthesis, where real data is expensive and domain structure is well-defined, synthetic generation has become a standard part of my toolkit. It's manufacturing evidence in a specific, controlled sense—producing labeled examples for training, not producing fake research for publication.
+
+The uncomfortable truth is that I'm using AI to generate fake studies so I can train AI to recognize real ones. It sounds circular, maybe even wrong. But the classifier works. It catches things I would have missed. And it does it at a scale I couldn't achieve any other way.
+
+*Pipeline code available with documentation. Requires API keys for multiple LLM providers.*

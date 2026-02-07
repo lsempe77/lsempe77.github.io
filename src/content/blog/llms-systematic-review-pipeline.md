@@ -22,7 +22,15 @@ image:
   focal_point: "Center"
   placement: 2
   preview_only: false
+
+projects: []
 ---
+
+*Code for screening and extraction pipelines is at [github.com/lsempe77/paper-screening-pipeline](https://github.com/lsempe77/paper-screening-pipeline). For a deep dive on data extraction specifically, see [The Spreadsheet That Filled Itself](/blog/llm-structured-extraction-systematic-reviews).*
+
+---
+
+## The Honest Answer
 
 "Can AI do systematic reviews now?"
 
@@ -81,12 +89,6 @@ The meta-point is that AI tools are amplifiers, not replacements. They make good
 I've seen projects where AI tools saved 60% of time with no loss in quality. I've also seen projects where over-reliance on AI produced reviews with systematic errors that took months to fix. The difference wasn't the tools—it was whether the humans using them understood the task well enough to verify the output.
 
 Start with the stages where risk is low (protocol drafting, literature monitoring, writing assistance) before moving to higher-risk stages (screening, extraction). Build confidence in the tools' failure modes. And never submit anything an LLM produced without human verification.
-
-{{< icon name="robot" pack="fas" >}} AI in Evidence Synthesis | Stage-by-Stage Guide | Practical Recommendations
-
-*Updated as tools evolve. Last reviewed December 2025.*
-
-Let's explore AI opportunities at each stage.
 
 ---
 
@@ -198,9 +200,7 @@ Recent research shows:
 - Dual screening with AI achieves comparable accuracy to human-human
 - **Stopping rules** help determine when you've found enough (see my other post on this!)
 
-{{% callout warning %}}
-**Validation is essential!** Always validate AI screening on a random sample before full deployment. See my tutorial on [Why Fixed-Sample AI Screening Validation Fails](/post/ai-screening-validation/).
-{{% /callout %}}
+> **Validation is essential!** Always validate AI screening on a random sample before full deployment. See my tutorial on [Why Fixed-Sample AI Screening Validation Fails](/blog/ai-screening-validation).
 
 ---
 
@@ -384,6 +384,8 @@ on educational interventions. Help me:
 
 ---
 
-{{% callout note %}}
-This guide is based on my experience leading systematic reviews at 3ie and developing AI tools for evidence synthesis. For questions or collaboration, please reach out!
-{{% /callout %}}
+## Resources
+
+The screening and extraction pipeline code is at [github.com/lsempe77/paper-screening-pipeline](https://github.com/lsempe77/paper-screening-pipeline). For a deep dive on the extraction stage, see [The Spreadsheet That Filled Itself](/blog/llm-structured-extraction-systematic-reviews).
+
+*This guide is based on my experience leading systematic reviews at 3ie and developing AI tools for evidence synthesis. For questions or collaboration, please reach out.*

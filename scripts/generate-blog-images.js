@@ -121,6 +121,11 @@ const blogThemes = {
     title: 'Small Sample Methods',
     visual: 'scatter',
     palette: 'rose'
+  },
+  'eipm-framework': {
+    title: 'Evidence to Policy Framework',
+    visual: 'pipeline',
+    palette: 'blue'
   }
 };
 
@@ -777,7 +782,7 @@ function generateBlogImage(slug, theme, outputDir) {
   // Subtle author line
   ctx.font = '18px system-ui, -apple-system, sans-serif';
   ctx.fillStyle = colors.secondary;
-  ctx.fillText('Lucas Sempé', width / 2, height - 40);
+  ctx.fillText('Lucas Néstor Sempé', width / 2, height - 40);
   
   // Save
   const buffer = canvas.toBuffer('image/png');

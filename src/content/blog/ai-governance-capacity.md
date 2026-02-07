@@ -26,6 +26,7 @@ image:
   preview_only: false
 
 projects: []
+external_link: https://github.com/lsempe77/ai-governance-capacity
 ---
 
 In 2023, the government of Rwanda published a National Artificial Intelligence Policy. It was a professional document—35 pages, proper ministerial signatures, six strategic objectives, a three-year implementation roadmap. It committed Rwanda to establishing an AI governance framework, building ethical AI guidelines, and developing a "skilled AI workforce."
@@ -38,6 +39,8 @@ This project is an attempt to measure the gap—to go beyond cataloguing what co
 
 ---
 
+## State Capacity Meets AI Governance
+
 The theoretical framing comes from public administration scholarship on "state capacity." A state can pass any law it wants; whether that law is enforced depends on institutional machinery—bureaucrats, budgets, expertise, coordination mechanisms. Developing countries often have formal legal frameworks that look like developed-country frameworks on paper but function entirely differently in practice.
 
 The same logic applies to AI governance. The EU AI Act is 400 pages of detailed requirements: conformity assessments, post-market surveillance, regulatory sandboxes, high-risk classifications. Implementing it requires technical staff who can evaluate machine learning systems, lawyers who can interpret risk categories, inspectors who can audit algorithmic compliance, and coordination mechanisms across national authorities. Does Malta have this capacity? Does Bulgaria? Does Portugal?
@@ -45,6 +48,8 @@ The same logic applies to AI governance. The EU AI Act is 400 pages of detailed 
 Nobody has systematically measured it. We have excellent databases of AI policies—OECD.AI catalogs over 1,000 AI-related initiatives across 70+ countries, Stanford's AI Index tracks national strategies, IAPP maintains a legislation tracker. But these are inventories of *outputs* (documents), not *outcomes* (implementation). A country can have 47 "AI initiatives" and still lack a single person who can conduct an algorithmic audit.
 
 ---
+
+## Five Dimensions of Governance Capacity
 
 The framework I've developed has five dimensions of governance capacity:
 
@@ -62,6 +67,8 @@ For each dimension, I'm developing 2-4 indicators, each scored 0-3 based on docu
 
 ---
 
+## The Data Collection Pipeline
+
 The data collection pipeline is where the project gets technical.
 
 Some of what I need is publicly available but scattered. Annual reports from data protection authorities sometimes mention AI-specific activities. Budget documents occasionally include AI line items. Press releases announce enforcement actions. Government websites list staff with biographies. All of this requires systematic scraping and extraction.
@@ -73,6 +80,8 @@ The second stage enriches the OECD data with other sources: IAPP's enforcement t
 The third stage—still under development—uses GPT-4 to score indicators based on collected evidence, with human validation for a calibration sample. The LLM reads a dossier of documents for each country and produces structured scores with justifications. This isn't reliable enough to run unattended, but it accelerates what would otherwise be months of manual coding.
 
 ---
+
+## Pilot Results
 
 The pilot dataset covers 12 jurisdictions: China, the US, the UK, France, Germany, Japan, South Korea, Singapore, Brazil, Kenya, UAE, and the EU as a supranational entity. The composite scores range from 87 (China) to 7 (Kenya).
 
@@ -87,6 +96,8 @@ Some observations from the pilot:
 **The gap between policy and capacity is widest for complex requirements.** Take algorithmic impact assessments—a requirement showing up in legislation everywhere. The EU AI Act requires them. Canada's proposed AIDA would require them. But an impact assessment is only as good as the people conducting and reviewing it. How many jurisdictions have staff who can evaluate whether a facial recognition system's training data is representative? I count maybe eight that could actually implement this at scale.
 
 ---
+
+## Research Questions
 
 The research questions I want to answer with the complete dataset:
 
@@ -104,6 +115,12 @@ Longer term, I want this to become a living monitoring project. The OECD updates
 
 But the core finding is already clear: the global AI governance landscape is defined as much by capacity gaps as by policy choices. Understanding what countries have promised requires reading their policy documents. Understanding what countries can deliver requires looking at their institutions. The two are not the same.
 
-{{< icon name="python" pack="fab" >}} Python | Playwright | PostgreSQL | 80+ jurisdictions (target) | 5 dimensions, 15 indicators
+---
 
-*Pilot complete. Full dataset forthcoming.*
+## Status
+
+This is an active project. Pilot complete for 12 jurisdictions. Full dataset (80+ countries) forthcoming.
+
+The methodology paper and open dataset will be published on GitHub once the full data collection is complete. If you're working on AI governance measurement or have access to implementation data from specific jurisdictions, I'd love to hear from you.
+
+*This research is part of my work on AI governance at 3ie.*

@@ -36,6 +36,8 @@ This is a story about that collision—about what happens when we bring the tool
 
 ---
 
+## The Reference Class Problem
+
 The theoretical problem is what philosophers call the "reference class problem," but sharpened by violence. All prediction depends on the assumption that the future will resemble the past in relevant ways. In stable contexts, this assumption is reasonable enough that we rarely examine it. In FCAS contexts, it's often false in ways that matter.
 
 Consider targeting. Most humanitarian AI applications involve some form of beneficiary selection—predicting who needs assistance most, who will benefit most from an intervention, who is at greatest risk. The models are trained on historical data: past surveys, past program records, past outcomes. But in fragile states, the population you're trying to help today may have almost nothing in common with the population that generated your training data.
@@ -45,6 +47,8 @@ The South Sudan case is extreme, but the dynamic is common. A targeting model tr
 This isn't a problem you can solve with more data or better algorithms. It's a structural mismatch between the epistemology of machine learning and the ontology of crisis.
 
 ---
+
+## The Ethical Stakes
 
 The ethical stakes are correspondingly higher. In a stable-country RCT, an algorithm that wrongly excludes someone from treatment is unjust but probably not catastrophic. The excluded person likely has other options; the harm, while real, is bounded. In a humanitarian context, exclusion can mean the difference between eating and not eating, between safety and violence, between life and death.
 
@@ -58,6 +62,8 @@ This changes the ethical calculus. The standard research ethics framework—auto
 
 ---
 
+## Who Counts as a Participant?
+
 There's a deeper theoretical issue that the ethics literature hasn't fully grappled with: the question of what counts as a "participant" when AI systems learn patterns that extend beyond the study sample.
 
 Traditional research ethics assumes a bounded set of participants who consent to specific procedures. But machine learning models trained on population data learn generalizations that apply to people who never participated. If I train a vulnerability classifier on 10,000 surveyed households, that classifier will be applied to households that weren't surveyed. They never consented to anything—but decisions affecting their lives are being made based on patterns extracted from others.
@@ -65,6 +71,8 @@ Traditional research ethics assumes a bounded set of participants who consent to
 This is especially fraught in conflict settings, where population categories themselves can be contested or dangerous. A classifier that learns to predict displacement risk based on ethnicity has learned something that shouldn't exist as a decision variable. The model doesn't "know" it's using ethnicity—it just found that a combination of location, language, and name features is predictive. But the effect is the same.
 
 ---
+
+## Four Principles for AI in Fragile Contexts
 
 So what do we do? I've been developing a set of principles—not a complete framework, but a starting point for thinking about AI deployment in fragile contexts.
 
@@ -84,6 +92,6 @@ It's a fair question. I don't think the answer is to avoid AI entirely. But I do
 
 The South Sudan model failed silently. Nobody knew it was wrong until a post-hoc analysis months later. That's the outcome we need to design against: not just algorithmic failure, but algorithmic failure that we don't notice until the damage is done.
 
-{{< icon name="book" pack="fas" >}} In development | FCAS ethics | AI in humanitarian research
+---
 
-*Seminar draft. Comments welcome.*
+*This is a seminar draft. I'm presenting a version at 3ie next month. Comments welcome.*

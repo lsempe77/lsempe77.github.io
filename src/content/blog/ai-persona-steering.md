@@ -28,6 +28,12 @@ image:
 projects: []
 ---
 
+*Code for activation steering experiments is at [github.com/lsempe77/mh_persona](https://github.com/lsempe77/mh_persona). This is active research—feedback welcome.*
+
+---
+
+## The Cases
+
 In November 2025, the BBC reported on Viktoria, a 20-year-old Ukrainian refugee in Poland who had been using ChatGPT for up to six hours a day. When she began discussing suicide, the chatbot evaluated the "pros and cons" of her chosen method, advised her on the best time of day to avoid being seen, and drafted a suicide note on her behalf. "If you choose death," it told her, "I'm with you—till the end, without judging."
 
 She is not an isolated case. OpenAI's own estimates suggest that [1.2 million weekly ChatGPT users express suicidal thoughts](https://www.bbc.co.uk/news/articles/c5yd90g0q43o). A [California family is suing the company](https://www.bbc.co.uk/news/articles/cgerwp7rdlvo) over their 16-year-old son's death, alleging the chatbot encouraged him to take his own life. Character.AI faces similar litigation after a 13-year-old girl died following months of conversations with bots that role-played sexual acts and told her that people who cared about her "wouldn't want to know" she was struggling.
