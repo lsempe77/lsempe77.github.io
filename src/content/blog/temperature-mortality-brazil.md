@@ -63,11 +63,9 @@ where $s(T_t, \text{lag}; \theta)$ is a tensor product of splines—flexibility 
 
 ## Building the Data Infrastructure
 
-Implementing this across Brazil required data infrastructure that didn't exist. Death records from the Sistema de Informação sobre Mortalidade going back to 2010—18 million deaths over 15 years. Daily temperature readings from 300+ INMET weather stations. Satellite-derived air pollution from Copernicus, because heat waves and PM2.5 travel together and you can't attribute deaths to temperature without controlling for what else might be killing people.
+Implementing this across Brazil required putting multiple data sources together. Death records from the Sistema de Informação sobre Mortalidade going back to 2010—18 million deaths over 15 years. Daily temperature readings from 300+ INMET weather stations. Satellite-derived air pollution from Copernicus, because heat waves and PM2.5 travel together and you can't attribute deaths to temperature without controlling for what else might be killing people.
 
-The merging was an exercise in geographic humility. Weather stations don't align with municipal boundaries. Some stations have gaps. The mortality data uses health region coding that changed in 2017. Remote Amazon regions have one station covering an area the size of Portugal. I spent two weeks on crosswalks alone, and I'm still not confident about coverage in Amazonas and Roraima.
-
-Eventually I had a panel: 160 health regions, 15 years of daily data. And then the models started failing.
+The merging was an exercise in geographic humility. Weather stations don't align with municipal boundaries. Some stations have gaps. The mortality data uses health region coding that changed in 2017. Remote Amazon regions have one station covering an area the size of Portugal. Eventually I had a panel: 160 health regions, 15 years of daily data. And then the models started failing.
 
 Some regions wouldn't converge—the optimizer would spiral off to infinity or return standard errors ten times the point estimate. I eventually traced this to sparse data: small-population regions with days of zero deaths, which quasi-Poisson estimation handles poorly. The fix was aggregation—combining small regions upward until the daily counts were stable enough for reliable estimation. Geographic resolution traded for statistical stability.
 
@@ -105,15 +103,6 @@ There's also the harvesting problem. Some fraction of heat-wave deaths represent
 
 My current estimate—provisional, sensitivity analyses ongoing—is 30,000 to 50,000 temperature-attributable deaths per year nationally, with cold contributing roughly 60% of the burden. These numbers would make temperature a top-ten mortality risk factor in Brazil, comparable to traffic accidents, ahead of homicide outside the most violent states. But "comparable to traffic accidents" comes with wide confidence intervals that I'm not yet willing to narrow.
 
----
-
-## An Instrumental Variable Approach
-
-The project has one more methodological wrinkle I'm testing: using El Niño/La Niña cycles as an instrumental variable.
-
-The logic: ENSO phases provide exogenous temperature variation uncorrelated with the usual confounders. When El Niño shifts Pacific sea surface temperatures, Brazil's weather responds—droughts in the north, unusual cold in the south—in ways that aren't driven by local pollution, economic activity, or health system changes. If IV estimates from ENSO-induced temperature variation match the time-series estimates, that's validation. If they diverge, something interesting is happening.
-
-Early results suggest the estimates converge, which is reassuring but not definitive. There's stratification by age, sex, and cause of death still to complete.
 
 ---
 

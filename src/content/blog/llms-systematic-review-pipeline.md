@@ -374,13 +374,9 @@ on educational interventions. Help me:
 
 ---
 
-## Key Takeaways
+## The Short Version
 
-1. **Screening is the biggest win**—AI can reduce workload by 50-70%
-2. **Extraction is promising**—but verify critical numbers
-3. **Appraisal needs humans**—interpretive tasks remain challenging
-4. **Synthesis needs grounding**—use RAG, not free-form LLMs
-5. **Validate everything**—AI errors can propagate through the review
+Screening is where AI actually saves time—50-70% workload reduction if you validate properly. Extraction works but verify the numbers. Critical appraisal still needs human judgment. For synthesis, use RAG or you'll get hallucinations. And validate everything, because AI errors propagate.
 
 ---
 

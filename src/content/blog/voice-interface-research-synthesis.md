@@ -25,14 +25,9 @@ projects: []
 external_link: https://github.com/lsempe77/fcas_chatbot_podcast
 ---
 
-I was in a taxi heading to a meeting when the policy question came in: "What do we know about community-driven development in conflict settings?" I had the research—hundreds of studies in my database—but I couldn't look through them. I was on my phone, in traffic, with fifteen minutes before walking into the room.
+Colleagues at 3ie and FCDO have struggled with identifying robust research in FCAS(Fragile and Conflict-affected settings). They wanted to give one step back and a broader question: what type of research people do in conflict settings?" 
 
-That's when I wanted a research assistant I could talk to.
-
-Not ChatGPT, which would happily hallucinate citations. A system that only answers from my vetted evidence base, that tells me exactly which studies support each claim, and that can speak the answer back to me while I'm walking or driving or doing something else with my hands.
-
-So I built one.
-
+We produced a very long document, but we though we could bring this closer to policy makers. So we created a RAG that tells exactly which studies support each claim, and that can speak the answer back to me while I'm walking or driving or doing something else with my hands.
 ---
 
 ## The Architecture
@@ -88,9 +83,7 @@ This makes the system useful not just for answering specific questions but for u
 
 ---
 
-## What I Learned
-
-Building a voice-enabled research assistant taught me several things.
+## The Debugging That Ate My Weekend
 
 **Latency matters.** If the system takes ten seconds to respond, the conversational feel breaks. I optimized retrieval and synthesis to hit sub-5-second response times for most queries.
 
@@ -100,12 +93,12 @@ Building a voice-enabled research assistant taught me several things.
 
 ---
 
-## Future Directions
+## What's Still Broken
 
-The current system works on a pre-built corpus. The next version will allow dynamic corpus updates—drop new PDFs into a folder, and they're automatically chunked, embedded, and indexed.
+The current system works on a pre-built corpus. I want dynamic corpus updates—drop new PDFs into a folder, and they're automatically chunked, embedded, and indexed. Haven't built that yet.
 
-I'm also exploring multi-turn conversation. Right now, each query is independent. True dialogue—"tell me more about that second study"—would make the interaction more natural.
+Each query is also independent right now. True dialogue—"tell me more about that second study"—would make the interaction more natural. That's harder than it sounds.
 
-And there's always the question of deployment. The system currently runs on my machine or on HuggingFace Spaces. For organizational use, it needs proper authentication, rate limiting, and cost management.
+The system runs on my machine or on HuggingFace Spaces. For organizational use, it would need proper authentication, rate limiting, and cost management. Whether I have time to build that is an open question.
 
 *The code is on [GitHub](https://github.com/lsempe77/fcas_chatbot_podcast).*
