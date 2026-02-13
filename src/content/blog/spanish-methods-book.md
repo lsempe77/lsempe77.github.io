@@ -1,14 +1,14 @@
 ---
 title: "Writing a Methods Book Nobody Asked For"
-summary: "Most research methodology textbooks are written by people who've forgotten what it's like not to know things. I wrote one in Spanish for the student I used to be—disorganized, confused, and making the same mistakes repeatedly."
-date: 2021-09-15
+summary: "A comprehensive Spanish-language research methods textbook covering the complete research process—from formulating questions to writing results—built around the mistakes students actually make, not the theory professors think they need."
+date: 2024-01-15
 authors:
   - admin
 tags:
   - Research Methods
   - Teaching
   - Spanish
-  - Bookdown
+  - Quarto
   - Academia
 image:
   caption: 'Research methodology textbook'
@@ -44,13 +44,63 @@ The books don't answer those questions directly. They explain what a hypothesis 
 
 ## A Different Approach
 
-The book I'm writing—slowly, chapter by chapter, as I teach—tries to be honest about research practice. It's in Spanish because that's what my students need, and because good methods resources in Spanish are surprisingly scarce.
+What started as scattered teaching notes has grown into a comprehensive book covering the complete research process—now 19 chapters built in Quarto that follow a student from initial curiosity to finished thesis.
 
-Each chapter starts with problems, not theory. What goes wrong? What mistakes do people make? Then we work backward to principles that prevent those mistakes.
+The structure follows the research process, but each chapter starts with problems, not theory. What goes wrong? What mistakes do people make? Then we work backward to principles that prevent those mistakes.
 
-For example, instead of defining "operationalization" abstractly, I show thesis drafts where the research question asks one thing and the survey measures something else entirely. The gap is obvious once you see it. Then we discuss how to avoid that gap.
+### Part I: Foundations
 
-The book is built in Bookdown, which means it's a living document. I can update chapters as I teach, add examples from current students' work, and make corrections when I realize I was wrong about something.
+The book opens with a frank discussion of why we research at all ("¿Para qué investigamos?")—distinguishing genuine inquiry from "opinar con bibliografía" (having opinions with citations). This isn't philosophy for its own sake. Understanding the difference between confirmation bias and research shapes everything that follows.
+
+Then come the foundations: paradigms and perspectives (without the usual wars), key concepts, and the research process overview. These chapters establish vocabulary and orientation without pretending to resolve debates that working researchers don't actually spend time on.
+
+### Part II: The Research Question Engine
+
+The core engine of any thesis is the question-hypothesis-variables tripod. Three chapters address this systematically:
+
+**"La pregunta de investigación: el corazón de todo"** includes "the 5 lethal questions" to test whether your research question actually works:
+1. Can it be answered empirically?
+2. Can it be answered with your resources?
+3. Has it been answered before? (Check before you start)
+4. Does anyone care about the answer?
+5. What changes if you answer it?
+
+**"El marco teórico: los lentes con los que miras"** distinguishes using theory from copying definitions. A working theoretical framework defines your problem, orients your variables, and anticipates measurement—not decorates your literature review.
+
+**"Hipótesis, objetivos y variables: el trípode"** tackles operationalization head-on. I show thesis drafts where the research question asks one thing and the survey measures something else entirely. The gap is obvious once you see it.
+
+### Part III: Design and Methods
+
+**"Cuantitativo, cualitativo, mixto: elige tu aventura"** refuses the false wars. Numbers and words are tools. If you ask "how many?", you need numbers. If you ask "how do they experience it?", you need words. Pretending these are interchangeable isn't pluralism—it's confusion.
+
+**"Diseños de investigación: el plano de tu casa"** covers experimental, quasi-experimental, and observational designs. It explains difference-in-differences, propensity score matching, and regression discontinuity—but honestly about when they're actually feasible.
+
+**"Muestreo: ¿a quién le preguntas?"** is perhaps the most honest chapter. Most theses use convenience sampling. I acknowledge this while explaining what it costs and how to mitigate bias. The formula-driven section on sample size includes diminishing returns graphs showing why increasing from 400 to 1,000 barely moves your margin of error.
+
+### Part IV: Doing the Work
+
+**"Recolección de datos: salir al campo"** covers surveys, interviews, focus groups, observation, and secondary data. Survey design includes the "golden rules": clarity above all, one idea per question, no leading questions. The interview section's core lesson: shut up and listen.
+
+**"Análisis de datos: donde la magia (no) ocurre"** demystifies both quantitative and qualitative analysis. For quantitative work: clean your data first, start descriptive, then move to regression. For qualitative work: the full coding process from transcription through saturation to interpretation.
+
+**"Métodos comparados: más allá de la regresión"** introduces Qualitative Comparative Analysis (QCA) for small-N comparative designs—when you have 15-50 cases and regression won't work but you need systematic analysis.
+
+**"Visualización de datos: mostrar para convencer"** teaches how a good graph beats a thousand tables, with R code for maps, scatter plots, and presentation-ready figures.
+
+### Part V: Finishing Strong
+
+**"Escribir la tesis: el arte de no morir en el intento"** is the chapter students actually read first. Practical advice on writing when you don't feel ready, structuring arguments, and surviving the revision process.
+
+**"Resultados y discusión: conectar los puntos"** separates what you found from what it means. The chapter emphasizes that your discussion should "converse with the literature"—not just summarize your findings again.
+
+**"Errores más comunes: el museo de los horrores"** catalogs 15+ mistakes I see repeatedly:
+- The "ocean question" (too broad to research in one lifetime)
+- The "Wikipedia theoretical framework" (definitions ≠ theory)
+- Correlation-causation confusion
+- Cherry-picking qualitative quotes
+- The lying graph (truncated axes, manipulated scales)
+
+The chapter ends with a pre-submission checklist that's saved more than a few students from embarrassment.
 
 ---
 
@@ -60,7 +110,7 @@ The subtitle mentions being "politically incorrect," which sounds provocative bu
 
 For instance: qualitative and quantitative research aren't equal for all purposes. If you want to know whether a drug works, you run a randomized trial, not an ethnography. If you want to understand why patients don't take their medication, qualitative methods might serve better. Pretending these approaches are interchangeable isn't pluralism—it's confusion.
 
-I also discuss how academic incentives shape research practice in ways that aren't always acknowledged. Why do papers hedge their conclusions? Why are null results rare in journals? Why do literature reviews cite the same twenty papers? These are practical realities students will encounter, and pretending they don't exist doesn't prepare anyone for actual academic work.
+I also discuss how academic incentives shape research practice in ways that aren't usually acknowledged. Why do papers hedge their conclusions? Why are null results rare in journals? Why do literature reviews cite the same twenty papers? These are practical realities students will encounter, and pretending they don't exist doesn't prepare anyone for actual academic work.
 
 ---
 
@@ -70,7 +120,7 @@ Writing the book has taught me how little I actually understood about things I t
 
 The students teach me too. Their questions identify where my explanations fail. Their mistakes show me which concepts need more emphasis. Their thesis drafts demonstrate what's actually confusing versus what I assumed would be confusing.
 
-The book remains incomplete. Chapters exist in various states of polish. Some are taught every semester and refined accordingly. Others are outlines waiting for time I don't have. But the partial version is already useful—students access it online, suggest corrections, and occasionally cite it in their own work.
+The book migrated from Bookdown to Quarto, reflecting the evolving R ecosystem. Chapters are polished through teaching—each semester's students find the weak spots I missed.
 
 ---
 

@@ -117,11 +117,6 @@ const blogThemes = {
     visual: 'generate',
     palette: 'violet'
   },
-  'small_sample': {
-    title: 'Small Sample Methods',
-    visual: 'scatter',
-    palette: 'rose'
-  },
   'eipm-framework': {
     title: 'Evidence to Policy Framework',
     visual: 'pipeline',
