@@ -20,7 +20,6 @@ image:
 categories:
   - Research Methodology
   - Policy
-featured: true
 draft: false
 projects: []
 ---
