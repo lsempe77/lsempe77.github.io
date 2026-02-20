@@ -2,6 +2,7 @@
 title: "Why Good Evidence Doesn't Automatically Become Good Policy"
 summary: "We produce more rigorous research than ever before. Yet evidence uptake into policy remains stubbornly low. The EIPM Framework tries to understand why—and what we can do about it."
 date: 2025-05-15
+featured: true
 authors:
   - admin
 tags:
