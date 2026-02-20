@@ -1,7 +1,7 @@
 ---
 title: "The Capacity Gap"
-subtitle: "What I found scoring 2,100 AI policies"
-summary: "I scored 2,100+ AI policies across 70+ countries on implementation capacity. The headline isn't that rich countries do better—it's that the gap nearly vanishes once you account for documentation quality. The real story is what's happening within income groups."
+subtitle: "What I found scoring 2,216 AI policies across 193 countries"
+summary: "I scored 2,216 AI policy documents across 193 countries on implementation capacity. The headline isn't that rich countries do better—it's that the gap nearly vanishes once you account for documentation quality. The real story is what's happening within income groups."
 authors:
   - admin
 tags:
@@ -11,10 +11,9 @@ tags:
   - OECD
   - Python
 categories:
-  - Policy Analysis
-  - Research Methods
+  - AI Ethics & Governance
 date: 2026-02-06
-lastmod: 2026-02-06
+lastmod: 2026-02-20
 featured: true
 draft: false
 
@@ -25,12 +24,12 @@ image:
   preview_only: false
 
 projects: []
-external_link: https://github.com/lsempe77/ai-governance-capacity
+external_link: https://lsempe77.github.io/ai-governance-capacity/
 ---
 
-This is the first book in a trilogy on global AI governance. The second examines ethics governance—whether countries operationalize principles like fairness and accountability. The third measures alignment with UNESCO's 2021 AI ethics framework. But everything starts here, with a more fundamental question: do governments have the institutional capacity to implement their AI policies at all?
+This is the first of four companion volumes on global AI governance. The second examines ethics governance—whether countries operationalise principles like fairness and accountability. The third measures alignment with UNESCO's 2021 AI ethics framework. The fourth documents the shared methodology underpinning all three substantive volumes. But everything starts here, with a more fundamental question: do governments have the institutional capacity to implement their AI policies at all?
 
-I started this project skeptical of the AI governance boom. Between 2017 and 2025, governments produced over 2,200 AI policy initiatives catalogued in the OECD.AI Policy Observatory. Every week brings another national AI strategy, another sectoral guideline, another set of principles. The announcements sound impressive. But counting policies tells you nothing about whether they'll actually work.
+I started this project skeptical of the AI governance boom. Between 2017 and 2025, governments produced 2,216 AI policy initiatives catalogued in the [OECD.AI Policy Observatory](https://oecd.ai/). Every week brings another national AI strategy, another sectoral guideline, another set of principles. The announcements sound impressive. But counting policies tells you nothing about whether they'll actually work.
 
 Implementation science has a term for this: the "knowing-doing gap." Organizations can articulate sophisticated strategies while lacking the institutional infrastructure to execute them. A policy without resources is a wish. A policy without enforcement is a suggestion. A policy without accountability is a performance.
 
@@ -140,11 +139,11 @@ The peer learning channels are already active. African Union coordination, regio
 
 Building this dataset required solving several technical problems. Policy documents don't come in convenient formats.
 
-**Stage 1: Retrieval.** The OECD.AI Observatory provides metadata and links, but links break. I built a cascade retrieval system: try direct download first, then follow embedded links, then check the Wayback Machine, then search DuckDuckGo for alternative URLs, and finally use Claude's web search as a last resort. This achieved 94% document recovery—2,100+ full texts from 2,200+ metadata records.
+**Stage 1: Retrieval.** The OECD.AI Observatory provides metadata and links, but links break. I built a cascade retrieval system: try direct download first, then follow embedded links, then check the Wayback Machine, then search DuckDuckGo for alternative URLs, and finally use Claude's web search as a last resort. This achieved 94% document recovery from the 2,216 metadata records.
 
 **Stage 2: Extraction.** PDF extraction is harder than it looks. Government documents come in scanned images, weird encodings, password protection, corrupt files. PyMuPDF handles most cases; trafilatura extracts text from HTML alternatives. Quality tiering by word count: 43% "good" (≥500 words of clean text), 36% "thin" (100–499 words), 21% "stub" (<100 words or extraction failure).
 
-**Stage 3: Scoring.** Three frontier LLMs score each document against the five-dimension rubric. The prompt includes detailed scoring criteria with examples. Each model returns structured JSON with dimension scores and brief justifications. 6,641 API calls total (three models × 2,100+ documents, plus retries for parsing failures).
+**Stage 3: Scoring.** Three frontier LLMs (Claude Sonnet 4, GPT-4o, Gemini Flash 2.0) score each document against the five-dimension rubric. The prompt includes detailed scoring criteria with examples. Each model returns structured JSON with dimension scores and brief justifications.
 
 **Stage 4: Analysis.** The modeling strategy accounts for the data structure: OLS for baseline estimates, multilevel models with country random effects, quantile regression to examine different parts of the distribution, Tobit models to handle floor effects (many scores at zero). Theil decomposition for variance partitioning. K-means clustering to identify policy archetypes.
 
@@ -166,6 +165,18 @@ The policy implications aren't what you'd expect from the headline "developing c
 
 ---
 
-The full research is published as a [Quarto book](https://github.com/lsempe77/ai-governance-capacity) with complete methodology, robustness checks, and country-level data. Books 2 and 3—on ethics governance and UNESCO alignment—use the same corpus and methodology.
+The full research is published as four companion volumes at the [project page](https://lsempe77.github.io/ai-governance-capacity/), with complete methodology, robustness checks, and country-level data:
+
+- **Book 1** — [AI Governance Implementation Capacity](https://lsempe77.github.io/ai-governance-capacity/book1_capacity/_book/) (this analysis)
+- **Book 2** — [AI Ethics Governance Depth](https://lsempe77.github.io/ai-governance-capacity/book2_ethics/_book/)
+- **Book 3** — [UNESCO AI Ethics Recommendation Alignment](https://lsempe77.github.io/ai-governance-capacity/book3_unesco/_book/)
+- **Book 4** — [Shared Methodology](https://lsempe77.github.io/ai-governance-capacity/book4_methods/_book/)
+
+Two draft policy documents translate the findings into operational guidance:
+
+- [Ethical Guidance for the Use of AI in RCC-Funded Research](https://lsempe77.github.io/ai-governance-capacity/ethical-ai-guidance.pdf)
+- [Operationalising the Ethical Use of AI in Development Research](https://lsempe77.github.io/ai-governance-capacity/ethical-ai-brief.pdf)
+
+All code is on [GitHub](https://github.com/lsempe77/ai-governance-capacity).
 
 *This research is part of my work on AI governance at 3ie.*

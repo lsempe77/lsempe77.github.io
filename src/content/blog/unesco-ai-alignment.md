@@ -1,7 +1,7 @@
 ---
 title: "Did Anyone Actually Follow UNESCO's AI Ethics Recommendation?"
 subtitle: "193 countries agreed on ethical AI principles. Then reality happened."
-summary: "In November 2021, every UNESCO member state adopted a shared vision for ethical AI. I scored 2,100+ policies against UNESCO's 21 components. Mean alignment: 1.68 out of 4. Countries cherry-picked what they liked and ignored the rest."
+summary: "In November 2021, every UNESCO member state adopted a shared vision for ethical AI. I scored 2,216 policies from 193 countries against UNESCO's 21 components. Mean alignment: 1.68 out of 4. Countries cherry-picked what they liked and ignored the rest."
 authors:
   - admin
 tags:
@@ -11,9 +11,9 @@ tags:
   - Global Observatory
   - Policy Analysis
 categories:
-  - Research
+  - AI Ethics & Governance
 date: 2025-12-27
-lastmod: 2025-12-27
+lastmod: 2026-02-20
 featured: true
 draft: false
 
@@ -24,9 +24,10 @@ image:
   preview_only: false
 
 projects: []
+external_link: https://lsempe77.github.io/ai-governance-capacity/
 ---
 
-This is the third book in the Global Observatory of AI Governance. The first measured governance capacity—institutional foundations, technical infrastructure, regulatory frameworks. The second assessed ethics governance—how deeply countries operationalize principles like fairness and accountability. This final book asks a different question: when the world agrees on a framework, does anyone actually follow it?
+This is the third volume in the [Global Observatory of AI Governance](https://lsempe77.github.io/ai-governance-capacity/). The [first](https://lsempe77.github.io/ai-governance-capacity/book1_capacity/_book/) measured governance capacity—institutional foundations, technical infrastructure, regulatory frameworks. The [second](https://lsempe77.github.io/ai-governance-capacity/book2_ethics/_book/) assessed ethics governance—how deeply countries operationalise principles like fairness and accountability. This volume asks a different question: when the world agrees on a framework, does anyone actually follow it?
 
 In November 2021, something remarkable happened. All 193 UNESCO member states adopted the Recommendation on the Ethics of Artificial Intelligence—the first global normative instrument for AI governance. Not a treaty requiring ratification. Not a declaration of principles. A detailed framework specifying four core values, ten principles, and eleven policy action areas for human-centered AI development.
 
@@ -34,7 +35,7 @@ The political achievement was real. Getting 193 countries to agree on anything i
 
 But adoption is cheap. Implementation is expensive. The obvious question: did anyone follow through?
 
-I spent months measuring alignment between national policies and UNESCO's framework across 2,100+ documents. The short answer is "partially." The long answer involves cherry-picking, implementation gaps, and some genuinely surprising patterns about who engages seriously with international norms.
+I spent months measuring alignment between national policies and UNESCO's framework across 2,216 documents from 193 countries. The short answer is "partially." The long answer involves cherry-picking, implementation gaps, and some genuinely surprising patterns about who engages seriously with international norms.
 
 ---
 
@@ -50,7 +51,7 @@ The Recommendation is more sophisticated than most international instruments. It
 
 The structure matters. Values are broad enough that everyone can agree. Principles add specificity but remain somewhat abstract. Policy action areas are where the rubber meets the road—concrete domains where countries must actually do something.
 
-I scored each of 2,100+ policies against all 21 components. A score of 0 means absent; 1 means mentioned; 2 means described; 3 means operationalized with specific mechanisms; 4 means comprehensive implementation with enforcement provisions. The same LLM ensemble methodology as Books 1 and 2 (Claude Sonnet 4, GPT-4o, Gemini Flash 2.0; ICC = 0.827).
+I scored each of 2,216 policies against all 21 components. A score of 0 means absent; 1 means mentioned; 2 means described; 3 means operationalized with specific mechanisms; 4 means comprehensive implementation with enforcement provisions. The same LLM ensemble methodology as Books 1 and 2 (Claude Sonnet 4, GPT-4o, Gemini Flash 2.0; ICC = 0.827).
 
 ---
 
@@ -200,9 +201,9 @@ International normative instruments may be most effective at establishing shared
 
 ## Code and Data
 
-The full analysis is documented in Book 3 of the Global Observatory of AI Governance: [github.com/lsempe77/ai-governance-capacity](https://github.com/lsempe77/ai-governance-capacity).
+The full analysis is documented in [Book 3](https://lsempe77.github.io/ai-governance-capacity/book3_unesco/_book/) of the [Global Observatory of AI Governance](https://lsempe77.github.io/ai-governance-capacity/): [github.com/lsempe77/ai-governance-capacity](https://github.com/lsempe77/ai-governance-capacity).
 
-All three books—capacity, ethics, UNESCO alignment—draw on the same 2,100+ policy corpus and use consistent methodology. Data is CC BY 4.0 licensed.
+All four volumes—[capacity](https://lsempe77.github.io/ai-governance-capacity/book1_capacity/_book/), [ethics](https://lsempe77.github.io/ai-governance-capacity/book2_ethics/_book/), [UNESCO alignment](https://lsempe77.github.io/ai-governance-capacity/book3_unesco/_book/), and [shared methodology](https://lsempe77.github.io/ai-governance-capacity/book4_methods/_book/)—draw on the same 2,216-policy corpus and use consistent methodology. Data is CC BY 4.0 licensed.
 
 ---
 

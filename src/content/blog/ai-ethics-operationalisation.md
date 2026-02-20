@@ -1,7 +1,7 @@
 ---
 title: "The Principles-to-Practice Gap in AI Ethics"
 subtitle: "Global measurement reveals ethics governance is more talk than action"
-summary: "Everyone agrees on AI ethics principles. The problem is nobody operationalizes them. I measured ethics governance depth across 2,100+ policies and found 99% of variation happens within income groups—not between rich and poor countries."
+summary: "Everyone agrees on AI ethics principles. The problem is nobody operationalises them. I measured ethics governance depth across 2,216 policies from 193 countries and found 99% of variation happens within income groups—not between rich and poor countries."
 authors:
   - admin
 tags:
@@ -11,9 +11,9 @@ tags:
   - Global Observatory
   - Policy Analysis
 categories:
-  - Research
+  - AI Ethics & Governance
 date: 2025-12-26
-lastmod: 2025-12-26
+lastmod: 2026-02-20
 featured: true
 draft: false
 
@@ -24,15 +24,16 @@ image:
   preview_only: false
 
 projects: []
+external_link: https://lsempe77.github.io/ai-governance-capacity/
 ---
 
-As part of the Global Observatory of AI Governance, I've been building a systematic measurement of how countries actually govern artificial intelligence—not what they say in press releases, but what their policies commit them to do. The first book examined governance capacity. This second book tackles the harder question: ethics.
+As part of the Global Observatory of AI Governance, I've been building a systematic measurement of how countries actually govern artificial intelligence—not what they say in press releases, but what their policies commit them to do. The [first volume](https://lsempe77.github.io/ai-governance-capacity/book1_capacity/_book/) examined governance capacity. This second volume tackles the harder question: ethics.
 
 The AI ethics field has an unusual problem. Everyone agrees on the principles—fairness, transparency, accountability, human oversight. Jobin and colleagues documented this convergence back in 2019, cataloguing 84 guidelines that all circled the same values. But agreement on principles masks a deeper failure: almost nobody specifies how to operationalize them.
 
 What does "fairness" mean when a government procures an algorithm to allocate social benefits? Who's accountable when that algorithm fails? How do you enforce "transparency" requirements? These operational questions remain largely unanswered.
 
-I spent the past year measuring this gap across 2,100+ AI policies worldwide. The results are both worse and better than I expected.
+I spent the past year measuring this gap across 2,216 AI policies from 193 countries. The results are both worse and better than I expected.
 
 ---
 
@@ -102,9 +103,9 @@ Three implications stand out:
 
 ## Code and Data
 
-The full analysis is documented in Book 2 of the Global Observatory of AI Governance: [github.com/lsempe77/ai-governance-capacity](https://github.com/lsempe77/ai-governance-capacity).
+The full analysis is documented in [Book 2](https://lsempe77.github.io/ai-governance-capacity/book2_ethics/_book/) of the [Global Observatory of AI Governance](https://lsempe77.github.io/ai-governance-capacity/): [github.com/lsempe77/ai-governance-capacity](https://github.com/lsempe77/ai-governance-capacity).
 
-The five ethics dimensions join five capacity dimensions (from Book 1) to create a 10-dimension framework for assessing AI governance quality globally. Both datasets are CC BY 4.0 licensed.
+The five ethics dimensions join five capacity dimensions (from [Book 1](https://lsempe77.github.io/ai-governance-capacity/book1_capacity/_book/)) to create a 10-dimension framework for assessing AI governance quality globally. A [shared methodology volume](https://lsempe77.github.io/ai-governance-capacity/book4_methods/_book/) documents the common analytical framework. All datasets are CC BY 4.0 licensed.
 
 ---
 

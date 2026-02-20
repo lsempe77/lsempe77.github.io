@@ -12,8 +12,7 @@ tags:
   - Humanitarian
   - Conflict
 categories:
-  - Research Methods
-  - AI Ethics
+  - AI Ethics & Governance
 date: 2026-02-06
 lastmod: 2026-02-06
 featured: true
