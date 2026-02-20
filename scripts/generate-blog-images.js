@@ -121,6 +121,36 @@ const blogThemes = {
     title: 'Evidence to Policy Framework',
     visual: 'pipeline',
     palette: 'blue'
+  },
+  'ai-ethics-operationalisation': {
+    title: 'AI Ethics Operationalisation',
+    visual: 'balance',
+    palette: 'rose'
+  },
+  'qca-health-systems': {
+    title: 'QCA for Health Systems',
+    visual: 'network',
+    palette: 'amber'
+  },
+  'spanish-methods-book': {
+    title: 'Research Methods Textbook',
+    visual: 'grid',
+    palette: 'slate'
+  },
+  'teaching-r-impact-evaluation': {
+    title: 'Teaching R for Evaluation',
+    visual: 'scatter',
+    palette: 'emerald'
+  },
+  'unesco-ai-alignment': {
+    title: 'UNESCO AI Ethics Alignment',
+    visual: 'compass',
+    palette: 'violet'
+  },
+  'voice-interface-research-synthesis': {
+    title: 'Voice Research Synthesis',
+    visual: 'conversation',
+    palette: 'cyan'
   }
 };
 
