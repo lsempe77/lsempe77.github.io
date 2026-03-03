@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Counterfactual Designs for Small Samples – Small-n Approaches to Impact Evaluation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./05-configurational.html" rel="next">
+<link href="./03-eight-logics.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04-counterfactual.html">Methods for Small-n Causal Inference</a></li><li class="breadcrumb-item"><a href="./04-counterfactual.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Counterfactual Designs for Small Samples</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Small-n Approaches to Impact Evaluation</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Foundations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-defining-small-n.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Defining Small-n</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-eight-logics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The Eight Logics of Causal Inference</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Methods for Small-n Causal Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-counterfactual.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Counterfactual Designs for Small Samples</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-configurational.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Configurational Approaches</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-generative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Generative and Mechanistic Approaches</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-diagnostic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Diagnostic Approaches</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-participatory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Participatory and Agency-Based Approaches</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-simulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Computational Simulation as Complement to Small-n Designs</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Integration and Practice</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-decision-framework.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">A Decision Framework for Method Selection</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-integration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Mixed-Method Integration Across Logics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-quality-standards.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Bias, Transparency, and Quality Standards</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Conclusion</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Small-n Evaluation as Causal Inquiry</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#single-case-experimental-designs-and-n-of-1-trials" id="toc-single-case-experimental-designs-and-n-of-1-trials" class="nav-link active" data-scroll-target="#single-case-experimental-designs-and-n-of-1-trials"><span class="header-section-number">4.1</span> Single-case experimental designs and N-of-1 trials</a></li>
+  <li><a href="#analytical-tools-for-within-unit-designs" id="toc-analytical-tools-for-within-unit-designs" class="nav-link" data-scroll-target="#analytical-tools-for-within-unit-designs"><span class="header-section-number">4.2</span> Analytical tools for within-unit designs</a></li>
+  <li><a href="#embedding-within-unit-designs-in-larger-studies" id="toc-embedding-within-unit-designs-in-larger-studies" class="nav-link" data-scroll-target="#embedding-within-unit-designs-in-larger-studies"><span class="header-section-number">4.3</span> Embedding within-unit designs in larger studies</a></li>
+  <li><a href="#strengths-limitations-and-applicability" id="toc-strengths-limitations-and-applicability" class="nav-link" data-scroll-target="#strengths-limitations-and-applicability"><span class="header-section-number">4.4</span> Strengths, limitations, and applicability</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04-counterfactual.html">Methods for Small-n Causal Inference</a></li><li class="breadcrumb-item"><a href="./04-counterfactual.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Counterfactual Designs for Small Samples</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="sec-counterfactual" class="quarto-section-identifier"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Counterfactual Designs for Small Samples</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The counterfactual question does not disappear when n is small. “What would have happened without the intervention?” remains the right question whenever the evaluation needs to isolate a treatment effect. What changes is the strategy for constructing the counterfactual. Large-sample designs compare a treated group with a control group, relying on randomisation or statistical adjustment to make the groups exchangeable. When the sample contains only one unit, or a handful, between-group comparison cannot support credible inference. The primary alternative is within-unit temporal comparison: each case serves as its own control across phases of treatment and non-treatment. This is the domain of single-case experimental designs (SCEDs) and N-of-1 trials.</p>
+<p>Within-unit comparison does not require large-sample distributional assumptions. Randomisation inference, an inferential overlay discussed in the second section of this chapter, provides exact p-values by enumerating all possible phase assignments. The result is a family of designs that can produce internally valid causal evidence from as few as one unit, provided the evaluator can observe the outcome repeatedly across phases. Chapter 2 identified boundary methods (synthetic control, interrupted time series) that also invoke counterfactual logic but require larger temporal n.&nbsp;This chapter focuses on designs that operate at genuinely small n and that give each unit its own counterfactual.</p>
+<section id="single-case-experimental-designs-and-n-of-1-trials" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="single-case-experimental-designs-and-n-of-1-trials"><span class="header-section-number">4.1</span> Single-case experimental designs and N-of-1 trials</h2>
+<p>SCEDs are a family of experimental designs in which each unit is observed across multiple phases, and the investigator controls when the treatment is introduced, withdrawn, or alternated <span class="citation" data-cites="epstein2022">(<a href="references.html#ref-epstein2022" role="doc-biblioref">Epstein &amp; Dallery, 2022</a>)</span>. The counterfactual is constructed by comparing the same unit’s outcome between treatment and non-treatment phases. Because the unit serves as its own control, between-subject variability is eliminated. The family contains four principal design types, each suited to different assumptions about the outcome and the intervention. <a href="#tbl-sced-families" class="quarto-xref">Table&nbsp;<span>4.1</span></a> summarises the key features.</p>
+<div id="tbl-sced-families" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sced-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4.1: SCED design families and their features
+</figcaption>
+<div aria-describedby="tbl-sced-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Design</th>
+<th>Counterfactual construction</th>
+<th>Reversibility required</th>
+<th>Minimum phases</th>
+<th>Replication type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reversal (ABA/ABAB)</td>
+<td>Baseline phase serves as the counterfactual for the treatment phase</td>
+<td>Yes</td>
+<td>3 (ABA) or 4 (ABAB)</td>
+<td>Within-case (phase repetition)</td>
+</tr>
+<tr class="even">
+<td>Multiple baseline</td>
+<td>Untreated baselines of other units, settings, or behaviours serve as concurrent controls</td>
+<td>No</td>
+<td>2 per tier; at least 3 tiers</td>
+<td>Across-case or across-setting</td>
+</tr>
+<tr class="odd">
+<td>Alternating treatments</td>
+<td>Rapid alternation of two or more conditions within the same unit</td>
+<td>No (comparison is concurrent)</td>
+<td>Sufficient alternation points for separation</td>
+<td>Within-case (condition comparison)</td>
+</tr>
+<tr class="even">
+<td>Combined</td>
+<td>Hybrid structures (e.g., multiple baseline with embedded reversal)</td>
+<td>Depends on component</td>
+<td>Varies</td>
+<td>Both within- and across-case</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Reversal designs (ABA or ABAB)</strong> introduce the treatment in phase B and withdraw it to return to baseline in a subsequent A phase <span class="citation" data-cites="barlow2009">(<a href="references.html#ref-barlow2009" role="doc-biblioref">Barlow et al., 2009</a>)</span>. The counterfactual for the treatment phase is the observed baseline; the counterfactual for the return-to-baseline phase is the preceding treatment phase. The design assumes that the outcome is reversible: if the treatment effect persists after withdrawal, the return-to-baseline phase will not show a change, and the design cannot distinguish a lasting treatment effect from no effect. Reversal designs are strongest when the outcome fluctuates with the treatment, as in behavioural interventions or dosage studies.</p>
+<p><strong>Multiple baseline designs</strong> stagger the introduction of the treatment across at least three units, settings, or behaviours <span class="citation" data-cites="kratochwill2013">(<a href="references.html#ref-kratochwill2013" role="doc-biblioref">Kratochwill et al., 2013</a>)</span>. Each baseline that has not yet received the treatment serves as a concurrent control for the unit that has. The design does not require reversibility, which makes it suitable for interventions whose effects are expected to persist, such as training, education, or infrastructure improvements. The staggered introduction rules out maturation and history threats: if the outcome changes only when the treatment is introduced, and this pattern repeats across tiers, the inference that the treatment caused the change is strengthened.</p>
+<p><strong>Alternating treatments designs</strong> rapidly switch between two or more conditions within the same unit, typically within a single session or across consecutive sessions <span class="citation" data-cites="barlow2009">(<a href="references.html#ref-barlow2009" role="doc-biblioref">Barlow et al., 2009</a>)</span>. The design compares conditions concurrently rather than sequentially, making it useful for comparing the relative effectiveness of two treatments. <strong>Combined designs</strong> merge elements from the above families. <span class="citation" data-cites="epstein2022">Epstein &amp; Dallery (<a href="references.html#ref-epstein2022" role="doc-biblioref">2022</a>)</span> describes combined designs as the most flexible but also the most complex to analyse, because the inferential logic depends on which components are present.</p>
+<p><strong>N-of-1 trials</strong> are a subtype of SCEDs rather than a separate family <span class="citation" data-cites="epstein2022">(<a href="references.html#ref-epstein2022" role="doc-biblioref">Epstein &amp; Dallery, 2022</a>)</span>. They are personalised crossover trials in which a single participant receives treatment and control conditions in a randomised sequence, often with blinding <span class="citation" data-cites="guyatt1986">(<a href="references.html#ref-guyatt1986" role="doc-biblioref">Guyatt et al., 1986</a>)</span>. N-of-1 trials are most common in clinical medicine, where the goal is to determine whether a specific treatment works for a specific patient. The randomised phase order and blinding distinguish N-of-1 trials from standard reversal designs, but the underlying logic is the same: within-unit temporal comparison.</p>
+<p>SCEDs build external validity through replication rather than through sampling. Within-case replication repeats phases within a single unit: an ABAB design replicates the treatment effect twice within the same case. Across-case replication repeats the entire design with new units. <span class="citation" data-cites="tanious2024">Tanious et al. (<a href="references.html#ref-tanious2024" role="doc-biblioref">2024</a>)</span> emphasise that both forms of replication are necessary for credible causal inference. Without within-case replication, a single phase change could reflect coincidence. Without across-case replication, the finding may be idiosyncratic to one unit.</p>
+<p><strong>Randomisation within SCEDs</strong> strengthens the inferential basis. <span class="citation" data-cites="tanious2024">Tanious et al. (<a href="references.html#ref-tanious2024" role="doc-biblioref">2024</a>)</span> describe two main strategies: randomising the onset of the treatment phase (common in multiple baseline designs) and randomising the sequence of conditions (common in alternating treatments designs). Blinding participants and assessors to phase assignment reduces expectancy and measurement bias. Randomisation also enables randomisation inference, discussed below, by providing the reference distribution against which the observed effect is tested.</p>
+<p>Development evaluation has not yet adopted SCEDs widely, but several application domains are natural fits. Personalised behaviour-change interventions in health and nutrition programmes can use reversal or N-of-1 designs when the outcome is a repeated behaviour (adherence, dietary intake, hand-washing frequency). Adaptive management in fragile settings, where a single school, clinic, or district is the unit of interest, can use multiple baseline designs to stagger the introduction of a procedural change across sites. Treatment-development studies, in which a programme is being piloted before scaling, can use SCEDs to determine whether the intervention produces a detectable effect before investing in a large-sample trial.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Development evaluation application: writing intervention in Spanish primary schools">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Development evaluation application: writing intervention in Spanish primary schools
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="citation" data-cites="arrimada2018">Arrimada et al. (<a href="references.html#ref-arrimada2018" role="doc-biblioref">2018</a>)</span> evaluated a Response to Intervention (RTI) writing programme for twelve first-grade students scoring below the 15th percentile in composition in Spain. Each student was measured on handwriting quality and composition through twice-weekly probe tasks across approximately 192 days. A multiple-baseline design staggered the introduction of parent-delivered writing instruction across students: baseline measurement continued for 120 days of regular classroom instruction, followed by 72 days of intervention. The staggered introduction ruled out maturation and history as rival explanations. Ten of twelve students improved in composition quality, with eight reaching the normal range. The study illustrates how a multiple-baseline SCED can produce credible causal evidence for an educational intervention operating at genuinely small n, without requiring a control group drawn from a large population.</p>
+</div>
+</div>
+</section>
+<section id="analytical-tools-for-within-unit-designs" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="analytical-tools-for-within-unit-designs"><span class="header-section-number">4.2</span> Analytical tools for within-unit designs</h2>
+<p><strong>Visual inspection</strong> is the traditional analytical approach in SCED research. The analyst examines graphed data for changes in level, trend, and variability between phases. Visual inspection is transparent and requires no distributional assumptions. Its principal limitations are well documented: inter-rater agreement on whether a phase change is “meaningful” is often low; visual inspection is insensitive to small or gradual effects; and it provides no formal uncertainty quantification. Visual inspection remains a useful first step, but it is insufficient as the sole basis for causal claims.</p>
+<p><strong>Linear mixed-effects modelling (LMEM)</strong> offers a statistical alternative that handles the repeated-measures structure of SCED data. <span class="citation" data-cites="wiley2019">Wiley &amp; Rapp (<a href="references.html#ref-wiley2019" role="doc-biblioref">2019</a>)</span> demonstrate LMEM with data from a longitudinal training study of five individuals with acquired dysgraphia. The model specifies fixed effects for the treatment phase (capturing the average treatment effect) and random effects for individual variation (capturing how the effect differs across units). LMEM accommodates both binary outcomes (accuracy) and continuous outcomes (reaction time), handles unequal phase lengths, and accounts for autocorrelated errors. The key advantage is that LMEM produces standardised effect sizes and formal tests of statistical significance even with very few individuals. <span class="citation" data-cites="wiley2019">Wiley &amp; Rapp (<a href="references.html#ref-wiley2019" role="doc-biblioref">2019</a>)</span> argue that LMEM is preferable to visual inspection or simpler statistical techniques when the goal is to quantify the treatment effect.</p>
+<p>Beyond LMEM, several effect size metrics have been developed specifically for SCED data. <strong>Non-overlap of all pairs (NAP)</strong> calculates the proportion of treatment-phase data points that exceed all baseline-phase data points, yielding a non-parametric measure of effect magnitude. <strong>Tau-U</strong> extends NAP by correcting for baseline trend before computing the overlap statistic. The <strong>between-case standardised mean difference</strong> provides a metric that is comparable to the Cohen’s d used in group designs, enabling cross-study comparison and meta-analysis. These metrics communicate practical significance beyond what a p-value alone conveys. <a href="#tbl-sced-tools" class="quarto-xref">Table&nbsp;<span>4.2</span></a> summarises the main analytical options.</p>
+<div id="tbl-sced-tools" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sced-tools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4.2: Analytical tools for SCED data
+</figcaption>
+<div aria-describedby="tbl-sced-tools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>What it estimates</th>
+<th>Data requirements</th>
+<th>Output</th>
+<th>Software</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Visual inspection</td>
+<td>Level, trend, and variability change</td>
+<td>Graphed time series</td>
+<td>Qualitative judgement</td>
+<td>Any graphing tool</td>
+</tr>
+<tr class="even">
+<td>LMEM</td>
+<td>Treatment effect (fixed) and individual variation (random)</td>
+<td>Repeated measures; phase indicator</td>
+<td>Effect size, p-value, confidence interval</td>
+<td>R (lme4), SAS, Stata</td>
+</tr>
+<tr class="odd">
+<td>NAP</td>
+<td>Non-overlap between phases</td>
+<td>At least 3 data points per phase</td>
+<td>Effect size (0 to 1)</td>
+<td>R (SingleCaseES), web calculators</td>
+</tr>
+<tr class="even">
+<td>Tau-U</td>
+<td>Trend-corrected non-overlap</td>
+<td>At least 5 data points per phase</td>
+<td>Effect size, p-value</td>
+<td>R (SingleCaseES), web calculators</td>
+</tr>
+<tr class="odd">
+<td>Randomisation inference</td>
+<td>Exact p-value under sharp null</td>
+<td>Randomised phase assignment</td>
+<td>p-value</td>
+<td>R (SCRT), custom scripts</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Randomisation inference provides an exact inferential framework for any SCED in which phase assignments have been randomised. The logic is straightforward. Under the sharp null hypothesis that the treatment has no effect on any observation, the observed sequence of outcomes would have occurred regardless of which time points were assigned to treatment and which to baseline. The analyst enumerates (or simulates by random sampling) all possible phase assignments permitted by the randomisation scheme, computes a test statistic for each, and locates the observed test statistic in that reference distribution. The p-value is the proportion of assignments that yield a test statistic as extreme as, or more extreme than, the one observed. No distributional assumptions are needed; the inference is exact.</p>
+<p>The sharp null hypothesis (no effect for any observation) differs from the weak null hypothesis (no average effect), and the choice between them has consequences. Under the sharp null, any individual observation is assumed unaffected; under the weak null, effects may cancel out across observations. The sharp null is the more stringent test and the one typically used in randomisation inference for SCEDs. Fisher proposed this form of exact inference; Neyman’s framework focuses instead on average effects and confidence intervals. For SCED applications, Fisher’s sharp null is the natural choice because the goal is usually to determine whether the treatment affected the specific unit under study.</p>
+<p>Randomisation inference is not a standalone method. It is an inferential overlay that strengthens any randomised small-n design. The randomised phase-change schedule provides the reference distribution; the test statistic can be any summary of the treatment-baseline contrast (mean difference, NAP, trend slope). The approach combines naturally with LMEM: the model provides the effect estimate and the randomisation distribution provides the p-value, avoiding reliance on asymptotic assumptions that may not hold at small n.</p>
+<p>A concrete example illustrates the logic. Suppose a multiple-baseline design assigns treatment onset to three community health workers at randomly selected time points within a window of weeks 4 to 12. The randomisation scheme permits <span class="math inline">\(\binom{9}{3} = 84\)</span> possible onset assignments. For each of the 84 possible assignments, the analyst computes the mean difference in performance between treatment and baseline phases. The observed mean difference is then compared against this reference distribution. If the observed difference exceeds 80 of the 84 possible values, the exact p-value is <span class="math inline">\(4/84 \approx 0.048\)</span>. No assumption about the shape of the outcome distribution is needed, because the inference is grounded entirely in the randomisation schedule that the evaluator controlled. <span class="citation" data-cites="bulte2011">Bulté &amp; Onghena (<a href="references.html#ref-bulte2011" role="doc-biblioref">2009</a>)</span> provide a comprehensive treatment of randomisation tests for single-case designs, including software implementations in the R package SCRT.</p>
+</section>
+<section id="embedding-within-unit-designs-in-larger-studies" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="embedding-within-unit-designs-in-larger-studies"><span class="header-section-number">4.3</span> Embedding within-unit designs in larger studies</h2>
+<p>Two strategies connect SCED evidence to broader evaluation frameworks. The first embeds N-of-1 trials within multi-site studies or randomised controlled trials. Each participant completes a personalised SCED, and the individual-level effect estimates feed into a group-level analysis. This design retains the within-unit causal logic while accumulating evidence across units. The second strategy meta-analyses across independently conducted SCEDs, synthesising effect sizes from separately published single-case studies using the between-case standardised mean difference or hierarchical models. Both strategies extend the reach of within-unit designs beyond the single case. <a href="11-integration.html" class="quarto-xref"><span>Chapter 11</span></a> discusses integration protocols in detail.</p>
+</section>
+<section id="strengths-limitations-and-applicability" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="strengths-limitations-and-applicability"><span class="header-section-number">4.4</span> Strengths, limitations, and applicability</h2>
+<p><a href="#tbl-sced-applicability" class="quarto-xref">Table&nbsp;<span>4.3</span></a> summarises the conditions under which each SCED variant is applicable.</p>
+<div id="tbl-sced-applicability" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sced-applicability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4.3: SCED applicability by design variant
+</figcaption>
+<div aria-describedby="tbl-sced-applicability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Design</th>
+<th>Minimum n</th>
+<th>Key assumption</th>
+<th>Causal claim strength</th>
+<th>Main limitation</th>
+<th>Typical development application</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reversal (ABA/ABAB)</td>
+<td>1</td>
+<td>Outcome reverses on withdrawal</td>
+<td>High for the treated unit</td>
+<td>Cannot be used when effects persist (learning, infrastructure)</td>
+<td>Behaviour-change interventions (health, nutrition)</td>
+</tr>
+<tr class="even">
+<td>Multiple baseline</td>
+<td>3 (tiers)</td>
+<td>No spillover across tiers; staggered introduction feasible</td>
+<td>High; concurrent controls</td>
+<td>Requires at least 3 comparable tiers; sensitive to co-occurring events</td>
+<td>Phased programme roll-out across sites</td>
+</tr>
+<tr class="odd">
+<td>Alternating treatments</td>
+<td>1</td>
+<td>Conditions do not carry over between alternations</td>
+<td>High for condition comparison</td>
+<td>Carryover effects can confound if conditions interact</td>
+<td>Comparing delivery modalities</td>
+</tr>
+<tr class="even">
+<td>N-of-1 trial</td>
+<td>1</td>
+<td>Outcome reversible; blinding feasible</td>
+<td>High; strongest internal validity</td>
+<td>Blinding often impractical in behavioural or policy interventions</td>
+<td>Personalised treatment in health settings</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The principal strengths of within-unit counterfactual designs are clear. They produce causal evidence at n as low as 1. Randomisation inference provides exact p-values without large-sample assumptions. Each unit serves as its own control, eliminating between-subject confounding. Internal validity for the treated unit is high.</p>
+<p>The limitations are equally clear. All SCED variants require repeated measurement: many time points per unit per phase. Reversal designs assume that the outcome returns to baseline after treatment withdrawal, an assumption violated for interventions whose effects persist (learning, vaccination, infrastructure). Multiple baseline designs require at least three units, settings, or behaviours, and assume no spillover between tiers. External validity depends entirely on replication; a single SCED demonstrates an effect for one unit and cannot, on its own, support generalisation. Development evaluation has adopted SCEDs sparingly to date, in part because many development outcomes are not repeatedly measurable in the short cycles that SCED phases require.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="The case against and for SCEDs">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The case against and for SCEDs
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>SCEDs have faced persistent scepticism, particularly from fields that treat group-randomised trials as the default standard of evidence. Three criticisms recur. First, findings from a single case cannot inform policy because they lack external validity. Second, the reversibility assumption restricts SCEDs to a narrow class of outcomes that return to baseline when the treatment is withdrawn, excluding most developmental, educational, or structural outcomes. Third, evidence hierarchies such as GRADE and the Campbell Collaboration have historically placed single-case evidence below group-level experimental evidence, limiting its influence on systematic reviews and policy guidance.</p>
+<p>Proponents counter each objection. On external validity, <span class="citation" data-cites="barlow2009">Barlow et al. (<a href="references.html#ref-barlow2009" role="doc-biblioref">2009</a>)</span> and <span class="citation" data-cites="tanious2024">Tanious et al. (<a href="references.html#ref-tanious2024" role="doc-biblioref">2024</a>)</span> argue that SCEDs build generalisability through systematic replication across cases, settings, and behaviours rather than through sampling. A single SCED cannot generalise, but a series of replicated SCEDs can, and the replication logic is transparent: each new case either confirms or disconfirms the finding. On reversibility, multiple baseline and alternating treatments designs do not require the outcome to reverse, and the family as a whole is broader than the reversal design alone. On evidence standards, <span class="citation" data-cites="kratochwill2013">Kratochwill et al. (<a href="references.html#ref-kratochwill2013" role="doc-biblioref">2013</a>)</span> established formal design standards for SCEDs within the What Works Clearinghouse, and meta-analytic techniques now allow SCED effect sizes to be synthesised alongside group-design effect sizes. <span class="citation" data-cites="wiley2019">Wiley &amp; Rapp (<a href="references.html#ref-wiley2019" role="doc-biblioref">2019</a>)</span> demonstrate that LMEM provides the same inferential outputs (effect sizes, confidence intervals, p-values) that reviewers expect from group trials. The debate is not settled, but the methodological infrastructure for treating SCED evidence on equal terms with group evidence has advanced considerably since the early critiques.</p>
+</div>
+</div>
+<p>The counterfactual logic at small n trades breadth for depth. Within-unit designs produce strong internal validity for individual cases at the cost of generalisability. The integration strategies described above, and the multi-logic combinations discussed in <a href="11-integration.html" class="quarto-xref"><span>Chapter 11</span></a>, are how evaluators address this trade-off. The next chapter turns to a different causal logic, one that does not ask “what would have happened?” but rather “which combinations of conditions produced this outcome?”</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list" style="display: none">
+<div id="ref-arrimada2018" class="csl-entry" role="listitem">
+Arrimada, M., Torrance, M., &amp; Fidalgo, R. (2018). Supporting first-grade writers who fail to learn: Multiple single-case evaluation of a <span class="nocase">Response to Intervention</span> approach. <em>Reading and Writing</em>, <em>31</em>(4), 865–891.
+</div>
+<div id="ref-barlow2009" class="csl-entry" role="listitem">
+Barlow, D. H., Nock, M. K., &amp; Hersen, M. (2009). <em>Single case experimental designs: Strategies for studying behavior change</em> (3rd ed.). Allyn; Bacon.
+</div>
+<div id="ref-bulte2011" class="csl-entry" role="listitem">
+Bulté, I., &amp; Onghena, P. (2009). Randomization tests for multiple-baseline designs: An extension of the <span>SCRT-R</span> package. <em>Behavior Research Methods</em>, <em>41</em>(2), 477–485.
+</div>
+<div id="ref-epstein2022" class="csl-entry" role="listitem">
+Epstein, L. H., &amp; Dallery, J. (2022). The family of single-case experimental designs. <em>Harvard Data Science Review</em>, <em>4</em>(SI3).
+</div>
+<div id="ref-guyatt1986" class="csl-entry" role="listitem">
+Guyatt, G., Sackett, D., Taylor, D. W., Chong, J., Roberts, R., &amp; Pugsley, S. (1986). Determining optimal therapy: Randomized trials in individual patients. <em>New England Journal of Medicine</em>, <em>314</em>(14), 889–892.
+</div>
+<div id="ref-kratochwill2013" class="csl-entry" role="listitem">
+Kratochwill, T. R., Hitchcock, J. H., Horner, R. H., Levin, J. R., Odom, S. L., Rindskopf, D. M., &amp; Shadish, W. R. (2013). Single-case intervention research design standards. <em>Remedial and Special Education</em>, <em>34</em>(1), 26–38.
+</div>
+<div id="ref-tanious2024" class="csl-entry" role="listitem">
+Tanious, R., Manolov, R., Onghena, P., &amp; Vlaeyen, J. W. S. (2024). Single-case experimental designs: The importance of randomization and replication. <em>Nature Reviews Psychology</em>.
+</div>
+<div id="ref-wiley2019" class="csl-entry" role="listitem">
+Wiley, R. W., &amp; Rapp, B. (2019). Statistical analysis in small-n designs: Using linear mixed-effects modeling for evaluating intervention effectiveness. <em>Aphasiology</em>, <em>33</em>(1), 1–30.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./03-eight-logics.html" class="pagination-link" aria-label="The Eight Logics of Causal Inference">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The Eight Logics of Causal Inference</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./05-configurational.html" class="pagination-link" aria-label="Configurational Approaches">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Configurational Approaches</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
