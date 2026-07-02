@@ -1,0 +1,890 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SR Platform · Presentation</title>
+<style>
+:root {
+  --paper:      oklch(0.984 0.003 250);
+  --surface:    oklch(1 0 0);
+  --surface-2:  oklch(0.973 0.004 255);
+  --ink:        oklch(0.245 0.021 264);
+  --ink-2:      oklch(0.445 0.020 264);
+  --ink-3:      oklch(0.605 0.016 264);
+  --line:       oklch(0.905 0.008 262);
+  --line-2:     oklch(0.855 0.011 262);
+  --accent:     oklch(0.470 0.135 264);
+  --accent-2:   oklch(0.395 0.135 264);
+  --accent-wash:oklch(0.955 0.028 264);
+  --good:       oklch(0.585 0.130 150);
+  --good-wash:  oklch(0.955 0.038 150);
+  --warn:       oklch(0.705 0.140 76);
+  --warn-wash:  oklch(0.960 0.050 82);
+  --bad:        oklch(0.560 0.195 25);
+  --bad-wash:   oklch(0.955 0.040 25);
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  --r: 7px;
+  --shadow: 0 1px 3px oklch(0.24 0.02 264 / .06), 0 6px 20px oklch(0.24 0.02 264 / .07);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: var(--paper); }
+body { font-family: var(--sans); color: var(--ink); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+/* ── deck shell ── */
+.deck { height: 100vh; position: relative; overflow: hidden; }
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding: 52px 80px 72px;
+  opacity: 0; pointer-events: none;
+  transform: translateY(14px);
+  transition: opacity .32s ease, transform .32s ease;
+  overflow: hidden;
+}
+.slide.active { opacity: 1; pointer-events: auto; transform: none; }
+.slide.exit   { opacity: 0; transform: translateY(-14px); transition: opacity .22s ease, transform .22s ease; }
+
+/* ── progress + nav ── */
+.progress-track { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--line); z-index: 100; }
+.progress-fill  { height: 100%; background: var(--accent); transition: width .35s ease; }
+
+.ctrl {
+  position: fixed; bottom: 26px; right: 44px; z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+}
+.ctrl .counter { font-family: var(--mono); font-size: 12px; color: var(--ink-3); min-width: 48px; text-align: center; }
+.ctrl button {
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--ink);
+  border-radius: 6px; padding: 5px 13px; font-family: var(--mono); font-size: 12px;
+  cursor: pointer; transition: background .1s, border-color .1s;
+}
+.ctrl button:hover:not(:disabled) { background: var(--accent-wash); border-color: var(--accent); }
+.ctrl button:disabled { opacity: 0.3; cursor: default; }
+
+.slide-label { position: fixed; bottom: 30px; left: 80px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); z-index: 100; }
+
+/* ── common typography ── */
+.kicker { font-family: var(--mono); font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
+h1 { margin: 0 0 18px; font-size: 40px; font-weight: 720; letter-spacing: -.022em; line-height: 1.1; max-width: 20ch; }
+h2 { margin: 0 0 8px; font-size: 26px; font-weight: 650; letter-spacing: -.015em; line-height: 1.18; }
+h3 { margin: 0 0 7px; font-size: 17px; font-weight: 630; letter-spacing: -.01em; }
+h4 { margin: 0 0 5px; font-size: 14px; font-weight: 620; }
+p  { margin: 0 0 10px; }
+.lead { font-size: 17px; color: var(--ink-2); max-width: 64ch; line-height: 1.6; }
+
+/* ── cards ── */
+.cards { display: grid; gap: 14px; }
+.c2 { grid-template-columns: repeat(2,1fr); }
+.c3 { grid-template-columns: repeat(3,1fr); }
+.c4 { grid-template-columns: repeat(4,1fr); }
+
+.card {
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
+  padding: 15px 17px; display: flex; flex-direction: column; gap: 7px;
+}
+.card.accent { border-left: 3px solid var(--accent); background: linear-gradient(160deg, var(--accent-wash), var(--surface) 65%); }
+.card.good   { border-left: 3px solid var(--good);   background: linear-gradient(160deg, var(--good-wash),   var(--surface) 65%); }
+.card.warn   { border-left: 3px solid var(--warn);   background: linear-gradient(160deg, var(--warn-wash),   var(--surface) 65%); }
+.card p  { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.card .badge { font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 5px; width: fit-content; }
+.badge.built   { background: var(--good-wash);   color: color-mix(in oklch, var(--good) 55%, var(--ink)); }
+.badge.next    { background: var(--accent-wash); color: var(--accent-2); }
+.badge.planned { background: var(--warn-wash);   color: color-mix(in oklch, var(--warn) 55%, var(--ink)); }
+.badge.off     { background: var(--surface-2);   color: var(--ink-3); border: 1px solid var(--line); }
+
+/* ── stat blocks ── */
+.stats { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-end; margin: 20px 0; }
+.stat .big   { font-size: 46px; font-weight: 760; letter-spacing: -.025em; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; }
+.stat .label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--ink-3); margin-top: 5px; }
+.stat .note  { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
+/* ── comparison table ── */
+.cmp-table { border-collapse: collapse; width: 100%; font-size: 13.5px; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.cmp-table th, .cmp-table td { padding: 10px 14px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cmp-table th { background: var(--surface-2); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); font-weight: 600; }
+.cmp-table tr:last-child td { border-bottom: none; }
+.cmp-table td:last-child, .cmp-table th:last-child { border-right: none; }
+.cmp-table td.us { background: var(--accent-wash); font-weight: 600; color: var(--accent-2); }
+.cmp-table td.no { color: var(--ink-3); font-style: italic; }
+.cmp-table td.ok { }
+
+/* ── pipeline nodes ── */
+.pipe { display: flex; align-items: center; flex-wrap: nowrap; gap: 0; margin: 20px 0; overflow-x: auto; padding-bottom: 6px; }
+.pnode { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 86px; padding: 0 4px; }
+.pnode .circ {
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--mono); font-size: 10px; font-weight: 700; border: 2px solid var(--line-2);
+  background: var(--surface); color: var(--ink-3);
+}
+.pnode.done .circ { border-color: var(--good); background: var(--good-wash); color: color-mix(in oklch, var(--good) 65%, var(--ink)); }
+.pnode.now  .circ { border-color: var(--accent); background: var(--accent); color: #fff; }
+.pnode .lbl { font-size: 11.5px; font-weight: 560; text-align: center; color: var(--ink-2); line-height: 1.3; }
+.pnode.done .lbl { color: var(--ink); }
+.parrow { color: var(--line-2); font-size: 18px; flex: none; margin-bottom: 20px; }
+
+/* ── list ── */
+ul.clean { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
+ul.clean li { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+ul.clean li .mk { flex: none; font-family: var(--mono); font-size: 11px; color: var(--accent); font-weight: 700; margin-top: 3px; min-width: 16px; }
+ul.clean li b { color: var(--ink); }
+
+/* ── callout ── */
+.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--r); padding: 13px 17px; background: var(--accent-wash); font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+.callout b { color: var(--ink); }
+.callout cite { display: block; margin-top: 8px; font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+/* ── calibration table ── */
+.cal-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.cal-table th, .cal-table td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+.cal-table th { background: var(--surface-2); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.cal-table td.l, .cal-table th.l { text-align: left; font-family: var(--sans); }
+.cal-table td.l { color: var(--ink); font-weight: 560; }
+.cal-table tr.promoted td { background: var(--good-wash); }
+.cal-table tr.gold td { color: var(--ink-3); font-style: italic; }
+.delta { color: var(--good); font-size: 10.5px; }
+
+/* ── two-col layout ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+.two-col.w60 { grid-template-columns: 3fr 2fr; }
+
+/* ── cover ── */
+.cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.cover-meta { display: flex; gap: 28px; margin-top: 36px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); flex-wrap: wrap; }
+.cover-meta b { color: var(--ink-2); }
+.cover-glyph { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 14px; background: var(--accent); color: #fff; font-family: var(--mono); font-size: 26px; font-weight: 800; margin-bottom: 22px; }
+
+/* ── chip row ── */
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); }
+.chip.a { background: var(--accent-wash); border-color: color-mix(in oklch, var(--accent) 35%, var(--line)); color: var(--accent-2); font-weight: 600; }
+.chip.g { background: var(--good-wash); border-color: color-mix(in oklch, var(--good) 35%, var(--line)); color: color-mix(in oklch, var(--good) 60%, var(--ink)); font-weight: 600; }
+
+/* ── section divider slide ── */
+.div-slide { background: var(--accent); }
+.div-slide .kicker { color: rgba(255,255,255,0.55); }
+.div-slide h2 { color: #fff; font-size: 34px; }
+.div-slide .lead { color: rgba(255,255,255,0.75); }
+
+/* ── UX preview ── */
+.artifact-link { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); text-decoration: none; color: inherit; transition: background .1s; }
+.artifact-link:hover { background: var(--accent-wash); border-color: var(--accent); }
+.artifact-link .icon { font-size: 22px; }
+.artifact-link .t { font-size: 14px; font-weight: 620; color: var(--ink); }
+.artifact-link .s { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+.artifact-link .arrow { margin-left: auto; color: var(--ink-3); }
+
+/* ── artifact tile grid ── */
+.art-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.art-tile {
+  display: flex; align-items: flex-start; gap: 9px; padding: 9px 11px;
+  border: 1px solid var(--line); border-radius: var(--r); background: var(--surface);
+  text-decoration: none; color: inherit; transition: background .1s, border-color .1s;
+}
+.art-tile:hover { background: var(--accent-wash); border-color: var(--accent); }
+.art-tile .icon { font-size: 16px; line-height: 1.3; flex: none; }
+.art-tile .t { font-size: 12px; font-weight: 650; color: var(--ink); line-height: 1.25; }
+.art-tile .s { font-size: 10.5px; color: var(--ink-3); margin-top: 1px; line-height: 1.3; }
+
+/* ── status banner ── */
+.banner-row { display: flex; gap: 12px; margin: 16px 0 6px; }
+.status-banner {
+  flex: 1; display: flex; align-items: center; gap: 11px;
+  padding: 9px 15px; border-radius: var(--r);
+  background: var(--good-wash); border: 1px solid color-mix(in oklch, var(--good) 30%, var(--line));
+}
+.status-banner .dot {
+  width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--good);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--good) 16%, transparent);
+}
+.status-banner .txt { font-size: 12.5px; color: var(--ink); font-weight: 560; }
+.status-banner .txt b { font-family: var(--mono); font-weight: 700; }
+.status-banner .meta { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); white-space: nowrap; }
+
+/* ── UX mockups (pure CSS/HTML, no screenshots) ── */
+.mock { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+.mock-bar { display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.mock-bar .d { width: 6px; height: 6px; border-radius: 50%; background: var(--line-2); }
+.mock-bar .path { margin-left: 7px; font-family: var(--mono); font-size: 9.5px; color: var(--ink-3); }
+.mock-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; background: var(--paper); }
+.mock-row { display: flex; align-items: center; gap: 7px; }
+.mock-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); min-width: 30px; }
+.mock-field { flex: 1; height: 20px; border: 1px solid var(--line-2); border-radius: 5px; background: var(--surface); display: flex; align-items: center; padding: 0 7px; font-size: 10px; color: var(--ink-3); }
+.mock-pill { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 999px; flex: none; }
+.mock-pill.g { background: var(--good-wash); color: color-mix(in oklch, var(--good) 55%, var(--ink)); }
+.mock-pill.a { background: var(--accent-wash); color: var(--accent-2); }
+.mock-pill.w { background: var(--warn-wash); color: color-mix(in oklch, var(--warn) 55%, var(--ink)); }
+.mock-pill.b { background: var(--bad-wash); color: color-mix(in oklch, var(--bad) 55%, var(--ink)); }
+.mock-btn { font-family: var(--sans); font-size: 10px; font-weight: 650; padding: 3px 9px; border-radius: 5px; background: var(--accent); color: #fff; flex: none; }
+.mock-btn.ghost { background: var(--surface); color: var(--ink-2); border: 1px solid var(--line-2); }
+.mock-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.mock-dot.g { background: var(--good); } .mock-dot.w { background: var(--warn); } .mock-dot.b { background: var(--bad); }
+.mock-hr { height: 1px; background: var(--line); margin: 1px 0; }
+.mock-chart { display: flex; align-items: flex-end; gap: 3px; height: 30px; }
+.mock-chart i { display: block; width: 6px; background: var(--accent); border-radius: 2px 2px 0 0; opacity: .78; }
+.mock-caption { font-size: 10.5px; color: var(--ink-3); margin-top: 6px; line-height: 1.45; }
+
+/* ── closing ── */
+.big-q { font-size: 22px; font-weight: 640; letter-spacing: -.015em; line-height: 1.35; max-width: 36ch; color: var(--ink); margin: 0; }
+.big-q em { color: var(--accent-2); font-style: normal; }
+
+/* ── animations ── */
+@media (prefers-reduced-motion: no-preference) {
+  .slide.active .card { animation: rise .35s ease both; }
+  .slide.active .card:nth-child(2) { animation-delay: .05s; }
+  .slide.active .card:nth-child(3) { animation-delay: .10s; }
+  .slide.active .card:nth-child(4) { animation-delay: .15s; }
+  .slide.active .card:nth-child(5) { animation-delay: .20s; }
+  .slide.active .card:nth-child(6) { animation-delay: .25s; }
+  @keyframes rise { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+<span class="slide-label" id="lbl"></span>
+
+<div class="deck" id="deck">
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 1 · COVER
+══════════════════════════════════════════════════════ -->
+<section class="slide active" data-label="Cover">
+  <div class="cover-body">
+    <div class="cover-glyph">S</div>
+    <div class="kicker">3ie · Evidence Synthesis Platform</div>
+    <h1>A systematic-review platform built for rigorous, AI-assisted evidence synthesis.</h1>
+    <div class="cover-meta">
+      <span><b>Author</b> Lucas Sempé</span>
+      <span><b>Date</b> July 2026</span>
+      <span><b>Status</b> Core pipeline built, protocol through reporting · synthesis breadth, living reviews, corpus Q&amp;A and manuscript authoring still to build · frontend in build</span>
+      <span><b>Scale</b> 1,100+ automated tests · all 7 review stages built, protocol through reporting · AI measured against humans, not asserted</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 2 · THE PROBLEM
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="The problem">
+  <div class="kicker">§1 · The problem</div>
+  <h2>Systematic reviews are slow, expensive, and the AI tools that promise to fix them aren't trustworthy.</h2>
+  <br>
+  <div class="two-col">
+    <ul class="clean">
+      <li><span class="mk">1.</span><span><b>Reviews take too long.</b> A Cochrane review averages 27 months from protocol to publication. A 3ie SR or REA is shorter but still months of labour-intensive work.</span></li>
+      <li><span class="mk">2.</span><span><b>Existing tools are too thin.</b> Screening-focused tools stop at title/abstract triage; a bolt-on ML classifier doesn't model GRADE as five separate factors, handle network meta-analysis, or produce a PRISMA 2020–compliant report bundle from the same data store.</span></li>
+      <li><span class="mk">3.</span><span><b>LLM tools proliferate but can't be trusted.</b> A bare ChatGPT prompt will screen abstracts — but with no calibration, no provenance, no way to show a journal editor or funder that the AI was actually reliable for this review.</span></li>
+      <li><span class="mk">4.</span><span><b>Nothing is calibrated to 3ie's own practice.</b> 3ie runs full SRs, Rapid Evidence Assessments, Evidence &amp; Gap Maps, and scoping reviews — with its own databases, its own extraction taxonomy, and its own house reporting template. Generic tools assume one format.</span></li>
+    </ul>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+      <div class="callout">
+        <b>RAISE 2 (2026)</b> — the international standard for building and evaluating AI evidence-synthesis tools — explicitly criticises SR platforms that lack <b>"publicly available source code"</b> and <b>"published performance evaluations."</b> The field's own standard-setters have named the gap this platform is built to close.
+        <cite>Responsible AI use in Systematic Evidence Synthesis, OSF osf.io/fwaud, draft v3.1, March 2026</cite>
+      </div>
+      <div class="card accent">
+        <h4>The Cochrane Rapid Reviews Methods Group (2025)</h4>
+        <p>States that AI in rapid reviews should serve as <b>quality assurance</b> — catching errors human single-reviewer workflows miss — not as a fast path that relaxes oversight. The platform's design reflects exactly this: AI proposes, human confirms.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 3 · WHAT THE RIGHT PLATFORM REQUIRES
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="What it requires">
+  <div class="kicker">§1 · What the right platform requires</div>
+  <h2>Seven requirements a rigorous evidence-synthesis platform cannot skip.</h2>
+  <p class="lead" style="margin-bottom:20px">Not a feature race against any one product — a normative bar drawn from the Cochrane Handbook, PRISMA 2020, GRADE and RAISE. This is what "done right" looks like, and what this platform is built to satisfy.</p>
+
+  <div class="cards c4">
+    <div class="card">
+      <h4>Plural risk-of-bias instruments</h4>
+      <p>RCTs, non-randomised studies, diagnostic-accuracy studies and reviews-of-reviews each need a different appraisal tool. Seven pluggable instruments here — RoB 2, ROBINS-I/E, QUADAS-2, AMSTAR-2, JBI, NOS — not one bolted onto everything.</p>
+    </div>
+    <div class="card">
+      <h4>GRADE as five separate factors</h4>
+      <p>Risk of bias, inconsistency, indirectness, imprecision and publication bias are five distinct judgement calls, not one text field. Each is its own database column, with its own narrative and confirmation gate.</p>
+    </div>
+    <div class="card">
+      <h4>AI measured, not asserted</h4>
+      <p>A screening or extraction model is only as trustworthy as its last calibration run. Every AI step here is piloted against a human gold batch first — recall, precision, WSS@95 and κ are stored, not claimed.</p>
+    </div>
+    <div class="card">
+      <h4>Tamper-evident provenance</h4>
+      <p>Every state-changing write and every AI call needs a verifiable record. Both are hash-chained here from day one — append-only, and tamper detection is structural, not a promise.</p>
+    </div>
+    <div class="card">
+      <h4>Full PRISMA 2020 compliance</h4>
+      <p>Flow-diagram counts alone are not compliance. The full 27-item checklist is implemented here, with four items auto-detected straight from structured data rather than filled in by hand after the fact.</p>
+    </div>
+    <div class="card">
+      <h4>First-class review types</h4>
+      <p>A rapid evidence assessment, an Evidence &amp; Gap Map and a full systematic review are methodologically different products. <code style="font-family:var(--mono);font-size:11px">review_type</code> is a first-class, cascading field here, not a label on an otherwise identical workflow.</p>
+    </div>
+    <div class="card">
+      <h4>Open, verifiable methodology</h4>
+      <p>Calibration metrics and the audit trail should be inspectable, not asserted on reputation. Every metric this platform reports is a database row with provenance behind it — publishable on request.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 4 · OUR APPROACH
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="Our approach">
+  <div class="kicker">§2 · Our approach</div>
+  <h2>One integrated platform, production-grade from day one.</h2>
+  <p class="lead" style="margin-bottom:24px">Every stage connected to every other. One data store, one provenance chain, one audit trail. AI is an instrument you calibrate, not a black box you trust.</p>
+
+  <div class="cards c3">
+    <div class="card accent">
+      <h4>Built to the right standards</h4>
+      <p>PRISMA 2020, Cochrane Handbook, GRADE, RAISE, PRISMA-S — not cited in a README, implemented in the schema. The 27-item checklist is live; the five GRADE factors are separate database columns; PRISMA-S metadata is captured at source.</p>
+    </div>
+    <div class="card accent">
+      <h4>Multi-tenant and access-controlled from day one</h4>
+      <p>Projects, roles (owner/maintainer/reviewer/viewer), and a bring-your-own-key credential vault were built before the first review stage — not retrofitted once several reviewers needed to share one review. The same hash-chained provenance spine traces every action back to the person or model that made it. <em>How AI is measured is its own story — see §4.</em></p>
+    </div>
+    <div class="card accent">
+      <h4>Calibrated to 3ie's own practice</h4>
+      <p>The REA protocol template sitting in <code style="font-family:var(--mono);font-size:12px">docs/</code> will be the <code style="font-family:var(--mono);font-size:12px">review_type="rapid"</code> default. DEP's database list (EBSCOhost/Ovid) is the next two search legs. DEP's extraction taxonomy is the intervention/outcome seed.</p>
+    </div>
+  </div>
+
+  <br>
+  <div class="stats">
+    <div class="stat"><div class="big">1,115+</div><div class="label">automated tests</div><div class="note">every claim in this deck is backed by a passing test, not a demo</div></div>
+    <div class="stat"><div class="big">7</div><div class="label">risk-of-bias tools, pluggable</div><div class="note">not one instrument forced onto every study design</div></div>
+    <div class="stat"><div class="big">7/7</div><div class="label">review stages built</div><div class="note">protocol through reporting — nothing partial</div></div>
+    <div class="stat"><div class="big">5/5</div><div class="label">AI steps measured against humans</div><div class="note">screening, extraction and appraisal are calibrated, not just claimed</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 5 · THE PIPELINE
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="The pipeline">
+  <div class="kicker">§3 · What's built</div>
+  <h2>The full systematic-review pipeline — every stage connected.</h2>
+  <p style="color:var(--ink-3);font-size:13px;margin-bottom:0">Each node is a complete, tested, production-grade capability. Green = delivered.</p>
+
+  <div class="pipe" style="margin:28px 0 20px">
+    <div class="pnode done"><div class="circ">1</div><div class="lbl">Protocol &amp; Registration</div></div>
+    <span class="parrow">→</span>
+    <div class="pnode done"><div class="circ">2</div><div class="lbl">Search &amp; Discovery</div></div>
+    <span class="parrow">→</span>
+    <div class="pnode done"><div class="circ">3</div><div class="lbl">Screening &amp; Dual Review</div></div>
+    <span class="parrow">→</span>
+    <div class="pnode done"><div class="circ">4</div><div class="lbl">Data Extraction</div></div>
+    <span class="parrow">→</span>
+    <div class="pnode done"><div class="circ">5</div><div class="lbl">Appraisal · RoB + GRADE</div></div>
+    <span class="parrow">→</span>
+    <div class="pnode done"><div class="circ">6</div><div class="lbl">Synthesis · MA + SWiM</div></div>
+    <span class="parrow">→</span>
+    <div class="pnode done"><div class="circ">7</div><div class="lbl">Reporting · PRISMA</div></div>
+  </div>
+
+  <div class="cards c4">
+    <div class="card good"><div class="badge built">Built</div><br><h4>Corpus + PDFs</h4><p>Import 6 formats, deduplicate, enrich via CrossRef/OpenAlex/S2, fetch PDFs from 4 OA sources, parse with OpenDataLoader (hybrid mode) — the connective step between Search and Screening.</p></div>
+    <div class="card good"><div class="badge built">Built</div><br><h4>Calibration engine</h4><p>One reusable object. Five AI-assisted steps each get their own instrument + gold set. κ, recall, WSS@95 stored on the provenance chain.</p></div>
+    <div class="card good"><div class="badge built">Built</div><br><h4>Prompt configurability</h4><p>All 13 prompts editable per project. Multi-model consensus. Same-model stability sampling. RoB majority voting across runs.</p></div>
+    <div class="card good"><div class="badge built">Built</div><br><h4>Provenance chain</h4><p>Append-only, hash-chained provenance on every state-changing write and every LLM call. Tamper detection. One write path — cannot be skipped.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 6 · PROTOCOL + SEARCH
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="Protocol + Search">
+  <div class="kicker">§3 · Stage 1 &amp; 2</div>
+  <div class="banner-row">
+    <div class="status-banner"><span class="dot"></span><span class="txt">✅ <b>Built</b> — both live in the backend today, not a mockup</span></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <h2>Protocol</h2>
+      <ul class="clean" style="margin-top:10px;gap:7px">
+        <li><span class="mk">◆</span><span>Frameworks: <b>PICO · PICOS · SPIDER · PEO</b> — enforced at the schema level, not described in a text field. Wrong keys → 422 at the API edge.</span></li>
+        <li><span class="mk">◆</span><span><b>Version history:</b> every content change snapshots the whole plan. Registered baseline is immutable; amendments carry a mandatory reason + before/after diff.</span></li>
+        <li><span class="mk">◆</span><span><b>AI drafting:</b> narrative fields drafted by the LLM from the PICO + existing protocol data; human edits before any field is finalised.</span></li>
+      </ul>
+      <div class="mock" style="margin-top:12px">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/projects/142/protocol</span></div>
+        <div class="mock-body">
+          <div class="mock-row">
+            <span class="mock-pill a">PICO</span>
+            <span class="mock-pill" style="background:var(--surface-2);color:var(--ink-3)">PICOS</span>
+            <span class="mock-pill" style="background:var(--surface-2);color:var(--ink-3)">SPIDER</span>
+            <span class="mock-pill g" style="margin-left:auto">v4 · registered</span>
+          </div>
+          <div class="mock-row"><span class="mock-label">P</span><div class="mock-field">Smallholder farmers, sub-Saharan Africa</div></div>
+          <div class="mock-row"><span class="mock-label">I</span><div class="mock-field">Index-based weather insurance</div></div>
+          <div class="mock-row"><span class="mock-label">O</span><div class="mock-field">Farm investment, yield, income</div></div>
+          <div class="mock-hr"></div>
+          <div class="mock-row" style="font-size:10px;color:var(--ink-3)"><span>v3 → v4 · amendment · "narrowed outcome set"</span><span style="margin-left:auto">2 days ago</span></div>
+        </div>
+      </div>
+      <p class="mock-caption">A priori vs. post hoc is enforced by the service: an analysis is a priori only if it was named in the registered v1 baseline.</p>
+    </div>
+    <div>
+      <h2>Search</h2>
+      <ul class="clean" style="margin-top:10px;gap:7px">
+        <li><span class="mk">◆</span><span><b>7 live sources:</b> PubMed, OpenAlex, CrossRef (keyless); Scopus, Web of Science (keyed, BYOK vault); CENTRAL. Two more (EBSCOhost, Ovid) are next — covering 18 of 3ie's own 21 DEP databases.</span></li>
+        <li><span class="mk">◆</span><span><b>Per-database grammar translation</b> — one strategy produces the exact PubMed <code style="font-family:var(--mono);font-size:11px">[tiab]</code>, Scopus <code style="font-family:var(--mono);font-size:11px">TITLE-ABS-KEY</code>, WoS <code style="font-family:var(--mono);font-size:11px">TS=</code> strings.</span></li>
+        <li><span class="mk">◆</span><span><b>PRESS peer-review checklist</b> — including an LLM-assisted PRESS pass. PRISMA-S metadata captured at source, never reconstructed.</span></li>
+      </ul>
+      <div class="mock" style="margin-top:12px">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/projects/142/search/strategy</span></div>
+        <div class="mock-body">
+          <div class="mock-row">
+            <span class="mock-pill g">PubMed ✓ 1,204</span>
+            <span class="mock-pill g">OpenAlex ✓ 3,410</span>
+            <span class="mock-pill w">Scopus · queued</span>
+          </div>
+          <div class="mock-row" style="font-size:10.5px;color:var(--ink-2);background:var(--surface);border:1px solid var(--line-2);border-radius:5px;padding:6px 8px">
+            (<b>"weather index insurance"</b> OR <b>"index-based insurance"</b>) AND (<b>farm*</b> OR <b>smallholder</b>)
+          </div>
+          <div class="mock-row"><span class="mock-pill a">PRESS: 9/10</span><span class="mock-pill" style="background:var(--surface-2);color:var(--ink-3)">+14 new since last run</span></div>
+        </div>
+      </div>
+      <p class="mock-caption">AI term suggestion proposes synonyms/MeSH terms from a seed concept; every accepted/rejected suggestion lands on the provenance chain.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 7 · SCREENING
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="Screening">
+  <div class="kicker">§3 · Stage 3</div>
+  <h2>Screening — two passes, layered AI reliability, a statistically-grounded stopping rule.</h2>
+  <div class="banner-row">
+    <div class="status-banner"><span class="dot"></span><span class="txt">✅ <b>Built</b> — live in the backend today, not a mockup</span></div>
+  </div>
+  <div class="two-col w60">
+    <ul class="clean">
+      <li><span class="mk">◆</span><span><b>Two PRISMA stages:</b> title/abstract and full-text share one verdict model but different rules — full-text exclusions require a <code style="font-family:var(--mono);font-size:11px">reason_code</code> pointing to a live eligibility criterion (PRISMA mandate). Title/abstract doesn't.</span></li>
+      <li><span class="mk">◆</span><span><b>Three AI reliability layers:</b> (1) <b>stability</b> — the same input is scored k times; agreement below threshold → abstain; (2) <b>critic pass</b> — a second independent model re-examines; disagreement → abstain; (3) <b>debate mode</b> — include-advocate → exclude-advocate → synthesiser rules on both. Abstained items always route to a human.</span></li>
+      <li><span class="mk">◆</span><span><b>Relevance-ranked queue</b> + <b>buscar stopping estimator</b> (hypergeometric p-value for "true recall below target"). When p ≤ 0.05 the platform flags "≈95% of includes found" — a statistically-grounded claim, not a guess.</span></li>
+      <li><span class="mk">◆</span><span><b>Span-anchored full-text AI:</b> the model is shown up to 12,000 characters of the parsed PDF and returns page-anchored <code style="font-family:var(--mono);font-size:11px">evidence_anchors</code> — verifying an AI verdict means reading the cited excerpt, not re-reading the whole PDF.</span></li>
+      <li><span class="mk">◆</span><span><b>Dual review:</b> assignments (random/stratified/dual/triple), conflict detection, AI-as-arbitrator with 20% human spot-check, Cohen's κ / Fleiss' κ / PABAK / percent agreement.</span></li>
+    </ul>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="callout">
+        <b>External benchmark (Zhan et al., 2026):</b> naive single-pass full-text LLM screening reached 97.6% sensitivity / <b>only 47.4% specificity</b> (72.5% balanced accuracy). That's the baseline a simple "add AI" approach delivers. The stability+critic+debate stack is a justified investment against exactly that failure mode.
+        <cite>Zhan et al., Systematic Reviews (2026)</cite>
+      </div>
+      <div class="mock">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/screening/queue?strategy=relevance</span></div>
+        <div class="mock-body">
+          <div class="mock-row" style="font-size:10.5px;color:var(--ink-2)">
+            <span class="mock-dot g"></span><span>Farmer index insurance and yield outcomes…</span>
+            <span class="mock-pill g" style="margin-left:auto">0.94 · stable</span>
+          </div>
+          <div class="mock-row" style="font-size:10.5px;color:var(--ink-2)">
+            <span class="mock-dot w"></span><span>Weather derivatives for agricultural risk…</span>
+            <span class="mock-pill w" style="margin-left:auto">0.58 · abstain</span>
+          </div>
+          <div class="mock-row" style="font-size:10.5px;color:var(--ink-2)">
+            <span class="mock-dot g"></span><span>Rainfall insurance uptake in Kenya…</span>
+            <span class="mock-pill g" style="margin-left:auto">0.91 · stable</span>
+          </div>
+          <div class="mock-hr"></div>
+          <div class="mock-row">
+            <span class="mock-btn ghost">Include</span><span class="mock-btn ghost">Exclude</span>
+            <span class="mock-pill a" style="margin-left:auto">stopping: p=0.031 · ≈95% found</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 8 · EXTRACTION + APPRAISAL
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="Extraction + Appraisal">
+  <div class="kicker">§3 · Stage 4 &amp; 5</div>
+  <div class="banner-row">
+    <div class="status-banner"><span class="dot"></span><span class="txt">✅ <b>Built</b> — both live in the backend today, not a mockup</span></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <h2>Extraction</h2>
+      <ul class="clean" style="margin-top:10px;gap:7px">
+        <li><span class="mk">◆</span><span><b>10 typed field types</b> including <code style="font-family:var(--mono);font-size:11px">effect_estimate</code> (the structured n/mean/SD/events/effect/CI bundle that synthesis pools downstream) and <code style="font-family:var(--mono);font-size:11px">span_ref</code> (a pointer into the parsed document).</span></li>
+        <li><span class="mk">◆</span><span><b>The confirmation gate:</b> every AI-extracted value lands <code style="font-family:var(--mono);font-size:11px">confirmed=False</code>. Nothing AI-extracted is ever pooled or reported until a human explicitly confirms it.</span></li>
+        <li><span class="mk">◆</span><span><b>Hierarchical coding layer</b> — arbitrary code sets, applied to a reference or a text span; AI-applied codes stay unconfirmed until a human confirms and promotes them into a typed extraction form.</span></li>
+      </ul>
+      <div class="mock" style="margin-top:12px">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/studies/88/extraction</span></div>
+        <div class="mock-body">
+          <div class="mock-row"><span class="mock-label">n</span><div class="mock-field">1,204 farmers</div><span class="mock-pill a">AI · unconfirmed</span></div>
+          <div class="mock-row"><span class="mock-label">Effect</span><div class="mock-field">RR 0.82 (95% CI 0.71–0.95)</div><span class="mock-pill a">AI · unconfirmed</span></div>
+          <div class="mock-hr"></div>
+          <div class="mock-row"><span class="mock-btn">Confirm</span><span class="mock-btn ghost">Edit</span><span style="margin-left:auto;font-size:9.5px;color:var(--ink-3)">span p.7 ¶3</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h2>Appraisal</h2>
+      <ul class="clean" style="margin-top:10px;gap:7px">
+        <li><span class="mk">◆</span><span><b>7 pluggable RoB tools</b> (registered in-code): RoB 2, ROBINS-I, ROBINS-E, QUADAS-2, AMSTAR-2, JBI Cohort, Newcastle-Ottawa — reusing the same dual-reviewer conflict machinery extraction already has.</span></li>
+        <li><span class="mk">◆</span><span><b>GRADE modelled correctly:</b> 5 downgrading factors as separate columns, each <code style="font-family:var(--mono);font-size:11px">not_serious / serious / very_serious</code> + narrative justification. A Summary-of-Findings table exports to CSV/NDJSON.</span></li>
+        <li><span class="mk">◆</span><span><b>AI-assisted RoB rating</b> — same LLM seam, same multi-run stability, same confirmation gate. Domains land <code style="font-family:var(--mono);font-size:11px">unconfirmed</code> until a human signs off.</span></li>
+      </ul>
+      <div class="mock" style="margin-top:12px">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/studies/88/rob?tool=rob2</span></div>
+        <div class="mock-body">
+          <div class="mock-row"><span style="flex:1;font-size:10.5px;color:var(--ink-2)">D1 · Randomisation process</span><span class="mock-dot g"></span></div>
+          <div class="mock-row"><span style="flex:1;font-size:10.5px;color:var(--ink-2)">D3 · Missing outcome data</span><span class="mock-dot w"></span></div>
+          <div class="mock-row"><span style="flex:1;font-size:10.5px;color:var(--ink-2)">D4 · Outcome measurement</span><span class="mock-dot g"></span></div>
+          <div class="mock-hr"></div>
+          <div class="mock-row"><span style="font-size:10.5px;color:var(--ink);font-weight:600">Overall: Some concerns</span><span class="mock-pill a" style="margin-left:auto">GRADE: moderate</span></div>
+        </div>
+      </div>
+      <p class="mock-caption">Next: 3ie's own REA rapid critical-appraisal tool (6 domains, spec already in <code style="font-family:var(--mono);font-size:10.5px">docs/Protocol template.docx</code>) as the natural 8th tool.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 9 · SYNTHESIS + REPORTING
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="Synthesis + Reporting">
+  <div class="kicker">§3 · Stage 6 &amp; 7</div>
+  <div class="banner-row">
+    <div class="status-banner"><span class="dot"></span><span class="txt">✅ <b>Built</b> — both live in the backend today, not a mockup</span></div>
+  </div>
+  <div class="two-col">
+    <div>
+      <h2>Synthesis</h2>
+      <ul class="clean" style="margin-top:10px;gap:7px">
+        <li><span class="mk">◆</span><span><b>Pairwise meta-analysis via a dedicated R statistics engine:</b> REML+HKSJ pooling (Cochrane default), I²/H²/τ²/Q + prediction interval, 8 τ² estimators, publication-bias diagnostics, subgroup, meta-regression — matched against a <code style="font-family:var(--mono);font-size:11px">metafor</code> reference run.</span></li>
+        <li><span class="mk">◆</span><span><b>The contradiction guard:</b> a pure, deterministic function compares each study's effect direction against the pooled estimate's sign <em>before</em> any LLM sees the data — the model is told which evidence points the other way, not left to smooth it over.</span></li>
+        <li><span class="mk">◆</span><span><b>SWiM narrative</b> — LLM-drafted, contradiction-guarded. An AI-drafted passage is a draft for human confirmation, not an autonomous conclusion.</span></li>
+      </ul>
+      <div class="mock" style="margin-top:12px">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/synthesis/pool-runs/9/forest</span></div>
+        <div class="mock-body">
+          <div class="mock-row" style="font-family:var(--mono)">
+            <span style="width:70px;flex:none;font-size:10px;color:var(--ink-3)">Kagwe 2021</span>
+            <span style="flex:1;height:1px;background:var(--line-2);position:relative"><span style="position:absolute;left:32%;top:-3px;width:7px;height:7px;border-radius:50%;background:var(--accent)"></span></span>
+            <span style="width:32px;text-align:right;flex:none;font-size:10px;color:var(--ink-3)">0.79</span>
+          </div>
+          <div class="mock-row" style="font-family:var(--mono)">
+            <span style="width:70px;flex:none;font-size:10px;color:var(--ink-3)">Nakato 2023</span>
+            <span style="flex:1;height:1px;background:var(--line-2);position:relative"><span style="position:absolute;left:58%;top:-3px;width:7px;height:7px;border-radius:50%;background:var(--accent)"></span></span>
+            <span style="width:32px;text-align:right;flex:none;font-size:10px;color:var(--ink-3)">0.91</span>
+          </div>
+          <div class="mock-hr"></div>
+          <div class="mock-row" style="font-family:var(--mono)">
+            <span style="width:70px;flex:none;font-size:10px;color:var(--ink);font-weight:600">Pooled</span>
+            <span style="flex:1;height:1px;background:var(--line-2);position:relative"><span style="position:absolute;left:44%;top:-4px;width:9px;height:9px;background:var(--ink);transform:rotate(45deg)"></span></span>
+            <span style="width:100px;text-align:right;flex:none;font-size:10px;color:var(--ink-3)">RR 0.82 · I²=41%</span>
+          </div>
+        </div>
+      </div>
+      <p class="mock-caption">Pooling consumes confirmed effect sizes only — the extraction confirmation gate is the join.</p>
+    </div>
+    <div>
+      <h2>Reporting</h2>
+      <ul class="clean" style="margin-top:10px;gap:7px">
+        <li><span class="mk">◆</span><span><b>Full 27-item PRISMA 2020 checklist</b> — 4 items auto-detected from platform data (search runs, eligibility criteria, RoB activation). Manual confirmation + note for the remaining 23.</span></li>
+        <li><span class="mk">◆</span><span><b>Report bundle (202 job):</b> PRISMA flow + SVG diagram, eligibility criteria table, included/excluded study tables with reasons, RoB tables, confirmed effect estimates — rendered to .docx on demand, never stored as a stale binary.</span></li>
+        <li><span class="mk">◆</span><span><b>AI-use statement</b> (PRISMA-AI / RAISE / L-PRISMA compliant): model(s) served, call count, token spend, auto-decided count, human override/confirmation rate — assembled from the <code style="font-family:var(--mono);font-size:11px">llm_calls</code> ledger, never re-derived.</span></li>
+      </ul>
+      <div class="mock" style="margin-top:12px">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/reports/9/prisma-flow</span></div>
+        <div class="mock-body">
+          <div class="mock-row" style="justify-content:center;gap:8px">
+            <div style="border:1px solid var(--line-2);border-radius:4px;padding:5px 8px;font-size:9px;text-align:center;color:var(--ink-2)">Identified<br><b style="color:var(--ink)">4,614</b></div>
+            <span style="color:var(--line-2)">→</span>
+            <div style="border:1px solid var(--line-2);border-radius:4px;padding:5px 8px;font-size:9px;text-align:center;color:var(--ink-2)">Screened<br><b style="color:var(--ink)">3,988</b></div>
+            <span style="color:var(--line-2)">→</span>
+            <div style="border:1px solid color-mix(in oklch, var(--good) 40%, var(--line));border-radius:4px;padding:5px 8px;font-size:9px;text-align:center;background:var(--good-wash)">Included<br><b style="color:var(--ink)">42</b></div>
+          </div>
+          <div class="mock-hr"></div>
+          <div class="mock-row"><span style="font-size:10px;color:var(--ink-2)">☑ Item 7 · Search strategy</span><span class="mock-pill g" style="margin-left:auto">auto-detected</span></div>
+          <div class="mock-row"><span style="font-size:10px;color:var(--ink-2)">☐ Item 13 · Risk of bias in studies</span><span class="mock-pill w" style="margin-left:auto">needs note</span></div>
+        </div>
+      </div>
+      <p class="mock-caption">Audit log endpoint — paginated, filterable decision trail from the provenance chain, per reference / stage / actor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 10 · THE AI RELIABILITY STORY
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="AI reliability">
+  <div class="kicker">§4 · AI reliability</div>
+  <h2>Not "we added AI." We measure it, chain it, and make it provable.</h2>
+  <br>
+  <div class="cards c3" style="margin-bottom:16px">
+    <div class="card accent">
+      <h4>Every call is hash-chained</h4>
+      <p>Model id, version, seed, input hash, timestamp — stored on a tamper-evident, append-only provenance chain. Every AI-assisted decision is traceable to the exact model state that produced it. A future auditor can verify the chain without attaching a debugger.</p>
+    </div>
+    <div class="card accent">
+      <h4>Measure, don't assert</h4>
+      <p>Before any AI step runs at scale, it is calibrated against a human gold batch. Recall, precision, WSS@95, and Cohen's κ are stored on the chain — not claimed in prose. A tool that has been calibrated and publishes the numbers can make claims many competing tools currently can only assert in marketing copy.</p>
+    </div>
+    <div class="card accent">
+      <h4>AI proposes, human confirms</h4>
+      <p>No AI verdict, extraction value, or RoB domain rating auto-applies without a human confirmation event. The <code style="font-family:var(--mono);font-size:12px">confirmed_by</code> + <code style="font-family:var(--mono);font-size:12px">confirmed_at</code> stamps are the auditable record. RAISE 1 §1.8's disclosure test is met by construction, not by assertion.</p>
+    </div>
+  </div>
+  <div class="cards c4">
+    <div class="card">
+      <h4>Layer 1 — Abstention</h4>
+      <p style="font-size:12px">Confidence below 0.7, or multi-run agreement below threshold → abstain → route to human. Never a silent guess.</p>
+    </div>
+    <div class="card">
+      <h4>Layer 2 — Stability</h4>
+      <p style="font-size:12px">Same prompt, k runs at temperature 0 then seeded 0.4. <code style="font-family:var(--mono);font-size:11px">prob_stdev</code> and <code style="font-family:var(--mono);font-size:11px">agreement</code> stored per result. Unstable → abstain.</p>
+    </div>
+    <div class="card">
+      <h4>Layer 3 — Critic pass</h4>
+      <p style="font-size:12px">A second, independent model re-examines the primary verdict. Disagreement → abstain → human. Runs after the stability check, so dead items waste no critic call.</p>
+    </div>
+    <div class="card">
+      <h4>Layer 4 — Debate mode</h4>
+      <p style="font-size:12px">For conflicts: include-advocate argues for inclusion, exclude-advocate argues for exclusion, a synthesiser rules on both arguments. Three sequential LLM calls, all provenance-stamped.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 11 · THE CALIBRATION LOOP
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="The calibration loop">
+  <div class="kicker">§4 · The calibration engine</div>
+  <h2>One reusable loop, every AI step. Pilot → score → tune → promote.</h2>
+  <br>
+  <div class="two-col w60">
+    <div>
+      <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:12px">The same <code style="font-family:var(--mono);font-size:12px">CalibrationRun</code> object — gold batch, instrument version, metrics — serves all five AI-assisted steps. Each step has its own instrument and its own gold set. This is the calibration dashboard itself, not a mock-up of a future one:</p>
+      <div class="mock">
+        <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="path">/calibration/runs?task=screening&amp;stage=title_abstract</span></div>
+        <div class="mock-body" style="padding-bottom:0">
+          <div class="chip-row">
+            <span class="chip a">Search · seed recall</span>
+            <span class="chip a">Screen T/A · κ + WSS@95</span>
+            <span class="chip a">Screen FT · spans + reason codes</span>
+            <span class="chip a">Extraction · per-field accuracy</span>
+            <span class="chip a">Appraisal · per-domain κ</span>
+          </div>
+        </div>
+        <table class="cal-table">
+          <thead>
+            <tr><th class="l">Run</th><th class="l">Instrument</th><th>Recall</th><th>Prec.</th><th>WSS@95</th><th>κ</th></tr>
+          </thead>
+          <tbody>
+            <tr class="gold"><td class="l">Human seed</td><td class="l">— gold (200 refs)</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td class="l">AI v1</td><td class="l">base prompt</td><td>0.88</td><td>0.61</td><td>0.42</td><td>0.68</td></tr>
+            <tr><td class="l">AI v2</td><td class="l">+ exclusion hints</td><td>0.94</td><td>0.72</td><td>0.58</td><td>0.79</td></tr>
+            <tr class="promoted"><td class="l">AI v3 ✓</td><td class="l">+ design filter</td><td>0.97 <span class="delta">▲</span></td><td>0.78</td><td>0.64</td><td>0.86</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:12px;color:var(--ink-3);margin-top:8px">Each prompt edit is a versioned, provenance-stamped config. The promoted instrument runs at scale; auto-decide stays behind the confidence + stability gates.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="callout">
+        Some commercial screening tools advertise advanced confidence-scoring techniques — including genuine, correctly-used ones like conformal prediction — with <b>no independent published validation</b>, and accuracy claims that sometimes conflict across a single vendor's own marketing materials.<br><br>A platform that <b>runs this calibration loop against real gold batches and publishes the result</b> has a real evidence base most competing tools currently don't.
+        <cite>Verified against public tool documentation and press coverage, 2026-07-02</cite>
+      </div>
+      <div class="card good">
+        <div class="badge built">✅ Complete — all 5 AI-assisted steps</div>
+        <br><h4>The numbers live on the chain</h4>
+        <p>Every calibration run stores its metrics (recall, precision, WSS, κ) as a <code style="font-family:var(--mono);font-size:11px">calibration_runs</code> row with full provenance. A journal editor or funder can ask "show me the calibration data" — and we can.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 12 · WHAT'S NEXT
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="What's next">
+  <div class="kicker">§5 · What's next</div>
+  <h2>What's next.</h2>
+  <br>
+  <div class="cards c3">
+    <div class="card warn">
+      <div class="badge next">Next</div>
+      <br><h4>The Evidence &amp; Gap Map</h4>
+      <p>An intervention × outcome matrix — the one output format this platform cannot yet produce at all, even though pairwise meta-analysis is already strong. It's 3ie's flagship output format, and the hardest one to justify shipping later than pooled analysis given 3ie's own mandate.</p>
+    </div>
+    <div class="card warn">
+      <div class="badge next">Next</div>
+      <br><h4>Support every review type 3ie runs</h4>
+      <p>The <code style="font-family:var(--mono);font-size:12px">review_type</code> field itself is already live on every project. Next: the cascades — a rapid evidence assessment defaults to single-reviewer screening, swaps in 3ie's own 6-domain rapid appraisal tool, and an Evidence &amp; Gap Map routes to the gap-map view instead of pooled meta-analysis. The spec for all of this is already written in <code style="font-family:var(--mono);font-size:12px">docs/Protocol template.docx</code>.</p>
+    </div>
+    <div class="card warn">
+      <div class="badge next">Next</div>
+      <br><h4>The screens, in build order</h4>
+      <p>A proposed design direction is sketched (see §6) — paper, ink, one accent colour, keyboard-first — but not yet finalised. A generated, typed API client keeps the frontend in sync with the backend automatically. First screens: screening queue → calibration dashboard → extraction form.</p>
+    </div>
+  </div>
+  <br>
+  <div class="cards c4">
+    <div class="card">
+      <div class="badge planned">Planned</div>
+      <br><h4>Deterministic replay</h4>
+      <p style="font-size:12px">Re-run the full pipeline with pinned seeds — the credibility argument for AI-assisted reviews that most tools currently have no answer to.</p>
+    </div>
+    <div class="card">
+      <div class="badge planned">Planned</div>
+      <br><h4>Manuscript authoring</h4>
+      <p style="font-size:12px">Embeddable live artefacts (PRISMA diagram, summary-of-findings table, forest plots), AI-drafted passages, export to Word. The underlying sections-and-citations engine is already built.</p>
+    </div>
+    <div class="card">
+      <div class="badge off">Later</div>
+      <br><h4>Living synthesis</h4>
+      <p style="font-size:12px">Scheduled re-runs, new-study detection, version diffs on a review that's already published. The search re-run comparison already exists — this is the scheduling and automation layer on top of it.</p>
+    </div>
+    <div class="card">
+      <div class="badge off">Later</div>
+      <br><h4>Ask questions of your own corpus</h4>
+      <p style="font-size:12px">Embedding-based question-answering over a review's own evidence base. Also the enabling piece for a learned, active-learning screening ranker.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 13 · UX
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="UX">
+  <div class="kicker">§6 · What it will look like</div>
+  <h2>A proposed design direction — a full mockup for every stage.</h2>
+  <div class="two-col w60" style="margin-top:14px">
+    <div>
+      <p style="color:var(--ink-2);font-size:14px;margin-bottom:16px">The interface is designed like a scientific instrument — dense but calm, keyboard-first, and honest about what the AI did, with the provenance chain always one glance away.</p>
+
+      <div class="cards" style="gap:10px">
+        <div class="card">
+          <h4>Palette — paper + ink + one accent</h4>
+          <p style="font-size:12.5px">All colours are OKLCH semantic tokens (<code style="font-family:var(--mono);font-size:11px">--paper</code>, <code style="font-family:var(--mono);font-size:11px">--ink</code>, <code style="font-family:var(--mono);font-size:11px">--accent oklch(0.470 0.135 264)</code>). Dark mode is a token swap, not per-component overrides. The Cochrane RoB traffic-light colours (good/warn/bad) are held strictly separate from the accent.</p>
+        </div>
+        <div class="card">
+          <h4>Typography — DM Sans + DM Mono</h4>
+          <p style="font-size:12.5px">DM Sans (variable optical size axis) for all UI text; DM Mono for field keys, confidence scores, model ids, hashes. Chosen for legibility at the dense 13–15px range where the product lives.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="eyebrow" style="font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px">Design artefacts — open in browser</div>
+
+      <div class="art-grid">
+        <a class="art-tile" href="design-language_files/saved_resource.html" target="_blank">
+          <span class="icon">🎨</span><span><div class="t">Design Language</div><div class="s">Palette · type · component kit</div></span>
+        </a>
+        <a class="art-tile" href="the-whole-process_files/saved_resource.html" target="_blank">
+          <span class="icon">🗺️</span><span><div class="t">The Whole Process</div><div class="s">The review as a loop</div></span>
+        </a>
+        <a class="art-tile" href="https://claude.ai/code/artifact/d6a8f618-f4bc-46f5-b2e5-de39edfd4b0d" target="_blank">
+          <span class="icon">📋</span><span><div class="t">Protocol &amp; Registration</div><div class="s">PICO fields · version history</div></span>
+        </a>
+        <a class="art-tile" href="design-language_files/saved_resource.html" target="_blank">
+          <span class="icon">🔍</span><span><div class="t">Screening workspace</div><div class="s">Full fidelity, in Design Language</div></span>
+        </a>
+        <a class="art-tile" href="https://claude.ai/code/artifact/fbe6ce00-deba-44f5-822b-a6ca7f2738d5" target="_blank">
+          <span class="icon">🧾</span><span><div class="t">Extraction</div><div class="s">Typed fields · confirmation gate</div></span>
+        </a>
+        <a class="art-tile" href="https://claude.ai/code/artifact/4621be1d-0a2e-4aab-8844-79a49b183f92" target="_blank">
+          <span class="icon">⚖️</span><span><div class="t">Appraisal</div><div class="s">RoB tools · GRADE factors</div></span>
+        </a>
+        <a class="art-tile" href="https://claude.ai/code/artifact/03fae2d9-2367-4c2e-961c-bb3d5b21b6b2" target="_blank">
+          <span class="icon">📈</span><span><div class="t">Synthesis</div><div class="s">Forest plot · contradiction guard</div></span>
+        </a>
+        <a class="art-tile" href="https://claude.ai/code/artifact/a6ba6a51-0b7f-4ab2-9bae-df2953ed9ee9" target="_blank">
+          <span class="icon">📄</span><span><div class="t">Reporting</div><div class="s">PRISMA flow · checklist</div></span>
+        </a>
+        <a class="art-tile" href="https://claude.ai/code/artifact/9c55a5d0-63b9-4a8f-9611-3a12b49b044a" target="_blank">
+          <span class="icon">🎯</span><span><div class="t">Calibration dashboard</div><div class="s">Run comparison · risk-coverage</div></span>
+        </a>
+      </div>
+
+      <div class="callout" style="margin-top:4px;font-size:12px;padding:11px 14px">
+        Every one of the 7 review stages now has its own full-fidelity mockup, not just the sketch shown on its stage slide earlier in this deck. <b>Search</b> is the one stage still only sketched inline (§3) — no dedicated artifact yet.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
+     SLIDE 14 · CLOSING
+══════════════════════════════════════════════════════ -->
+<section class="slide" data-label="Closing">
+  <div class="kicker">The bottom line</div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px">
+
+    <p class="big-q">No tool surveyed — commercial or open source — combines what this platform already has in one system. <em>The gap is the integration, the provenance chain, and the calibration discipline applied consistently across a complete pipeline.</em></p>
+
+    <div class="cards c3" style="max-width:900px">
+      <div class="card good">
+        <h4>Backend: production-grade today</h4>
+        <p>1,115+ tests, CI, reversible Alembic migrations, hash-chained provenance, PRISMA 2020 / GRADE / RAISE / Cochrane-compliant throughout. Can be deployed now for internal use.</p>
+      </div>
+      <div class="card accent">
+        <h4>Frontend: in active build</h4>
+        <p>A proposed design direction is sketched. Generated typed API client in CI. MVP cut through screening in progress. The three hero screens — screening queue, calibration dashboard, extraction form — show all the distinctive ideas.</p>
+      </div>
+      <div class="card warn">
+        <h4>What needs a decision</h4>
+        <p>Scope the MVP frontend milestone (screening UI = the natural first screen). Agree the first review to run through the platform. Set the benchmark: calibration metrics will be publishable — decide what we publish against.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /deck -->
+
+<div class="ctrl">
+  <button id="prev" onclick="go(-1)">← Prev</button>
+  <span class="counter" id="ctr"></span>
+  <button id="next" onclick="go(1)">Next →</button>
+</div>
+
+<script>
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total  = slides.length;
+let cur = 0;
+
+function render() {
+  slides.forEach((s, i) => {
+    s.classList.remove('active', 'exit');
+    if (i === cur) s.classList.add('active');
+    if (i < cur)  s.classList.add('exit');
+  });
+  document.getElementById('ctr').textContent  = `${cur + 1} / ${total}`;
+  document.getElementById('prog').style.width = `${((cur + 1) / total) * 100}%`;
+  document.getElementById('prev').disabled    = cur === 0;
+  document.getElementById('next').disabled    = cur === total - 1;
+  document.getElementById('lbl').textContent  = slides[cur].dataset.label || '';
+}
+
+function go(dir) {
+  const n = cur + dir;
+  if (n >= 0 && n < total) { cur = n; render(); }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); go(-1); }
+});
+
+render();
+</script>
+
+</body>
+</html>
