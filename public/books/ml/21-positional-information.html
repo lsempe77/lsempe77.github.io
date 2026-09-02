@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Positional Information – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./22-transformer-block.html" rel="next">
+<link href="./20-self-attention-multi-head.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-navigation.css"></head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./21-positional-information.html"><span class="chapter-title">Positional Information</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-sequence" id="toc-running-sequence" class="nav-link" data-scroll-target="#running-sequence">Running sequence</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#attention-needs-order-supplied-to-it" id="toc-attention-needs-order-supplied-to-it" class="nav-link" data-scroll-target="#attention-needs-order-supplied-to-it">Attention needs order supplied to it</a></li>
+  <li><a href="#location-and-distance-answer-different-questions" id="toc-location-and-distance-answer-different-questions" class="nav-link" data-scroll-target="#location-and-distance-answer-different-questions">Location and distance answer different questions</a></li>
+  </ul></li>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
+  <ul class="collapse">
+  <li><a href="#absolute-encodings-are-added-to-content-vectors" id="toc-absolute-encodings-are-added-to-content-vectors" class="nav-link" data-scroll-target="#absolute-encodings-are-added-to-content-vectors">Absolute encodings are added to content vectors</a></li>
+  <li><a href="#learned-tables-trade-an-explicit-rule-for-fitted-parameters" id="toc-learned-tables-trade-an-explicit-rule-for-fitted-parameters" class="nav-link" data-scroll-target="#learned-tables-trade-an-explicit-rule-for-fitted-parameters">Learned tables trade an explicit rule for fitted parameters</a></li>
+  <li><a href="#relative-methods-enter-the-attention-relation" id="toc-relative-methods-enter-the-attention-relation" class="nav-link" data-scroll-target="#relative-methods-enter-the-attention-relation">Relative methods enter the attention relation</a></li>
+  </ul></li>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
+  <ul class="collapse">
+  <li><a href="#a-permutation-test-states-the-original-limitation-precisely" id="toc-a-permutation-test-states-the-original-limitation-precisely" class="nav-link" data-scroll-target="#a-permutation-test-states-the-original-limitation-precisely">A permutation test states the original limitation precisely</a></li>
+  <li><a href="#a-fixed-positional-module-has-a-clear-input-output-contract" id="toc-a-fixed-positional-module-has-a-clear-input-output-contract" class="nav-link" data-scroll-target="#a-fixed-positional-module-has-a-clear-input-output-contract">A fixed positional module has a clear input-output contract</a></li>
+  <li><a href="#rotary-position-embeddings-rotate-query-and-key-pairs" id="toc-rotary-position-embeddings-rotate-query-and-key-pairs" class="nav-link" data-scroll-target="#rotary-position-embeddings-rotate-query-and-key-pairs">Rotary position embeddings rotate query and key pairs</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
+  <li><a href="#position-methods-encode-different-extrapolation-assumptions" id="toc-position-methods-encode-different-extrapolation-assumptions" class="nav-link" data-scroll-target="#position-methods-encode-different-extrapolation-assumptions">Position methods encode different extrapolation assumptions</a></li>
+  <li><a href="#long-context-claims-require-positional-audits" id="toc-long-context-claims-require-positional-audits" class="nav-link" data-scroll-target="#long-context-claims-require-positional-audits">Long-context claims require positional audits</a></li>
+  <li><a href="#position-signals-are-not-complete-explanations" id="toc-position-signals-are-not-complete-explanations" class="nav-link" data-scroll-target="#position-signals-are-not-complete-explanations">Position signals are not complete explanations</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Positional Information</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Giving attention a representation of order</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Self-attention compares representations at different sequence positions, but the operation in Chapter 20 has no intrinsic notion of first, next, or last. If the same input vectors are permuted, ordinary self-attention permutes its outputs in the same way. It cannot on its own distinguish <code>dog bites person</code> from <code>person bites dog</code>.</p>
+<p>Positional information changes the representations or attention scores so that location and distance can affect a computation. This chapter compares absolute and relative approaches, derives the original sinusoidal encoding, and explains why position handling becomes a design and evaluation decision at long context lengths. It does not yet assemble residual paths, normalisation, attention, and feed-forward computation into a Transformer block; Chapter 22 does that.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>explain why self-attention without positional information is permutation-equivariant;</li>
+<li>distinguish a token’s content representation from its position representation;</li>
+<li>construct and interpret sinusoidal positional encodings;</li>
+<li>distinguish learned absolute, fixed absolute, relative, rotary, and attention-bias approaches;</li>
+<li>state where a positional method enters a Transformer computation;</li>
+<li>implement a small positional encoding module and test its shape and order contracts;</li>
+<li>explain why the training context length does not automatically establish reliable performance beyond that range; and</li>
+<li>report positional conventions when comparing or deploying models.</li>
+</ul>
+</section>
+<section id="running-sequence" class="level3">
+<h3 class="anchored" data-anchor-id="running-sequence">Running sequence</h3>
+<p>The running sequence contains five content vectors. We will preserve those vectors and change only their positional information. This separates the question of <em>what</em> a token represents from the question of <em>where it appears</em>.</p>
+<div id="fig-permutation-problem" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-permutation-problem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7655a6"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.1</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[(<span class="st">"A"</span>,blue),(<span class="st">"B"</span>,orange),(<span class="st">"C"</span>,teal)]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,order <span class="kw">in</span> <span class="bu">enumerate</span>([[<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>],[<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">1</span>]]):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">3.1</span><span class="op">-</span>row<span class="op">*</span><span class="fl">2.25</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.15</span>,y<span class="op">+</span><span class="fl">.27</span>,<span class="st">"input"</span> <span class="cf">if</span> row<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">"permuted input"</span>,ha<span class="op">=</span><span class="st">"left"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j,idx <span class="kw">in</span> <span class="bu">enumerate</span>(order):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">1.25</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.9</span><span class="op">;</span> label,colour<span class="op">=</span>tokens[idx]</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,y),<span class="fl">.66</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.33</span>,y<span class="op">+</span><span class="fl">.27</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">4.1</span>,y<span class="op">+</span><span class="fl">.27</span>),(<span class="fl">5.05</span>,y<span class="op">+</span><span class="fl">.27</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">13</span>,color<span class="op">=</span>grey))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">5.1</span>,y<span class="op">-</span><span class="fl">.04</span>),<span class="fl">1.55</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.875</span>,y<span class="op">+</span><span class="fl">.27</span>,<span class="st">"self-attention"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">6.7</span>,y<span class="op">+</span><span class="fl">.27</span>),(<span class="fl">7.62</span>,y<span class="op">+</span><span class="fl">.27</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">13</span>,color<span class="op">=</span>grey))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j,idx <span class="kw">in</span> <span class="bu">enumerate</span>(order):</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">7.7</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.7</span><span class="op">;</span> label,colour<span class="op">=</span>tokens[idx]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,y),<span class="fl">.53</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.265</span>,y<span class="op">+</span><span class="fl">.27</span>,label<span class="op">+</span><span class="st">"'"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.9</span>,<span class="fl">.25</span>,<span class="st">"The output relation changes only by the same permutation."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">10.1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">4</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-permutation-problem-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;22.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="attention-needs-order-supplied-to-it" class="level3">
+<h3 class="anchored" data-anchor-id="attention-needs-order-supplied-to-it">Attention needs order supplied to it</h3>
+<p>Self-attention receives a collection of vectors and computes similarities between them. Its query-key calculation can decide that two vectors match, but it does not contain a clock or an index. A causal mask tells a decoder which positions are allowed to use which other positions, but it does not tell the model how far apart two allowed positions are or which content vector occupied an earlier slot.</p>
+<p>The distinction is operational. A word embedding can represent the token <code>bank</code>; a positional representation can indicate that this occurrence is third in a sequence. A model commonly combines the two before attention. The resulting input says both something about the item and something about its location.</p>
+</section>
+<section id="location-and-distance-answer-different-questions" class="level3">
+<h3 class="anchored" data-anchor-id="location-and-distance-answer-different-questions">Location and distance answer different questions</h3>
+<p>Absolute position asks where a token is: position 0, 1, or 500. Relative position asks how two tokens are related: adjacent, ten positions apart, or in a particular order. Both may help, but they make different assumptions. A learned table of absolute vectors associates a parameter with each training position. A relative method can make an attention score depend directly on the displacement <span class="math inline">\(j-t\)</span> between query <span class="math inline">\(t\)</span> and key <span class="math inline">\(j\)</span>.</p>
+<div id="fig-absolute-relative" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-absolute-relative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">2.9</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="dv">1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.7</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.15</span>),<span class="fl">.8</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.4</span>,<span class="fl">1.425</span>,<span class="ss">f"token </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    ax.text(x<span class="op">+</span><span class="fl">.4</span>,<span class="fl">.82</span>,<span class="ss">f"absolute </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> key,colour <span class="kw">in</span> [(<span class="dv">0</span>,orange),(<span class="dv">2</span>,teal)]:</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">6.8</span>,<span class="fl">1.12</span>),(<span class="dv">1</span><span class="op">+</span>key<span class="op">*</span><span class="fl">1.7</span><span class="op">+</span><span class="fl">.4</span>,<span class="fl">1.12</span>),connectionstyle<span class="op">=</span><span class="st">"arc3,rad=.35"</span>,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>colour))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    ax.text((<span class="fl">6.8</span><span class="op">+</span><span class="dv">1</span><span class="op">+</span>key<span class="op">*</span><span class="fl">1.7</span><span class="op">+</span><span class="fl">.4</span>)<span class="op">/</span><span class="dv">2</span>,<span class="fl">2.18</span>,<span class="ss">f"relative </span><span class="sc">{</span>key<span class="op">-</span><span class="dv">3</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>colour)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">6.8</span>,<span class="fl">.36</span>,<span class="st">"query at absolute 3"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.3</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">2.6</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-absolute-relative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;22.2
+</figcaption>
+</figure>
+</div>
+<p>Position does not turn attention into grammar or guarantee that a model uses order correctly. It makes order available as an input feature. Training still determines whether a model learns a useful dependence and whether that dependence transfers to a new sequence length or domain.</p>
+<p>Level 1 identified the missing signal. Level 2 makes the common ways of inserting that signal explicit.</p>
+</section>
+</section>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
+<section id="absolute-encodings-are-added-to-content-vectors" class="level3">
+<h3 class="anchored" data-anchor-id="absolute-encodings-are-added-to-content-vectors">Absolute encodings are added to content vectors</h3>
+<p>For a token representation <span class="math inline">\(e_t\in\mathbb{R}^{D}\)</span> and a positional vector <span class="math inline">\(p_t\in\mathbb{R}^{D}\)</span>, the usual absolute construction is</p>
+<p><span class="math display">\[x_t=e_t+p_t.\]</span></p>
+<p>The sum has the same width as the original token vector, so the query, key, and value projections from Chapter 20 do not need a new input interface. Addition also means the model must learn to use the combined representation; it does not preserve a separately labelled position field.</p>
+<p>The original Transformer used fixed sinusoidal vectors <span class="citation" data-cites="vaswani2017">(<a href="#ref-vaswani2017" role="doc-biblioref">Vaswani et al. 2017</a>)</span>. For coordinate pair <span class="math inline">\(i\)</span> and position <span class="math inline">\(t\)</span>,</p>
+<p><span class="math display">\[p_{t,2i}=\sin\left(t/10000^{2i/D}\right),\qquad p_{t,2i+1}=\cos\left(t/10000^{2i/D}\right).\]</span></p>
+<p>Different coordinate pairs vary at different rates. Nearby positions therefore have related, but not identical, vectors. The formula contains no learned position-table parameters and can be evaluated for a position not observed during training.</p>
+<div id="fig-sinusoidal-positions" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sinusoidal-positions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>np.arange(<span class="dv">32</span>)<span class="op">;</span> width<span class="op">=</span><span class="dv">8</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>angles<span class="op">=</span>positions[:,<span class="va">None</span>]<span class="op">/</span>np.power(<span class="dv">10000</span>,(<span class="dv">2</span><span class="op">*</span>np.arange(width<span class="op">//</span><span class="dv">2</span>))<span class="op">/</span>width)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pe<span class="op">=</span>np.empty((<span class="bu">len</span>(positions),width))<span class="op">;</span> pe[:,<span class="dv">0</span>::<span class="dv">2</span>]<span class="op">=</span>np.sin(angles)<span class="op">;</span> pe[:,<span class="dv">1</span>::<span class="dv">2</span>]<span class="op">=</span>np.cos(angles)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.1</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> [<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">5</span>]: ax.plot(positions,pe[:,d],label<span class="op">=</span><span class="ss">f"coordinate </span><span class="sc">{</span>d<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Position"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Positional value"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Fixed sinusoidal coordinates"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-sinusoidal-positions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;22.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="learned-tables-trade-an-explicit-rule-for-fitted-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="learned-tables-trade-an-explicit-rule-for-fitted-parameters">Learned tables trade an explicit rule for fitted parameters</h3>
+<p>A learned absolute table stores <span class="math inline">\(P\in\mathbb{R}^{L\times D}\)</span> for a configured maximum length <span class="math inline">\(L\)</span>. At position <span class="math inline">\(t&lt;L\)</span>, the model retrieves row <span class="math inline">\(P_t\)</span> and adds it to <span class="math inline">\(e_t\)</span>. This gives training freedom to fit position-specific patterns, but positions outside the table need an explicit policy: failure, truncation, interpolation, or a different method. Simply increasing an index at inference is not a valid implementation when the parameter table ends at <span class="math inline">\(L-1\)</span>.</p>
+<p>The distinction between a configured maximum and an observed maximum is useful. A table might have rows for 2,048 locations, while training examples rarely extend beyond 512 tokens. Rows near the table boundary can then receive much less direct training signal than early rows. Conversely, a fixed formula assigns a vector at every integer position but does not make those positions familiar to the rest of the trained network. Both cases require evidence at the intended lengths.</p>
+<div id="fig-table-boundary" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-table-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.6</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.82</span>,<span class="fl">1.35</span>),<span class="fl">.68</span>,<span class="fl">.52</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.94</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.82</span>,<span class="fl">1.61</span>,<span class="bu">str</span>(i),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="fl">7.32</span>,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> ax.text(<span class="fl">7.38</span>,<span class="fl">2.08</span>,<span class="st">"learned-table boundary"</span>,color<span class="op">=</span>orange,ha<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.linspace(<span class="fl">.6</span>,<span class="fl">9.35</span>,<span class="dv">250</span>)<span class="op">;</span> y<span class="op">=</span><span class="fl">.55</span><span class="op">+</span><span class="fl">.23</span><span class="op">*</span>np.sin(<span class="fl">2.2</span><span class="op">*</span>x)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>ax.plot(x,y,color<span class="op">=</span>teal,linewidth<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> ax.text(<span class="fl">8.8</span>,<span class="fl">.2</span>,<span class="st">"fixed formula"</span>,color<span class="op">=</span>teal,ha<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.5</span>,<span class="fl">2.42</span>,<span class="st">"available learned indices"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.2</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">2.7</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-table-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;22.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="relative-methods-enter-the-attention-relation" class="level3">
+<h3 class="anchored" data-anchor-id="relative-methods-enter-the-attention-relation">Relative methods enter the attention relation</h3>
+<p>Relative position methods alter the query-key relation rather than only the input vectors. One simplified score construction is</p>
+<p><span class="math display">\[s_{t,j}=\frac{q_t k_j^\top+q_t r_{j-t}^\top}{\sqrt{D_k}},\]</span></p>
+<p>where <span class="math inline">\(r_{j-t}\)</span> represents the relative displacement. The first term compares content; the second can make the score depend on distance and direction. Shaw, Uszkoreit, and Vaswani add learned relative representations to self-attention, rather than relying only on absolute input positions <span class="citation" data-cites="shaw2018self">(<a href="#ref-shaw2018self" role="doc-biblioref">Shaw, Uszkoreit, and Vaswani 2018</a>)</span>.</p>
+<p>Implementations cannot always store one independent relation for every possible distance. They may clip displacement to a range, map many distances into buckets, or use a formula. Clipping <span class="math inline">\(j-t\)</span> at <span class="math inline">\(\pm K\)</span> makes all distances beyond <span class="math inline">\(K\)</span> share a representation. This saves parameters and can pool sparse evidence, but it removes distinctions among those more distant positions. The chosen boundary is therefore part of the model’s representation, not a neutral memory optimisation.</p>
+<div id="643feff1" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>content<span class="op">=</span>np.array([[<span class="fl">.8</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>],[<span class="fl">.6</span>,<span class="fl">.5</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>]])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>absolute<span class="op">=</span>pe[:<span class="dv">4</span>,:<span class="dv">2</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>combined<span class="op">=</span>content<span class="op">+</span>absolute</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"content at position 0:"</span>,content[<span class="dv">0</span>].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"positional vector at position 0:"</span>,absolute[<span class="dv">0</span>].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"combined input at position 0:"</span>,combined[<span class="dv">0</span>].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same content at another position changes input:"</span>,np.allclose(combined[<span class="dv">0</span>],content[<span class="dv">0</span>]<span class="op">+</span>pe[<span class="dv">1</span>,:<span class="dv">2</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The final line is intentionally <code>False</code>: moving unchanged content to another position changes its input to attention. That is the mechanism by which an absolute encoding breaks the permutation symmetry in the opening figure.</p>
+<p>Level 2 has located positional information either at the layer input or in the attention relation. Level 3 checks those claims with small numerical and implementation tests.</p>
+</section>
+</section>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
+<section id="a-permutation-test-states-the-original-limitation-precisely" class="level3">
+<h3 class="anchored" data-anchor-id="a-permutation-test-states-the-original-limitation-precisely">A permutation test states the original limitation precisely</h3>
+<p>Let <span class="math inline">\(F\)</span> denote an attention layer with no positional mechanism and let <span class="math inline">\(\Pi\)</span> be a permutation matrix that reorders sequence rows. For standard self-attention without a position-dependent mask,</p>
+<p><span class="math display">\[F(\Pi X)=\Pi F(X).\]</span></p>
+<p>This is permutation equivariance, not invariance: the output does change, but only by being rearranged in the same manner as the input. If a subsequent task needs different outputs for different orders of the same content, the model requires a position signal.</p>
+<div id="6718ffd1" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">21</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> perm<span class="op">=</span>torch.tensor([<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">1</span>])</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>attention<span class="op">=</span>nn.MultiheadAttention(embed_dim<span class="op">=</span><span class="dv">6</span>,num_heads<span class="op">=</span><span class="dv">2</span>,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>out,_<span class="op">=</span>attention(x,x,x,need_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>out_perm,_<span class="op">=</span>attention(x[:,perm],x[:,perm],x[:,perm],need_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"attention respects input permutation:"</span>,torch.allclose(out_perm,out[:,perm],atol<span class="op">=</span><span class="fl">1e-6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The check holds because the same attention layer is applied after reordering every query, key, and value row. It is a useful unit test for a reference implementation. A causal mask changes the symmetry because eligibility now depends on row order, but it still does not supply a representation of distances among eligible positions.</p>
+</section>
+<section id="a-fixed-positional-module-has-a-clear-input-output-contract" class="level3">
+<h3 class="anchored" data-anchor-id="a-fixed-positional-module-has-a-clear-input-output-contract">A fixed positional module has a clear input-output contract</h3>
+<div id="2235b0eb" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SinusoidalPosition(nn.Module):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>,width,max_length<span class="op">=</span><span class="dv">512</span>):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        position<span class="op">=</span>torch.arange(max_length,dtype<span class="op">=</span>torch.float32).unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        frequency<span class="op">=</span>torch.exp(torch.arange(<span class="dv">0</span>,width,<span class="dv">2</span>,dtype<span class="op">=</span>torch.float32)<span class="op">*</span>(<span class="op">-</span>np.log(<span class="fl">10000.0</span>)<span class="op">/</span>width))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        table<span class="op">=</span>torch.zeros(max_length,width)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        table[:,<span class="dv">0</span>::<span class="dv">2</span>]<span class="op">=</span>torch.sin(position<span class="op">*</span>frequency)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        table[:,<span class="dv">1</span>::<span class="dv">2</span>]<span class="op">=</span>torch.cos(position<span class="op">*</span>frequency)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.register_buffer(<span class="st">"table"</span>,table.unsqueeze(<span class="dv">0</span>),persistent<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>,x,offset<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        _,length,width<span class="op">=</span>x.shape</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> offset<span class="op">+</span>length<span class="op">&gt;</span><span class="va">self</span>.table.shape[<span class="dv">1</span>]: <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"position table too short"</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x<span class="op">+</span><span class="va">self</span>.table[:,offset:offset<span class="op">+</span>length,:].to(dtype<span class="op">=</span>x.dtype,device<span class="op">=</span>x.device)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>module<span class="op">=</span>SinusoidalPosition(width<span class="op">=</span><span class="dv">6</span>,max_length<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>base<span class="op">=</span>torch.zeros(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> positioned<span class="op">=</span>module(base)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"shape:"</span>,<span class="bu">tuple</span>(positioned.shape))</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"positions 0 and 1 differ:"</span>,<span class="kw">not</span> torch.allclose(positioned[:,<span class="dv">0</span>],positioned[:,<span class="dv">1</span>]))</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same position is shared across batch:"</span>,torch.allclose(positioned[<span class="dv">0</span>,<span class="dv">2</span>],positioned[<span class="dv">1</span>,<span class="dv">2</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><code>register_buffer</code> stores fixed values with the module so they follow device moves and checkpoint conventions without becoming optimised parameters. The <code>offset</code> argument matters during cached autoregressive inference: a newly generated token must receive its global position, not position zero of a short one-token call.</p>
+<p>The offset contract is easy to state and easy to violate. If a sequence’s first four tokens have already been processed, a one-token continuation has sequence length one in the present call but global position four. Reusing the position-zero vector changes its query and key representation. The error can leave tensor shapes valid while making cached generation disagree with a full forward pass.</p>
+<div id="6dc4e509" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>prefix<span class="op">=</span>torch.zeros(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> next_token<span class="op">=</span>torch.zeros(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">6</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>full<span class="op">=</span>module(torch.zeros(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">6</span>))[:,<span class="dv">4</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>cached_correct<span class="op">=</span>module(next_token,offset<span class="op">=</span><span class="dv">4</span>)[:,<span class="dv">0</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>cached_wrong<span class="op">=</span>module(next_token,offset<span class="op">=</span><span class="dv">0</span>)[:,<span class="dv">0</span>]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"correct cache offset agrees with full sequence:"</span>,torch.allclose(full,cached_correct))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reusing position zero disagrees:"</span>,<span class="kw">not</span> torch.allclose(full,cached_wrong))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="rotary-position-embeddings-rotate-query-and-key-pairs" class="level3">
+<h3 class="anchored" data-anchor-id="rotary-position-embeddings-rotate-query-and-key-pairs">Rotary position embeddings rotate query and key pairs</h3>
+<p>Rotary position embeddings (RoPE) apply a position-dependent two-dimensional rotation to adjacent query and key coordinates. For a coordinate pair <span class="math inline">\((u,v)\)</span> and angle <span class="math inline">\(\theta_t\)</span>,</p>
+<p><span class="math display">\[R_t\begin{bmatrix}u\\v\end{bmatrix}=\begin{bmatrix}\cos\theta_t&amp;-\sin\theta_t\\ \sin\theta_t&amp;\cos\theta_t\end{bmatrix}\begin{bmatrix}u\\v\end{bmatrix}.\]</span></p>
+<p>Rotating both a query at <span class="math inline">\(t\)</span> and a key at <span class="math inline">\(j\)</span> makes their dot product depend on their relative displacement under the chosen frequency construction. RoPE therefore inserts position into the attention comparison itself <span class="citation" data-cites="su2021roformer">(<a href="#ref-su2021roformer" role="doc-biblioref">Su et al. 2021</a>)</span>.</p>
+<div id="6e0c5449" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rotate_pairs(x,positions,base<span class="op">=</span><span class="fl">10000.0</span>):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># x has shape (sequence, even_width); positions has shape (sequence,)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span>x.shape[<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> freq<span class="op">=</span><span class="fl">1.0</span><span class="op">/</span>(base<span class="op">**</span>(np.arange(<span class="dv">0</span>,width,<span class="dv">2</span>)<span class="op">/</span>width))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    angle<span class="op">=</span>positions[:,<span class="va">None</span>]<span class="op">*</span>freq<span class="op">;</span> c,s<span class="op">=</span>np.cos(angle),np.sin(angle)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    even,odd<span class="op">=</span>x[:,<span class="dv">0</span>::<span class="dv">2</span>],x[:,<span class="dv">1</span>::<span class="dv">2</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    out<span class="op">=</span>np.empty_like(x)<span class="op">;</span> out[:,<span class="dv">0</span>::<span class="dv">2</span>]<span class="op">=</span>even<span class="op">*</span>c<span class="op">-</span>odd<span class="op">*</span>s<span class="op">;</span> out[:,<span class="dv">1</span>::<span class="dv">2</span>]<span class="op">=</span>even<span class="op">*</span>s<span class="op">+</span>odd<span class="op">*</span>c</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>q<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">.4</span>,<span class="op">-</span><span class="fl">.2</span>]])<span class="op">;</span> k<span class="op">=</span>np.array([[<span class="fl">.7</span>,<span class="fl">.5</span>,<span class="op">-</span><span class="fl">.1</span>,<span class="fl">.9</span>]])</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>q_at_3<span class="op">=</span>rotate_pairs(q,np.array([<span class="dv">3</span>]))<span class="op">;</span> k_at_5<span class="op">=</span>rotate_pairs(k,np.array([<span class="dv">5</span>]))</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>q_at_8<span class="op">=</span>rotate_pairs(q,np.array([<span class="dv">8</span>]))<span class="op">;</span> k_at_10<span class="op">=</span>rotate_pairs(k,np.array([<span class="dv">10</span>]))</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same relative displacement gives same dot product:"</span>,np.allclose(q_at_3<span class="op">@</span>k_at_5.T,q_at_8<span class="op">@</span>k_at_10.T))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The test uses pairs with equal relative displacement (<span class="math inline">\(5-3=10-8\)</span>). It tests a mathematical property of this small implementation, not a claim that a trained model treats every equal-distance relation alike.</p>
+</section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
+<section id="position-methods-encode-different-extrapolation-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="position-methods-encode-different-extrapolation-assumptions">Position methods encode different extrapolation assumptions</h3>
+<p>Fixed sinusoids can be computed beyond a training length, but this does not demonstrate that a trained model will use those unseen combinations reliably. Learned absolute tables have a hard parameter boundary unless the implementation changes or extends them. Relative and rotary methods may be more compatible with length variation, but their practical behaviour depends on the training distribution, frequency choices, optimisation, attention masks, and the task. A model card or evaluation report should therefore name both the configured context limit and the lengths on which performance was measured.</p>
+<p>Attention biases provide another family of designs. A bias <span class="math inline">\(b_{j-t}\)</span> can be added directly to a score before softmax, favouring or penalising selected relative distances without adding a vector to the value mixture. Linear distance biases and bucketed relative distances reduce or structure the number of position-dependent parameters. These methods are not interchangeable: they offer different information to different parts of the computation.</p>
+<p>Relative methods also require a direction convention. In a causal decoder, a previous key has <span class="math inline">\(j-t&lt;0\)</span> if the score is indexed as query minus key in the opposite order, or <span class="math inline">\(j-t&gt;0\)</span> under another implementation. The sign itself does not carry a universal meaning; the code, mask, and documentation must agree. A reversed sign can silently make a trained relative table associate one distance class with the wrong direction.</p>
+<div id="fig-relative-bias" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-relative-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>distance<span class="op">=</span>np.arange(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> content_score<span class="op">=</span>np.zeros_like(distance,dtype<span class="op">=</span><span class="bu">float</span>)<span class="op">;</span> bias<span class="op">=-</span><span class="fl">.35</span><span class="op">*</span>distance</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ax.plot(distance,content_score,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"content contribution"</span>,color<span class="op">=</span>blue)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.plot(distance,content_score<span class="op">+</span>bias,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"after relative bias"</span>,color<span class="op">=</span>orange)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Absolute query-key distance"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Score before softmax"</span>)<span class="op">;</span> ax.set_title(<span class="st">"A score bias changes distance preference"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-relative-bias-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;22.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="long-context-claims-require-positional-audits" class="level3">
+<h3 class="anchored" data-anchor-id="long-context-claims-require-positional-audits">Long-context claims require positional audits</h3>
+<p>Extending a context window changes more than a maximum index. It changes the number of attention pairs, the distribution of relative distances, cache memory, and possibly the position regime on which the model was trained. Interpolation, frequency rescaling, continued training, and architecture-specific modifications are choices with empirical consequences. Their effect can differ between retrieval, copying, local syntax, long-document summarisation, and multi-step generation.</p>
+<p>The relevant test is task-specific. A short answer at the end of a long context may depend only on recent tokens; a successful test there does not establish retrieval from the middle of a document. Evaluation should place controlled information at varied absolute locations and varied relative distances, use enough distractors to make retrieval non-trivial, and report performance by length rather than only a pooled average. It should also separate failure to fit in memory from a change in output quality.</p>
+<p>An audit should record the position method; whether positions are absolute or relative; table size or frequency formula; indexing origin; padding convention; treatment of packed sequences; causal offset; cache offset; configured and trained lengths; evaluation lengths; and any scaling or interpolation rule. Tests should include moving the same content to a different location, checking cached and non-cached logits at matched positions, and verifying that padded locations neither receive nor influence valid-token output.</p>
+</section>
+<section id="position-signals-are-not-complete-explanations" class="level3">
+<h3 class="anchored" data-anchor-id="position-signals-are-not-complete-explanations">Position signals are not complete explanations</h3>
+<p>Attention maps may change after a positional intervention because position affects queries and keys, values, or an additive score term depending on the design. That does not identify a single linguistic or semantic mechanism. A valid claim should specify the architecture, position method, intervention, evaluation set, and measured output difference. It should not infer an explanation from a periodic curve or one attractive attention heatmap.</p>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>A causal mask gives attention a full notion of order.</strong> It supplies an eligibility boundary, not distances or absolute locations.</li>
+<li><strong>Adding positions means every order-sensitive task is solved.</strong> It makes order available; learning and transfer still depend on data and optimisation.</li>
+<li><strong>Sinusoidal encodings guarantee long-context generalisation.</strong> They can be evaluated at new positions, but model behaviour there remains empirical.</li>
+<li><strong>Learned absolute positions are values in the input text.</strong> They are model parameters indexed by location.</li>
+<li><strong>Relative position and absolute position are the same representation with different names.</strong> They answer different computational questions.</li>
+<li><strong>RoPE rotates token values.</strong> In the usual construction it rotates query and key coordinate pairs before score calculation.</li>
+<li><strong>An attention bias changes the value retrieved from a token.</strong> It changes the score preference before weights are computed.</li>
+<li><strong>A longer configured context proves a longer usable context.</strong> Evaluation must test the relevant lengths and tasks.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Explain, using a permutation matrix, why self-attention without position is permutation-equivariant.</li>
+<li>Construct sinusoidal vectors of width eight for positions zero through three.</li>
+<li>Plot cosine similarity between the position-zero vector and later sinusoidal vectors.</li>
+<li>State the parameter count for a learned absolute table with length 2,048 and width 768.</li>
+<li>Implement an explicit failure test when an input exceeds a learned table’s maximum length.</li>
+<li>Explain why adding absolute vectors preserves model width.</li>
+<li>Derive the matrix form of the two-dimensional rotary rotation.</li>
+<li>Verify numerically that the rotary code preserves the norm of each coordinate pair.</li>
+<li>Test cached and un-cached positional offsets for a short causal sequence.</li>
+<li>Implement a clipped relative-distance lookup and state what information clipping loses.</li>
+<li>Compare score matrices with and without a distance bias when content scores are identical.</li>
+<li>Explain why a causal mask and a relative-position method have separate responsibilities.</li>
+<li>Design an evaluation that distinguishes short-range from long-range positional use.</li>
+<li>Report the positional metadata needed to reproduce a long-context result.</li>
+<li>Identify one way packed sequences can make position indexing ambiguous.</li>
+<li>State which components are still required to form the full Transformer block in Chapter 22.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Self-attention alone preserves a permutation symmetry: reordering its inputs reorders its outputs. Positional information breaks that symmetry by changing input representations, attention scores, or both. Absolute positions identify locations; relative positions represent displacement between sequence elements.</p>
+<p>Sinusoidal, learned, relative, rotary, and bias-based approaches provide different position signals and different behaviour outside the training range. Their choice must be treated as part of the model specification, especially when a system claims to handle long contexts.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p><a href="./22-transformer-block.html">Chapter 22</a> combines self-attention and positional information with residual paths, normalisation, and a feed-forward network to define one complete Transformer block.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>The original fixed sinusoidal encoding appears in <span class="citation" data-cites="vaswani2017">Vaswani et al. (<a href="#ref-vaswani2017" role="doc-biblioref">2017</a>)</span>. Relative position representations are developed by <span class="citation" data-cites="shaw2018self">Shaw, Uszkoreit, and Vaswani (<a href="#ref-shaw2018self" role="doc-biblioref">2018</a>)</span>, and rotary position embeddings by <span class="citation" data-cites="su2021roformer">Su et al. (<a href="#ref-su2021roformer" role="doc-biblioref">2021</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-shaw2018self" class="csl-entry" role="listitem">
+Shaw, Peter, Jakob Uszkoreit, and Ashish Vaswani. 2018. <span>“Self-Attention with Relative Position Representations.”</span> In <em>Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</em>, 464–68. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/N18-2074">https://doi.org/10.18653/v1/N18-2074</a>.
+</div>
+<div id="ref-su2021roformer" class="csl-entry" role="listitem">
+Su, Jianlin, Yu Lu, Shengfeng Pan, Ahmed Murtadha, Bo Wen, and Yunfeng Liu. 2021. <span>“RoFormer: Enhanced Transformer with Rotary Position Embedding.”</span> <em>arXiv Preprint arXiv:2104.09864</em>. <a href="https://arxiv.org/abs/2104.09864">https://arxiv.org/abs/2104.09864</a>.
+</div>
+<div id="ref-vaswani2017" class="csl-entry" role="listitem">
+Vaswani, Ashish et al. 2017. <span>“Attention Is All You Need.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 30.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./20-self-attention-multi-head.html" class="pagination-link" aria-label="Self-attention and Multi-head Attention">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Self-attention and Multi-head Attention</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./22-transformer-block.html" class="pagination-link" aria-label="The Transformer Block">
+        <span class="nav-page-text"><span class="chapter-title">The Transformer Block</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Positional Information"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Giving attention a representation of order"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>Self-attention compares representations at different sequence positions, but the operation in Chapter 20 has no intrinsic notion of first, next, or last. If the same input vectors are permuted, ordinary self-attention permutes its outputs in the same way. It cannot on its own distinguish <span class="in">`dog bites person`</span> from <span class="in">`person bites dog`</span>.</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>Positional information changes the representations or attention scores so that location and distance can affect a computation. This chapter compares absolute and relative approaches, derives the original sinusoidal encoding, and explains why position handling becomes a design and evaluation decision at long context lengths. It does not yet assemble residual paths, normalisation, attention, and feed-forward computation into a Transformer block; Chapter 22 does that.</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why self-attention without positional information is permutation-equivariant;</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a token's content representation from its position representation;</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>construct and interpret sinusoidal positional encodings;</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish learned absolute, fixed absolute, relative, rotary, and attention-bias approaches;</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>state where a positional method enters a Transformer computation;</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement a small positional encoding module and test its shape and order contracts;</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why the training context length does not automatically establish reliable performance beyond that range; and</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>report positional conventions when comparing or deploying models.</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running sequence</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>The running sequence contains five content vectors. We will preserve those vectors and change only their positional information. This separates the question of *what* a token represents from the question of *where it appears*.</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-permutation-problem</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Without positional information, permuting input rows permutes self-attention outputs; the operation has no basis for preferring one order over another."</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two three-token sequences with the same coloured token vectors in different orders flow through the same attention box and emerge in correspondingly permuted order."</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7655a6"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.1</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[(<span class="st">"A"</span>,blue),(<span class="st">"B"</span>,orange),(<span class="st">"C"</span>,teal)]</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,order <span class="kw">in</span> <span class="bu">enumerate</span>([[<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>],[<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">1</span>]]):</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">3.1</span><span class="op">-</span>row<span class="op">*</span><span class="fl">2.25</span></span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.15</span>,y<span class="op">+</span><span class="fl">.27</span>,<span class="st">"input"</span> <span class="cf">if</span> row<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">"permuted input"</span>,ha<span class="op">=</span><span class="st">"left"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j,idx <span class="kw">in</span> <span class="bu">enumerate</span>(order):</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">1.25</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.9</span><span class="op">;</span> label,colour<span class="op">=</span>tokens[idx]</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,y),<span class="fl">.66</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.33</span>,y<span class="op">+</span><span class="fl">.27</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">4.1</span>,y<span class="op">+</span><span class="fl">.27</span>),(<span class="fl">5.05</span>,y<span class="op">+</span><span class="fl">.27</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">13</span>,color<span class="op">=</span>grey))</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">5.1</span>,y<span class="op">-</span><span class="fl">.04</span>),<span class="fl">1.55</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.875</span>,y<span class="op">+</span><span class="fl">.27</span>,<span class="st">"self-attention"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">6.7</span>,y<span class="op">+</span><span class="fl">.27</span>),(<span class="fl">7.62</span>,y<span class="op">+</span><span class="fl">.27</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">13</span>,color<span class="op">=</span>grey))</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j,idx <span class="kw">in</span> <span class="bu">enumerate</span>(order):</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">7.7</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.7</span><span class="op">;</span> label,colour<span class="op">=</span>tokens[idx]</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,y),<span class="fl">.53</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.265</span>,y<span class="op">+</span><span class="fl">.27</span>,label<span class="op">+</span><span class="st">"'"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.9</span>,<span class="fl">.25</span>,<span class="st">"The output relation changes only by the same permutation."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">10.1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">4</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="fu">### Attention needs order supplied to it</span></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>Self-attention receives a collection of vectors and computes similarities between them. Its query-key calculation can decide that two vectors match, but it does not contain a clock or an index. A causal mask tells a decoder which positions are allowed to use which other positions, but it does not tell the model how far apart two allowed positions are or which content vector occupied an earlier slot.</span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>The distinction is operational. A word embedding can represent the token <span class="in">`bank`</span>; a positional representation can indicate that this occurrence is third in a sequence. A model commonly combines the two before attention. The resulting input says both something about the item and something about its location.</span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a><span class="fu">### Location and distance answer different questions</span></span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>Absolute position asks where a token is: position 0, 1, or 500. Relative position asks how two tokens are related: adjacent, ten positions apart, or in a particular order. Both may help, but they make different assumptions. A learned table of absolute vectors associates a parameter with each training position. A relative method can make an attention score depend directly on the displacement $j-t$ between query $t$ and key $j$.</span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-absolute-relative</span></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Absolute positions label individual locations; relative positions label the displacement between a query and a key."</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Five positions are shown in a row with absolute labels zero through four. Arrows from position four to positions one and three are labelled minus three and minus one."</span></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">2.9</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="dv">1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.7</span></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.15</span>),<span class="fl">.8</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.4</span>,<span class="fl">1.425</span>,<span class="ss">f"token </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>    ax.text(x<span class="op">+</span><span class="fl">.4</span>,<span class="fl">.82</span>,<span class="ss">f"absolute </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> key,colour <span class="kw">in</span> [(<span class="dv">0</span>,orange),(<span class="dv">2</span>,teal)]:</span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">6.8</span>,<span class="fl">1.12</span>),(<span class="dv">1</span><span class="op">+</span>key<span class="op">*</span><span class="fl">1.7</span><span class="op">+</span><span class="fl">.4</span>,<span class="fl">1.12</span>),connectionstyle<span class="op">=</span><span class="st">"arc3,rad=.35"</span>,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>colour))</span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>    ax.text((<span class="fl">6.8</span><span class="op">+</span><span class="dv">1</span><span class="op">+</span>key<span class="op">*</span><span class="fl">1.7</span><span class="op">+</span><span class="fl">.4</span>)<span class="op">/</span><span class="dv">2</span>,<span class="fl">2.18</span>,<span class="ss">f"relative </span><span class="sc">{</span>key<span class="op">-</span><span class="dv">3</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>colour)</span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">6.8</span>,<span class="fl">.36</span>,<span class="st">"query at absolute 3"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)</span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.3</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">2.6</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a>Position does not turn attention into grammar or guarantee that a model uses order correctly. It makes order available as an input feature. Training still determines whether a model learns a useful dependence and whether that dependence transfers to a new sequence length or domain.</span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a>Level 1 identified the missing signal. Level 2 makes the common ways of inserting that signal explicit.</span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a><span class="fu">### Absolute encodings are added to content vectors</span></span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a>For a token representation $e_t\in\mathbb{R}^{D}$ and a positional vector $p_t\in\mathbb{R}^{D}$, the usual absolute construction is</span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a>$$x_t=e_t+p_t.$$</span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a>The sum has the same width as the original token vector, so the query, key, and value projections from Chapter 20 do not need a new input interface. Addition also means the model must learn to use the combined representation; it does not preserve a separately labelled position field.</span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a>The original Transformer used fixed sinusoidal vectors <span class="co">[</span><span class="ot">@vaswani2017</span><span class="co">]</span>. For coordinate pair $i$ and position $t$,</span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a>$$p_{t,2i}=\sin\left(t/10000^{2i/D}\right),\qquad p_{t,2i+1}=\cos\left(t/10000^{2i/D}\right).$$</span>
+<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a>Different coordinate pairs vary at different rates. Nearby positions therefore have related, but not identical, vectors. The formula contains no learned position-table parameters and can be evaluated for a position not observed during training.</span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-sinusoidal-positions</span></span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Sinusoidal positional coordinates vary at different frequencies, creating a distinct fixed vector for each displayed position."</span></span>
+<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Four curves, two fast and two slow sine or cosine waves, are plotted across positions zero to thirty-one."</span></span>
+<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>np.arange(<span class="dv">32</span>)<span class="op">;</span> width<span class="op">=</span><span class="dv">8</span></span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a>angles<span class="op">=</span>positions[:,<span class="va">None</span>]<span class="op">/</span>np.power(<span class="dv">10000</span>,(<span class="dv">2</span><span class="op">*</span>np.arange(width<span class="op">//</span><span class="dv">2</span>))<span class="op">/</span>width)</span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a>pe<span class="op">=</span>np.empty((<span class="bu">len</span>(positions),width))<span class="op">;</span> pe[:,<span class="dv">0</span>::<span class="dv">2</span>]<span class="op">=</span>np.sin(angles)<span class="op">;</span> pe[:,<span class="dv">1</span>::<span class="dv">2</span>]<span class="op">=</span>np.cos(angles)</span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.1</span>))</span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> d <span class="kw">in</span> [<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">5</span>]: ax.plot(positions,pe[:,d],label<span class="op">=</span><span class="ss">f"coordinate </span><span class="sc">{</span>d<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Position"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Positional value"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Fixed sinusoidal coordinates"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learned tables trade an explicit rule for fitted parameters</span></span>
+<span id="cb11-126"><a href="#cb11-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-127"><a href="#cb11-127" aria-hidden="true" tabindex="-1"></a>A learned absolute table stores $P\in\mathbb{R}^{L\times D}$ for a configured maximum length $L$. At position $t&lt;L$, the model retrieves row $P_t$ and adds it to $e_t$. This gives training freedom to fit position-specific patterns, but positions outside the table need an explicit policy: failure, truncation, interpolation, or a different method. Simply increasing an index at inference is not a valid implementation when the parameter table ends at $L-1$.</span>
+<span id="cb11-128"><a href="#cb11-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a>The distinction between a configured maximum and an observed maximum is useful. A table might have rows for 2,048 locations, while training examples rarely extend beyond 512 tokens. Rows near the table boundary can then receive much less direct training signal than early rows. Conversely, a fixed formula assigns a vector at every integer position but does not make those positions familiar to the rest of the trained network. Both cases require evidence at the intended lengths.</span>
+<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-table-boundary</span></span>
+<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A learned absolute position table has a finite index range; a fixed formula can be evaluated beyond it, although neither fact establishes model quality at longer lengths."</span></span>
+<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A row of table cells labelled zero through seven ends at a red boundary, while a sinusoidal curve continues beyond that boundary."</span></span>
+<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>):</span>
+<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.6</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.82</span>,<span class="fl">1.35</span>),<span class="fl">.68</span>,<span class="fl">.52</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.94</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.82</span>,<span class="fl">1.61</span>,<span class="bu">str</span>(i),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb11-140"><a href="#cb11-140" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="fl">7.32</span>,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> ax.text(<span class="fl">7.38</span>,<span class="fl">2.08</span>,<span class="st">"learned-table boundary"</span>,color<span class="op">=</span>orange,ha<span class="op">=</span><span class="st">"left"</span>)</span>
+<span id="cb11-141"><a href="#cb11-141" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.linspace(<span class="fl">.6</span>,<span class="fl">9.35</span>,<span class="dv">250</span>)<span class="op">;</span> y<span class="op">=</span><span class="fl">.55</span><span class="op">+</span><span class="fl">.23</span><span class="op">*</span>np.sin(<span class="fl">2.2</span><span class="op">*</span>x)</span>
+<span id="cb11-142"><a href="#cb11-142" aria-hidden="true" tabindex="-1"></a>ax.plot(x,y,color<span class="op">=</span>teal,linewidth<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> ax.text(<span class="fl">8.8</span>,<span class="fl">.2</span>,<span class="st">"fixed formula"</span>,color<span class="op">=</span>teal,ha<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb11-143"><a href="#cb11-143" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.5</span>,<span class="fl">2.42</span>,<span class="st">"available learned indices"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb11-144"><a href="#cb11-144" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.2</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">2.7</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb11-145"><a href="#cb11-145" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-146"><a href="#cb11-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-147"><a href="#cb11-147" aria-hidden="true" tabindex="-1"></a><span class="fu">### Relative methods enter the attention relation</span></span>
+<span id="cb11-148"><a href="#cb11-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-149"><a href="#cb11-149" aria-hidden="true" tabindex="-1"></a>Relative position methods alter the query-key relation rather than only the input vectors. One simplified score construction is</span>
+<span id="cb11-150"><a href="#cb11-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-151"><a href="#cb11-151" aria-hidden="true" tabindex="-1"></a>$$s_{t,j}=\frac{q_t k_j^\top+q_t r_{j-t}^\top}{\sqrt{D_k}},$$</span>
+<span id="cb11-152"><a href="#cb11-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-153"><a href="#cb11-153" aria-hidden="true" tabindex="-1"></a>where $r_{j-t}$ represents the relative displacement. The first term compares content; the second can make the score depend on distance and direction. Shaw, Uszkoreit, and Vaswani add learned relative representations to self-attention, rather than relying only on absolute input positions <span class="co">[</span><span class="ot">@shaw2018self</span><span class="co">]</span>.</span>
+<span id="cb11-154"><a href="#cb11-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-155"><a href="#cb11-155" aria-hidden="true" tabindex="-1"></a>Implementations cannot always store one independent relation for every possible distance. They may clip displacement to a range, map many distances into buckets, or use a formula. Clipping $j-t$ at $\pm K$ makes all distances beyond $K$ share a representation. This saves parameters and can pool sparse evidence, but it removes distinctions among those more distant positions. The chosen boundary is therefore part of the model's representation, not a neutral memory optimisation.</span>
+<span id="cb11-156"><a href="#cb11-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-160"><a href="#cb11-160" aria-hidden="true" tabindex="-1"></a>content<span class="op">=</span>np.array([[<span class="fl">.8</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>],[<span class="fl">.6</span>,<span class="fl">.5</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>]])</span>
+<span id="cb11-161"><a href="#cb11-161" aria-hidden="true" tabindex="-1"></a>absolute<span class="op">=</span>pe[:<span class="dv">4</span>,:<span class="dv">2</span>]</span>
+<span id="cb11-162"><a href="#cb11-162" aria-hidden="true" tabindex="-1"></a>combined<span class="op">=</span>content<span class="op">+</span>absolute</span>
+<span id="cb11-163"><a href="#cb11-163" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"content at position 0:"</span>,content[<span class="dv">0</span>].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb11-164"><a href="#cb11-164" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"positional vector at position 0:"</span>,absolute[<span class="dv">0</span>].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb11-165"><a href="#cb11-165" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"combined input at position 0:"</span>,combined[<span class="dv">0</span>].<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb11-166"><a href="#cb11-166" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same content at another position changes input:"</span>,np.allclose(combined[<span class="dv">0</span>],content[<span class="dv">0</span>]<span class="op">+</span>pe[<span class="dv">1</span>,:<span class="dv">2</span>]))</span>
+<span id="cb11-167"><a href="#cb11-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-168"><a href="#cb11-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-169"><a href="#cb11-169" aria-hidden="true" tabindex="-1"></a>The final line is intentionally <span class="in">`False`</span>: moving unchanged content to another position changes its input to attention. That is the mechanism by which an absolute encoding breaks the permutation symmetry in the opening figure.</span>
+<span id="cb11-170"><a href="#cb11-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-171"><a href="#cb11-171" aria-hidden="true" tabindex="-1"></a>Level 2 has located positional information either at the layer input or in the attention relation. Level 3 checks those claims with small numerical and implementation tests.</span>
+<span id="cb11-172"><a href="#cb11-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-173"><a href="#cb11-173" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb11-174"><a href="#cb11-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-175"><a href="#cb11-175" aria-hidden="true" tabindex="-1"></a><span class="fu">### A permutation test states the original limitation precisely</span></span>
+<span id="cb11-176"><a href="#cb11-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-177"><a href="#cb11-177" aria-hidden="true" tabindex="-1"></a>Let $F$ denote an attention layer with no positional mechanism and let $\Pi$ be a permutation matrix that reorders sequence rows. For standard self-attention without a position-dependent mask,</span>
+<span id="cb11-178"><a href="#cb11-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-179"><a href="#cb11-179" aria-hidden="true" tabindex="-1"></a>$$F(\Pi X)=\Pi F(X).$$</span>
+<span id="cb11-180"><a href="#cb11-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-181"><a href="#cb11-181" aria-hidden="true" tabindex="-1"></a>This is permutation equivariance, not invariance: the output does change, but only by being rearranged in the same manner as the input. If a subsequent task needs different outputs for different orders of the same content, the model requires a position signal.</span>
+<span id="cb11-182"><a href="#cb11-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-185"><a href="#cb11-185" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-186"><a href="#cb11-186" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb11-187"><a href="#cb11-187" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb11-188"><a href="#cb11-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-189"><a href="#cb11-189" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">21</span>)</span>
+<span id="cb11-190"><a href="#cb11-190" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> perm<span class="op">=</span>torch.tensor([<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">3</span>,<span class="dv">1</span>])</span>
+<span id="cb11-191"><a href="#cb11-191" aria-hidden="true" tabindex="-1"></a>attention<span class="op">=</span>nn.MultiheadAttention(embed_dim<span class="op">=</span><span class="dv">6</span>,num_heads<span class="op">=</span><span class="dv">2</span>,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>)</span>
+<span id="cb11-192"><a href="#cb11-192" aria-hidden="true" tabindex="-1"></a>out,_<span class="op">=</span>attention(x,x,x,need_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-193"><a href="#cb11-193" aria-hidden="true" tabindex="-1"></a>out_perm,_<span class="op">=</span>attention(x[:,perm],x[:,perm],x[:,perm],need_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-194"><a href="#cb11-194" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"attention respects input permutation:"</span>,torch.allclose(out_perm,out[:,perm],atol<span class="op">=</span><span class="fl">1e-6</span>))</span>
+<span id="cb11-195"><a href="#cb11-195" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-196"><a href="#cb11-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a>The check holds because the same attention layer is applied after reordering every query, key, and value row. It is a useful unit test for a reference implementation. A causal mask changes the symmetry because eligibility now depends on row order, but it still does not supply a representation of distances among eligible positions.</span>
+<span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a><span class="fu">### A fixed positional module has a clear input-output contract</span></span>
+<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-204"><a href="#cb11-204" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SinusoidalPosition(nn.Module):</span>
+<span id="cb11-205"><a href="#cb11-205" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>,width,max_length<span class="op">=</span><span class="dv">512</span>):</span>
+<span id="cb11-206"><a href="#cb11-206" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb11-207"><a href="#cb11-207" aria-hidden="true" tabindex="-1"></a>        position<span class="op">=</span>torch.arange(max_length,dtype<span class="op">=</span>torch.float32).unsqueeze(<span class="dv">1</span>)</span>
+<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a>        frequency<span class="op">=</span>torch.exp(torch.arange(<span class="dv">0</span>,width,<span class="dv">2</span>,dtype<span class="op">=</span>torch.float32)<span class="op">*</span>(<span class="op">-</span>np.log(<span class="fl">10000.0</span>)<span class="op">/</span>width))</span>
+<span id="cb11-209"><a href="#cb11-209" aria-hidden="true" tabindex="-1"></a>        table<span class="op">=</span>torch.zeros(max_length,width)</span>
+<span id="cb11-210"><a href="#cb11-210" aria-hidden="true" tabindex="-1"></a>        table[:,<span class="dv">0</span>::<span class="dv">2</span>]<span class="op">=</span>torch.sin(position<span class="op">*</span>frequency)</span>
+<span id="cb11-211"><a href="#cb11-211" aria-hidden="true" tabindex="-1"></a>        table[:,<span class="dv">1</span>::<span class="dv">2</span>]<span class="op">=</span>torch.cos(position<span class="op">*</span>frequency)</span>
+<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.register_buffer(<span class="st">"table"</span>,table.unsqueeze(<span class="dv">0</span>),persistent<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>,x,offset<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a>        _,length,width<span class="op">=</span>x.shape</span>
+<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> offset<span class="op">+</span>length<span class="op">&gt;</span><span class="va">self</span>.table.shape[<span class="dv">1</span>]: <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"position table too short"</span>)</span>
+<span id="cb11-216"><a href="#cb11-216" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x<span class="op">+</span><span class="va">self</span>.table[:,offset:offset<span class="op">+</span>length,:].to(dtype<span class="op">=</span>x.dtype,device<span class="op">=</span>x.device)</span>
+<span id="cb11-217"><a href="#cb11-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-218"><a href="#cb11-218" aria-hidden="true" tabindex="-1"></a>module<span class="op">=</span>SinusoidalPosition(width<span class="op">=</span><span class="dv">6</span>,max_length<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb11-219"><a href="#cb11-219" aria-hidden="true" tabindex="-1"></a>base<span class="op">=</span>torch.zeros(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> positioned<span class="op">=</span>module(base)</span>
+<span id="cb11-220"><a href="#cb11-220" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"shape:"</span>,<span class="bu">tuple</span>(positioned.shape))</span>
+<span id="cb11-221"><a href="#cb11-221" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"positions 0 and 1 differ:"</span>,<span class="kw">not</span> torch.allclose(positioned[:,<span class="dv">0</span>],positioned[:,<span class="dv">1</span>]))</span>
+<span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same position is shared across batch:"</span>,torch.allclose(positioned[<span class="dv">0</span>,<span class="dv">2</span>],positioned[<span class="dv">1</span>,<span class="dv">2</span>]))</span>
+<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a><span class="in">`register_buffer`</span> stores fixed values with the module so they follow device moves and checkpoint conventions without becoming optimised parameters. The <span class="in">`offset`</span> argument matters during cached autoregressive inference: a newly generated token must receive its global position, not position zero of a short one-token call.</span>
+<span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a>The offset contract is easy to state and easy to violate. If a sequence's first four tokens have already been processed, a one-token continuation has sequence length one in the present call but global position four. Reusing the position-zero vector changes its query and key representation. The error can leave tensor shapes valid while making cached generation disagree with a full forward pass.</span>
+<span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-231"><a href="#cb11-231" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-232"><a href="#cb11-232" aria-hidden="true" tabindex="-1"></a>prefix<span class="op">=</span>torch.zeros(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> next_token<span class="op">=</span>torch.zeros(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">6</span>)</span>
+<span id="cb11-233"><a href="#cb11-233" aria-hidden="true" tabindex="-1"></a>full<span class="op">=</span>module(torch.zeros(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">6</span>))[:,<span class="dv">4</span>]</span>
+<span id="cb11-234"><a href="#cb11-234" aria-hidden="true" tabindex="-1"></a>cached_correct<span class="op">=</span>module(next_token,offset<span class="op">=</span><span class="dv">4</span>)[:,<span class="dv">0</span>]</span>
+<span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a>cached_wrong<span class="op">=</span>module(next_token,offset<span class="op">=</span><span class="dv">0</span>)[:,<span class="dv">0</span>]</span>
+<span id="cb11-236"><a href="#cb11-236" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"correct cache offset agrees with full sequence:"</span>,torch.allclose(full,cached_correct))</span>
+<span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reusing position zero disagrees:"</span>,<span class="kw">not</span> torch.allclose(full,cached_wrong))</span>
+<span id="cb11-238"><a href="#cb11-238" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-239"><a href="#cb11-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-240"><a href="#cb11-240" aria-hidden="true" tabindex="-1"></a><span class="fu">### Rotary position embeddings rotate query and key pairs</span></span>
+<span id="cb11-241"><a href="#cb11-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-242"><a href="#cb11-242" aria-hidden="true" tabindex="-1"></a>Rotary position embeddings (RoPE) apply a position-dependent two-dimensional rotation to adjacent query and key coordinates. For a coordinate pair $(u,v)$ and angle $\theta_t$,</span>
+<span id="cb11-243"><a href="#cb11-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-244"><a href="#cb11-244" aria-hidden="true" tabindex="-1"></a>$$R_t\begin{bmatrix}u<span class="sc">\\</span>v\end{bmatrix}=\begin{bmatrix}\cos\theta_t&amp;-\sin\theta_t<span class="sc">\\</span> \sin\theta_t&amp;\cos\theta_t\end{bmatrix}\begin{bmatrix}u<span class="sc">\\</span>v\end{bmatrix}.$$</span>
+<span id="cb11-245"><a href="#cb11-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-246"><a href="#cb11-246" aria-hidden="true" tabindex="-1"></a>Rotating both a query at $t$ and a key at $j$ makes their dot product depend on their relative displacement under the chosen frequency construction. RoPE therefore inserts position into the attention comparison itself <span class="co">[</span><span class="ot">@su2021roformer</span><span class="co">]</span>.</span>
+<span id="cb11-247"><a href="#cb11-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-250"><a href="#cb11-250" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-251"><a href="#cb11-251" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rotate_pairs(x,positions,base<span class="op">=</span><span class="fl">10000.0</span>):</span>
+<span id="cb11-252"><a href="#cb11-252" aria-hidden="true" tabindex="-1"></a>    <span class="co"># x has shape (sequence, even_width); positions has shape (sequence,)</span></span>
+<span id="cb11-253"><a href="#cb11-253" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span>x.shape[<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> freq<span class="op">=</span><span class="fl">1.0</span><span class="op">/</span>(base<span class="op">**</span>(np.arange(<span class="dv">0</span>,width,<span class="dv">2</span>)<span class="op">/</span>width))</span>
+<span id="cb11-254"><a href="#cb11-254" aria-hidden="true" tabindex="-1"></a>    angle<span class="op">=</span>positions[:,<span class="va">None</span>]<span class="op">*</span>freq<span class="op">;</span> c,s<span class="op">=</span>np.cos(angle),np.sin(angle)</span>
+<span id="cb11-255"><a href="#cb11-255" aria-hidden="true" tabindex="-1"></a>    even,odd<span class="op">=</span>x[:,<span class="dv">0</span>::<span class="dv">2</span>],x[:,<span class="dv">1</span>::<span class="dv">2</span>]</span>
+<span id="cb11-256"><a href="#cb11-256" aria-hidden="true" tabindex="-1"></a>    out<span class="op">=</span>np.empty_like(x)<span class="op">;</span> out[:,<span class="dv">0</span>::<span class="dv">2</span>]<span class="op">=</span>even<span class="op">*</span>c<span class="op">-</span>odd<span class="op">*</span>s<span class="op">;</span> out[:,<span class="dv">1</span>::<span class="dv">2</span>]<span class="op">=</span>even<span class="op">*</span>s<span class="op">+</span>odd<span class="op">*</span>c</span>
+<span id="cb11-257"><a href="#cb11-257" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb11-258"><a href="#cb11-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-259"><a href="#cb11-259" aria-hidden="true" tabindex="-1"></a>q<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">.4</span>,<span class="op">-</span><span class="fl">.2</span>]])<span class="op">;</span> k<span class="op">=</span>np.array([[<span class="fl">.7</span>,<span class="fl">.5</span>,<span class="op">-</span><span class="fl">.1</span>,<span class="fl">.9</span>]])</span>
+<span id="cb11-260"><a href="#cb11-260" aria-hidden="true" tabindex="-1"></a>q_at_3<span class="op">=</span>rotate_pairs(q,np.array([<span class="dv">3</span>]))<span class="op">;</span> k_at_5<span class="op">=</span>rotate_pairs(k,np.array([<span class="dv">5</span>]))</span>
+<span id="cb11-261"><a href="#cb11-261" aria-hidden="true" tabindex="-1"></a>q_at_8<span class="op">=</span>rotate_pairs(q,np.array([<span class="dv">8</span>]))<span class="op">;</span> k_at_10<span class="op">=</span>rotate_pairs(k,np.array([<span class="dv">10</span>]))</span>
+<span id="cb11-262"><a href="#cb11-262" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same relative displacement gives same dot product:"</span>,np.allclose(q_at_3<span class="op">@</span>k_at_5.T,q_at_8<span class="op">@</span>k_at_10.T))</span>
+<span id="cb11-263"><a href="#cb11-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-264"><a href="#cb11-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-265"><a href="#cb11-265" aria-hidden="true" tabindex="-1"></a>The test uses pairs with equal relative displacement ($5-3=10-8$). It tests a mathematical property of this small implementation, not a claim that a trained model treats every equal-distance relation alike.</span>
+<span id="cb11-266"><a href="#cb11-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-267"><a href="#cb11-267" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb11-268"><a href="#cb11-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-269"><a href="#cb11-269" aria-hidden="true" tabindex="-1"></a><span class="fu">### Position methods encode different extrapolation assumptions</span></span>
+<span id="cb11-270"><a href="#cb11-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-271"><a href="#cb11-271" aria-hidden="true" tabindex="-1"></a>Fixed sinusoids can be computed beyond a training length, but this does not demonstrate that a trained model will use those unseen combinations reliably. Learned absolute tables have a hard parameter boundary unless the implementation changes or extends them. Relative and rotary methods may be more compatible with length variation, but their practical behaviour depends on the training distribution, frequency choices, optimisation, attention masks, and the task. A model card or evaluation report should therefore name both the configured context limit and the lengths on which performance was measured.</span>
+<span id="cb11-272"><a href="#cb11-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-273"><a href="#cb11-273" aria-hidden="true" tabindex="-1"></a>Attention biases provide another family of designs. A bias $b_{j-t}$ can be added directly to a score before softmax, favouring or penalising selected relative distances without adding a vector to the value mixture. Linear distance biases and bucketed relative distances reduce or structure the number of position-dependent parameters. These methods are not interchangeable: they offer different information to different parts of the computation.</span>
+<span id="cb11-274"><a href="#cb11-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-275"><a href="#cb11-275" aria-hidden="true" tabindex="-1"></a>Relative methods also require a direction convention. In a causal decoder, a previous key has $j-t&lt;0$ if the score is indexed as query minus key in the opposite order, or $j-t&gt;0$ under another implementation. The sign itself does not carry a universal meaning; the code, mask, and documentation must agree. A reversed sign can silently make a trained relative table associate one distance class with the wrong direction.</span>
+<span id="cb11-276"><a href="#cb11-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-279"><a href="#cb11-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-280"><a href="#cb11-280" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-relative-bias</span></span>
+<span id="cb11-281"><a href="#cb11-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A relative attention bias can change score preference by distance before softmax, while content scores remain unchanged."</span></span>
+<span id="cb11-282"><a href="#cb11-282" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two line charts compare unmodified equal content scores with scores after a negative distance-proportional bias, which favours nearby keys."</span></span>
+<span id="cb11-283"><a href="#cb11-283" aria-hidden="true" tabindex="-1"></a>distance<span class="op">=</span>np.arange(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> content_score<span class="op">=</span>np.zeros_like(distance,dtype<span class="op">=</span><span class="bu">float</span>)<span class="op">;</span> bias<span class="op">=-</span><span class="fl">.35</span><span class="op">*</span>distance</span>
+<span id="cb11-284"><a href="#cb11-284" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))</span>
+<span id="cb11-285"><a href="#cb11-285" aria-hidden="true" tabindex="-1"></a>ax.plot(distance,content_score,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"content contribution"</span>,color<span class="op">=</span>blue)</span>
+<span id="cb11-286"><a href="#cb11-286" aria-hidden="true" tabindex="-1"></a>ax.plot(distance,content_score<span class="op">+</span>bias,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"after relative bias"</span>,color<span class="op">=</span>orange)</span>
+<span id="cb11-287"><a href="#cb11-287" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Absolute query-key distance"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Score before softmax"</span>)<span class="op">;</span> ax.set_title(<span class="st">"A score bias changes distance preference"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-288"><a href="#cb11-288" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-289"><a href="#cb11-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-290"><a href="#cb11-290" aria-hidden="true" tabindex="-1"></a><span class="fu">### Long-context claims require positional audits</span></span>
+<span id="cb11-291"><a href="#cb11-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-292"><a href="#cb11-292" aria-hidden="true" tabindex="-1"></a>Extending a context window changes more than a maximum index. It changes the number of attention pairs, the distribution of relative distances, cache memory, and possibly the position regime on which the model was trained. Interpolation, frequency rescaling, continued training, and architecture-specific modifications are choices with empirical consequences. Their effect can differ between retrieval, copying, local syntax, long-document summarisation, and multi-step generation.</span>
+<span id="cb11-293"><a href="#cb11-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-294"><a href="#cb11-294" aria-hidden="true" tabindex="-1"></a>The relevant test is task-specific. A short answer at the end of a long context may depend only on recent tokens; a successful test there does not establish retrieval from the middle of a document. Evaluation should place controlled information at varied absolute locations and varied relative distances, use enough distractors to make retrieval non-trivial, and report performance by length rather than only a pooled average. It should also separate failure to fit in memory from a change in output quality.</span>
+<span id="cb11-295"><a href="#cb11-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-296"><a href="#cb11-296" aria-hidden="true" tabindex="-1"></a>An audit should record the position method; whether positions are absolute or relative; table size or frequency formula; indexing origin; padding convention; treatment of packed sequences; causal offset; cache offset; configured and trained lengths; evaluation lengths; and any scaling or interpolation rule. Tests should include moving the same content to a different location, checking cached and non-cached logits at matched positions, and verifying that padded locations neither receive nor influence valid-token output.</span>
+<span id="cb11-297"><a href="#cb11-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-298"><a href="#cb11-298" aria-hidden="true" tabindex="-1"></a><span class="fu">### Position signals are not complete explanations</span></span>
+<span id="cb11-299"><a href="#cb11-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-300"><a href="#cb11-300" aria-hidden="true" tabindex="-1"></a>Attention maps may change after a positional intervention because position affects queries and keys, values, or an additive score term depending on the design. That does not identify a single linguistic or semantic mechanism. A valid claim should specify the architecture, position method, intervention, evaluation set, and measured output difference. It should not infer an explanation from a periodic curve or one attractive attention heatmap.</span>
+<span id="cb11-301"><a href="#cb11-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-302"><a href="#cb11-302" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb11-303"><a href="#cb11-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-304"><a href="#cb11-304" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A causal mask gives attention a full notion of order.** It supplies an eligibility boundary, not distances or absolute locations.</span>
+<span id="cb11-305"><a href="#cb11-305" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Adding positions means every order-sensitive task is solved.** It makes order available; learning and transfer still depend on data and optimisation.</span>
+<span id="cb11-306"><a href="#cb11-306" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Sinusoidal encodings guarantee long-context generalisation.** They can be evaluated at new positions, but model behaviour there remains empirical.</span>
+<span id="cb11-307"><a href="#cb11-307" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Learned absolute positions are values in the input text.** They are model parameters indexed by location.</span>
+<span id="cb11-308"><a href="#cb11-308" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Relative position and absolute position are the same representation with different names.** They answer different computational questions.</span>
+<span id="cb11-309"><a href="#cb11-309" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**RoPE rotates token values.** In the usual construction it rotates query and key coordinate pairs before score calculation.</span>
+<span id="cb11-310"><a href="#cb11-310" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**An attention bias changes the value retrieved from a token.** It changes the score preference before weights are computed.</span>
+<span id="cb11-311"><a href="#cb11-311" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A longer configured context proves a longer usable context.** Evaluation must test the relevant lengths and tasks.</span>
+<span id="cb11-312"><a href="#cb11-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-313"><a href="#cb11-313" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb11-314"><a href="#cb11-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-315"><a href="#cb11-315" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Explain, using a permutation matrix, why self-attention without position is permutation-equivariant.</span>
+<span id="cb11-316"><a href="#cb11-316" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Construct sinusoidal vectors of width eight for positions zero through three.</span>
+<span id="cb11-317"><a href="#cb11-317" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Plot cosine similarity between the position-zero vector and later sinusoidal vectors.</span>
+<span id="cb11-318"><a href="#cb11-318" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>State the parameter count for a learned absolute table with length 2,048 and width 768.</span>
+<span id="cb11-319"><a href="#cb11-319" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Implement an explicit failure test when an input exceeds a learned table's maximum length.</span>
+<span id="cb11-320"><a href="#cb11-320" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Explain why adding absolute vectors preserves model width.</span>
+<span id="cb11-321"><a href="#cb11-321" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Derive the matrix form of the two-dimensional rotary rotation.</span>
+<span id="cb11-322"><a href="#cb11-322" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Verify numerically that the rotary code preserves the norm of each coordinate pair.</span>
+<span id="cb11-323"><a href="#cb11-323" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Test cached and un-cached positional offsets for a short causal sequence.</span>
+<span id="cb11-324"><a href="#cb11-324" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Implement a clipped relative-distance lookup and state what information clipping loses.</span>
+<span id="cb11-325"><a href="#cb11-325" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Compare score matrices with and without a distance bias when content scores are identical.</span>
+<span id="cb11-326"><a href="#cb11-326" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Explain why a causal mask and a relative-position method have separate responsibilities.</span>
+<span id="cb11-327"><a href="#cb11-327" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Design an evaluation that distinguishes short-range from long-range positional use.</span>
+<span id="cb11-328"><a href="#cb11-328" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Report the positional metadata needed to reproduce a long-context result.</span>
+<span id="cb11-329"><a href="#cb11-329" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Identify one way packed sequences can make position indexing ambiguous.</span>
+<span id="cb11-330"><a href="#cb11-330" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>State which components are still required to form the full Transformer block in Chapter 22.</span>
+<span id="cb11-331"><a href="#cb11-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-332"><a href="#cb11-332" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb11-333"><a href="#cb11-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-334"><a href="#cb11-334" aria-hidden="true" tabindex="-1"></a>Self-attention alone preserves a permutation symmetry: reordering its inputs reorders its outputs. Positional information breaks that symmetry by changing input representations, attention scores, or both. Absolute positions identify locations; relative positions represent displacement between sequence elements.</span>
+<span id="cb11-335"><a href="#cb11-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-336"><a href="#cb11-336" aria-hidden="true" tabindex="-1"></a>Sinusoidal, learned, relative, rotary, and bias-based approaches provide different position signals and different behaviour outside the training range. Their choice must be treated as part of the model specification, especially when a system claims to handle long contexts.</span>
+<span id="cb11-337"><a href="#cb11-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-338"><a href="#cb11-338" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb11-339"><a href="#cb11-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-340"><a href="#cb11-340" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 22</span><span class="co">](22-transformer-block.qmd)</span> combines self-attention and positional information with residual paths, normalisation, and a feed-forward network to define one complete Transformer block.</span>
+<span id="cb11-341"><a href="#cb11-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-342"><a href="#cb11-342" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb11-343"><a href="#cb11-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-344"><a href="#cb11-344" aria-hidden="true" tabindex="-1"></a>The original fixed sinusoidal encoding appears in @vaswani2017. Relative position representations are developed by @shaw2018self, and rotary position embeddings by @su2021roformer.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

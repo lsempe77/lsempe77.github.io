@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>The Transformer Block – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./23-encoder-decoder-models.html" rel="next">
+<link href="./21-positional-information.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-navigation.css"></head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./22-transformer-block.html"><span class="chapter-title">The Transformer Block</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-tensor" id="toc-running-tensor" class="nav-link" data-scroll-target="#running-tensor">Running tensor</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#a-block-revises-a-representation-twice" id="toc-a-block-revises-a-representation-twice" class="nav-link" data-scroll-target="#a-block-revises-a-representation-twice">A block revises a representation twice</a></li>
+  <li><a href="#residual-paths-preserve-an-update-route" id="toc-residual-paths-preserve-an-update-route" class="nav-link" data-scroll-target="#residual-paths-preserve-an-update-route">Residual paths preserve an update route</a></li>
+  <li><a href="#normalisation-and-the-feed-forward-network-have-different-jobs" id="toc-normalisation-and-the-feed-forward-network-have-different-jobs" class="nav-link" data-scroll-target="#normalisation-and-the-feed-forward-network-have-different-jobs">Normalisation and the feed-forward network have different jobs</a></li>
+  </ul></li>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
+  <ul class="collapse">
+  <li><a href="#pre-norm-places-normalisation-before-each-branch" id="toc-pre-norm-places-normalisation-before-each-branch" class="nav-link" data-scroll-target="#pre-norm-places-normalisation-before-each-branch">Pre-norm places normalisation before each branch</a></li>
+  <li><a href="#layer-normalisation-uses-each-tokens-feature-coordinates" id="toc-layer-normalisation-uses-each-tokens-feature-coordinates" class="nav-link" data-scroll-target="#layer-normalisation-uses-each-tokens-feature-coordinates">Layer normalisation uses each token’s feature coordinates</a></li>
+  <li><a href="#the-feed-forward-network-mixes-features-not-tokens" id="toc-the-feed-forward-network-mixes-features-not-tokens" class="nav-link" data-scroll-target="#the-feed-forward-network-mixes-features-not-tokens">The feed-forward network mixes features, not tokens</a></li>
+  </ul></li>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
+  <ul class="collapse">
+  <li><a href="#post-norm-and-pre-norm-are-different-functions" id="toc-post-norm-and-pre-norm-are-different-functions" class="nav-link" data-scroll-target="#post-norm-and-pre-norm-are-different-functions">Post-norm and pre-norm are different functions</a></li>
+  <li><a href="#a-compact-causal-pre-norm-block-makes-the-branches-visible" id="toc-a-compact-causal-pre-norm-block-makes-the-branches-visible" class="nav-link" data-scroll-target="#a-compact-causal-pre-norm-block-makes-the-branches-visible">A compact causal pre-norm block makes the branches visible</a></li>
+  <li><a href="#tests-should-cover-both-residual-and-causal-contracts" id="toc-tests-should-cover-both-residual-and-causal-contracts" class="nav-link" data-scroll-target="#tests-should-cover-both-residual-and-causal-contracts">Tests should cover both residual and causal contracts</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
+  <li><a href="#a-block-has-several-width-and-memory-costs" id="toc-a-block-has-several-width-and-memory-costs" class="nav-link" data-scroll-target="#a-block-has-several-width-and-memory-costs">A block has several width and memory costs</a></li>
+  <li><a href="#block-variants-must-be-named-rather-than-assumed" id="toc-block-variants-must-be-named-rather-than-assumed" class="nav-link" data-scroll-target="#block-variants-must-be-named-rather-than-assumed">Block variants must be named rather than assumed</a></li>
+  <li><a href="#auditing-a-block-includes-its-boundaries" id="toc-auditing-a-block-includes-its-boundaries" class="nav-link" data-scroll-target="#auditing-a-block-includes-its-boundaries">Auditing a block includes its boundaries</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">The Transformer Block</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Residual computation around attention and feed-forward transformations</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Chapters 20 and 21 defined multi-head self-attention and positional information. Neither operation is usually deployed alone. A Transformer block places attention inside residual paths, normalisation, and a position-wise feed-forward network. Repeating the block produces a sequence of contextual representations at a fixed model width.</p>
+<p>This chapter defines that computational unit, follows one tensor through it, and distinguishes the original post-normalisation arrangement from the widely used pre-normalisation arrangement. It does not decide whether attention is encoder self-attention, masked decoder self-attention, or cross-attention between sequences. Chapter 23 makes those architectural distinctions.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>name the attention, residual, normalisation, and feed-forward components of a Transformer block;</li>
+<li>state the input and output shape contract of each component;</li>
+<li>explain why the feed-forward network is applied independently at every position;</li>
+<li>distinguish residual addition from concatenation;</li>
+<li>calculate layer normalisation across feature coordinates for one token;</li>
+<li>write pre-norm and post-norm block equations;</li>
+<li>implement and test a small causal pre-norm Transformer block; and</li>
+<li>identify the block-level metadata needed to reproduce a training or inference result.</li>
+</ul>
+</section>
+<section id="running-tensor" class="level3">
+<h3 class="anchored" data-anchor-id="running-tensor">Running tensor</h3>
+<p>The running input has batch size two, sequence length four, and model width six: <span class="math inline">\(X\in\mathbb{R}^{2\times4\times6}\)</span>. Every sublayer returns that same shape. Internal widths can change, but residual addition requires the output of each residual branch to return to model width.</p>
+<div id="fig-transformer-block-overview" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-transformer-block-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7655a6"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.6</span>,<span class="fl">7.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>boxes<span class="op">=</span>[(<span class="fl">3.1</span>,<span class="fl">6.25</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,blue,<span class="st">"input X"</span>),(<span class="fl">3.1</span>,<span class="fl">5.1</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,purple,<span class="st">"LayerNorm"</span>),(<span class="fl">3.1</span>,<span class="fl">3.95</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,teal,<span class="st">"masked multi-head attention"</span>),(<span class="fl">3.1</span>,<span class="fl">2.42</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,orange,<span class="st">"LayerNorm"</span>),(<span class="fl">3.1</span>,<span class="fl">1.27</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,teal,<span class="st">"feed-forward network"</span>),(<span class="fl">3.1</span>,<span class="fl">.18</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,blue,<span class="st">"output Y"</span>)]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,w,h,c,label <span class="kw">in</span> boxes:</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,y),w,h,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,y<span class="op">+</span>h<span class="op">/</span><span class="dv">2</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y1,y2 <span class="kw">in</span> [(<span class="fl">6.25</span>,<span class="fl">5.68</span>),(<span class="fl">5.1</span>,<span class="fl">4.53</span>),(<span class="fl">3.95</span>,<span class="fl">3.0</span>),(<span class="fl">2.42</span>,<span class="fl">1.85</span>),(<span class="fl">1.27</span>,<span class="fl">.76</span>)]: ax.add_patch(FancyArrowPatch((<span class="fl">4.15</span>,y1),(<span class="fl">4.15</span>,y2),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>grey))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start,end,label <span class="kw">in</span> [((<span class="fl">2.95</span>,<span class="fl">6.54</span>),(<span class="fl">2.5</span>,<span class="fl">3.25</span>),<span class="st">"residual"</span>),((<span class="fl">2.95</span>,<span class="fl">3.54</span>),(<span class="fl">2.5</span>,<span class="fl">.47</span>),<span class="st">"residual"</span>)]:</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch(start,end,connectionstyle<span class="op">=</span><span class="st">"arc3,rad=.28"</span>,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">11</span>,color<span class="op">=</span>orange))<span class="op">;</span> ax.text(<span class="fl">1.85</span>,(start[<span class="dv">1</span>]<span class="op">+</span>end[<span class="dv">1</span>])<span class="op">/</span><span class="dv">2</span>,label,color<span class="op">=</span>orange,fontsize<span class="op">=</span><span class="dv">9</span>,rotation<span class="op">=</span><span class="dv">90</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">3.25</span>,<span class="fl">.47</span>]: ax.add_patch(Rectangle((<span class="fl">2.25</span>,y<span class="op">-</span><span class="fl">.2</span>),<span class="fl">.52</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">2.51</span>,y,<span class="st">"+"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">1.1</span>,<span class="fl">6.5</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">7.1</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-transformer-block-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;23.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="a-block-revises-a-representation-twice" class="level3">
+<h3 class="anchored" data-anchor-id="a-block-revises-a-representation-twice">A block revises a representation twice</h3>
+<p>The attention sublayer lets each position retrieve information from eligible positions in the sequence. The feed-forward network then transforms the resulting representation at each position independently. Residual paths keep the existing representation available while each transformation supplies a learned update.</p>
+<p>The block does not add new positions or discard existing ones. It maps a sequence of width-<span class="math inline">\(D\)</span> vectors to another sequence of width-<span class="math inline">\(D\)</span> vectors. Stacking blocks lets later attention operate on representations that earlier blocks have already contextualised and transformed.</p>
+</section>
+<section id="residual-paths-preserve-an-update-route" class="level3">
+<h3 class="anchored" data-anchor-id="residual-paths-preserve-an-update-route">Residual paths preserve an update route</h3>
+<p>If a sublayer produces <span class="math inline">\(F(X)\)</span>, a residual update has the form <span class="math inline">\(X+F(X)\)</span>. Addition is coordinate-wise and requires equal shape. It is not concatenation: concatenation would increase feature width and change the contract for every following operation.</p>
+<p>Residual addition gives a block an explicit identity route. If the learned branch is initially small or unhelpful for a particular token, the representation can still pass forward. The branch is not therefore optional: it can change the representation substantially after training. The point is that the block learns updates to an available input instead of requiring every useful feature to be recreated at every layer.</p>
+<p>The residual route also changes the derivative path used in training. For <span class="math inline">\(Y=X+F(X)\)</span>, the derivative with respect to <span class="math inline">\(X\)</span> includes an identity contribution as well as the derivative through <span class="math inline">\(F\)</span>. That does not guarantee stable optimisation at arbitrary depth, precision, or learning rate. It does provide a direct route that an architecture without the addition would lack. The normalisation placement and initialisation conventions affect how that route behaves in a stack.</p>
+<div id="fig-residual-update" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-residual-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.4</span>])<span class="op">;</span> update<span class="op">=</span>np.array([<span class="fl">.3</span>,<span class="fl">.5</span>])<span class="op">;</span> y<span class="op">=</span>x<span class="op">+</span>update</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.6</span>,<span class="fl">2.9</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos,vec,label,colour <span class="kw">in</span> [(<span class="dv">1</span>,x,<span class="st">"input X"</span>,blue),(<span class="fl">3.6</span>,update,<span class="st">"branch F(X)"</span>,orange),(<span class="fl">6.4</span>,y,<span class="st">"X + F(X)"</span>,teal)]:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((xpos,<span class="fl">.85</span>),<span class="fl">1.45</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(xpos<span class="op">+</span><span class="fl">.725</span>,<span class="fl">1.175</span>,<span class="st">"["</span><span class="op">+</span><span class="st">", "</span>.join(<span class="ss">f"</span><span class="sc">{</span>z<span class="sc">:.1f}</span><span class="ss">"</span> <span class="cf">for</span> z <span class="kw">in</span> vec)<span class="op">+</span><span class="st">"]"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(xpos<span class="op">+</span><span class="fl">.725</span>,<span class="fl">.46</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">2.85</span>,<span class="fl">1.18</span>,<span class="st">"+"</span>,fontsize<span class="op">=</span><span class="dv">22</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">5.15</span>,<span class="fl">1.18</span>),(<span class="fl">6.32</span>,<span class="fl">1.18</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">13</span>,color<span class="op">=</span>grey))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.4</span>,<span class="fl">8.3</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="dv">2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-residual-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;23.2
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="normalisation-and-the-feed-forward-network-have-different-jobs" class="level3">
+<h3 class="anchored" data-anchor-id="normalisation-and-the-feed-forward-network-have-different-jobs">Normalisation and the feed-forward network have different jobs</h3>
+<p>Layer normalisation rescales the feature coordinates of each token representation using that token’s own mean and variance. It does not mix information across sequence positions. The feed-forward network also operates position by position, but it is a learned nonlinear transformation that expands the feature width internally and returns to model width.</p>
+<p>Attention is the component that exchanges information across positions. Layer normalisation and the feed-forward network do not replace it. This separation explains why a Transformer block can model sequence interactions while retaining a simple per-position transformation path.</p>
+<p>Level 1 identified the two updates. Level 2 specifies their order and tensor contracts.</p>
+</section>
+</section>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
+<section id="pre-norm-places-normalisation-before-each-branch" class="level3">
+<h3 class="anchored" data-anchor-id="pre-norm-places-normalisation-before-each-branch">Pre-norm places normalisation before each branch</h3>
+<p>For a pre-norm block, write attention as <span class="math inline">\(A\)</span> and the feed-forward network as <span class="math inline">\(G\)</span>. With two independently parameterised layer-normalisation operations, the computation is</p>
+<p><span class="math display">\[H=X+A(\operatorname{LN}_1(X)),\qquad Y=H+G(\operatorname{LN}_2(H)).\]</span></p>
+<p>For a causal language model, <span class="math inline">\(A\)</span> contains the causal self-attention mask from Chapter 20. Positional information has already altered the block input or attention relation under the convention in Chapter 21. Dropout may be placed on branch outputs during training, but it must be disabled or otherwise specified at evaluation.</p>
+<div id="fig-block-shapes" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-block-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"X</span><span class="ch">\n</span><span class="st">B × S × D"</span>,blue),(<span class="st">"attention</span><span class="ch">\n</span><span class="st">B × S × D"</span>,teal),(<span class="st">"residual add</span><span class="ch">\n</span><span class="st">B × S × D"</span>,orange),(<span class="st">"FFN hidden</span><span class="ch">\n</span><span class="st">B × S × 4D"</span>,purple),(<span class="st">"Y</span><span class="ch">\n</span><span class="st">B × S × D"</span>,blue)]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,colour) <span class="kw">in</span> <span class="bu">enumerate</span>(items):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">2.05</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.2</span>),<span class="fl">1.55</span>,<span class="fl">.78</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.775</span>,<span class="fl">1.59</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i<span class="op">&lt;</span><span class="bu">len</span>(items)<span class="op">-</span><span class="dv">1</span>: ax.add_patch(FancyArrowPatch((x<span class="op">+</span><span class="fl">1.58</span>,<span class="fl">1.59</span>),(x<span class="op">+</span><span class="fl">2.0</span>,<span class="fl">1.59</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>grey))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.45</span>,<span class="fl">.6</span>,<span class="st">"The hidden width is an internal FFN axis; residual endpoints match width D."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">10.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-block-shapes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;23.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="layer-normalisation-uses-each-tokens-feature-coordinates" class="level3">
+<h3 class="anchored" data-anchor-id="layer-normalisation-uses-each-tokens-feature-coordinates">Layer normalisation uses each token’s feature coordinates</h3>
+<p>For one token vector <span class="math inline">\(z\in\mathbb{R}^{D}\)</span>, layer normalisation computes</p>
+<p><span class="math display">\[\mu=\frac{1}{D}\sum_{d=1}^{D}z_d,\qquad \sigma^2=\frac{1}{D}\sum_{d=1}^{D}(z_d-\mu)^2,\]</span></p>
+<p><span class="math display">\[\operatorname{LN}(z)_d=\gamma_d\frac{z_d-\mu}{\sqrt{\sigma^2+\epsilon}}+\beta_d.\]</span></p>
+<p>The learnable scale <span class="math inline">\(\gamma\)</span> and shift <span class="math inline">\(\beta\)</span> have width <span class="math inline">\(D\)</span>. The statistics are recomputed for each token and each batch item; positions do not share a mean in the standard layer-normalisation operation <span class="citation" data-cites="ba2016layernorm">(<a href="#ref-ba2016layernorm" role="doc-biblioref">Ba, Kiros, and Hinton 2016</a>)</span>.</p>
+<div id="fig-layernorm-axis" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-layernorm-axis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((<span class="fl">1.7</span><span class="op">+</span>col<span class="op">*</span><span class="fl">.95</span>,<span class="fl">2.45</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>),<span class="fl">.7</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>[blue,teal,orange][row],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">2.05</span><span class="op">+</span>col<span class="op">*</span><span class="fl">.95</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>,<span class="ss">f"f</span><span class="sc">{</span>col<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">1.35</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>),(<span class="fl">5.65</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>),arrowstyle<span class="op">=</span><span class="st">"&lt;-&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">11</span>,color<span class="op">=</span>purple))<span class="op">;</span> ax.text(<span class="fl">6.0</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>,<span class="ss">f"normalise token </span><span class="sc">{</span>row<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.55</span>,<span class="fl">.1</span>,<span class="st">"Statistics are over features (rows), not across positions (columns of tokens)."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.7</span>,<span class="fl">8.2</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.15</span>,<span class="fl">3.35</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-layernorm-axis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;23.4
+</figcaption>
+</figure>
+</div>
+<div id="d9e4a721" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>z<span class="op">=</span>np.array([<span class="fl">2.</span>,<span class="fl">4.</span>,<span class="fl">5.</span>,<span class="fl">9.</span>])<span class="op">;</span> mean<span class="op">=</span>z.mean()<span class="op">;</span> var<span class="op">=</span>((z<span class="op">-</span>mean)<span class="op">**</span><span class="dv">2</span>).mean()<span class="op">;</span> epsilon<span class="op">=</span><span class="fl">1e-5</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>normalised<span class="op">=</span>(z<span class="op">-</span>mean)<span class="op">/</span>np.sqrt(var<span class="op">+</span>epsilon)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"mean and variance:"</span>,<span class="bu">round</span>(mean,<span class="dv">3</span>),<span class="bu">round</span>(var,<span class="dv">3</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"normalised coordinates:"</span>,normalised.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"normalised mean and variance:"</span>,<span class="bu">round</span>(normalised.mean(),<span class="dv">6</span>),<span class="bu">round</span>(normalised.var(),<span class="dv">6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The displayed output has mean approximately zero and variance approximately one before the learned affine scale and shift. The small <span class="math inline">\(\epsilon\)</span> prevents division by zero and affects exact numerical agreement across implementations.</p>
+<p>Layer normalisation differs from the batch normalisation discussed in Chapter 12. It has no running population mean or variance to switch between training and evaluation modes, although the surrounding block can still contain dropout. This makes it suitable for variable-length sequences and small batches under its own assumptions; it does not mean normalisation choice is irrelevant to optimisation or precision.</p>
+</section>
+<section id="the-feed-forward-network-mixes-features-not-tokens" class="level3">
+<h3 class="anchored" data-anchor-id="the-feed-forward-network-mixes-features-not-tokens">The feed-forward network mixes features, not tokens</h3>
+<p>A conventional feed-forward network (FFN) has the form</p>
+<p><span class="math display">\[G(h)=W_2\,\phi(W_1h+b_1)+b_2,\]</span></p>
+<p>where <span class="math inline">\(W_1\)</span> expands from <span class="math inline">\(D\)</span> to an internal width <span class="math inline">\(D_{ff}\)</span>, <span class="math inline">\(\phi\)</span> is a nonlinearity, and <span class="math inline">\(W_2\)</span> returns to <span class="math inline">\(D\)</span>. The same weights apply at every sequence position. A position’s FFN output can depend on other tokens only through the contextual representation that attention already supplied.</p>
+<div id="c7dc2f03" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">.2</span>],[<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>,<span class="fl">.4</span>]])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>w1<span class="op">=</span>np.array([[<span class="fl">.4</span>,<span class="op">-</span><span class="fl">.2</span>,<span class="fl">.3</span>,<span class="fl">.1</span>],[<span class="fl">.1</span>,<span class="fl">.5</span>,<span class="op">-</span><span class="fl">.4</span>,<span class="fl">.2</span>],[<span class="fl">.3</span>,<span class="fl">.2</span>,<span class="fl">.1</span>,<span class="op">-</span><span class="fl">.5</span>]])</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>w2<span class="op">=</span>np.array([[<span class="fl">.5</span>,<span class="fl">.1</span>,<span class="op">-</span><span class="fl">.2</span>,<span class="fl">.3</span>],[<span class="fl">.2</span>,<span class="fl">.4</span>,<span class="fl">.1</span>,<span class="op">-</span><span class="fl">.1</span>],[<span class="op">-</span><span class="fl">.3</span>,<span class="fl">.2</span>,<span class="fl">.5</span>,<span class="fl">.2</span>]])</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>hidden<span class="op">=</span>np.maximum(<span class="dv">0</span>,sequence<span class="op">@</span>w1)<span class="op">;</span> output<span class="op">=</span>hidden<span class="op">@</span>w2.T</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"input, hidden, output shapes:"</span>,sequence.shape,hidden.shape,output.shape)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"each output row comes from the matching input row after this FFN:"</span>,output.<span class="bu">round</span>(<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This small example uses ReLU for visibility. Many modern architectures use variants such as GELU or gated feed-forward units. The block contract remains: a position-wise nonlinear branch begins and ends at model width.</p>
+<p>The same FFN weights are reused at every position, but the inputs need not be similar. Once attention has mixed contextual information into a representation, the FFN can transform a token differently because its coordinates differ. The phrase <em>position-wise</em> describes which axes the FFN mixes directly, not an assertion that the output ignores context.</p>
+</section>
+</section>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
+<section id="post-norm-and-pre-norm-are-different-functions" class="level3">
+<h3 class="anchored" data-anchor-id="post-norm-and-pre-norm-are-different-functions">Post-norm and pre-norm are different functions</h3>
+<p>The original Transformer applied normalisation after each residual addition:</p>
+<p><span class="math display">\[H=\operatorname{LN}_1(X+A(X)),\qquad Y=\operatorname{LN}_2(H+G(H)).\]</span></p>
+<p>This is post-norm. Pre-norm instead applies normalisation before the branches, as in the Level 2 equations. The two arrangements have the same named components but differ in forward values, gradient paths, and training behaviour. A configuration label such as <code>LayerNorm</code> is incomplete without the placement convention <span class="citation" data-cites="vaswani2017 ba2016layernorm">(<a href="#ref-vaswani2017" role="doc-biblioref">Vaswani et al. 2017</a>; <a href="#ref-ba2016layernorm" role="doc-biblioref">Ba, Kiros, and Hinton 2016</a>)</span>.</p>
+<div id="cd43cd76" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">22</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>toy<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">4</span>)<span class="op">;</span> branch<span class="op">=</span>nn.Linear(<span class="dv">4</span>,<span class="dv">4</span>,bias<span class="op">=</span><span class="va">False</span>)<span class="op">;</span> norm<span class="op">=</span>nn.LayerNorm(<span class="dv">4</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>post<span class="op">=</span>norm(toy<span class="op">+</span>branch(toy))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>pre<span class="op">=</span>toy<span class="op">+</span>branch(norm(toy))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same shape:"</span>,<span class="bu">tuple</span>(post.shape),<span class="bu">tuple</span>(pre.shape))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"pre-norm and post-norm give different values:"</span>,<span class="kw">not</span> torch.allclose(post,pre))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The code holds branch and normalisation parameters fixed. The difference follows solely from operation order. Neither arrangement can be called the same block with a cosmetic rearrangement.</p>
+<p>For a deep stack, the choice also changes which representation enters the next block and which operations lie on a direct residual route. Training recipes commonly pair an architecture convention with choices about learning-rate schedule, initialisation, clipping, precision, and warm-up. A result attributed to <code>pre-norm</code> therefore needs those accompanying conditions before it can be compared with a post-norm result.</p>
+</section>
+<section id="a-compact-causal-pre-norm-block-makes-the-branches-visible" class="level3">
+<h3 class="anchored" data-anchor-id="a-compact-causal-pre-norm-block-makes-the-branches-visible">A compact causal pre-norm block makes the branches visible</h3>
+<div id="992a3420" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PreNormTransformerBlock(nn.Module):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>,width,heads,ff_width,dropout<span class="op">=</span><span class="fl">0.0</span>):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm_attn<span class="op">=</span>nn.LayerNorm(width)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.attn<span class="op">=</span>nn.MultiheadAttention(width,heads,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span>dropout)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm_ff<span class="op">=</span>nn.LayerNorm(width)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ff<span class="op">=</span>nn.Sequential(nn.Linear(width,ff_width),nn.GELU(),nn.Linear(ff_width,width))</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dropout<span class="op">=</span>nn.Dropout(dropout)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>,x,need_weights<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        length<span class="op">=</span>x.shape[<span class="dv">1</span>]<span class="op">;</span> causal<span class="op">=</span>torch.triu(torch.ones(length,length,device<span class="op">=</span>x.device,dtype<span class="op">=</span>torch.<span class="bu">bool</span>),diagonal<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        z<span class="op">=</span><span class="va">self</span>.norm_attn(x)<span class="op">;</span> attn_out,weights<span class="op">=</span><span class="va">self</span>.attn(z,z,z,attn_mask<span class="op">=</span>causal,need_weights<span class="op">=</span>need_weights,average_attn_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        h<span class="op">=</span>x<span class="op">+</span><span class="va">self</span>.dropout(attn_out)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span>h<span class="op">+</span><span class="va">self</span>.dropout(<span class="va">self</span>.ff(<span class="va">self</span>.norm_ff(h)))</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (y,weights) <span class="cf">if</span> need_weights <span class="cf">else</span> y</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>block<span class="op">=</span>PreNormTransformerBlock(width<span class="op">=</span><span class="dv">6</span>,heads<span class="op">=</span><span class="dv">2</span>,ff_width<span class="op">=</span><span class="dv">18</span>).<span class="bu">eval</span>()</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>torch.randn(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> y,weights<span class="op">=</span>block(x,need_weights<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"input and output:"</span>,<span class="bu">tuple</span>(x.shape),<span class="bu">tuple</span>(y.shape))</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"attention weights:"</span>,<span class="bu">tuple</span>(weights.shape))</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"future masked mass:"</span>,weights[<span class="dv">0</span>,:,<span class="dv">1</span>,<span class="dv">2</span>:].<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The attention module receives its normalised input as query, key, and value. The residual addition uses the original <span class="math inline">\(x\)</span>, so the width contract is visible. In a production module, padding masks, positional conventions, precision policy, and cache interfaces must be added to this minimal version.</p>
+</section>
+<section id="tests-should-cover-both-residual-and-causal-contracts" class="level3">
+<h3 class="anchored" data-anchor-id="tests-should-cover-both-residual-and-causal-contracts">Tests should cover both residual and causal contracts</h3>
+<div id="da2460aa" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>changed<span class="op">=</span>x.clone()<span class="op">;</span> changed[:,<span class="dv">3</span>]<span class="op">+=</span><span class="dv">100</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>y_base<span class="op">=</span>block(x)<span class="op">;</span> y_changed<span class="op">=</span>block(changed)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"earlier causal outputs unchanged:"</span>,torch.allclose(y_base[:,:<span class="dv">3</span>],y_changed[:,:<span class="dv">3</span>],atol<span class="op">=</span><span class="fl">1e-6</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>zero_block<span class="op">=</span>PreNormTransformerBlock(width<span class="op">=</span><span class="dv">6</span>,heads<span class="op">=</span><span class="dv">2</span>,ff_width<span class="op">=</span><span class="dv">18</span>).<span class="bu">eval</span>()</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> parameter <span class="kw">in</span> zero_block.attn.parameters(): parameter.data.zero_()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> parameter <span class="kw">in</span> zero_block.ff.parameters(): parameter.data.zero_()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"zeroed branches preserve input:"</span>,torch.allclose(zero_block(x),x,atol<span class="op">=</span><span class="fl">1e-6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The first test checks that the complete block preserves the attention mask’s causal boundary. The second checks the residual route: when both learned branches are zeroed, the block reduces to the identity map. These tests are more informative than verifying only that tensor shapes match.</p>
+</section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
+<section id="a-block-has-several-width-and-memory-costs" class="level3">
+<h3 class="anchored" data-anchor-id="a-block-has-several-width-and-memory-costs">A block has several width and memory costs</h3>
+<p>With model width <span class="math inline">\(D\)</span>, feed-forward width <span class="math inline">\(D_{ff}\)</span>, and <span class="math inline">\(H\)</span> heads, the two attention projections commonly use approximately <span class="math inline">\(4D^2\)</span> parameters when query, key, value, and output projections all have width <span class="math inline">\(D\)</span>. The FFN uses approximately <span class="math inline">\(2DD_{ff}\)</span> parameters, excluding biases and gated variants. If <span class="math inline">\(D_{ff}=4D\)</span>, the FFN contains about twice as many dense parameters as the attention projections in one conventional block.</p>
+<p>Activation memory and compute follow the sequence length as well as the widths. Attention has a dense query-key relation over positions; the FFN is linear in sequence length but materialises an intermediate tensor of shape <span class="math inline">\(B\times S\times D_{ff}\)</span>. The memory bottleneck therefore depends on length, batch size, dtype, checkpointing policy, kernel implementation, and the selected widths. Counting parameters alone does not identify the limiting resource.</p>
+<p>For example, doubling <span class="math inline">\(D\)</span> approximately quadruples both dense projection parameter counts under a fixed <span class="math inline">\(D_{ff}/D\)</span> ratio. Doubling sequence length leaves those parameters unchanged, doubles FFN activation rows, and quadruples dense attention-score entries. A systems report should state which dimension changed when it describes a block as expensive or memory-limited.</p>
+<div id="fig-block-parameter-accounting" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-block-parameter-accounting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>widths<span class="op">=</span>np.array([<span class="dv">128</span>,<span class="dv">256</span>,<span class="dv">512</span>,<span class="dv">1024</span>])<span class="op">;</span> attention_params<span class="op">=</span><span class="dv">4</span><span class="op">*</span>widths<span class="op">**</span><span class="dv">2</span><span class="op">;</span> ffn_params<span class="op">=</span><span class="dv">2</span><span class="op">*</span>widths<span class="op">*</span>(<span class="dv">4</span><span class="op">*</span>widths)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">4.2</span>))<span class="op">;</span> offset<span class="op">=</span><span class="fl">.18</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ax.bar(np.arange(<span class="bu">len</span>(widths))<span class="op">-</span>offset,attention_params<span class="op">/</span><span class="fl">1e6</span>,width<span class="op">=</span><span class="fl">.36</span>,label<span class="op">=</span><span class="st">"attention projections"</span>,color<span class="op">=</span>teal)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.bar(np.arange(<span class="bu">len</span>(widths))<span class="op">+</span>offset,ffn_params<span class="op">/</span><span class="fl">1e6</span>,width<span class="op">=</span><span class="fl">.36</span>,label<span class="op">=</span><span class="st">"FFN (Dff = 4D)"</span>,color<span class="op">=</span>orange)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(np.arange(<span class="bu">len</span>(widths)),widths)<span class="op">;</span> ax.set_xlabel(<span class="st">"Model width D"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Dense parameters (millions)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Approximate parameter allocation per block"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-block-parameter-accounting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;23.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="block-variants-must-be-named-rather-than-assumed" class="level3">
+<h3 class="anchored" data-anchor-id="block-variants-must-be-named-rather-than-assumed">Block variants must be named rather than assumed</h3>
+<p>Implementations differ in normalisation placement, epsilon, affine parameters, attention bias, positional method, activation, FFN width, gated versus ungated FFN, dropout locations, bias terms, query/key normalisation, and residual scaling. A checkpoint cannot be reproduced from <code>12-layer Transformer</code> alone. Those choices alter parameter shapes, forward values, numerical stability, and the valid loading procedure.</p>
+<p>A useful checkpoint manifest separates architecture from run state. Architecture includes every block setting needed to build compatible parameter tensors. Run state includes model weights, optimiser and scheduler state when training will resume, random-number-generator state when exact continuation matters, the tokenizer and positional conventions at the model boundary, and the software versions or kernel settings that materially affect execution. Chapter 14 established this recovery principle for training loops; a Transformer block supplies a more detailed architecture contract to it.</p>
+<p>The original Transformer block used residual connections and layer normalisation around attention and a position-wise feed-forward network <span class="citation" data-cites="vaswani2017">(<a href="#ref-vaswani2017" role="doc-biblioref">Vaswani et al. 2017</a>)</span>. Later architecture families alter parts of that recipe. The appropriate comparison is therefore at the level of an explicit block specification, followed by controlled evidence on the task and training regime, not a claim that one named component is universally superior.</p>
+</section>
+<section id="auditing-a-block-includes-its-boundaries" class="level3">
+<h3 class="anchored" data-anchor-id="auditing-a-block-includes-its-boundaries">Auditing a block includes its boundaries</h3>
+<p>A block audit should record tensor axes; model, head, and FFN widths; normalisation type, placement, epsilon, and affine settings; attention mask and padding-mask conventions; positional method; projection and bias configuration; activation; dropout locations and modes; dtype; cache offset; and parameter initialisation. Tests should cover shape preservation, causal and padding invariance, identity behaviour of zeroed branches, cached versus full-sequence agreement, finite outputs under chosen precision, and checkpoint loading.</p>
+<p>One further boundary matters in practice: train and evaluation modes. Dropout and some framework kernels behave differently between them. A reported comparison should state which mode was used, and an inference service should not leave stochastic branch dropout active accidentally.</p>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>A Transformer block is only an attention layer.</strong> It also includes residual paths, normalisation, and a feed-forward transformation.</li>
+<li><strong>Residual addition concatenates features.</strong> It adds equal-width coordinates and preserves the model-width contract.</li>
+<li><strong>Layer normalisation mixes information across tokens.</strong> Standard layer norm uses features within each token representation.</li>
+<li><strong>The FFN applies one transformation to the whole sequence.</strong> The same FFN is applied independently at each position.</li>
+<li><strong>Pre-norm and post-norm differ only in notation.</strong> They order the operations differently and produce different functions.</li>
+<li><strong>A causal attention branch makes every block implementation causal.</strong> Mask propagation, padding, cache offsets, and later code paths still require tests.</li>
+<li><strong>The attention projections always dominate block parameters.</strong> A wide FFN can contain more dense parameters.</li>
+<li><strong>A shape test verifies a Transformer block.</strong> It does not test residual identity, information boundaries, masks, or numerical policy.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>State the input and output shape of every branch in a block with batch 8, length 64, width 512, and FFN width 2,048.</li>
+<li>Compute layer-normalisation statistics for a supplied four-coordinate token.</li>
+<li>Explain why residual addition requires matching width while FFN expansion does not.</li>
+<li>Implement the post-norm equations with the same submodules used in the pre-norm code.</li>
+<li>Show numerically that pre-norm and post-norm differ for fixed parameters.</li>
+<li>Replace ReLU in the small FFN example with GELU and compare outputs on a chosen input.</li>
+<li>Calculate approximate attention and FFN parameter counts for <span class="math inline">\(D=768\)</span> and <span class="math inline">\(D_{ff}=3,072\)</span>.</li>
+<li>Add a padding mask to the compact block and test that padded keys receive zero attention mass.</li>
+<li>Write a test that a zeroed residual branch leaves its input unchanged.</li>
+<li>Test causal invariance after changing the final input position.</li>
+<li>Identify the global positional offset needed for a cached one-token continuation.</li>
+<li>Measure the intermediate FFN activation size for several batch, length, and dtype choices.</li>
+<li>Compare outputs in training and evaluation mode with non-zero dropout.</li>
+<li>List the parameters and buffers a checkpoint must retain for the compact block.</li>
+<li>Describe a failure caused by mixing post-norm weights with a pre-norm implementation.</li>
+<li>State which question Chapter 23 adds beyond the definition of one block.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>A Transformer block preserves sequence length and model width while applying two residual updates. Attention exchanges information across eligible positions; the feed-forward network applies a nonlinear transformation at each position. Layer normalisation controls feature-coordinate scale under a stated placement convention.</p>
+<p>Pre-norm and post-norm are distinct block definitions. Their position method, masks, widths, dropout, precision policy, and cache conventions must be specified alongside the equations when a model is trained, compared, or deployed.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p><a href="./23-encoder-decoder-models.html">Chapter 23</a> uses these blocks to distinguish encoder-only, decoder-only, and encoder-decoder Transformer configurations and the tasks their attention patterns support.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>The original Transformer block is specified in <span class="citation" data-cites="vaswani2017">Vaswani et al. (<a href="#ref-vaswani2017" role="doc-biblioref">2017</a>)</span>. Layer normalisation is introduced by <span class="citation" data-cites="ba2016layernorm">Ba, Kiros, and Hinton (<a href="#ref-ba2016layernorm" role="doc-biblioref">2016</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ba2016layernorm" class="csl-entry" role="listitem">
+Ba, Jimmy Lei, Jamie Ryan Kiros, and Geoffrey E. Hinton. 2016. <span>“Layer Normalization.”</span> <em>arXiv Preprint arXiv:1607.06450</em>. <a href="https://arxiv.org/abs/1607.06450">https://arxiv.org/abs/1607.06450</a>.
+</div>
+<div id="ref-vaswani2017" class="csl-entry" role="listitem">
+Vaswani, Ashish et al. 2017. <span>“Attention Is All You Need.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 30.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./21-positional-information.html" class="pagination-link" aria-label="Positional Information">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Positional Information</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./23-encoder-decoder-models.html" class="pagination-link" aria-label="Encoders, Decoders, and Encoder-Decoder Models">
+        <span class="nav-page-text"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "The Transformer Block"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Residual computation around attention and feed-forward transformations"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>Chapters 20 and 21 defined multi-head self-attention and positional information. Neither operation is usually deployed alone. A Transformer block places attention inside residual paths, normalisation, and a position-wise feed-forward network. Repeating the block produces a sequence of contextual representations at a fixed model width.</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>This chapter defines that computational unit, follows one tensor through it, and distinguishes the original post-normalisation arrangement from the widely used pre-normalisation arrangement. It does not decide whether attention is encoder self-attention, masked decoder self-attention, or cross-attention between sequences. Chapter 23 makes those architectural distinctions.</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>name the attention, residual, normalisation, and feed-forward components of a Transformer block;</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>state the input and output shape contract of each component;</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why the feed-forward network is applied independently at every position;</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish residual addition from concatenation;</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate layer normalisation across feature coordinates for one token;</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>write pre-norm and post-norm block equations;</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement and test a small causal pre-norm Transformer block; and</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify the block-level metadata needed to reproduce a training or inference result.</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running tensor</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>The running input has batch size two, sequence length four, and model width six: $X\in\mathbb{R}^{2\times4\times6}$. Every sublayer returns that same shape. Internal widths can change, but residual addition requires the output of each residual branch to return to model width.</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-transformer-block-overview</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A pre-normalisation Transformer block applies normalisation before attention and before the feed-forward network, adding each transformed result back through a residual path."</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A vertical diagram starts with input X, branches through layer norm and masked multi-head attention into a residual add, then through a second layer norm and feed-forward network into a second residual add, producing output Y."</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7655a6"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.6</span>,<span class="fl">7.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>boxes<span class="op">=</span>[(<span class="fl">3.1</span>,<span class="fl">6.25</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,blue,<span class="st">"input X"</span>),(<span class="fl">3.1</span>,<span class="fl">5.1</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,purple,<span class="st">"LayerNorm"</span>),(<span class="fl">3.1</span>,<span class="fl">3.95</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,teal,<span class="st">"masked multi-head attention"</span>),(<span class="fl">3.1</span>,<span class="fl">2.42</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,orange,<span class="st">"LayerNorm"</span>),(<span class="fl">3.1</span>,<span class="fl">1.27</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,teal,<span class="st">"feed-forward network"</span>),(<span class="fl">3.1</span>,<span class="fl">.18</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,blue,<span class="st">"output Y"</span>)]</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,w,h,c,label <span class="kw">in</span> boxes:</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,y),w,h,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,y<span class="op">+</span>h<span class="op">/</span><span class="dv">2</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y1,y2 <span class="kw">in</span> [(<span class="fl">6.25</span>,<span class="fl">5.68</span>),(<span class="fl">5.1</span>,<span class="fl">4.53</span>),(<span class="fl">3.95</span>,<span class="fl">3.0</span>),(<span class="fl">2.42</span>,<span class="fl">1.85</span>),(<span class="fl">1.27</span>,<span class="fl">.76</span>)]: ax.add_patch(FancyArrowPatch((<span class="fl">4.15</span>,y1),(<span class="fl">4.15</span>,y2),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>grey))</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start,end,label <span class="kw">in</span> [((<span class="fl">2.95</span>,<span class="fl">6.54</span>),(<span class="fl">2.5</span>,<span class="fl">3.25</span>),<span class="st">"residual"</span>),((<span class="fl">2.95</span>,<span class="fl">3.54</span>),(<span class="fl">2.5</span>,<span class="fl">.47</span>),<span class="st">"residual"</span>)]:</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch(start,end,connectionstyle<span class="op">=</span><span class="st">"arc3,rad=.28"</span>,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">11</span>,color<span class="op">=</span>orange))<span class="op">;</span> ax.text(<span class="fl">1.85</span>,(start[<span class="dv">1</span>]<span class="op">+</span>end[<span class="dv">1</span>])<span class="op">/</span><span class="dv">2</span>,label,color<span class="op">=</span>orange,fontsize<span class="op">=</span><span class="dv">9</span>,rotation<span class="op">=</span><span class="dv">90</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">3.25</span>,<span class="fl">.47</span>]: ax.add_patch(Rectangle((<span class="fl">2.25</span>,y<span class="op">-</span><span class="fl">.2</span>),<span class="fl">.52</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">2.51</span>,y,<span class="st">"+"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">1.1</span>,<span class="fl">6.5</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">7.1</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="fu">### A block revises a representation twice</span></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>The attention sublayer lets each position retrieve information from eligible positions in the sequence. The feed-forward network then transforms the resulting representation at each position independently. Residual paths keep the existing representation available while each transformation supplies a learned update.</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>The block does not add new positions or discard existing ones. It maps a sequence of width-$D$ vectors to another sequence of width-$D$ vectors. Stacking blocks lets later attention operate on representations that earlier blocks have already contextualised and transformed.</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a><span class="fu">### Residual paths preserve an update route</span></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>If a sublayer produces $F(X)$, a residual update has the form $X+F(X)$. Addition is coordinate-wise and requires equal shape. It is not concatenation: concatenation would increase feature width and change the contract for every following operation.</span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>Residual addition gives a block an explicit identity route. If the learned branch is initially small or unhelpful for a particular token, the representation can still pass forward. The branch is not therefore optional: it can change the representation substantially after training. The point is that the block learns updates to an available input instead of requiring every useful feature to be recreated at every layer.</span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>The residual route also changes the derivative path used in training. For $Y=X+F(X)$, the derivative with respect to $X$ includes an identity contribution as well as the derivative through $F$. That does not guarantee stable optimisation at arbitrary depth, precision, or learning rate. It does provide a direct route that an architecture without the addition would lack. The normalisation placement and initialisation conventions affect how that route behaves in a stack.</span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-residual-update</span></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A residual branch adds a learned update to an existing representation; it does not replace the representation with the branch output."</span></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A two-coordinate input vector and a smaller two-coordinate update vector are added to make an output vector, with arrows showing coordinate-wise addition."</span></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.4</span>])<span class="op">;</span> update<span class="op">=</span>np.array([<span class="fl">.3</span>,<span class="fl">.5</span>])<span class="op">;</span> y<span class="op">=</span>x<span class="op">+</span>update</span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.6</span>,<span class="fl">2.9</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos,vec,label,colour <span class="kw">in</span> [(<span class="dv">1</span>,x,<span class="st">"input X"</span>,blue),(<span class="fl">3.6</span>,update,<span class="st">"branch F(X)"</span>,orange),(<span class="fl">6.4</span>,y,<span class="st">"X + F(X)"</span>,teal)]:</span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((xpos,<span class="fl">.85</span>),<span class="fl">1.45</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(xpos<span class="op">+</span><span class="fl">.725</span>,<span class="fl">1.175</span>,<span class="st">"["</span><span class="op">+</span><span class="st">", "</span>.join(<span class="ss">f"</span><span class="sc">{</span>z<span class="sc">:.1f}</span><span class="ss">"</span> <span class="cf">for</span> z <span class="kw">in</span> vec)<span class="op">+</span><span class="st">"]"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(xpos<span class="op">+</span><span class="fl">.725</span>,<span class="fl">.46</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">2.85</span>,<span class="fl">1.18</span>,<span class="st">"+"</span>,fontsize<span class="op">=</span><span class="dv">22</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">5.15</span>,<span class="fl">1.18</span>),(<span class="fl">6.32</span>,<span class="fl">1.18</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">13</span>,color<span class="op">=</span>grey))</span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.4</span>,<span class="fl">8.3</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="dv">2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### Normalisation and the feed-forward network have different jobs</span></span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>Layer normalisation rescales the feature coordinates of each token representation using that token's own mean and variance. It does not mix information across sequence positions. The feed-forward network also operates position by position, but it is a learned nonlinear transformation that expands the feature width internally and returns to model width.</span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>Attention is the component that exchanges information across positions. Layer normalisation and the feed-forward network do not replace it. This separation explains why a Transformer block can model sequence interactions while retaining a simple per-position transformation path.</span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a>Level 1 identified the two updates. Level 2 specifies their order and tensor contracts.</span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a><span class="fu">### Pre-norm places normalisation before each branch</span></span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a>For a pre-norm block, write attention as $A$ and the feed-forward network as $G$. With two independently parameterised layer-normalisation operations, the computation is</span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a>$$H=X+A(\operatorname{LN}_1(X)),\qquad Y=H+G(\operatorname{LN}_2(H)).$$</span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a>For a causal language model, $A$ contains the causal self-attention mask from Chapter 20. Positional information has already altered the block input or attention relation under the convention in Chapter 21. Dropout may be placed on branch outputs during training, but it must be disabled or otherwise specified at evaluation.</span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-block-shapes</span></span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A Transformer block preserves batch, sequence, and model-width axes even though the feed-forward branch expands an internal feature axis."</span></span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A shape diagram shows B by S by D entering attention and leaving at B by S by D, then entering a feed-forward network that temporarily becomes B by S by four D before returning to B by S by D."</span></span>
+<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"X</span><span class="ch">\n</span><span class="st">B × S × D"</span>,blue),(<span class="st">"attention</span><span class="ch">\n</span><span class="st">B × S × D"</span>,teal),(<span class="st">"residual add</span><span class="ch">\n</span><span class="st">B × S × D"</span>,orange),(<span class="st">"FFN hidden</span><span class="ch">\n</span><span class="st">B × S × 4D"</span>,purple),(<span class="st">"Y</span><span class="ch">\n</span><span class="st">B × S × D"</span>,blue)]</span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,colour) <span class="kw">in</span> <span class="bu">enumerate</span>(items):</span>
+<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">2.05</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.2</span>),<span class="fl">1.55</span>,<span class="fl">.78</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.775</span>,<span class="fl">1.59</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i<span class="op">&lt;</span><span class="bu">len</span>(items)<span class="op">-</span><span class="dv">1</span>: ax.add_patch(FancyArrowPatch((x<span class="op">+</span><span class="fl">1.58</span>,<span class="fl">1.59</span>),(x<span class="op">+</span><span class="fl">2.0</span>,<span class="fl">1.59</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>grey))</span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.45</span>,<span class="fl">.6</span>,<span class="st">"The hidden width is an internal FFN axis; residual endpoints match width D."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">10.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a><span class="fu">### Layer normalisation uses each token's feature coordinates</span></span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a>For one token vector $z\in\mathbb{R}^{D}$, layer normalisation computes</span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a>$$\mu=\frac{1}{D}\sum_{d=1}^{D}z_d,\qquad \sigma^2=\frac{1}{D}\sum_{d=1}^{D}(z_d-\mu)^2,$$</span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a>$$\operatorname{LN}(z)_d=\gamma_d\frac{z_d-\mu}{\sqrt{\sigma^2+\epsilon}}+\beta_d.$$</span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a>The learnable scale $\gamma$ and shift $\beta$ have width $D$. The statistics are recomputed for each token and each batch item; positions do not share a mean in the standard layer-normalisation operation <span class="co">[</span><span class="ot">@ba2016layernorm</span><span class="co">]</span>.</span>
+<span id="cb11-126"><a href="#cb11-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-layernorm-axis</span></span>
+<span id="cb11-131"><a href="#cb11-131" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Layer normalisation uses the feature coordinates within one token, independently for every batch item and sequence position."</span></span>
+<span id="cb11-132"><a href="#cb11-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A three-by-four grid represents three token vectors with four features each. Horizontal arrows group each row for separate normalisation; no arrow connects token rows."</span></span>
+<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((<span class="fl">1.7</span><span class="op">+</span>col<span class="op">*</span><span class="fl">.95</span>,<span class="fl">2.45</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>),<span class="fl">.7</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>[blue,teal,orange][row],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">2.05</span><span class="op">+</span>col<span class="op">*</span><span class="fl">.95</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>,<span class="ss">f"f</span><span class="sc">{</span>col<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((<span class="fl">1.35</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>),(<span class="fl">5.65</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>),arrowstyle<span class="op">=</span><span class="st">"&lt;-&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">11</span>,color<span class="op">=</span>purple))<span class="op">;</span> ax.text(<span class="fl">6.0</span>,<span class="fl">2.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.82</span>,<span class="ss">f"normalise token </span><span class="sc">{</span>row<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.55</span>,<span class="fl">.1</span>,<span class="st">"Statistics are over features (rows), not across positions (columns of tokens)."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="fl">.7</span>,<span class="fl">8.2</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.15</span>,<span class="fl">3.35</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb11-140"><a href="#cb11-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-141"><a href="#cb11-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-144"><a href="#cb11-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-145"><a href="#cb11-145" aria-hidden="true" tabindex="-1"></a>z<span class="op">=</span>np.array([<span class="fl">2.</span>,<span class="fl">4.</span>,<span class="fl">5.</span>,<span class="fl">9.</span>])<span class="op">;</span> mean<span class="op">=</span>z.mean()<span class="op">;</span> var<span class="op">=</span>((z<span class="op">-</span>mean)<span class="op">**</span><span class="dv">2</span>).mean()<span class="op">;</span> epsilon<span class="op">=</span><span class="fl">1e-5</span></span>
+<span id="cb11-146"><a href="#cb11-146" aria-hidden="true" tabindex="-1"></a>normalised<span class="op">=</span>(z<span class="op">-</span>mean)<span class="op">/</span>np.sqrt(var<span class="op">+</span>epsilon)</span>
+<span id="cb11-147"><a href="#cb11-147" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"mean and variance:"</span>,<span class="bu">round</span>(mean,<span class="dv">3</span>),<span class="bu">round</span>(var,<span class="dv">3</span>))</span>
+<span id="cb11-148"><a href="#cb11-148" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"normalised coordinates:"</span>,normalised.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb11-149"><a href="#cb11-149" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"normalised mean and variance:"</span>,<span class="bu">round</span>(normalised.mean(),<span class="dv">6</span>),<span class="bu">round</span>(normalised.var(),<span class="dv">6</span>))</span>
+<span id="cb11-150"><a href="#cb11-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-151"><a href="#cb11-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-152"><a href="#cb11-152" aria-hidden="true" tabindex="-1"></a>The displayed output has mean approximately zero and variance approximately one before the learned affine scale and shift. The small $\epsilon$ prevents division by zero and affects exact numerical agreement across implementations.</span>
+<span id="cb11-153"><a href="#cb11-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-154"><a href="#cb11-154" aria-hidden="true" tabindex="-1"></a>Layer normalisation differs from the batch normalisation discussed in Chapter 12. It has no running population mean or variance to switch between training and evaluation modes, although the surrounding block can still contain dropout. This makes it suitable for variable-length sequences and small batches under its own assumptions; it does not mean normalisation choice is irrelevant to optimisation or precision.</span>
+<span id="cb11-155"><a href="#cb11-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-156"><a href="#cb11-156" aria-hidden="true" tabindex="-1"></a><span class="fu">### The feed-forward network mixes features, not tokens</span></span>
+<span id="cb11-157"><a href="#cb11-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-158"><a href="#cb11-158" aria-hidden="true" tabindex="-1"></a>A conventional feed-forward network (FFN) has the form</span>
+<span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-160"><a href="#cb11-160" aria-hidden="true" tabindex="-1"></a>$$G(h)=W_2\,\phi(W_1h+b_1)+b_2,$$</span>
+<span id="cb11-161"><a href="#cb11-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-162"><a href="#cb11-162" aria-hidden="true" tabindex="-1"></a>where $W_1$ expands from $D$ to an internal width $D_{ff}$, $\phi$ is a nonlinearity, and $W_2$ returns to $D$. The same weights apply at every sequence position. A position's FFN output can depend on other tokens only through the contextual representation that attention already supplied.</span>
+<span id="cb11-163"><a href="#cb11-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-166"><a href="#cb11-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-167"><a href="#cb11-167" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">.2</span>],[<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>,<span class="fl">.4</span>]])</span>
+<span id="cb11-168"><a href="#cb11-168" aria-hidden="true" tabindex="-1"></a>w1<span class="op">=</span>np.array([[<span class="fl">.4</span>,<span class="op">-</span><span class="fl">.2</span>,<span class="fl">.3</span>,<span class="fl">.1</span>],[<span class="fl">.1</span>,<span class="fl">.5</span>,<span class="op">-</span><span class="fl">.4</span>,<span class="fl">.2</span>],[<span class="fl">.3</span>,<span class="fl">.2</span>,<span class="fl">.1</span>,<span class="op">-</span><span class="fl">.5</span>]])</span>
+<span id="cb11-169"><a href="#cb11-169" aria-hidden="true" tabindex="-1"></a>w2<span class="op">=</span>np.array([[<span class="fl">.5</span>,<span class="fl">.1</span>,<span class="op">-</span><span class="fl">.2</span>,<span class="fl">.3</span>],[<span class="fl">.2</span>,<span class="fl">.4</span>,<span class="fl">.1</span>,<span class="op">-</span><span class="fl">.1</span>],[<span class="op">-</span><span class="fl">.3</span>,<span class="fl">.2</span>,<span class="fl">.5</span>,<span class="fl">.2</span>]])</span>
+<span id="cb11-170"><a href="#cb11-170" aria-hidden="true" tabindex="-1"></a>hidden<span class="op">=</span>np.maximum(<span class="dv">0</span>,sequence<span class="op">@</span>w1)<span class="op">;</span> output<span class="op">=</span>hidden<span class="op">@</span>w2.T</span>
+<span id="cb11-171"><a href="#cb11-171" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"input, hidden, output shapes:"</span>,sequence.shape,hidden.shape,output.shape)</span>
+<span id="cb11-172"><a href="#cb11-172" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"each output row comes from the matching input row after this FFN:"</span>,output.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb11-173"><a href="#cb11-173" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-174"><a href="#cb11-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-175"><a href="#cb11-175" aria-hidden="true" tabindex="-1"></a>This small example uses ReLU for visibility. Many modern architectures use variants such as GELU or gated feed-forward units. The block contract remains: a position-wise nonlinear branch begins and ends at model width.</span>
+<span id="cb11-176"><a href="#cb11-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-177"><a href="#cb11-177" aria-hidden="true" tabindex="-1"></a>The same FFN weights are reused at every position, but the inputs need not be similar. Once attention has mixed contextual information into a representation, the FFN can transform a token differently because its coordinates differ. The phrase *position-wise* describes which axes the FFN mixes directly, not an assertion that the output ignores context.</span>
+<span id="cb11-178"><a href="#cb11-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-179"><a href="#cb11-179" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb11-180"><a href="#cb11-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-181"><a href="#cb11-181" aria-hidden="true" tabindex="-1"></a><span class="fu">### Post-norm and pre-norm are different functions</span></span>
+<span id="cb11-182"><a href="#cb11-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-183"><a href="#cb11-183" aria-hidden="true" tabindex="-1"></a>The original Transformer applied normalisation after each residual addition:</span>
+<span id="cb11-184"><a href="#cb11-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-185"><a href="#cb11-185" aria-hidden="true" tabindex="-1"></a>$$H=\operatorname{LN}_1(X+A(X)),\qquad Y=\operatorname{LN}_2(H+G(H)).$$</span>
+<span id="cb11-186"><a href="#cb11-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-187"><a href="#cb11-187" aria-hidden="true" tabindex="-1"></a>This is post-norm. Pre-norm instead applies normalisation before the branches, as in the Level 2 equations. The two arrangements have the same named components but differ in forward values, gradient paths, and training behaviour. A configuration label such as <span class="in">`LayerNorm`</span> is incomplete without the placement convention <span class="co">[</span><span class="ot">@vaswani2017; @ba2016layernorm</span><span class="co">]</span>.</span>
+<span id="cb11-188"><a href="#cb11-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-191"><a href="#cb11-191" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-192"><a href="#cb11-192" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb11-193"><a href="#cb11-193" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb11-194"><a href="#cb11-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-195"><a href="#cb11-195" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">22</span>)</span>
+<span id="cb11-196"><a href="#cb11-196" aria-hidden="true" tabindex="-1"></a>toy<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">4</span>)<span class="op">;</span> branch<span class="op">=</span>nn.Linear(<span class="dv">4</span>,<span class="dv">4</span>,bias<span class="op">=</span><span class="va">False</span>)<span class="op">;</span> norm<span class="op">=</span>nn.LayerNorm(<span class="dv">4</span>)</span>
+<span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a>post<span class="op">=</span>norm(toy<span class="op">+</span>branch(toy))</span>
+<span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a>pre<span class="op">=</span>toy<span class="op">+</span>branch(norm(toy))</span>
+<span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same shape:"</span>,<span class="bu">tuple</span>(post.shape),<span class="bu">tuple</span>(pre.shape))</span>
+<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"pre-norm and post-norm give different values:"</span>,<span class="kw">not</span> torch.allclose(post,pre))</span>
+<span id="cb11-201"><a href="#cb11-201" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-202"><a href="#cb11-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a>The code holds branch and normalisation parameters fixed. The difference follows solely from operation order. Neither arrangement can be called the same block with a cosmetic rearrangement.</span>
+<span id="cb11-204"><a href="#cb11-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-205"><a href="#cb11-205" aria-hidden="true" tabindex="-1"></a>For a deep stack, the choice also changes which representation enters the next block and which operations lie on a direct residual route. Training recipes commonly pair an architecture convention with choices about learning-rate schedule, initialisation, clipping, precision, and warm-up. A result attributed to <span class="in">`pre-norm`</span> therefore needs those accompanying conditions before it can be compared with a post-norm result.</span>
+<span id="cb11-206"><a href="#cb11-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-207"><a href="#cb11-207" aria-hidden="true" tabindex="-1"></a><span class="fu">### A compact causal pre-norm block makes the branches visible</span></span>
+<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-211"><a href="#cb11-211" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PreNormTransformerBlock(nn.Module):</span>
+<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>,width,heads,ff_width,dropout<span class="op">=</span><span class="fl">0.0</span>):</span>
+<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm_attn<span class="op">=</span>nn.LayerNorm(width)</span>
+<span id="cb11-216"><a href="#cb11-216" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.attn<span class="op">=</span>nn.MultiheadAttention(width,heads,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span>dropout)</span>
+<span id="cb11-217"><a href="#cb11-217" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm_ff<span class="op">=</span>nn.LayerNorm(width)</span>
+<span id="cb11-218"><a href="#cb11-218" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ff<span class="op">=</span>nn.Sequential(nn.Linear(width,ff_width),nn.GELU(),nn.Linear(ff_width,width))</span>
+<span id="cb11-219"><a href="#cb11-219" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dropout<span class="op">=</span>nn.Dropout(dropout)</span>
+<span id="cb11-220"><a href="#cb11-220" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>,x,need_weights<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb11-221"><a href="#cb11-221" aria-hidden="true" tabindex="-1"></a>        length<span class="op">=</span>x.shape[<span class="dv">1</span>]<span class="op">;</span> causal<span class="op">=</span>torch.triu(torch.ones(length,length,device<span class="op">=</span>x.device,dtype<span class="op">=</span>torch.<span class="bu">bool</span>),diagonal<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a>        z<span class="op">=</span><span class="va">self</span>.norm_attn(x)<span class="op">;</span> attn_out,weights<span class="op">=</span><span class="va">self</span>.attn(z,z,z,attn_mask<span class="op">=</span>causal,need_weights<span class="op">=</span>need_weights,average_attn_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a>        h<span class="op">=</span>x<span class="op">+</span><span class="va">self</span>.dropout(attn_out)</span>
+<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span>h<span class="op">+</span><span class="va">self</span>.dropout(<span class="va">self</span>.ff(<span class="va">self</span>.norm_ff(h)))</span>
+<span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (y,weights) <span class="cf">if</span> need_weights <span class="cf">else</span> y</span>
+<span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a>block<span class="op">=</span>PreNormTransformerBlock(width<span class="op">=</span><span class="dv">6</span>,heads<span class="op">=</span><span class="dv">2</span>,ff_width<span class="op">=</span><span class="dv">18</span>).<span class="bu">eval</span>()</span>
+<span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>torch.randn(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> y,weights<span class="op">=</span>block(x,need_weights<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-229"><a href="#cb11-229" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"input and output:"</span>,<span class="bu">tuple</span>(x.shape),<span class="bu">tuple</span>(y.shape))</span>
+<span id="cb11-230"><a href="#cb11-230" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"attention weights:"</span>,<span class="bu">tuple</span>(weights.shape))</span>
+<span id="cb11-231"><a href="#cb11-231" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"future masked mass:"</span>,weights[<span class="dv">0</span>,:,<span class="dv">1</span>,<span class="dv">2</span>:].<span class="bu">sum</span>().item())</span>
+<span id="cb11-232"><a href="#cb11-232" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-233"><a href="#cb11-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-234"><a href="#cb11-234" aria-hidden="true" tabindex="-1"></a>The attention module receives its normalised input as query, key, and value. The residual addition uses the original $x$, so the width contract is visible. In a production module, padding masks, positional conventions, precision policy, and cache interfaces must be added to this minimal version.</span>
+<span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-236"><a href="#cb11-236" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tests should cover both residual and causal contracts</span></span>
+<span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-240"><a href="#cb11-240" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-241"><a href="#cb11-241" aria-hidden="true" tabindex="-1"></a>changed<span class="op">=</span>x.clone()<span class="op">;</span> changed[:,<span class="dv">3</span>]<span class="op">+=</span><span class="dv">100</span></span>
+<span id="cb11-242"><a href="#cb11-242" aria-hidden="true" tabindex="-1"></a>y_base<span class="op">=</span>block(x)<span class="op">;</span> y_changed<span class="op">=</span>block(changed)</span>
+<span id="cb11-243"><a href="#cb11-243" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"earlier causal outputs unchanged:"</span>,torch.allclose(y_base[:,:<span class="dv">3</span>],y_changed[:,:<span class="dv">3</span>],atol<span class="op">=</span><span class="fl">1e-6</span>))</span>
+<span id="cb11-244"><a href="#cb11-244" aria-hidden="true" tabindex="-1"></a>zero_block<span class="op">=</span>PreNormTransformerBlock(width<span class="op">=</span><span class="dv">6</span>,heads<span class="op">=</span><span class="dv">2</span>,ff_width<span class="op">=</span><span class="dv">18</span>).<span class="bu">eval</span>()</span>
+<span id="cb11-245"><a href="#cb11-245" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> parameter <span class="kw">in</span> zero_block.attn.parameters(): parameter.data.zero_()</span>
+<span id="cb11-246"><a href="#cb11-246" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> parameter <span class="kw">in</span> zero_block.ff.parameters(): parameter.data.zero_()</span>
+<span id="cb11-247"><a href="#cb11-247" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"zeroed branches preserve input:"</span>,torch.allclose(zero_block(x),x,atol<span class="op">=</span><span class="fl">1e-6</span>))</span>
+<span id="cb11-248"><a href="#cb11-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-249"><a href="#cb11-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-250"><a href="#cb11-250" aria-hidden="true" tabindex="-1"></a>The first test checks that the complete block preserves the attention mask's causal boundary. The second checks the residual route: when both learned branches are zeroed, the block reduces to the identity map. These tests are more informative than verifying only that tensor shapes match.</span>
+<span id="cb11-251"><a href="#cb11-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-252"><a href="#cb11-252" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb11-253"><a href="#cb11-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-254"><a href="#cb11-254" aria-hidden="true" tabindex="-1"></a><span class="fu">### A block has several width and memory costs</span></span>
+<span id="cb11-255"><a href="#cb11-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-256"><a href="#cb11-256" aria-hidden="true" tabindex="-1"></a>With model width $D$, feed-forward width $D_{ff}$, and $H$ heads, the two attention projections commonly use approximately $4D^2$ parameters when query, key, value, and output projections all have width $D$. The FFN uses approximately $2DD_{ff}$ parameters, excluding biases and gated variants. If $D_{ff}=4D$, the FFN contains about twice as many dense parameters as the attention projections in one conventional block.</span>
+<span id="cb11-257"><a href="#cb11-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-258"><a href="#cb11-258" aria-hidden="true" tabindex="-1"></a>Activation memory and compute follow the sequence length as well as the widths. Attention has a dense query-key relation over positions; the FFN is linear in sequence length but materialises an intermediate tensor of shape $B\times S\times D_{ff}$. The memory bottleneck therefore depends on length, batch size, dtype, checkpointing policy, kernel implementation, and the selected widths. Counting parameters alone does not identify the limiting resource.</span>
+<span id="cb11-259"><a href="#cb11-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-260"><a href="#cb11-260" aria-hidden="true" tabindex="-1"></a>For example, doubling $D$ approximately quadruples both dense projection parameter counts under a fixed $D_{ff}/D$ ratio. Doubling sequence length leaves those parameters unchanged, doubles FFN activation rows, and quadruples dense attention-score entries. A systems report should state which dimension changed when it describes a block as expensive or memory-limited.</span>
+<span id="cb11-261"><a href="#cb11-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-264"><a href="#cb11-264" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-265"><a href="#cb11-265" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-block-parameter-accounting</span></span>
+<span id="cb11-266"><a href="#cb11-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "At a conventional feed-forward width of four times model width, the FFN has about twice the dense parameter count of the attention projections within one block."</span></span>
+<span id="cb11-267"><a href="#cb11-267" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart compares attention projection and feed-forward parameter counts across model widths 128, 256, 512, and 1024, with the FFN bars twice as high."</span></span>
+<span id="cb11-268"><a href="#cb11-268" aria-hidden="true" tabindex="-1"></a>widths<span class="op">=</span>np.array([<span class="dv">128</span>,<span class="dv">256</span>,<span class="dv">512</span>,<span class="dv">1024</span>])<span class="op">;</span> attention_params<span class="op">=</span><span class="dv">4</span><span class="op">*</span>widths<span class="op">**</span><span class="dv">2</span><span class="op">;</span> ffn_params<span class="op">=</span><span class="dv">2</span><span class="op">*</span>widths<span class="op">*</span>(<span class="dv">4</span><span class="op">*</span>widths)</span>
+<span id="cb11-269"><a href="#cb11-269" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">4.2</span>))<span class="op">;</span> offset<span class="op">=</span><span class="fl">.18</span></span>
+<span id="cb11-270"><a href="#cb11-270" aria-hidden="true" tabindex="-1"></a>ax.bar(np.arange(<span class="bu">len</span>(widths))<span class="op">-</span>offset,attention_params<span class="op">/</span><span class="fl">1e6</span>,width<span class="op">=</span><span class="fl">.36</span>,label<span class="op">=</span><span class="st">"attention projections"</span>,color<span class="op">=</span>teal)</span>
+<span id="cb11-271"><a href="#cb11-271" aria-hidden="true" tabindex="-1"></a>ax.bar(np.arange(<span class="bu">len</span>(widths))<span class="op">+</span>offset,ffn_params<span class="op">/</span><span class="fl">1e6</span>,width<span class="op">=</span><span class="fl">.36</span>,label<span class="op">=</span><span class="st">"FFN (Dff = 4D)"</span>,color<span class="op">=</span>orange)</span>
+<span id="cb11-272"><a href="#cb11-272" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(np.arange(<span class="bu">len</span>(widths)),widths)<span class="op">;</span> ax.set_xlabel(<span class="st">"Model width D"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Dense parameters (millions)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Approximate parameter allocation per block"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-273"><a href="#cb11-273" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-274"><a href="#cb11-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-275"><a href="#cb11-275" aria-hidden="true" tabindex="-1"></a><span class="fu">### Block variants must be named rather than assumed</span></span>
+<span id="cb11-276"><a href="#cb11-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-277"><a href="#cb11-277" aria-hidden="true" tabindex="-1"></a>Implementations differ in normalisation placement, epsilon, affine parameters, attention bias, positional method, activation, FFN width, gated versus ungated FFN, dropout locations, bias terms, query/key normalisation, and residual scaling. A checkpoint cannot be reproduced from <span class="in">`12-layer Transformer`</span> alone. Those choices alter parameter shapes, forward values, numerical stability, and the valid loading procedure.</span>
+<span id="cb11-278"><a href="#cb11-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-279"><a href="#cb11-279" aria-hidden="true" tabindex="-1"></a>A useful checkpoint manifest separates architecture from run state. Architecture includes every block setting needed to build compatible parameter tensors. Run state includes model weights, optimiser and scheduler state when training will resume, random-number-generator state when exact continuation matters, the tokenizer and positional conventions at the model boundary, and the software versions or kernel settings that materially affect execution. Chapter 14 established this recovery principle for training loops; a Transformer block supplies a more detailed architecture contract to it.</span>
+<span id="cb11-280"><a href="#cb11-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-281"><a href="#cb11-281" aria-hidden="true" tabindex="-1"></a>The original Transformer block used residual connections and layer normalisation around attention and a position-wise feed-forward network <span class="co">[</span><span class="ot">@vaswani2017</span><span class="co">]</span>. Later architecture families alter parts of that recipe. The appropriate comparison is therefore at the level of an explicit block specification, followed by controlled evidence on the task and training regime, not a claim that one named component is universally superior.</span>
+<span id="cb11-282"><a href="#cb11-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-283"><a href="#cb11-283" aria-hidden="true" tabindex="-1"></a><span class="fu">### Auditing a block includes its boundaries</span></span>
+<span id="cb11-284"><a href="#cb11-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-285"><a href="#cb11-285" aria-hidden="true" tabindex="-1"></a>A block audit should record tensor axes; model, head, and FFN widths; normalisation type, placement, epsilon, and affine settings; attention mask and padding-mask conventions; positional method; projection and bias configuration; activation; dropout locations and modes; dtype; cache offset; and parameter initialisation. Tests should cover shape preservation, causal and padding invariance, identity behaviour of zeroed branches, cached versus full-sequence agreement, finite outputs under chosen precision, and checkpoint loading.</span>
+<span id="cb11-286"><a href="#cb11-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-287"><a href="#cb11-287" aria-hidden="true" tabindex="-1"></a>One further boundary matters in practice: train and evaluation modes. Dropout and some framework kernels behave differently between them. A reported comparison should state which mode was used, and an inference service should not leave stochastic branch dropout active accidentally.</span>
+<span id="cb11-288"><a href="#cb11-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-289"><a href="#cb11-289" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb11-290"><a href="#cb11-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-291"><a href="#cb11-291" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A Transformer block is only an attention layer.** It also includes residual paths, normalisation, and a feed-forward transformation.</span>
+<span id="cb11-292"><a href="#cb11-292" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Residual addition concatenates features.** It adds equal-width coordinates and preserves the model-width contract.</span>
+<span id="cb11-293"><a href="#cb11-293" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Layer normalisation mixes information across tokens.** Standard layer norm uses features within each token representation.</span>
+<span id="cb11-294"><a href="#cb11-294" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**The FFN applies one transformation to the whole sequence.** The same FFN is applied independently at each position.</span>
+<span id="cb11-295"><a href="#cb11-295" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Pre-norm and post-norm differ only in notation.** They order the operations differently and produce different functions.</span>
+<span id="cb11-296"><a href="#cb11-296" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A causal attention branch makes every block implementation causal.** Mask propagation, padding, cache offsets, and later code paths still require tests.</span>
+<span id="cb11-297"><a href="#cb11-297" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**The attention projections always dominate block parameters.** A wide FFN can contain more dense parameters.</span>
+<span id="cb11-298"><a href="#cb11-298" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A shape test verifies a Transformer block.** It does not test residual identity, information boundaries, masks, or numerical policy.</span>
+<span id="cb11-299"><a href="#cb11-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-300"><a href="#cb11-300" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb11-301"><a href="#cb11-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-302"><a href="#cb11-302" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>State the input and output shape of every branch in a block with batch 8, length 64, width 512, and FFN width 2,048.</span>
+<span id="cb11-303"><a href="#cb11-303" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Compute layer-normalisation statistics for a supplied four-coordinate token.</span>
+<span id="cb11-304"><a href="#cb11-304" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why residual addition requires matching width while FFN expansion does not.</span>
+<span id="cb11-305"><a href="#cb11-305" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Implement the post-norm equations with the same submodules used in the pre-norm code.</span>
+<span id="cb11-306"><a href="#cb11-306" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Show numerically that pre-norm and post-norm differ for fixed parameters.</span>
+<span id="cb11-307"><a href="#cb11-307" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Replace ReLU in the small FFN example with GELU and compare outputs on a chosen input.</span>
+<span id="cb11-308"><a href="#cb11-308" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Calculate approximate attention and FFN parameter counts for $D=768$ and $D_{ff}=3,072$.</span>
+<span id="cb11-309"><a href="#cb11-309" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Add a padding mask to the compact block and test that padded keys receive zero attention mass.</span>
+<span id="cb11-310"><a href="#cb11-310" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Write a test that a zeroed residual branch leaves its input unchanged.</span>
+<span id="cb11-311"><a href="#cb11-311" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Test causal invariance after changing the final input position.</span>
+<span id="cb11-312"><a href="#cb11-312" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Identify the global positional offset needed for a cached one-token continuation.</span>
+<span id="cb11-313"><a href="#cb11-313" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Measure the intermediate FFN activation size for several batch, length, and dtype choices.</span>
+<span id="cb11-314"><a href="#cb11-314" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Compare outputs in training and evaluation mode with non-zero dropout.</span>
+<span id="cb11-315"><a href="#cb11-315" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>List the parameters and buffers a checkpoint must retain for the compact block.</span>
+<span id="cb11-316"><a href="#cb11-316" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Describe a failure caused by mixing post-norm weights with a pre-norm implementation.</span>
+<span id="cb11-317"><a href="#cb11-317" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>State which question Chapter 23 adds beyond the definition of one block.</span>
+<span id="cb11-318"><a href="#cb11-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-319"><a href="#cb11-319" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb11-320"><a href="#cb11-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-321"><a href="#cb11-321" aria-hidden="true" tabindex="-1"></a>A Transformer block preserves sequence length and model width while applying two residual updates. Attention exchanges information across eligible positions; the feed-forward network applies a nonlinear transformation at each position. Layer normalisation controls feature-coordinate scale under a stated placement convention.</span>
+<span id="cb11-322"><a href="#cb11-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-323"><a href="#cb11-323" aria-hidden="true" tabindex="-1"></a>Pre-norm and post-norm are distinct block definitions. Their position method, masks, widths, dropout, precision policy, and cache conventions must be specified alongside the equations when a model is trained, compared, or deployed.</span>
+<span id="cb11-324"><a href="#cb11-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-325"><a href="#cb11-325" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb11-326"><a href="#cb11-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-327"><a href="#cb11-327" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 23</span><span class="co">](23-encoder-decoder-models.qmd)</span> uses these blocks to distinguish encoder-only, decoder-only, and encoder-decoder Transformer configurations and the tasks their attention patterns support.</span>
+<span id="cb11-328"><a href="#cb11-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-329"><a href="#cb11-329" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb11-330"><a href="#cb11-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-331"><a href="#cb11-331" aria-hidden="true" tabindex="-1"></a>The original Transformer block is specified in @vaswani2017. Layer normalisation is introduced by @ba2016layernorm.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

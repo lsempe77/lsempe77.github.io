@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Mixture-of-experts Models – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./44-vision-transformers.html" rel="next">
+<link href="./42-limits-and-open-questions.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-navigation.css"></head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./43-mixture-of-experts-models.html"><span class="chapter-title">Mixture-of-experts Models</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-layer" id="toc-running-layer" class="nav-link" data-scroll-target="#running-layer">Running layer</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#capacity-can-grow-without-activating-every-parameter" id="toc-capacity-can-grow-without-activating-every-parameter" class="nav-link" data-scroll-target="#capacity-can-grow-without-activating-every-parameter">Capacity can grow without activating every parameter</a></li>
+  <li><a href="#routing-is-conditional-on-a-token-and-its-batch-context" id="toc-routing-is-conditional-on-a-token-and-its-batch-context" class="nav-link" data-scroll-target="#routing-is-conditional-on-a-token-and-its-batch-context">Routing is conditional on a token and its batch context</a></li>
+  </ul></li>
+  <li><a href="#level-2---routing-and-capacity-mechanics" id="toc-level-2---routing-and-capacity-mechanics" class="nav-link" data-scroll-target="#level-2---routing-and-capacity-mechanics">Level 2 - Routing and capacity mechanics</a>
+  <ul class="collapse">
+  <li><a href="#router-scores-become-a-sparse-dispatch-decision" id="toc-router-scores-become-a-sparse-dispatch-decision" class="nav-link" data-scroll-target="#router-scores-become-a-sparse-dispatch-decision">Router scores become a sparse dispatch decision</a></li>
+  <li><a href="#top-k-selection-has-ties-normalisation-and-gradient-consequences" id="toc-top-k-selection-has-ties-normalisation-and-gradient-consequences" class="nav-link" data-scroll-target="#top-k-selection-has-ties-normalisation-and-gradient-consequences">Top-k selection has ties, normalisation, and gradient consequences</a></li>
+  <li><a href="#capacity-limits-make-dispatch-observable" id="toc-capacity-limits-make-dispatch-observable" class="nav-link" data-scroll-target="#capacity-limits-make-dispatch-observable">Capacity limits make dispatch observable</a></li>
+  <li><a href="#overflow-handling-defines-an-output-contract" id="toc-overflow-handling-defines-an-output-contract" class="nav-link" data-scroll-target="#overflow-handling-defines-an-output-contract">Overflow handling defines an output contract</a></li>
+  </ul></li>
+  <li><a href="#level-3---training-and-systems-constraints" id="toc-level-3---training-and-systems-constraints" class="nav-link" data-scroll-target="#level-3---training-and-systems-constraints">Level 3 - Training and systems constraints</a>
+  <ul class="collapse">
+  <li><a href="#load-balancing-supplies-a-training-signal-and-a-hardware-constraint" id="toc-load-balancing-supplies-a-training-signal-and-a-hardware-constraint" class="nav-link" data-scroll-target="#load-balancing-supplies-a-training-signal-and-a-hardware-constraint">Load balancing supplies a training signal and a hardware constraint</a></li>
+  <li><a href="#load-balancing-has-probability-assignment-and-quality-diagnostics" id="toc-load-balancing-has-probability-assignment-and-quality-diagnostics" class="nav-link" data-scroll-target="#load-balancing-has-probability-assignment-and-quality-diagnostics">Load balancing has probability, assignment, and quality diagnostics</a></li>
+  <li><a href="#a-dense-comparison-requires-an-end-to-end-cost-record" id="toc-a-dense-comparison-requires-an-end-to-end-cost-record" class="nav-link" data-scroll-target="#a-dense-comparison-requires-an-end-to-end-cost-record">A dense comparison requires an end-to-end cost record</a></li>
+  <li><a href="#dispatch-has-a-topology-and-a-synchronisation-cost" id="toc-dispatch-has-a-topology-and-a-synchronisation-cost" class="nav-link" data-scroll-target="#dispatch-has-a-topology-and-a-synchronisation-cost">Dispatch has a topology and a synchronisation cost</a></li>
+  </ul></li>
+  <li><a href="#level-4---evaluation-deployment-and-limits" id="toc-level-4---evaluation-deployment-and-limits" class="nav-link" data-scroll-target="#level-4---evaluation-deployment-and-limits">Level 4 - Evaluation, deployment, and limits</a>
+  <ul class="collapse">
+  <li><a href="#evaluate-routing-as-well-as-task-output" id="toc-evaluate-routing-as-well-as-task-output" class="nav-link" data-scroll-target="#evaluate-routing-as-well-as-task-output">Evaluate routing as well as task output</a></li>
+  <li><a href="#evaluate-routing-changes-with-matched-quality-and-workload-slices" id="toc-evaluate-routing-changes-with-matched-quality-and-workload-slices" class="nav-link" data-scroll-target="#evaluate-routing-changes-with-matched-quality-and-workload-slices">Evaluate routing changes with matched quality and workload slices</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Mixture-of-experts Models</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Sparse routing, expert capacity, load balancing, and systems cost</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>A dense Transformer applies the same feed-forward parameters to every token. Increasing its capacity therefore increases the computation and memory required for every token. A mixture-of-experts (MoE) layer replaces one feed-forward subnetwork with several experts and a router that activates only a small subset for each token. The model can contain many more parameters than a comparably priced dense layer, while its active computation remains bounded by the selected experts.</p>
+<p>That arithmetic is incomplete. A useful MoE layer must decide which experts receive which tokens, prevent a few experts from receiving most of the work, and move token representations to the devices that hold the selected experts. Routing and communication are therefore part of the model, not implementation detail. This chapter establishes those mechanisms before the later chapters on serving, monitoring, and safety.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish total parameters from active parameters per token;</li>
+<li>describe router scores, top-&nbsp;k selection, expert outputs, and weighted combination;</li>
+<li>calculate a toy expert-capacity limit and identify dropped or rerouted tokens;</li>
+<li>explain why load balancing changes both training and systems behaviour;</li>
+<li>compare dense and MoE cost under a stated routing policy; and</li>
+<li>specify an MoE evaluation and deployment record.</li>
+</ul>
+</section>
+<section id="running-layer" class="level3">
+<h3 class="anchored" data-anchor-id="running-layer">Running layer</h3>
+<p>The running example has four feed-forward experts and a router that selects two per token. The numbers are deliberately small so that routing, capacity, and aggregation can be inspected directly.</p>
+<div id="fig-moe-layer" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-moe-layer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.3</span>,<span class="fl">.7</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.8</span>),<span class="fl">1.1</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.85</span>,<span class="fl">.89</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.8</span>,<span class="ss">f"token </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">2.2</span>,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">2.8</span>,<span class="fl">1.65</span>,<span class="st">"router"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">4.4</span>,<span class="fl">2.75</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.8</span>),<span class="fl">1.25</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.03</span>,<span class="fl">2.96</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.8</span>,<span class="ss">f"expert </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">7.0</span>,<span class="fl">1.35</span>),<span class="fl">1.55</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">7.78</span>,<span class="fl">1.65</span>,<span class="st">"weighted output"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">1.09</span>,<span class="fl">1.89</span>,<span class="fl">2.69</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">1.45</span>,y),(<span class="fl">2.15</span>,<span class="fl">1.65</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">9</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">2.95</span>,<span class="fl">2.15</span>,<span class="fl">1.35</span>,<span class="fl">.55</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">3.45</span>,<span class="fl">1.65</span>),(<span class="fl">4.35</span>,y),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">8</span>,alpha<span class="op">=</span><span class="fl">.6</span>))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">2.95</span>,<span class="fl">2.15</span>,<span class="fl">1.35</span>,<span class="fl">.55</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">5.7</span>,y),(<span class="fl">6.95</span>,<span class="fl">1.65</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">8</span>,alpha<span class="op">=</span><span class="fl">.6</span>))</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-moe-layer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="capacity-can-grow-without-activating-every-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="capacity-can-grow-without-activating-every-parameter">Capacity can grow without activating every parameter</h3>
+<p>The dense layer asks one feed-forward network to process every token. An MoE layer gives the router several such networks and lets it select specialists conditionally. A token associated with code-like text may be routed differently from a token in another language or a mathematical expression. The system does not need a semantic story about each expert for this to be useful; the operational claim is that different tokens activate different parameter subsets.</p>
+<p>Sparse activation changes the comparison. A model with eight experts may store roughly eight feed-forward parameter sets, but a top-2 router only executes two for one token. Parameter count therefore measures stored capacity, while active parameters and communication determine per-token cost. The sparsely gated MoE layer formalised this conditional-computation approach, and subsequent work made routing simple enough to support large Transformer training <span class="citation" data-cites="shazeer2017moe fedus2021switch">(<a href="#ref-shazeer2017moe" role="doc-biblioref">Shazeer et al. 2017</a>; <a href="#ref-fedus2021switch" role="doc-biblioref">Fedus, Zoph, and Shazeer 2022</a>)</span>.</p>
+<div id="e127fb67" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dense_parameters<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>experts,active<span class="op">=</span><span class="dv">8</span>,<span class="dv">2</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"dense_active"</span>:dense_parameters,<span class="st">"moe_total"</span>:experts<span class="op">*</span>dense_parameters,<span class="st">"moe_active"</span>:active<span class="op">*</span>dense_parameters})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-total-active-parameters" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-total-active-parameters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"dense</span><span class="ch">\n</span><span class="st">active"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">total"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">active"</span>]<span class="op">;</span> values<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">800</span>,<span class="dv">200</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(labels,values,color<span class="op">=</span>[blue,purple,teal])<span class="op">;</span> ax.set_ylabel(<span class="st">"illustrative parameter units"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Stored and active parameter counts"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-total-active-parameters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.2
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="routing-is-conditional-on-a-token-and-its-batch-context" class="level3">
+<h3 class="anchored" data-anchor-id="routing-is-conditional-on-a-token-and-its-batch-context">Routing is conditional on a token and its batch context</h3>
+<p>The router score is computed from a token representation, but the realised dispatch can depend on the surrounding batch. Capacity limits, token order, expert-parallel layout, and tie handling determine which selected assignments are actually processed when several tokens request the same expert. Two copies of the same token can therefore receive different fallback treatment in different batches even when their router scores are unchanged. A routing claim should distinguish the score produced by the router from the assignment that reached an expert.</p>
+<p>This distinction matters for reproducibility. Record the batching and packing policy, sequence lengths, top-k rule, capacity factor, token ordering where relevant, and whether assignment is deterministic under a fixed seed. An average routing histogram can conceal a capacity conflict that occurs only in long sequences or one language slice. The relevant unit for systems evaluation is the realised assignment and its outcome, not only the router’s preferred expert.</p>
+</section>
+</section>
+<section id="level-2---routing-and-capacity-mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---routing-and-capacity-mechanics">Level 2 - Routing and capacity mechanics</h2>
+<section id="router-scores-become-a-sparse-dispatch-decision" class="level3">
+<h3 class="anchored" data-anchor-id="router-scores-become-a-sparse-dispatch-decision">Router scores become a sparse dispatch decision</h3>
+<p>For token representation (x), a router produces one score per expert. A softmax can turn the scores into non-negative weights. Top-&nbsp;k routing retains only the k largest weights, renormalises them, sends the token to those experts, and combines their outputs. If experts are functions (f_e), the layer output is the weighted sum of the selected (f_e(x)). This is conditional computation: routing determines which parameters participate in this token’s forward and backward pass.</p>
+<div id="28869f7e" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>np.array([<span class="fl">1.8</span>,<span class="fl">.4</span>,<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.3</span>])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.exp(scores<span class="op">-</span>scores.<span class="bu">max</span>())<span class="op">;</span> weights<span class="op">=</span>weights<span class="op">/</span>weights.<span class="bu">sum</span>()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>chosen<span class="op">=</span>np.argsort(weights)[<span class="op">-</span><span class="dv">2</span>:]<span class="op">;</span> selected<span class="op">=</span>weights[chosen]<span class="op">/</span>weights[chosen].<span class="bu">sum</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"router weights:"</span>,np.<span class="bu">round</span>(weights,<span class="dv">3</span>),<span class="st">"experts:"</span>,chosen,<span class="st">"renormalised:"</span>,np.<span class="bu">round</span>(selected,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-topk-routing" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-topk-routing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> colours<span class="op">=</span>[orange <span class="cf">if</span> i <span class="kw">in</span> chosen <span class="cf">else</span> grey <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),weights,color<span class="op">=</span>colours)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"router weight"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative top-two router decision"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-topk-routing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="top-k-selection-has-ties-normalisation-and-gradient-consequences" class="level3">
+<h3 class="anchored" data-anchor-id="top-k-selection-has-ties-normalisation-and-gradient-consequences">Top-k selection has ties, normalisation, and gradient consequences</h3>
+<p>Top-k creates a discontinuous membership decision: an expert just below the cutoff receives no expert computation for that token, while one just above it receives a renormalised weight. Ties and near-ties therefore require a deterministic or recorded tie rule. The selected weights should sum to one if the implementation defines a weighted combination, but the unselected router scores can still matter for the router’s learning signal and auxiliary objectives.</p>
+<p>The router and experts also receive different gradients. Selected experts receive token-specific gradients; unselected experts do not receive that token’s expert-path gradient. Router updates depend on the routing formulation and losses used to encourage balance or exploration. These are reasons to report router settings separately from the feed-forward expert architecture. A change in top-k or normalisation affects both the active computation and the data each expert sees during training.</p>
+<p>Report these choices with the checkpoint, training batch policy, and evaluator version.</p>
+</section>
+<section id="capacity-limits-make-dispatch-observable" class="level3">
+<h3 class="anchored" data-anchor-id="capacity-limits-make-dispatch-observable">Capacity limits make dispatch observable</h3>
+<p>Experts cannot process an unlimited number of token assignments in one batch. A capacity factor sets a per-expert quota relative to the average expected load. When an expert is full, the implementation may drop an assignment, send it to a backup expert, or preserve a residual path. Each choice changes the layer output and must be reported. A low capacity limit raises the chance of discarded routes; a high limit reserves memory and can leave accelerator work uneven.</p>
+<div id="5d08967d" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>assignments<span class="op">=</span>np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>])<span class="op">;</span> capacity<span class="op">=</span><span class="dv">2</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>counts<span class="op">=</span>np.bincount(assignments,minlength<span class="op">=</span><span class="dv">4</span>)<span class="op">;</span> overflow<span class="op">=</span>np.maximum(counts<span class="op">-</span>capacity,<span class="dv">0</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"expert loads:"</span>,counts,<span class="st">"overflow:"</span>,overflow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-expert-capacity" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-expert-capacity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),counts,color<span class="op">=</span>[orange <span class="cf">if</span> c<span class="op">&gt;</span>capacity <span class="cf">else</span> teal <span class="cf">for</span> c <span class="kw">in</span> counts])</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ax.axhline(capacity,color<span class="op">=</span>purple,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"capacity"</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"token assignments"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative capacity overflow"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-expert-capacity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="overflow-handling-defines-an-output-contract" class="level3">
+<h3 class="anchored" data-anchor-id="overflow-handling-defines-an-output-contract">Overflow handling defines an output contract</h3>
+<p>Dropping an assignment, rerouting it to a lower-ranked expert, or using a residual dense path are different model behaviours. Dropping can reduce computation but may remove information from a token’s update. Rerouting can retain an expert computation while changing the router’s intended choice. A residual path can preserve a dense fallback but changes the active-parameter and cost comparison. There is no neutral overflow policy.</p>
+<p>The overflow record should therefore include the selected experts, successful assignments, fallback type, and the final path used for each affected token. Measure overflow separately from router entropy or load balance: a router can look balanced on average while still producing concentrated conflicts at the capacity boundary. Evaluate overflow on held-out batches and changed sequence-length distributions, because a capacity factor chosen on one workload may fail on another.</p>
+</section>
+</section>
+<section id="level-3---training-and-systems-constraints" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---training-and-systems-constraints">Level 3 - Training and systems constraints</h2>
+<section id="load-balancing-supplies-a-training-signal-and-a-hardware-constraint" class="level3">
+<h3 class="anchored" data-anchor-id="load-balancing-supplies-a-training-signal-and-a-hardware-constraint">Load balancing supplies a training signal and a hardware constraint</h3>
+<p>If a router repeatedly selects one expert, that expert becomes a bottleneck while other experts receive little data or gradient signal. MoE training commonly adds an auxiliary load-balancing objective based on routing probabilities and realised assignments. The objective encourages use of the available experts; it does not prove that expert specialisation is meaningful or that all experts should receive identical traffic.</p>
+<p>The systems consequence is immediate. Tokens assigned to experts on other devices must be exchanged, processed, and returned. The slowest or most overloaded expert can determine the layer’s step time. GShard treated conditional computation and sharding together because large MoE training requires both a routing rule and an execution plan <span class="citation" data-cites="lepikhin2020gshard">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>)</span>.</p>
+<div id="08ab8314" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>loads<span class="op">=</span>np.array([<span class="dv">47</span>,<span class="dv">26</span>,<span class="dv">17</span>,<span class="dv">10</span>])<span class="op">;</span> uniform<span class="op">=</span>np.repeat(<span class="dv">25</span>,<span class="dv">4</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"absolute deviation from equal load:"</span>,np.<span class="bu">abs</span>(loads<span class="op">-</span>uniform).<span class="bu">sum</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-load-balance" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-load-balance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),loads,color<span class="op">=</span>[orange,teal,teal,teal])<span class="op">;</span> ax.axhline(<span class="dv">25</span>,color<span class="op">=</span>purple,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"equal share"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"share of assignments (%)"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Illustrative routing imbalance"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-load-balance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="load-balancing-has-probability-assignment-and-quality-diagnostics" class="level3">
+<h3 class="anchored" data-anchor-id="load-balancing-has-probability-assignment-and-quality-diagnostics">Load balancing has probability, assignment, and quality diagnostics</h3>
+<p>The router’s average probability mass and the realised token assignments are related but not identical. A load-balancing loss can encourage probability mass to spread across experts while top-k selection and capacity constraints still produce uneven realised loads. Report both quantities, together with overflow, expert utilisation, duplicate selections, and the coefficient of variation or another stated imbalance measure. A single auxiliary-loss value is not evidence that the dispatch is balanced.</p>
+<p>Balance also has a quality boundary. Equal traffic can be undesirable if a subset of tasks genuinely needs a particular expert and the balance penalty forces it elsewhere. Conversely, concentrated traffic may expose an expert to a narrow data slice and leave other experts poorly trained. Compare task outcome and routing diagnostics as the balance coefficient changes, keeping the rest of the training contract fixed. Sparse-routing systems such as GShard and Switch Transformers make these routing and capacity choices part of the training design, not a post-training serving adjustment <span class="citation" data-cites="lepikhin2020gshard fedus2021switch">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>; <a href="#ref-fedus2021switch" role="doc-biblioref">Fedus, Zoph, and Shazeer 2022</a>)</span>.</p>
+</section>
+<section id="a-dense-comparison-requires-an-end-to-end-cost-record" class="level3">
+<h3 class="anchored" data-anchor-id="a-dense-comparison-requires-an-end-to-end-cost-record">A dense comparison requires an end-to-end cost record</h3>
+<p>MoE can reduce active feed-forward computation for a given stored capacity, but it can also add router work, dispatch overhead, all-to-all communication, padding to expert capacity, and latency variation across requests. Compare dense and sparse models under the same sequence lengths, batch policy, precision, hardware, and quality metric. A parameter count alone cannot establish a serving advantage.</p>
+<div id="86a262f4" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"dense"</span>:{<span class="st">"compute"</span>:<span class="dv">100</span>,<span class="st">"communication"</span>:<span class="dv">0</span>,<span class="st">"latency"</span>:<span class="dv">12</span>},<span class="st">"moe"</span>:{<span class="st">"compute"</span>:<span class="dv">35</span>,<span class="st">"communication"</span>:<span class="dv">18</span>,<span class="st">"latency"</span>:<span class="dv">14</span>}}</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,record <span class="kw">in</span> systems.items(): <span class="bu">print</span>(name,record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="dispatch-has-a-topology-and-a-synchronisation-cost" class="level3">
+<h3 class="anchored" data-anchor-id="dispatch-has-a-topology-and-a-synchronisation-cost">Dispatch has a topology and a synchronisation cost</h3>
+<p>In an expert-parallel layout, a token may need to leave the device that computed its shared attention representation, be grouped with tokens for its selected expert, and return before the next shared layer. The cost depends on the device placement of experts, communication links, token imbalance, message sizes, and the slowest participating device. All-to-all exchange can make the latency of a layer depend on a small overloaded expert even when the average active computation is low.</p>
+<p>Measure dispatch separately from expert matrix multiplication. A useful systems record includes expert-to-device placement, number of devices, communication volume, padding induced by capacity, collective-operation timing, and tail rather than only mean latency. Distributed training and model-parallel work supplies the relevant distinction between local computation and communication or synchronisation cost <span class="citation" data-cites="li2020ddp narayanan2021megatron">(<a href="#ref-li2020ddp" role="doc-biblioref">Li et al. 2020</a>; <a href="#ref-narayanan2021megatron" role="doc-biblioref">Narayanan et al. 2021</a>)</span>. The same distinction applies when comparing a sparse layer with a dense layer on a declared hardware topology.</p>
+<div id="fig-cost-decomposition" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cost-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">100</span>,<span class="dv">35</span>],color<span class="op">=</span>[blue,teal],label<span class="op">=</span><span class="st">"expert computation"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">0</span>,<span class="dv">8</span>],bottom<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">35</span>],color<span class="op">=</span>purple,label<span class="op">=</span><span class="st">"routing"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">0</span>,<span class="dv">18</span>],bottom<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">43</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"communication"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"illustrative cost units"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"End-to-end cost decomposition"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-cost-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44.6
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-4---evaluation-deployment-and-limits" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---evaluation-deployment-and-limits">Level 4 - Evaluation, deployment, and limits</h2>
+<section id="evaluate-routing-as-well-as-task-output" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-routing-as-well-as-task-output">Evaluate routing as well as task output</h3>
+<p>An MoE report should include task quality, total and active parameters, experts and top-k, routing distribution, capacity factor, overflow or fallback rate, auxiliary-loss weight, sequence length, batch size, precision, hardware topology, communication volume, throughput, and latency distribution. Report these by input slice where routing differs across languages, lengths, or domains. Aggregate accuracy can conceal an expert that is overloaded only for a small but important set of inputs.</p>
+<p>Expert labels should also be interpreted cautiously. Similar token clusters in one expert can be a useful diagnostic; they do not establish a stable semantic role, causal explanation, or fairness property. Rerouting, changing capacity, or changing the batch can alter the traffic observed by an expert. The appropriate claim concerns the measured routing policy and workload.</p>
+</section>
+<section id="evaluate-routing-changes-with-matched-quality-and-workload-slices" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-routing-changes-with-matched-quality-and-workload-slices">Evaluate routing changes with matched quality and workload slices</h3>
+<p>An MoE intervention can change top-k, capacity factor, balance coefficient, overflow fallback, expert count, or device placement. Evaluate one such change at a time under the same checkpoint where possible, input distribution, sequence lengths, batch policy, precision, and quality scorer. Report task outcome together with overflow, routed fraction, per-expert load, communication, p50 and p95 latency, and memory. A throughput gain that relies on dropping more assignments or a quality gain that relies on a larger batch is not a routing result alone.</p>
+<p>Slice the record by properties that plausibly change routing: language, input length, token class, domain, tool-call format, or a declared sensitive workload category. The purpose is not to assign an expert a human-readable identity. It is to discover whether the routing policy creates concentrated overflow, latency, or quality loss for a subset that aggregate results hide. A deployment decision can then adjust capacity, routing, or fallback for the affected workload rather than treating a global average as sufficient evidence.</p>
+<div id="83955fcd" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"experts"</span>:<span class="dv">8</span>,<span class="st">"top_k"</span>:<span class="dv">2</span>,<span class="st">"capacity_factor"</span>:<span class="fl">1.25</span>,<span class="st">"overflow_rate"</span>:<span class="fl">.03</span>,<span class="st">"load_cv"</span>:<span class="fl">.31</span>,<span class="st">"p95_latency_ms"</span>:<span class="dv">28</span>,<span class="st">"quality"</span>:<span class="st">"held-out exact match"</span>}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"experts"</span>,<span class="st">"top_k"</span>,<span class="st">"overflow_rate"</span>,<span class="st">"p95_latency_ms"</span>,<span class="st">"quality"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MoE evaluation record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>An MoE uses all of its parameters for every token.</strong> Routing activates only the selected experts.</li>
+<li><strong>More total parameters imply proportionally more per-token computation.</strong> Active experts, routing, and communication determine the relevant cost.</li>
+<li><strong>Load balancing makes experts interchangeable.</strong> It changes traffic incentives; it does not establish what each expert represents.</li>
+<li><strong>A router is a minor pre-processing step.</strong> It determines computation, gradients, overflow, and communication.</li>
+<li><strong>Sparse activation guarantees lower serving latency.</strong> Dispatch and cross-device communication can dominate the gain.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Distinguish total, active, and shared parameters in a top-two MoE layer.</li>
+<li>Compute top-two routing weights from four supplied router scores.</li>
+<li>Explain why selected weights are renormalised.</li>
+<li>Calculate expert loads and overflow for a toy dispatch table.</li>
+<li>Compare dropping, rerouting, and residual fallback for an overflow token.</li>
+<li>State one purpose and one limit of an auxiliary load-balancing objective.</li>
+<li>Identify a batch property that can change observed expert traffic.</li>
+<li>Design a routing slice analysis for inputs in two languages.</li>
+<li>Compare dense and MoE systems under a matched latency record.</li>
+<li>Explain why active FLOPs do not capture all MoE serving cost.</li>
+<li>Specify fields required for an MoE evaluation record.</li>
+<li>Construct a case where equal average expert load hides a tail-latency problem.</li>
+<li>Explain how a capacity factor changes memory and overflow risk.</li>
+<li>State why expert specialisation needs evidence beyond a token sample.</li>
+<li>Design a held-out test for a routing-policy change.</li>
+<li>Identify which later chapter should own serving and monitoring decisions.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Mixture-of-experts layers increase stored capacity through conditional expert activation. Their behaviour depends on router selection, capacity limits, load balance, dispatch, and hardware communication. Evaluate task quality together with the full routing and systems record; sparse parameters alone do not establish an efficiency claim.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>Sparse routing changes where computation occurs, but it does not change the token interface that the Transformer processes. <a href="./44-vision-transformers.html">Chapter 44</a> examines what happens when that interface is built from image patches rather than text tokens, including the positional and data requirements that follow.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>The sparsely gated MoE layer is introduced by <span class="citation" data-cites="shazeer2017moe">Shazeer et al. (<a href="#ref-shazeer2017moe" role="doc-biblioref">2017</a>)</span>. GShard studies conditional computation with automatic sharding <span class="citation" data-cites="lepikhin2020gshard">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>)</span>, and Switch Transformers simplify sparse expert routing for large Transformer training <span class="citation" data-cites="fedus2021switch">(<a href="#ref-fedus2021switch" role="doc-biblioref">Fedus, Zoph, and Shazeer 2022</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-fedus2021switch" class="csl-entry" role="listitem">
+Fedus, William, Barret Zoph, and Noam Shazeer. 2022. <span>“Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity.”</span> <em>Journal of Machine Learning Research</em> 23 (120): 1–39. <a href="https://jmlr.org/papers/v23/21-0998.html">https://jmlr.org/papers/v23/21-0998.html</a>.
+</div>
+<div id="ref-lepikhin2020gshard" class="csl-entry" role="listitem">
+Lepikhin, Dmitry, HyoukJoong Lee, Yuanzhong Xu, Dehao Chen, Orhan Firat, Yanping Huang, Maxim Krikun, Noam Shazeer, and Zhifeng Chen. 2020. <span>“GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding.”</span> <em>arXiv Preprint arXiv:2006.16668</em>. <a href="https://arxiv.org/abs/2006.16668">https://arxiv.org/abs/2006.16668</a>.
+</div>
+<div id="ref-li2020ddp" class="csl-entry" role="listitem">
+Li, Shen, Yanli Zhao, Rohan Varma, Omkar Salpekar, Pieter Noordhuis, Teng Li, Adam Paszke, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
+</div>
+<div id="ref-narayanan2021megatron" class="csl-entry" role="listitem">
+Narayanan, Deepak, Mohammad Shoeybi, Jared Casper, Patrick LeGresley, Mostofa Patwary, Vijay Anand Korthikanti, Dmitri Vainbrand, et al. 2021. <span>“Efficient Large-Scale Language Model Training on <span>GPU</span> Clusters Using <span>Megatron-LM</span>.”</span> <em>arXiv Preprint arXiv:2104.04473</em>. <a href="https://arxiv.org/abs/2104.04473">https://arxiv.org/abs/2104.04473</a>.
+</div>
+<div id="ref-shazeer2017moe" class="csl-entry" role="listitem">
+Shazeer, Noam, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc V. Le, Geoffrey Hinton, and Jeff Dean. 2017. <span>“Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer.”</span> <em>arXiv Preprint arXiv:1701.06538</em>. <a href="https://arxiv.org/abs/1701.06538">https://arxiv.org/abs/1701.06538</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./42-limits-and-open-questions.html" class="pagination-link" aria-label="Limits and Open Questions">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Limits and Open Questions</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./44-vision-transformers.html" class="pagination-link" aria-label="Vision Transformers">
+        <span class="nav-page-text"><span class="chapter-title">Vision Transformers</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Mixture-of-experts Models"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Sparse routing, expert capacity, load balancing, and systems cost"</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>A dense Transformer applies the same feed-forward parameters to every token. Increasing its capacity therefore increases the computation and memory required for every token. A mixture-of-experts (MoE) layer replaces one feed-forward subnetwork with several experts and a router that activates only a small subset for each token. The model can contain many more parameters than a comparably priced dense layer, while its active computation remains bounded by the selected experts.</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>That arithmetic is incomplete. A useful MoE layer must decide which experts receive which tokens, prevent a few experts from receiving most of the work, and move token representations to the devices that hold the selected experts. Routing and communication are therefore part of the model, not implementation detail. This chapter establishes those mechanisms before the later chapters on serving, monitoring, and safety.</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish total parameters from active parameters per token;</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>describe router scores, top-&nbsp;k selection, expert outputs, and weighted combination;</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate a toy expert-capacity limit and identify dropped or rerouted tokens;</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why load balancing changes both training and systems behaviour;</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>compare dense and MoE cost under a stated routing policy; and</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify an MoE evaluation and deployment record.</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running layer</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>The running example has four feed-forward experts and a router that selects two per token. The numbers are deliberately small so that routing, capacity, and aggregation can be inspected directly.</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-moe-layer</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An MoE layer routes each token to a small subset of experts, combines their outputs, and leaves the remaining experts inactive for that token."</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three token representations enter a router; each is sent to two of four expert boxes before weighted outputs are combined."</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.3</span>,<span class="fl">.7</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.8</span>),<span class="fl">1.1</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.85</span>,<span class="fl">.89</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.8</span>,<span class="ss">f"token </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">2.2</span>,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">2.8</span>,<span class="fl">1.65</span>,<span class="st">"router"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">4.4</span>,<span class="fl">2.75</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.8</span>),<span class="fl">1.25</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.03</span>,<span class="fl">2.96</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.8</span>,<span class="ss">f"expert </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">7.0</span>,<span class="fl">1.35</span>),<span class="fl">1.55</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">7.78</span>,<span class="fl">1.65</span>,<span class="st">"weighted output"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">1.09</span>,<span class="fl">1.89</span>,<span class="fl">2.69</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">1.45</span>,y),(<span class="fl">2.15</span>,<span class="fl">1.65</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">9</span>))</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">2.95</span>,<span class="fl">2.15</span>,<span class="fl">1.35</span>,<span class="fl">.55</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">3.45</span>,<span class="fl">1.65</span>),(<span class="fl">4.35</span>,y),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">8</span>,alpha<span class="op">=</span><span class="fl">.6</span>))</span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">2.95</span>,<span class="fl">2.15</span>,<span class="fl">1.35</span>,<span class="fl">.55</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">5.7</span>,y),(<span class="fl">6.95</span>,<span class="fl">1.65</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">8</span>,alpha<span class="op">=</span><span class="fl">.6</span>))</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="fu">### Capacity can grow without activating every parameter</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>The dense layer asks one feed-forward network to process every token. An MoE layer gives the router several such networks and lets it select specialists conditionally. A token associated with code-like text may be routed differently from a token in another language or a mathematical expression. The system does not need a semantic story about each expert for this to be useful; the operational claim is that different tokens activate different parameter subsets.</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>Sparse activation changes the comparison. A model with eight experts may store roughly eight feed-forward parameter sets, but a top-2 router only executes two for one token. Parameter count therefore measures stored capacity, while active parameters and communication determine per-token cost. The sparsely gated MoE layer formalised this conditional-computation approach, and subsequent work made routing simple enough to support large Transformer training <span class="co">[</span><span class="ot">@shazeer2017moe; @fedus2021switch</span><span class="co">]</span>.</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>dense_parameters<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>experts,active<span class="op">=</span><span class="dv">8</span>,<span class="dv">2</span></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"dense_active"</span>:dense_parameters,<span class="st">"moe_total"</span>:experts<span class="op">*</span>dense_parameters,<span class="st">"moe_active"</span>:active<span class="op">*</span>dense_parameters})</span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-total-active-parameters</span></span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An MoE layer can increase stored parameter capacity while keeping the active expert count per token fixed."</span></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Bars compare dense active parameters with total and active parameters for an eight-expert top-two MoE layer."</span></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"dense</span><span class="ch">\n</span><span class="st">active"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">total"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">active"</span>]<span class="op">;</span> values<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">800</span>,<span class="dv">200</span>]</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(labels,values,color<span class="op">=</span>[blue,purple,teal])<span class="op">;</span> ax.set_ylabel(<span class="st">"illustrative parameter units"</span>)</span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Stored and active parameter counts"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### Routing is conditional on a token and its batch context</span></span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>The router score is computed from a token representation, but the realised dispatch can depend on the surrounding batch. Capacity limits, token order, expert-parallel layout, and tie handling determine which selected assignments are actually processed when several tokens request the same expert. Two copies of the same token can therefore receive different fallback treatment in different batches even when their router scores are unchanged. A routing claim should distinguish the score produced by the router from the assignment that reached an expert.</span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a>This distinction matters for reproducibility. Record the batching and packing policy, sequence lengths, top-k rule, capacity factor, token ordering where relevant, and whether assignment is deterministic under a fixed seed. An average routing histogram can conceal a capacity conflict that occurs only in long sequences or one language slice. The relevant unit for systems evaluation is the realised assignment and its outcome, not only the router's preferred expert.</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Routing and capacity mechanics</span></span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a><span class="fu">### Router scores become a sparse dispatch decision</span></span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a>For token representation (x), a router produces one score per expert. A softmax can turn the scores into non-negative weights. Top-&nbsp;k routing retains only the k largest weights, renormalises them, sends the token to those experts, and combines their outputs. If experts are functions (f_e), the layer output is the weighted sum of the selected (f_e(x)). This is conditional computation: routing determines which parameters participate in this token's forward and backward pass.</span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>np.array([<span class="fl">1.8</span>,<span class="fl">.4</span>,<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.3</span>])</span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.exp(scores<span class="op">-</span>scores.<span class="bu">max</span>())<span class="op">;</span> weights<span class="op">=</span>weights<span class="op">/</span>weights.<span class="bu">sum</span>()</span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a>chosen<span class="op">=</span>np.argsort(weights)[<span class="op">-</span><span class="dv">2</span>:]<span class="op">;</span> selected<span class="op">=</span>weights[chosen]<span class="op">/</span>weights[chosen].<span class="bu">sum</span>()</span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"router weights:"</span>,np.<span class="bu">round</span>(weights,<span class="dv">3</span>),<span class="st">"experts:"</span>,chosen,<span class="st">"renormalised:"</span>,np.<span class="bu">round</span>(selected,<span class="dv">3</span>))</span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-topk-routing</span></span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Top-k routing retains the largest router weights and renormalises only the selected experts before their outputs are combined."</span></span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart shows four router weights, highlighting the two selected experts and their renormalised weights."</span></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> colours<span class="op">=</span>[orange <span class="cf">if</span> i <span class="kw">in</span> chosen <span class="cf">else</span> grey <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)]</span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a>ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),weights,color<span class="op">=</span>colours)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"router weight"</span>)</span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative top-two router decision"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a><span class="fu">### Top-k selection has ties, normalisation, and gradient consequences</span></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>Top-k creates a discontinuous membership decision: an expert just below the cutoff receives no expert computation for that token, while one just above it receives a renormalised weight. Ties and near-ties therefore require a deterministic or recorded tie rule. The selected weights should sum to one if the implementation defines a weighted combination, but the unselected router scores can still matter for the router's learning signal and auxiliary objectives.</span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>The router and experts also receive different gradients. Selected experts receive token-specific gradients; unselected experts do not receive that token's expert-path gradient. Router updates depend on the routing formulation and losses used to encourage balance or exploration. These are reasons to report router settings separately from the feed-forward expert architecture. A change in top-k or normalisation affects both the active computation and the data each expert sees during training.</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>Report these choices with the checkpoint, training batch policy, and evaluator version.</span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a><span class="fu">### Capacity limits make dispatch observable</span></span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a>Experts cannot process an unlimited number of token assignments in one batch. A capacity factor sets a per-expert quota relative to the average expected load. When an expert is full, the implementation may drop an assignment, send it to a backup expert, or preserve a residual path. Each choice changes the layer output and must be reported. A low capacity limit raises the chance of discarded routes; a high limit reserves memory and can leave accelerator work uneven.</span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a>assignments<span class="op">=</span>np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>])<span class="op">;</span> capacity<span class="op">=</span><span class="dv">2</span></span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a>counts<span class="op">=</span>np.bincount(assignments,minlength<span class="op">=</span><span class="dv">4</span>)<span class="op">;</span> overflow<span class="op">=</span>np.maximum(counts<span class="op">-</span>capacity,<span class="dv">0</span>)</span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"expert loads:"</span>,counts,<span class="st">"overflow:"</span>,overflow)</span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-expert-capacity</span></span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Expert capacity limits turn unequal router demand into overflow that must be dropped, rerouted, or handled by a declared fallback."</span></span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Four bars show expert token loads against a horizontal capacity limit; the first expert exceeds the line."</span></span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),counts,color<span class="op">=</span>[orange <span class="cf">if</span> c<span class="op">&gt;</span>capacity <span class="cf">else</span> teal <span class="cf">for</span> c <span class="kw">in</span> counts])</span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a>ax.axhline(capacity,color<span class="op">=</span>purple,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"capacity"</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"token assignments"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative capacity overflow"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a><span class="fu">### Overflow handling defines an output contract</span></span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a>Dropping an assignment, rerouting it to a lower-ranked expert, or using a residual dense path are different model behaviours. Dropping can reduce computation but may remove information from a token's update. Rerouting can retain an expert computation while changing the router's intended choice. A residual path can preserve a dense fallback but changes the active-parameter and cost comparison. There is no neutral overflow policy.</span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a>The overflow record should therefore include the selected experts, successful assignments, fallback type, and the final path used for each affected token. Measure overflow separately from router entropy or load balance: a router can look balanced on average while still producing concentrated conflicts at the capacity boundary. Evaluate overflow on held-out batches and changed sequence-length distributions, because a capacity factor chosen on one workload may fail on another.</span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Training and systems constraints</span></span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a><span class="fu">### Load balancing supplies a training signal and a hardware constraint</span></span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a>If a router repeatedly selects one expert, that expert becomes a bottleneck while other experts receive little data or gradient signal. MoE training commonly adds an auxiliary load-balancing objective based on routing probabilities and realised assignments. The objective encourages use of the available experts; it does not prove that expert specialisation is meaningful or that all experts should receive identical traffic.</span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a>The systems consequence is immediate. Tokens assigned to experts on other devices must be exchanged, processed, and returned. The slowest or most overloaded expert can determine the layer's step time. GShard treated conditional computation and sharding together because large MoE training requires both a routing rule and an execution plan <span class="co">[</span><span class="ot">@lepikhin2020gshard</span><span class="co">]</span>.</span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a>loads<span class="op">=</span>np.array([<span class="dv">47</span>,<span class="dv">26</span>,<span class="dv">17</span>,<span class="dv">10</span>])<span class="op">;</span> uniform<span class="op">=</span>np.repeat(<span class="dv">25</span>,<span class="dv">4</span>)</span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"absolute deviation from equal load:"</span>,np.<span class="bu">abs</span>(loads<span class="op">-</span>uniform).<span class="bu">sum</span>())</span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-load-balance</span></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Unequal expert load leaves some experts underused and makes the busiest expert a capacity and latency bottleneck."</span></span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart compares uneven token shares across four experts with a horizontal equal-share line."</span></span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),loads,color<span class="op">=</span>[orange,teal,teal,teal])<span class="op">;</span> ax.axhline(<span class="dv">25</span>,color<span class="op">=</span>purple,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"equal share"</span>)</span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"share of assignments (%)"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Illustrative routing imbalance"</span>)</span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a><span class="fu">### Load balancing has probability, assignment, and quality diagnostics</span></span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a>The router's average probability mass and the realised token assignments are related but not identical. A load-balancing loss can encourage probability mass to spread across experts while top-k selection and capacity constraints still produce uneven realised loads. Report both quantities, together with overflow, expert utilisation, duplicate selections, and the coefficient of variation or another stated imbalance measure. A single auxiliary-loss value is not evidence that the dispatch is balanced.</span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a>Balance also has a quality boundary. Equal traffic can be undesirable if a subset of tasks genuinely needs a particular expert and the balance penalty forces it elsewhere. Conversely, concentrated traffic may expose an expert to a narrow data slice and leave other experts poorly trained. Compare task outcome and routing diagnostics as the balance coefficient changes, keeping the rest of the training contract fixed. Sparse-routing systems such as GShard and Switch Transformers make these routing and capacity choices part of the training design, not a post-training serving adjustment <span class="co">[</span><span class="ot">@lepikhin2020gshard; @fedus2021switch</span><span class="co">]</span>.</span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a><span class="fu">### A dense comparison requires an end-to-end cost record</span></span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a>MoE can reduce active feed-forward computation for a given stored capacity, but it can also add router work, dispatch overhead, all-to-all communication, padding to expert capacity, and latency variation across requests. Compare dense and sparse models under the same sequence lengths, batch policy, precision, hardware, and quality metric. A parameter count alone cannot establish a serving advantage.</span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"dense"</span>:{<span class="st">"compute"</span>:<span class="dv">100</span>,<span class="st">"communication"</span>:<span class="dv">0</span>,<span class="st">"latency"</span>:<span class="dv">12</span>},<span class="st">"moe"</span>:{<span class="st">"compute"</span>:<span class="dv">35</span>,<span class="st">"communication"</span>:<span class="dv">18</span>,<span class="st">"latency"</span>:<span class="dv">14</span>}}</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,record <span class="kw">in</span> systems.items(): <span class="bu">print</span>(name,record)</span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dispatch has a topology and a synchronisation cost</span></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a>In an expert-parallel layout, a token may need to leave the device that computed its shared attention representation, be grouped with tokens for its selected expert, and return before the next shared layer. The cost depends on the device placement of experts, communication links, token imbalance, message sizes, and the slowest participating device. All-to-all exchange can make the latency of a layer depend on a small overloaded expert even when the average active computation is low.</span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a>Measure dispatch separately from expert matrix multiplication. A useful systems record includes expert-to-device placement, number of devices, communication volume, padding induced by capacity, collective-operation timing, and tail rather than only mean latency. Distributed training and model-parallel work supplies the relevant distinction between local computation and communication or synchronisation cost <span class="co">[</span><span class="ot">@li2020ddp; @narayanan2021megatron</span><span class="co">]</span>. The same distinction applies when comparing a sparse layer with a dense layer on a declared hardware topology.</span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-cost-decomposition</span></span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "MoE active expert computation can be lower than a dense comparison while routing and communication add to the end-to-end latency budget."</span></span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Stacked bars compare illustrative dense compute with MoE expert compute, routing, and communication costs."</span></span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">100</span>,<span class="dv">35</span>],color<span class="op">=</span>[blue,teal],label<span class="op">=</span><span class="st">"expert computation"</span>)</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">0</span>,<span class="dv">8</span>],bottom<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">35</span>],color<span class="op">=</span>purple,label<span class="op">=</span><span class="st">"routing"</span>)</span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">0</span>,<span class="dv">18</span>],bottom<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">43</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"communication"</span>)</span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"illustrative cost units"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"End-to-end cost decomposition"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Evaluation, deployment, and limits</span></span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate routing as well as task output</span></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a>An MoE report should include task quality, total and active parameters, experts and top-k, routing distribution, capacity factor, overflow or fallback rate, auxiliary-loss weight, sequence length, batch size, precision, hardware topology, communication volume, throughput, and latency distribution. Report these by input slice where routing differs across languages, lengths, or domains. Aggregate accuracy can conceal an expert that is overloaded only for a small but important set of inputs.</span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a>Expert labels should also be interpreted cautiously. Similar token clusters in one expert can be a useful diagnostic; they do not establish a stable semantic role, causal explanation, or fairness property. Rerouting, changing capacity, or changing the batch can alter the traffic observed by an expert. The appropriate claim concerns the measured routing policy and workload.</span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate routing changes with matched quality and workload slices</span></span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>An MoE intervention can change top-k, capacity factor, balance coefficient, overflow fallback, expert count, or device placement. Evaluate one such change at a time under the same checkpoint where possible, input distribution, sequence lengths, batch policy, precision, and quality scorer. Report task outcome together with overflow, routed fraction, per-expert load, communication, p50 and p95 latency, and memory. A throughput gain that relies on dropping more assignments or a quality gain that relies on a larger batch is not a routing result alone.</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>Slice the record by properties that plausibly change routing: language, input length, token class, domain, tool-call format, or a declared sensitive workload category. The purpose is not to assign an expert a human-readable identity. It is to discover whether the routing policy creates concentrated overflow, latency, or quality loss for a subset that aggregate results hide. A deployment decision can then adjust capacity, routing, or fallback for the affected workload rather than treating a global average as sufficient evidence.</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"experts"</span>:<span class="dv">8</span>,<span class="st">"top_k"</span>:<span class="dv">2</span>,<span class="st">"capacity_factor"</span>:<span class="fl">1.25</span>,<span class="st">"overflow_rate"</span>:<span class="fl">.03</span>,<span class="st">"load_cv"</span>:<span class="fl">.31</span>,<span class="st">"p95_latency_ms"</span>:<span class="dv">28</span>,<span class="st">"quality"</span>:<span class="st">"held-out exact match"</span>}</span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"experts"</span>,<span class="st">"top_k"</span>,<span class="st">"overflow_rate"</span>,<span class="st">"p95_latency_ms"</span>,<span class="st">"quality"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MoE evaluation record complete"</span>)</span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**An MoE uses all of its parameters for every token.** Routing activates only the selected experts.</span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More total parameters imply proportionally more per-token computation.** Active experts, routing, and communication determine the relevant cost.</span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Load balancing makes experts interchangeable.** It changes traffic incentives; it does not establish what each expert represents.</span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A router is a minor pre-processing step.** It determines computation, gradients, overflow, and communication.</span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Sparse activation guarantees lower serving latency.** Dispatch and cross-device communication can dominate the gain.</span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish total, active, and shared parameters in a top-two MoE layer.</span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Compute top-two routing weights from four supplied router scores.</span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why selected weights are renormalised.</span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Calculate expert loads and overflow for a toy dispatch table.</span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Compare dropping, rerouting, and residual fallback for an overflow token.</span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>State one purpose and one limit of an auxiliary load-balancing objective.</span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Identify a batch property that can change observed expert traffic.</span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Design a routing slice analysis for inputs in two languages.</span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Compare dense and MoE systems under a matched latency record.</span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Explain why active FLOPs do not capture all MoE serving cost.</span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Specify fields required for an MoE evaluation record.</span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Construct a case where equal average expert load hides a tail-latency problem.</span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Explain how a capacity factor changes memory and overflow risk.</span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why expert specialisation needs evidence beyond a token sample.</span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Design a held-out test for a routing-policy change.</span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify which later chapter should own serving and monitoring decisions.</span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a>Mixture-of-experts layers increase stored capacity through conditional expert activation. Their behaviour depends on router selection, capacity limits, load balance, dispatch, and hardware communication. Evaluate task quality together with the full routing and systems record; sparse parameters alone do not establish an efficiency claim.</span>
+<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a>Sparse routing changes where computation occurs, but it does not change the token interface that the Transformer processes. <span class="co">[</span><span class="ot">Chapter 44</span><span class="co">](44-vision-transformers.qmd)</span> examines what happens when that interface is built from image patches rather than text tokens, including the positional and data requirements that follow.</span>
+<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a>The sparsely gated MoE layer is introduced by @shazeer2017moe. GShard studies conditional computation with automatic sharding <span class="co">[</span><span class="ot">@lepikhin2020gshard</span><span class="co">]</span>, and Switch Transformers simplify sparse expert routing for large Transformer training <span class="co">[</span><span class="ot">@fedus2021switch</span><span class="co">]</span>.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

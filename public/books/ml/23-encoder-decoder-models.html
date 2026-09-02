@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Encoders, Decoders, and Encoder-Decoder Models – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./24-tokens-tokenisation.html" rel="next">
+<link href="./22-transformer-block.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-navigation.css"></head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./23-encoder-decoder-models.html"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-example" id="toc-running-example" class="nav-link" data-scroll-target="#running-example">Running example</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#encoders-produce-context-aware-representations" id="toc-encoders-produce-context-aware-representations" class="nav-link" data-scroll-target="#encoders-produce-context-aware-representations">Encoders produce context-aware representations</a></li>
+  <li><a href="#decoders-represent-prefixes-and-generate-conditionally-on-them" id="toc-decoders-represent-prefixes-and-generate-conditionally-on-them" class="nav-link" data-scroll-target="#decoders-represent-prefixes-and-generate-conditionally-on-them">Decoders represent prefixes and generate conditionally on them</a></li>
+  <li><a href="#encoder-decoder-models-separate-source-understanding-from-target-generation" id="toc-encoder-decoder-models-separate-source-understanding-from-target-generation" class="nav-link" data-scroll-target="#encoder-decoder-models-separate-source-understanding-from-target-generation">Encoder-decoder models separate source understanding from target generation</a></li>
+  </ul></li>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
+  <ul class="collapse">
+  <li><a href="#encoder-only-stacks-use-one-sequence-throughout" id="toc-encoder-only-stacks-use-one-sequence-throughout" class="nav-link" data-scroll-target="#encoder-only-stacks-use-one-sequence-throughout">Encoder-only stacks use one sequence throughout</a></li>
+  <li><a href="#decoder-only-stacks-preserve-a-growing-prefix" id="toc-decoder-only-stacks-preserve-a-growing-prefix" class="nav-link" data-scroll-target="#decoder-only-stacks-preserve-a-growing-prefix">Decoder-only stacks preserve a growing prefix</a></li>
+  <li><a href="#encoder-decoder-blocks-add-cross-attention-between-two-sequences" id="toc-encoder-decoder-blocks-add-cross-attention-between-two-sequences" class="nav-link" data-scroll-target="#encoder-decoder-blocks-add-cross-attention-between-two-sequences">Encoder-decoder blocks add cross-attention between two sequences</a></li>
+  </ul></li>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
+  <ul class="collapse">
+  <li><a href="#output-factorisation-follows-the-information-boundary" id="toc-output-factorisation-follows-the-information-boundary" class="nav-link" data-scroll-target="#output-factorisation-follows-the-information-boundary">Output factorisation follows the information boundary</a></li>
+  <li><a href="#a-minimal-encoder-decoder-skeleton-exposes-the-two-masks" id="toc-a-minimal-encoder-decoder-skeleton-exposes-the-two-masks" class="nav-link" data-scroll-target="#a-minimal-encoder-decoder-skeleton-exposes-the-two-masks">A minimal encoder-decoder skeleton exposes the two masks</a></li>
+  <li><a href="#perturbation-tests-distinguish-source-from-future-target-information" id="toc-perturbation-tests-distinguish-source-from-future-target-information" class="nav-link" data-scroll-target="#perturbation-tests-distinguish-source-from-future-target-information">Perturbation tests distinguish source from future target information</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
+  <li><a href="#architecture-choice-depends-on-the-output-contract" id="toc-architecture-choice-depends-on-the-output-contract" class="nav-link" data-scroll-target="#architecture-choice-depends-on-the-output-contract">Architecture choice depends on the output contract</a></li>
+  <li><a href="#source-encoding-and-target-decoding-have-separate-costs" id="toc-source-encoding-and-target-decoding-have-separate-costs" class="nav-link" data-scroll-target="#source-encoding-and-target-decoding-have-separate-costs">Source encoding and target decoding have separate costs</a></li>
+  <li><a href="#evaluation-must-respect-what-the-model-was-allowed-to-see" id="toc-evaluation-must-respect-what-the-model-was-allowed-to-see" class="nav-link" data-scroll-target="#evaluation-must-respect-what-the-model-was-allowed-to-see">Evaluation must respect what the model was allowed to see</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Transformer families defined by information flow</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>A Transformer block is a computational unit, not a complete model family. The same block can be arranged so that every input position sees the whole input, so that each output position sees only an earlier prefix, or so that one sequence is encoded before another sequence retrieves from it. These choices define encoder-only, decoder-only, and encoder-decoder models.</p>
+<p>The distinction follows from information flow rather than from a brand name. It determines the masks, the available context at each representation, the usual output interface, and the work performed during generation. This chapter uses small tensor examples to compare the three configurations. Tokenisation and detailed language-model objectives are deferred to Chapters 24 and 25.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish encoder-only, decoder-only, and encoder-decoder Transformer configurations;</li>
+<li>state the self-attention eligibility rule in each component;</li>
+<li>explain cross-attention as target queries retrieving from encoded source keys and values;</li>
+<li>identify the source and target axes in a sequence-to-sequence model;</li>
+<li>describe which outputs can be computed in parallel and which require autoregressive steps;</li>
+<li>implement and test a small encoder-decoder information-flow skeleton;</li>
+<li>match a model family to a stated representation, generation, or conditional-generation requirement; and</li>
+<li>report the architecture and masking choices needed to reproduce a model result.</li>
+</ul>
+</section>
+<section id="running-example" class="level3">
+<h3 class="anchored" data-anchor-id="running-example">Running example</h3>
+<p>Let a source sequence have four representations, <span class="math inline">\(X^{src}\in\mathbb{R}^{B\times4\times D}\)</span>, and a target prefix have three, <span class="math inline">\(X^{tgt}\in\mathbb{R}^{B\times3\times D}\)</span>. An encoder produces four contextual source representations. A decoder produces three target representations, each constrained to its own earlier target positions but able to retrieve from all valid source positions through cross-attention.</p>
+<div id="fig-model-families" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7655a6"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="fl">4.2</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="st">"encoder-only"</span>,<span class="st">"decoder-only"</span>,<span class="st">"encoder-decoder"</span>]): ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.set_title(title,fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].add_patch(Rectangle((<span class="fl">.45</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.45</span>),<span class="fl">.56</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">0</span>].text(<span class="fl">.73</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.66</span>,<span class="ss">f"x</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].add_patch(Rectangle((<span class="fl">.55</span>,<span class="fl">1.35</span>),<span class="fl">2.55</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">0</span>].text(<span class="fl">1.83</span>,<span class="fl">1.66</span>,<span class="st">"bidirectional encoder blocks"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].text(<span class="fl">1.83</span>,<span class="fl">2.35</span>,<span class="st">"contextual representations"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].add_patch(Rectangle((<span class="fl">.45</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.45</span>),<span class="fl">.56</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">1</span>].text(<span class="fl">.73</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.66</span>,<span class="ss">f"y</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].add_patch(Rectangle((<span class="fl">.55</span>,<span class="fl">1.35</span>),<span class="fl">2.55</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">1</span>].text(<span class="fl">1.83</span>,<span class="fl">1.66</span>,<span class="st">"causal decoder blocks"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].text(<span class="fl">1.83</span>,<span class="fl">2.35</span>,<span class="st">"next-position representations"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.45</span>),<span class="fl">.42</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">.41</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.64</span>,<span class="ss">f"s</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">.2</span>,<span class="fl">1.25</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">.98</span>,<span class="fl">1.54</span>,<span class="st">"encoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">2.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.45</span>),<span class="fl">.42</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">2.41</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.64</span>,<span class="ss">f"t</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">2.15</span>,<span class="fl">1.25</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">2.93</span>,<span class="fl">1.54</span>,<span class="st">"causal decoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].add_patch(FancyArrowPatch((<span class="fl">1.0</span>,<span class="fl">1.86</span>),(<span class="fl">2.9</span>,<span class="fl">1.86</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>orange))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">1.95</span>,<span class="fl">2.12</span>,<span class="st">"cross-attention"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.set_xlim(<span class="dv">0</span>,<span class="fl">4.1</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">2.65</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-model-families-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;24.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="encoders-produce-context-aware-representations" class="level3">
+<h3 class="anchored" data-anchor-id="encoders-produce-context-aware-representations">Encoders produce context-aware representations</h3>
+<p>An encoder-only model applies unmasked self-attention to an input sequence. A representation at one position can use content on both its left and right, subject to padding and any task-specific restrictions. The usual result is a contextual representation for every input position, followed by a task-specific head for classification, tagging, retrieval, or another prediction.</p>
+<p>This arrangement fits tasks where the full input is available before the output is required. It is not a direct left-to-right generator because its representations can use later input content. BERT is a prominent encoder-only pretraining design built around bidirectional conditioning <span class="citation" data-cites="devlin2019bert">(<a href="#ref-devlin2019bert" role="doc-biblioref">Devlin et al. 2019</a>)</span>.</p>
+</section>
+<section id="decoders-represent-prefixes-and-generate-conditionally-on-them" class="level3">
+<h3 class="anchored" data-anchor-id="decoders-represent-prefixes-and-generate-conditionally-on-them">Decoders represent prefixes and generate conditionally on them</h3>
+<p>A decoder-only model applies causal self-attention. Position <span class="math inline">\(t\)</span> may retrieve from positions at or before <span class="math inline">\(t\)</span>, but not future positions. Its output at each location can therefore be used to parameterise a prediction about the next position without accessing information that would be unavailable during generation.</p>
+<p>At training time, representations for a supplied sequence can often be computed in parallel under a triangular mask. At inference time, the next generated item changes the prefix, so decoding proceeds step by step. The mask defines the information boundary; the token-level prediction objective will be derived in Chapter 25.</p>
+</section>
+<section id="encoder-decoder-models-separate-source-understanding-from-target-generation" class="level3">
+<h3 class="anchored" data-anchor-id="encoder-decoder-models-separate-source-understanding-from-target-generation">Encoder-decoder models separate source understanding from target generation</h3>
+<p>An encoder-decoder model has two sequences with different roles. The encoder reads the full source. The decoder reads an autoregressive target prefix. Cross-attention then lets each target position retrieve from the encoded source. This is useful when the output is a new sequence conditioned on an input sequence, as in translation, summarisation, or structured generation.</p>
+<div id="fig-information-boundaries" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-information-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">3.4</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mats<span class="op">=</span>[np.ones((<span class="dv">4</span>,<span class="dv">4</span>)),np.tril(np.ones((<span class="dv">4</span>,<span class="dv">4</span>))),np.ones((<span class="dv">3</span>,<span class="dv">4</span>))]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>titles<span class="op">=</span>[<span class="st">"encoder self-attention"</span>,<span class="st">"decoder self-attention"</span>,<span class="st">"cross-attention"</span>]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,mat,title <span class="kw">in</span> <span class="bu">zip</span>(axes,mats,titles):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    ax.imshow(mat,cmap<span class="op">=</span><span class="st">"YlGnBu"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> ax.set_title(title,fontsize<span class="op">=</span><span class="dv">10</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"key positions"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"query positions"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(mat.shape[<span class="dv">0</span>]):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(mat.shape[<span class="dv">1</span>]): ax.text(j,i,<span class="st">"use"</span> <span class="cf">if</span> mat[i,j] <span class="cf">else</span> <span class="st">"block"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">7</span>,color<span class="op">=</span><span class="st">"white"</span> <span class="cf">if</span> mat[i,j] <span class="cf">else</span> <span class="st">"black"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-information-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;24.2
+</figcaption>
+</figure>
+</div>
+<p>The cross-attention matrix is rectangular because target queries and source keys may have different lengths. It is not a second causal mask: source availability is usually controlled by source padding and by the boundary defining the input, while target self-attention preserves the autoregressive restriction.</p>
+<p>Level 1 identifies the three information patterns. Level 2 follows the tensors and masks through them.</p>
+</section>
+</section>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
+<section id="encoder-only-stacks-use-one-sequence-throughout" class="level3">
+<h3 class="anchored" data-anchor-id="encoder-only-stacks-use-one-sequence-throughout">Encoder-only stacks use one sequence throughout</h3>
+<p>Starting from input representations <span class="math inline">\(X\in\mathbb{R}^{B\times S\times D}\)</span>, an encoder stack applies blocks whose self-attention keys and values come from the same <span class="math inline">\(X\)</span>-derived sequence. With valid-token mask <span class="math inline">\(M\)</span>, every valid query can attend to every valid key. The final sequence <span class="math inline">\(H^{enc}\in\mathbb{R}^{B\times S\times D}\)</span> can support token-level outputs or be pooled into a sequence-level representation under a stated pooling rule.</p>
+<p>Pooling is a model decision, not an inevitable property of encoders. Mean pooling, a selected special-position representation, and learned attention pooling produce different output functions and handle padding differently. A report should identify which representation was sent to the prediction head.</p>
+</section>
+<section id="decoder-only-stacks-preserve-a-growing-prefix" class="level3">
+<h3 class="anchored" data-anchor-id="decoder-only-stacks-preserve-a-growing-prefix">Decoder-only stacks preserve a growing prefix</h3>
+<p>For target representations <span class="math inline">\(Y\in\mathbb{R}^{B\times T\times D}\)</span>, a causal decoder block uses a triangular target self-attention mask. At position <span class="math inline">\(t\)</span>, the block can use target positions <span class="math inline">\(0,\ldots,t\)</span>. During cached inference, earlier projected keys and values can be retained, while the new query uses the correct global positional offset from Chapter 21.</p>
+<p>Training and inference use the same causal information rule but different inputs. During teacher-forced training, the observed earlier target items form the prefix at every position, making the full shifted target sequence available for parallel masked computation. During generation, the model’s own selected earlier items form the prefix and each new selection changes the next input. A reported training loss therefore does not by itself measure errors accumulated during a long generated sequence.</p>
+<div id="10b2bab7" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> causal_eligibility(length):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.tril(np.ones((length,length),dtype<span class="op">=</span><span class="bu">bool</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_eligibility(target_length,source_valid):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.broadcast_to(np.asarray(source_valid,dtype<span class="op">=</span><span class="bu">bool</span>),(target_length,<span class="bu">len</span>(source_valid)))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"decoder eligibility at target position 2:"</span>,causal_eligibility(<span class="dv">4</span>)[<span class="dv">2</span>].astype(<span class="bu">int</span>))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cross-attention with one padded source key:</span><span class="ch">\n</span><span class="st">"</span>,cross_eligibility(<span class="dv">3</span>,[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>]).astype(<span class="bu">int</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The causal mask applies across target positions. The source-valid mask applies across source keys for every target query. Combining them as if source and target were the same axis is a common cross-attention bug.</p>
+</section>
+<section id="encoder-decoder-blocks-add-cross-attention-between-two-sequences" class="level3">
+<h3 class="anchored" data-anchor-id="encoder-decoder-blocks-add-cross-attention-between-two-sequences">Encoder-decoder blocks add cross-attention between two sequences</h3>
+<p>Let <span class="math inline">\(H^{enc}\in\mathbb{R}^{B\times S\times D}\)</span> be the final encoded source and <span class="math inline">\(H^{dec}\in\mathbb{R}^{B\times T\times D}\)</span> the current decoder representation. A decoder cross-attention sublayer constructs queries from the decoder and keys and values from the encoder:</p>
+<p><span class="math display">\[Q=H^{dec}W_Q,\qquad K=H^{enc}W_K,\qquad V=H^{enc}W_V,\]</span></p>
+<p><span class="math display">\[C=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{D_k}}+M_{src}\right)V.\]</span></p>
+<p>The score tensor has shape <span class="math inline">\(B\times H\times T\times S\)</span> after head splitting. Its rows correspond to target queries and columns to source keys. Cross-attention is therefore the query-key-value operation from Chapter 19 with source and target axes kept separate.</p>
+<div id="fig-source-target-axes" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-source-target-axes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cross_mask<span class="op">=</span>np.array([[<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>],[<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>],[<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>]])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.6</span>,<span class="fl">3.9</span>))<span class="op">;</span> ax.imshow(cross_mask,cmap<span class="op">=</span><span class="st">"YlGnBu"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>): ax.text(j,i,<span class="st">"valid"</span> <span class="cf">if</span> cross_mask[i,j] <span class="cf">else</span> <span class="st">"padded"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>,color<span class="op">=</span><span class="st">"white"</span> <span class="cf">if</span> cross_mask[i,j] <span class="cf">else</span> <span class="st">"black"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"s1"</span>,<span class="st">"s2"</span>,<span class="st">"s3"</span>,<span class="st">"s4"</span>])<span class="op">;</span> ax.set_yticks(<span class="bu">range</span>(<span class="dv">3</span>),[<span class="st">"t1"</span>,<span class="st">"t2"</span>,<span class="st">"t3"</span>])<span class="op">;</span> ax.set_xlabel(<span class="st">"source keys and values"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"target queries"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Rectangular cross-attention eligibility"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-source-target-axes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;24.3
+</figcaption>
+</figure>
+</div>
+<p>The source encoding may be reused at each decoder step, but its padding mask must be reused with it. If a request batch packs sources of different length, the cross-attention mask is not optional metadata: it defines which memory locations are data and which are fill values.</p>
+<div id="7f4f5b12" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>source<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">.2</span>],[<span class="fl">.8</span>,<span class="fl">.5</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>],[<span class="fl">.4</span>,<span class="fl">.3</span>]])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>target<span class="op">=</span>np.array([[<span class="fl">.6</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>],[<span class="fl">.5</span>,<span class="fl">.4</span>]])</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>target<span class="op">@</span>source.T<span class="op">/</span>np.sqrt(<span class="dv">2</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>source_valid<span class="op">=</span>np.array([<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>])<span class="op">;</span> masked<span class="op">=</span>np.where(source_valid[<span class="va">None</span>,:],scores,<span class="op">-</span>np.inf)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.exp(masked<span class="op">-</span>masked.<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">1</span>,keepdims<span class="op">=</span><span class="va">True</span>))<span class="op">;</span> weights<span class="op">/=</span>weights.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>,keepdims<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>context<span class="op">=</span>weights<span class="op">@</span>source</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scores, weights, context:"</span>,scores.shape,weights.shape,context.shape)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"padded source mass:"</span>,weights[:,<span class="dv">2</span>].<span class="bu">sum</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The target length is three and source length four, so the score matrix is three by four. Every target query has zero weight on the padded source position after masking. This check belongs alongside output-quality metrics because a wrong source mask can make a model appear to work while using padding artefacts.</p>
+<p>Level 2 has separated the model-family data paths. Level 3 states the associated conditional distributions and implements their mask contracts.</p>
+</section>
+</section>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
+<section id="output-factorisation-follows-the-information-boundary" class="level3">
+<h3 class="anchored" data-anchor-id="output-factorisation-follows-the-information-boundary">Output factorisation follows the information boundary</h3>
+<p>For a decoder-only sequence <span class="math inline">\(y_1,\ldots,y_T\)</span>, causal conditioning yields the factorisation</p>
+<p><span class="math display">\[p(y_{1:T})=\prod_{t=1}^{T}p(y_t\mid y_{&lt;t}).\]</span></p>
+<p>For conditional generation given a source <span class="math inline">\(x_{1:S}\)</span>, an encoder-decoder model uses</p>
+<p><span class="math display">\[p(y_{1:T}\mid x_{1:S})=\prod_{t=1}^{T}p(y_t\mid y_{&lt;t},x_{1:S}).\]</span></p>
+<p>The equations state available information, not the vocabulary or loss implementation. A decoder-only model may receive a prompt as part of its prefix; an encoder-decoder model separates the conditioning source and generated target through separate streams and cross-attention.</p>
+<div id="ef43d05a" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">23</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>source<span class="op">=</span>torch.randn(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>)<span class="op">;</span> target<span class="op">=</span>torch.randn(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">8</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>cross<span class="op">=</span>nn.MultiheadAttention(<span class="dv">8</span>,<span class="dv">2</span>,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>source_padding<span class="op">=</span>torch.tensor([[<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>],[<span class="va">False</span>,<span class="va">False</span>,<span class="va">False</span>,<span class="va">False</span>]])</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>context,weights<span class="op">=</span>cross(target,source,source,key_padding_mask<span class="op">=</span>source_padding,need_weights<span class="op">=</span><span class="va">True</span>,average_attn_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"context shape:"</span>,<span class="bu">tuple</span>(context.shape))</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weights shape:"</span>,<span class="bu">tuple</span>(weights.shape))</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"masked source mass:"</span>,weights[<span class="dv">0</span>,:,:,<span class="dv">2</span>].<span class="bu">sum</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The <code>key_padding_mask</code> is defined on source keys. The target queries remain present; a separate target padding policy is required if the target batch also contains padded queries. Frameworks differ on whether <code>True</code> means ignore or allow, so a hand-checked test is preferable to assuming a convention.</p>
+</section>
+<section id="a-minimal-encoder-decoder-skeleton-exposes-the-two-masks" class="level3">
+<h3 class="anchored" data-anchor-id="a-minimal-encoder-decoder-skeleton-exposes-the-two-masks">A minimal encoder-decoder skeleton exposes the two masks</h3>
+<div id="a78c22e5" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TinyEncoderDecoder(nn.Module):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>,width<span class="op">=</span><span class="dv">8</span>,heads<span class="op">=</span><span class="dv">2</span>,ff_width<span class="op">=</span><span class="dv">16</span>):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder<span class="op">=</span>nn.TransformerEncoderLayer(width,heads,ff_width,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>,norm_first<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder<span class="op">=</span>nn.TransformerDecoderLayer(width,heads,ff_width,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>,norm_first<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>,source,target,source_padding<span class="op">=</span><span class="va">None</span>,target_padding<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        memory<span class="op">=</span><span class="va">self</span>.encoder(source,src_key_padding_mask<span class="op">=</span>source_padding)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        t<span class="op">=</span>target.shape[<span class="dv">1</span>]<span class="op">;</span> target_causal<span class="op">=</span>torch.triu(torch.ones(t,t,device<span class="op">=</span>target.device,dtype<span class="op">=</span>torch.<span class="bu">bool</span>),diagonal<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.decoder(target,memory,tgt_mask<span class="op">=</span>target_causal,memory_key_padding_mask<span class="op">=</span>source_padding,tgt_key_padding_mask<span class="op">=</span>target_padding)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>model<span class="op">=</span>TinyEncoderDecoder().<span class="bu">eval</span>()<span class="op">;</span> source<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">8</span>)<span class="op">;</span> target<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">8</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>source_padding<span class="op">=</span>torch.tensor([[<span class="va">False</span>,<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>]])</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>out<span class="op">=</span>model(source,target,source_padding<span class="op">=</span>source_padding)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"encoder-decoder output:"</span>,<span class="bu">tuple</span>(out.shape))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The encoder processes source representations once in this minimal forward pass. The decoder’s <code>tgt_mask</code> prevents future target access; <code>memory_key_padding_mask</code> prevents access to padded source positions. The source encoder and target decoder can have different sequence lengths while retaining the same model width for cross-attention.</p>
+</section>
+<section id="perturbation-tests-distinguish-source-from-future-target-information" class="level3">
+<h3 class="anchored" data-anchor-id="perturbation-tests-distinguish-source-from-future-target-information">Perturbation tests distinguish source from future target information</h3>
+<div id="98ff24e9" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>changed_future<span class="op">=</span>target.clone()<span class="op">;</span> changed_future[:,<span class="dv">2</span>]<span class="op">+=</span><span class="dv">100</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>base<span class="op">=</span>model(source,target,source_padding<span class="op">=</span>source_padding)<span class="op">;</span> future_changed<span class="op">=</span>model(source,changed_future,source_padding<span class="op">=</span>source_padding)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>changed_source<span class="op">=</span>source.clone()<span class="op">;</span> changed_source[:,<span class="dv">0</span>]<span class="op">+=</span><span class="dv">100</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>source_changed<span class="op">=</span>model(changed_source,target,source_padding<span class="op">=</span>source_padding)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"earlier target outputs unchanged by future target:"</span>,torch.allclose(base[:,:<span class="dv">2</span>],future_changed[:,:<span class="dv">2</span>],atol<span class="op">=</span><span class="fl">1e-6</span>))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"target output can change when valid source changes:"</span>,<span class="kw">not</span> torch.allclose(base,source_changed))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The two tests express different contracts. Causal target self-attention prevents a future target perturbation from affecting earlier output positions. Cross-attention permits a valid source perturbation to affect target representations. A model that passes only one of these tests has not established the complete encoder-decoder information boundary.</p>
+<p>The tests use random untrained parameters, so the magnitude or direction of the source effect has no semantic interpretation. Their purpose is architectural: a permitted input path exists, and a prohibited future-target path does not. A trained system requires additional tests for output-head alignment, tokenizer boundaries, and the evaluation data pipeline.</p>
+</section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
+<section id="architecture-choice-depends-on-the-output-contract" class="level3">
+<h3 class="anchored" data-anchor-id="architecture-choice-depends-on-the-output-contract">Architecture choice depends on the output contract</h3>
+<p>Encoder-only models are appropriate when the output is a representation or a prediction available after reading a complete input. Decoder-only models support left-to-right generation from a prefix. Encoder-decoder models make a source-target distinction explicit and can encode a source once while a target decoder repeatedly retrieves from it. These are general architectural consequences, not exclusive task assignments: a model family can be adapted to tasks beyond its most common examples.</p>
+<p>The choice affects serving as well as modelling. An encoder-only retrieval or classification service can batch complete inputs and return outputs after a forward pass. A decoder-only service maintains a growing prefix and usually schedules sequential token steps across active requests. An encoder-decoder service has a source-encoding stage followed by target decoding, with source memory retained for the request. The appropriate design depends on the output contract, expected source and target lengths, latency requirements, and the available supervision.</p>
+<p>BERT exemplifies bidirectional encoder representations <span class="citation" data-cites="devlin2019bert">(<a href="#ref-devlin2019bert" role="doc-biblioref">Devlin et al. 2019</a>)</span>. T5 uses an encoder-decoder text-to-text framework <span class="citation" data-cites="raffel2020t5">(<a href="#ref-raffel2020t5" role="doc-biblioref">Raffel et al. 2020</a>)</span>, and BART pre-trains a sequence-to-sequence architecture through denoising <span class="citation" data-cites="lewis2020bart">(<a href="#ref-lewis2020bart" role="doc-biblioref">Lewis et al. 2020</a>)</span>. The examples establish that the families are used in practice; they do not imply that pretraining objective, data, scale, or evaluation can be inferred from the architecture alone.</p>
+<div id="fig-generation-work" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-generation-work-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="fl">9.5</span>,<span class="fl">4.7</span>),sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"encoder-only"</span>,[<span class="dv">0</span>],blue),(<span class="st">"decoder-only"</span>,[<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>],orange),(<span class="st">"encoder-decoder"</span>,[<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],teal)]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(label,steps,colour) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    ax.set_yticks([])<span class="op">;</span> ax.set_ylabel(label,rotation<span class="op">=</span><span class="dv">0</span>,labelpad<span class="op">=</span><span class="dv">55</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> step <span class="kw">in</span> steps:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        text<span class="op">=</span><span class="st">"encode source"</span> <span class="cf">if</span> label<span class="op">==</span><span class="st">"encoder-decoder"</span> <span class="kw">and</span> step<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> (<span class="st">"encode input"</span> <span class="cf">if</span> label<span class="op">==</span><span class="st">"encoder-only"</span> <span class="cf">else</span> <span class="ss">f"decode </span><span class="sc">{</span>step <span class="cf">if</span> label<span class="op">==</span><span class="st">'decoder-only'</span> <span class="cf">else</span> step<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        ax.barh(<span class="dv">0</span>,<span class="fl">.75</span>,left<span class="op">=</span>step<span class="op">+</span><span class="fl">.08</span>,color<span class="op">=</span>colour)<span class="op">;</span> ax.text(step<span class="op">+</span><span class="fl">.455</span>,<span class="dv">0</span>,text,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> label<span class="op">==</span><span class="st">"encoder-decoder"</span>: ax.text(<span class="fl">2.85</span>,<span class="fl">.35</span>,<span class="st">"encoded source memory reused"</span>,color<span class="op">=</span>grey,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">.5</span>,<span class="fl">.6</span>)<span class="op">;</span> ax.grid(axis<span class="op">=</span><span class="st">"x"</span>,alpha<span class="op">=</span><span class="fl">.25</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].set_xlabel(<span class="st">"successive inference steps"</span>)<span class="op">;</span> axes[<span class="op">-</span><span class="dv">1</span>].set_xticks(<span class="bu">range</span>(<span class="dv">5</span>),<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">6</span>))<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-generation-work-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;24.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="source-encoding-and-target-decoding-have-separate-costs" class="level3">
+<h3 class="anchored" data-anchor-id="source-encoding-and-target-decoding-have-separate-costs">Source encoding and target decoding have separate costs</h3>
+<p>An encoder-decoder service must account for source encoding, decoder self-attention over an increasing target prefix, cross-attention from each target query to source memory, and the memory retained for cached keys and values. A long source can make cross-attention costly at every decoding step even when the target is short. A long target increases decoder self-attention and cache size. Latency, memory, and throughput depend on both axes, batch composition, decoding strategy, dtype, and kernel implementation.</p>
+<p>Model interfaces should also state ownership of special positions, boundary tokens, padding, attention masks, positional offsets, and output-head alignment. Off-by-one target shifts can produce superficially plausible training losses while teaching a decoder to use the wrong target position. Source and target tokenisation may share a vocabulary or differ; the choice belongs to the model specification and is taken up in Chapter 24.</p>
+<div id="fig-training-and-generation" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-training-and-generation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="fl">9.5</span>,<span class="fl">3.8</span>),sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].barh(<span class="dv">0</span>,<span class="fl">.76</span>,left<span class="op">=</span>i<span class="op">+</span><span class="fl">.1</span>,color<span class="op">=</span>purple)<span class="op">;</span> axes[<span class="dv">0</span>].text(i<span class="op">+</span><span class="fl">.48</span>,<span class="dv">0</span>,<span class="ss">f"target </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].text(<span class="dv">2</span>,<span class="fl">.38</span>,<span class="st">"one masked training forward pass"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> axes[<span class="dv">0</span>].set_ylabel(<span class="st">"training"</span>,rotation<span class="op">=</span><span class="dv">0</span>,labelpad<span class="op">=</span><span class="dv">42</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,label <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"prompt"</span>,<span class="st">"select 1"</span>,<span class="st">"select 2"</span>,<span class="st">"select 3"</span>]):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].barh(<span class="dv">0</span>,<span class="fl">.76</span>,left<span class="op">=</span>i<span class="op">+</span><span class="fl">.1</span>,color<span class="op">=</span>orange)<span class="op">;</span> axes[<span class="dv">1</span>].text(i<span class="op">+</span><span class="fl">.48</span>,<span class="dv">0</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"generation"</span>,rotation<span class="op">=</span><span class="dv">0</span>,labelpad<span class="op">=</span><span class="dv">42</span>,va<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_xlabel(<span class="st">"successive decoding steps"</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.set_yticks([])<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.45</span>,<span class="fl">.6</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>))<span class="op">;</span> ax.grid(axis<span class="op">=</span><span class="st">"x"</span>,alpha<span class="op">=</span><span class="fl">.25</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-training-and-generation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;24.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="evaluation-must-respect-what-the-model-was-allowed-to-see" class="level3">
+<h3 class="anchored" data-anchor-id="evaluation-must-respect-what-the-model-was-allowed-to-see">Evaluation must respect what the model was allowed to see</h3>
+<p>A bidirectional encoder evaluation can use the complete input if that input would genuinely be available at the time of prediction. A causal decoder evaluation must not include the reference continuation inside the prompt. Conditional generation must ensure that target-side labels do not enter source features or cached decoder state. These are data and evaluation boundaries as much as mask boundaries.</p>
+<p>An audit should record architecture family, number and type of blocks, normalisation convention, position method, source and target length distributions, mask semantics, padding and packing policy, vocabulary interface, target shift, generation settings, cache policy, and evaluation-time input availability. It should test source-padding invariance, target causal invariance, source-perturbation sensitivity, and exact agreement between cached and full-prefix decoding on a small reference example.</p>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>An encoder is simply a decoder with the mask removed.</strong> Its output contract and typical use differ, even though both use Transformer blocks.</li>
+<li><strong>Decoder-only training must compute one token at a time.</strong> A supplied sequence can be processed in parallel under a causal mask; generation remains sequential.</li>
+<li><strong>Cross-attention is bidirectional target attention.</strong> It uses target queries and source keys and values across distinct axes.</li>
+<li><strong>The source mask is a triangular target mask.</strong> Source padding and target causality constrain different relationships.</li>
+<li><strong>Encoder-decoder models always have lower inference cost.</strong> Their cross-attention adds work at each target step.</li>
+<li><strong>BERT, T5, and BART names fully specify a model.</strong> Variant, objective, data, widths, masks, and checkpoints remain necessary information.</li>
+<li><strong>Passing a source sequence to a decoder-only prompt is identical to cross-attention.</strong> The representation, masking, cache, and source-target boundary differ.</li>
+<li><strong>A successful generated output proves no future-target leakage occurred.</strong> The model and data pipeline require explicit information-boundary tests.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Draw the self-attention eligibility matrix for a five-position encoder and decoder.</li>
+<li>State the score-tensor shape for eight heads, batch 2, target length 12, and source length 20.</li>
+<li>Explain why an encoder-only representation can use a right-context token while a causal decoder representation cannot.</li>
+<li>Implement mean pooling over valid encoder output positions.</li>
+<li>Add a target padding mask to the minimal encoder-decoder skeleton.</li>
+<li>Verify that a padded source key receives zero cross-attention mass.</li>
+<li>Write a test that changing a future target cannot change earlier decoder outputs.</li>
+<li>Write a test that changing a valid source may change target outputs.</li>
+<li>Compare source and target cache requirements for specified lengths, layers, heads, and widths.</li>
+<li>State the target shift needed to train a conditional autoregressive decoder.</li>
+<li>Explain why a rectangular cross-attention score matrix has different query and key axes.</li>
+<li>Design an evaluation where a complete input is valid for an encoder but invalid for a causal decoder prompt.</li>
+<li>Compare a decoder-only prompted translation interface with an encoder-decoder translation interface.</li>
+<li>Identify the metadata needed to load an encoder-decoder checkpoint safely.</li>
+<li>Test cached and full-prefix decoder outputs with identical source memory.</li>
+<li>State which chapter introduces tokenisation and which chapter derives the next-token objective.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Encoder-only, decoder-only, and encoder-decoder models arrange Transformer blocks around different information boundaries. Encoders form bidirectional input representations. Decoders preserve a causal target prefix. Encoder-decoder models combine a bidirectional source encoder, a causal target decoder, and target-to-source cross-attention.</p>
+<p>The architecture choice affects outputs, masks, inference order, cache design, and valid evaluation inputs. It does not by itself specify a training objective, tokenizer, dataset, or decoding policy.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p><a href="./24-tokens-tokenisation.html">Chapter 24</a> defines how text becomes the discrete token sequences that these architectures consume. <a href="./25-next-token-prediction.html">Chapter 25</a> then derives next-token prediction and autoregressive generation in detail.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>The original encoder-decoder Transformer is specified by <span class="citation" data-cites="vaswani2017">Vaswani et al. (<a href="#ref-vaswani2017" role="doc-biblioref">2017</a>)</span>. BERT provides an encoder-only pretraining example <span class="citation" data-cites="devlin2019bert">(<a href="#ref-devlin2019bert" role="doc-biblioref">Devlin et al. 2019</a>)</span>; T5 and BART provide encoder-decoder examples <span class="citation" data-cites="raffel2020t5 lewis2020bart">(<a href="#ref-raffel2020t5" role="doc-biblioref">Raffel et al. 2020</a>; <a href="#ref-lewis2020bart" role="doc-biblioref">Lewis et al. 2020</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-devlin2019bert" class="csl-entry" role="listitem">
+Devlin, Jacob, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. <span>“<span>BERT</span>: Pre-Training of Deep Bidirectional Transformers for Language Understanding.”</span> In <em>Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</em>, 4171–86. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/N19-1423">https://doi.org/10.18653/v1/N19-1423</a>.
+</div>
+<div id="ref-lewis2020bart" class="csl-entry" role="listitem">
+Lewis, Mike, Yinhan Liu, Naman Goyal, Marjan Ghazvininejad, Abdelrahman Mohamed, Omer Levy, Veselin Stoyanov, and Luke Zettlemoyer. 2020. <span>“<span>BART</span>: Denoising Sequence-to-Sequence Pre-Training for Natural Language Generation, Translation, and Comprehension.”</span> In <em>Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics</em>, 7871–80. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/2020.acl-main.703">https://doi.org/10.18653/v1/2020.acl-main.703</a>.
+</div>
+<div id="ref-raffel2020t5" class="csl-entry" role="listitem">
+Raffel, Colin, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J. Liu. 2020. <span>“Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer.”</span> <em>Journal of Machine Learning Research</em> 21 (140): 1–67. <a href="https://jmlr.org/papers/v21/20-074.html">https://jmlr.org/papers/v21/20-074.html</a>.
+</div>
+<div id="ref-vaswani2017" class="csl-entry" role="listitem">
+Vaswani, Ashish et al. 2017. <span>“Attention Is All You Need.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 30.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./22-transformer-block.html" class="pagination-link" aria-label="The Transformer Block">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">The Transformer Block</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./24-tokens-tokenisation.html" class="pagination-link" aria-label="Tokens and Tokenisation">
+        <span class="nav-page-text"><span class="chapter-title">Tokens and Tokenisation</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Encoders, Decoders, and Encoder-Decoder Models"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Transformer families defined by information flow"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>A Transformer block is a computational unit, not a complete model family. The same block can be arranged so that every input position sees the whole input, so that each output position sees only an earlier prefix, or so that one sequence is encoded before another sequence retrieves from it. These choices define encoder-only, decoder-only, and encoder-decoder models.</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>The distinction follows from information flow rather than from a brand name. It determines the masks, the available context at each representation, the usual output interface, and the work performed during generation. This chapter uses small tensor examples to compare the three configurations. Tokenisation and detailed language-model objectives are deferred to Chapters 24 and 25.</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish encoder-only, decoder-only, and encoder-decoder Transformer configurations;</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>state the self-attention eligibility rule in each component;</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain cross-attention as target queries retrieving from encoded source keys and values;</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify the source and target axes in a sequence-to-sequence model;</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>describe which outputs can be computed in parallel and which require autoregressive steps;</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement and test a small encoder-decoder information-flow skeleton;</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>match a model family to a stated representation, generation, or conditional-generation requirement; and</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>report the architecture and masking choices needed to reproduce a model result.</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running example</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>Let a source sequence have four representations, $X^{src}\in\mathbb{R}^{B\times4\times D}$, and a target prefix have three, $X^{tgt}\in\mathbb{R}^{B\times3\times D}$. An encoder produces four contextual source representations. A decoder produces three target representations, each constrained to its own earlier target positions but able to retrieve from all valid source positions through cross-attention.</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-model-families</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Encoder-only, decoder-only, and encoder-decoder Transformers differ in which sequences exist and in the attention paths that connect them."</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three side-by-side diagrams show one bidirectional encoder stack, one causal decoder stack, and an encoder stack connected to a causal decoder stack by cross-attention arrows."</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7655a6"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="fl">4.2</span>))</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="st">"encoder-only"</span>,<span class="st">"decoder-only"</span>,<span class="st">"encoder-decoder"</span>]): ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.set_title(title,fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].add_patch(Rectangle((<span class="fl">.45</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.45</span>),<span class="fl">.56</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">0</span>].text(<span class="fl">.73</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.66</span>,<span class="ss">f"x</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].add_patch(Rectangle((<span class="fl">.55</span>,<span class="fl">1.35</span>),<span class="fl">2.55</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">0</span>].text(<span class="fl">1.83</span>,<span class="fl">1.66</span>,<span class="st">"bidirectional encoder blocks"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].text(<span class="fl">1.83</span>,<span class="fl">2.35</span>,<span class="st">"contextual representations"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].add_patch(Rectangle((<span class="fl">.45</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.45</span>),<span class="fl">.56</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">1</span>].text(<span class="fl">.73</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.76</span>,<span class="fl">.66</span>,<span class="ss">f"y</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].add_patch(Rectangle((<span class="fl">.55</span>,<span class="fl">1.35</span>),<span class="fl">2.55</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">1</span>].text(<span class="fl">1.83</span>,<span class="fl">1.66</span>,<span class="st">"causal decoder blocks"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].text(<span class="fl">1.83</span>,<span class="fl">2.35</span>,<span class="st">"next-position representations"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.45</span>),<span class="fl">.42</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">.41</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.64</span>,<span class="ss">f"s</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">.2</span>,<span class="fl">1.25</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">.98</span>,<span class="fl">1.54</span>,<span class="st">"encoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">2.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.45</span>),<span class="fl">.42</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">2.41</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.55</span>,<span class="fl">.64</span>,<span class="ss">f"t</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].add_patch(Rectangle((<span class="fl">2.15</span>,<span class="fl">1.25</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">2.93</span>,<span class="fl">1.54</span>,<span class="st">"causal decoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].add_patch(FancyArrowPatch((<span class="fl">1.0</span>,<span class="fl">1.86</span>),(<span class="fl">2.9</span>,<span class="fl">1.86</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>orange))<span class="op">;</span> axes[<span class="dv">2</span>].text(<span class="fl">1.95</span>,<span class="fl">2.12</span>,<span class="st">"cross-attention"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.set_xlim(<span class="dv">0</span>,<span class="fl">4.1</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">2.65</span>)</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### Encoders produce context-aware representations</span></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>An encoder-only model applies unmasked self-attention to an input sequence. A representation at one position can use content on both its left and right, subject to padding and any task-specific restrictions. The usual result is a contextual representation for every input position, followed by a task-specific head for classification, tagging, retrieval, or another prediction.</span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>This arrangement fits tasks where the full input is available before the output is required. It is not a direct left-to-right generator because its representations can use later input content. BERT is a prominent encoder-only pretraining design built around bidirectional conditioning <span class="co">[</span><span class="ot">@devlin2019bert</span><span class="co">]</span>.</span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### Decoders represent prefixes and generate conditionally on them</span></span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>A decoder-only model applies causal self-attention. Position $t$ may retrieve from positions at or before $t$, but not future positions. Its output at each location can therefore be used to parameterise a prediction about the next position without accessing information that would be unavailable during generation.</span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a>At training time, representations for a supplied sequence can often be computed in parallel under a triangular mask. At inference time, the next generated item changes the prefix, so decoding proceeds step by step. The mask defines the information boundary; the token-level prediction objective will be derived in Chapter 25.</span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a><span class="fu">### Encoder-decoder models separate source understanding from target generation</span></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>An encoder-decoder model has two sequences with different roles. The encoder reads the full source. The decoder reads an autoregressive target prefix. Cross-attention then lets each target position retrieve from the encoded source. This is useful when the output is a new sequence conditioned on an input sequence, as in translation, summarisation, or structured generation.</span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-information-boundaries</span></span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The three families use different attention eligibility: encoder self-attention is bidirectional, decoder self-attention is causal, and decoder cross-attention can access valid encoded source positions."</span></span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three small matrices show all cells allowed for an encoder, lower-triangular cells allowed for a decoder, and all cells allowed in a target-query by source-key cross-attention matrix."</span></span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">3.4</span>))</span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a>mats<span class="op">=</span>[np.ones((<span class="dv">4</span>,<span class="dv">4</span>)),np.tril(np.ones((<span class="dv">4</span>,<span class="dv">4</span>))),np.ones((<span class="dv">3</span>,<span class="dv">4</span>))]</span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a>titles<span class="op">=</span>[<span class="st">"encoder self-attention"</span>,<span class="st">"decoder self-attention"</span>,<span class="st">"cross-attention"</span>]</span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,mat,title <span class="kw">in</span> <span class="bu">zip</span>(axes,mats,titles):</span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a>    ax.imshow(mat,cmap<span class="op">=</span><span class="st">"YlGnBu"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> ax.set_title(title,fontsize<span class="op">=</span><span class="dv">10</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"key positions"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"query positions"</span>)</span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(mat.shape[<span class="dv">0</span>]):</span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(mat.shape[<span class="dv">1</span>]): ax.text(j,i,<span class="st">"use"</span> <span class="cf">if</span> mat[i,j] <span class="cf">else</span> <span class="st">"block"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">7</span>,color<span class="op">=</span><span class="st">"white"</span> <span class="cf">if</span> mat[i,j] <span class="cf">else</span> <span class="st">"black"</span>)</span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a>The cross-attention matrix is rectangular because target queries and source keys may have different lengths. It is not a second causal mask: source availability is usually controlled by source padding and by the boundary defining the input, while target self-attention preserves the autoregressive restriction.</span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a>Level 1 identifies the three information patterns. Level 2 follows the tensors and masks through them.</span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a><span class="fu">### Encoder-only stacks use one sequence throughout</span></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a>Starting from input representations $X\in\mathbb{R}^{B\times S\times D}$, an encoder stack applies blocks whose self-attention keys and values come from the same $X$-derived sequence. With valid-token mask $M$, every valid query can attend to every valid key. The final sequence $H^{enc}\in\mathbb{R}^{B\times S\times D}$ can support token-level outputs or be pooled into a sequence-level representation under a stated pooling rule.</span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a>Pooling is a model decision, not an inevitable property of encoders. Mean pooling, a selected special-position representation, and learned attention pooling produce different output functions and handle padding differently. A report should identify which representation was sent to the prediction head.</span>
+<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a><span class="fu">### Decoder-only stacks preserve a growing prefix</span></span>
+<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a>For target representations $Y\in\mathbb{R}^{B\times T\times D}$, a causal decoder block uses a triangular target self-attention mask. At position $t$, the block can use target positions $0,\ldots,t$. During cached inference, earlier projected keys and values can be retained, while the new query uses the correct global positional offset from Chapter 21.</span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a>Training and inference use the same causal information rule but different inputs. During teacher-forced training, the observed earlier target items form the prefix at every position, making the full shifted target sequence available for parallel masked computation. During generation, the model's own selected earlier items form the prefix and each new selection changes the next input. A reported training loss therefore does not by itself measure errors accumulated during a long generated sequence.</span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> causal_eligibility(length):</span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.tril(np.ones((length,length),dtype<span class="op">=</span><span class="bu">bool</span>))</span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_eligibility(target_length,source_valid):</span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.broadcast_to(np.asarray(source_valid,dtype<span class="op">=</span><span class="bu">bool</span>),(target_length,<span class="bu">len</span>(source_valid)))</span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"decoder eligibility at target position 2:"</span>,causal_eligibility(<span class="dv">4</span>)[<span class="dv">2</span>].astype(<span class="bu">int</span>))</span>
+<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cross-attention with one padded source key:</span><span class="ch">\n</span><span class="st">"</span>,cross_eligibility(<span class="dv">3</span>,[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>]).astype(<span class="bu">int</span>))</span>
+<span id="cb11-126"><a href="#cb11-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-127"><a href="#cb11-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-128"><a href="#cb11-128" aria-hidden="true" tabindex="-1"></a>The causal mask applies across target positions. The source-valid mask applies across source keys for every target query. Combining them as if source and target were the same axis is a common cross-attention bug.</span>
+<span id="cb11-129"><a href="#cb11-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-130"><a href="#cb11-130" aria-hidden="true" tabindex="-1"></a><span class="fu">### Encoder-decoder blocks add cross-attention between two sequences</span></span>
+<span id="cb11-131"><a href="#cb11-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-132"><a href="#cb11-132" aria-hidden="true" tabindex="-1"></a>Let $H^{enc}\in\mathbb{R}^{B\times S\times D}$ be the final encoded source and $H^{dec}\in\mathbb{R}^{B\times T\times D}$ the current decoder representation. A decoder cross-attention sublayer constructs queries from the decoder and keys and values from the encoder:</span>
+<span id="cb11-133"><a href="#cb11-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-134"><a href="#cb11-134" aria-hidden="true" tabindex="-1"></a>$$Q=H^{dec}W_Q,\qquad K=H^{enc}W_K,\qquad V=H^{enc}W_V,$$</span>
+<span id="cb11-135"><a href="#cb11-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-136"><a href="#cb11-136" aria-hidden="true" tabindex="-1"></a>$$C=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{D_k}}+M_{src}\right)V.$$</span>
+<span id="cb11-137"><a href="#cb11-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-138"><a href="#cb11-138" aria-hidden="true" tabindex="-1"></a>The score tensor has shape $B\times H\times T\times S$ after head splitting. Its rows correspond to target queries and columns to source keys. Cross-attention is therefore the query-key-value operation from Chapter 19 with source and target axes kept separate.</span>
+<span id="cb11-139"><a href="#cb11-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-142"><a href="#cb11-142" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-143"><a href="#cb11-143" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-source-target-axes</span></span>
+<span id="cb11-144"><a href="#cb11-144" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Cross-attention has a target-query axis and a source-key axis; their lengths can differ and their masks serve different purposes."</span></span>
+<span id="cb11-145"><a href="#cb11-145" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A rectangular three-by-four heatmap labels its rows target queries t1 through t3 and columns source keys s1 through s4, with one source column marked padded."</span></span>
+<span id="cb11-146"><a href="#cb11-146" aria-hidden="true" tabindex="-1"></a>cross_mask<span class="op">=</span>np.array([[<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>],[<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>],[<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>]])</span>
+<span id="cb11-147"><a href="#cb11-147" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.6</span>,<span class="fl">3.9</span>))<span class="op">;</span> ax.imshow(cross_mask,cmap<span class="op">=</span><span class="st">"YlGnBu"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-148"><a href="#cb11-148" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb11-149"><a href="#cb11-149" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>): ax.text(j,i,<span class="st">"valid"</span> <span class="cf">if</span> cross_mask[i,j] <span class="cf">else</span> <span class="st">"padded"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>,color<span class="op">=</span><span class="st">"white"</span> <span class="cf">if</span> cross_mask[i,j] <span class="cf">else</span> <span class="st">"black"</span>)</span>
+<span id="cb11-150"><a href="#cb11-150" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"s1"</span>,<span class="st">"s2"</span>,<span class="st">"s3"</span>,<span class="st">"s4"</span>])<span class="op">;</span> ax.set_yticks(<span class="bu">range</span>(<span class="dv">3</span>),[<span class="st">"t1"</span>,<span class="st">"t2"</span>,<span class="st">"t3"</span>])<span class="op">;</span> ax.set_xlabel(<span class="st">"source keys and values"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"target queries"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Rectangular cross-attention eligibility"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-151"><a href="#cb11-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-152"><a href="#cb11-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-153"><a href="#cb11-153" aria-hidden="true" tabindex="-1"></a>The source encoding may be reused at each decoder step, but its padding mask must be reused with it. If a request batch packs sources of different length, the cross-attention mask is not optional metadata: it defines which memory locations are data and which are fill values.</span>
+<span id="cb11-154"><a href="#cb11-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-157"><a href="#cb11-157" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-158"><a href="#cb11-158" aria-hidden="true" tabindex="-1"></a>source<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">.2</span>],[<span class="fl">.8</span>,<span class="fl">.5</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>],[<span class="fl">.4</span>,<span class="fl">.3</span>]])</span>
+<span id="cb11-159"><a href="#cb11-159" aria-hidden="true" tabindex="-1"></a>target<span class="op">=</span>np.array([[<span class="fl">.6</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>],[<span class="fl">.5</span>,<span class="fl">.4</span>]])</span>
+<span id="cb11-160"><a href="#cb11-160" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>target<span class="op">@</span>source.T<span class="op">/</span>np.sqrt(<span class="dv">2</span>)</span>
+<span id="cb11-161"><a href="#cb11-161" aria-hidden="true" tabindex="-1"></a>source_valid<span class="op">=</span>np.array([<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>])<span class="op">;</span> masked<span class="op">=</span>np.where(source_valid[<span class="va">None</span>,:],scores,<span class="op">-</span>np.inf)</span>
+<span id="cb11-162"><a href="#cb11-162" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.exp(masked<span class="op">-</span>masked.<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">1</span>,keepdims<span class="op">=</span><span class="va">True</span>))<span class="op">;</span> weights<span class="op">/=</span>weights.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>,keepdims<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-163"><a href="#cb11-163" aria-hidden="true" tabindex="-1"></a>context<span class="op">=</span>weights<span class="op">@</span>source</span>
+<span id="cb11-164"><a href="#cb11-164" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scores, weights, context:"</span>,scores.shape,weights.shape,context.shape)</span>
+<span id="cb11-165"><a href="#cb11-165" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"padded source mass:"</span>,weights[:,<span class="dv">2</span>].<span class="bu">sum</span>())</span>
+<span id="cb11-166"><a href="#cb11-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-167"><a href="#cb11-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-168"><a href="#cb11-168" aria-hidden="true" tabindex="-1"></a>The target length is three and source length four, so the score matrix is three by four. Every target query has zero weight on the padded source position after masking. This check belongs alongside output-quality metrics because a wrong source mask can make a model appear to work while using padding artefacts.</span>
+<span id="cb11-169"><a href="#cb11-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-170"><a href="#cb11-170" aria-hidden="true" tabindex="-1"></a>Level 2 has separated the model-family data paths. Level 3 states the associated conditional distributions and implements their mask contracts.</span>
+<span id="cb11-171"><a href="#cb11-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-172"><a href="#cb11-172" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb11-173"><a href="#cb11-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-174"><a href="#cb11-174" aria-hidden="true" tabindex="-1"></a><span class="fu">### Output factorisation follows the information boundary</span></span>
+<span id="cb11-175"><a href="#cb11-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-176"><a href="#cb11-176" aria-hidden="true" tabindex="-1"></a>For a decoder-only sequence $y_1,\ldots,y_T$, causal conditioning yields the factorisation</span>
+<span id="cb11-177"><a href="#cb11-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-178"><a href="#cb11-178" aria-hidden="true" tabindex="-1"></a>$$p(y_{1:T})=\prod_{t=1}^{T}p(y_t\mid y_{&lt;t}).$$</span>
+<span id="cb11-179"><a href="#cb11-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-180"><a href="#cb11-180" aria-hidden="true" tabindex="-1"></a>For conditional generation given a source $x_{1:S}$, an encoder-decoder model uses</span>
+<span id="cb11-181"><a href="#cb11-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-182"><a href="#cb11-182" aria-hidden="true" tabindex="-1"></a>$$p(y_{1:T}\mid x_{1:S})=\prod_{t=1}^{T}p(y_t\mid y_{&lt;t},x_{1:S}).$$</span>
+<span id="cb11-183"><a href="#cb11-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-184"><a href="#cb11-184" aria-hidden="true" tabindex="-1"></a>The equations state available information, not the vocabulary or loss implementation. A decoder-only model may receive a prompt as part of its prefix; an encoder-decoder model separates the conditioning source and generated target through separate streams and cross-attention.</span>
+<span id="cb11-185"><a href="#cb11-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-188"><a href="#cb11-188" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-189"><a href="#cb11-189" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb11-190"><a href="#cb11-190" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb11-191"><a href="#cb11-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-192"><a href="#cb11-192" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">23</span>)</span>
+<span id="cb11-193"><a href="#cb11-193" aria-hidden="true" tabindex="-1"></a>source<span class="op">=</span>torch.randn(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>)<span class="op">;</span> target<span class="op">=</span>torch.randn(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">8</span>)</span>
+<span id="cb11-194"><a href="#cb11-194" aria-hidden="true" tabindex="-1"></a>cross<span class="op">=</span>nn.MultiheadAttention(<span class="dv">8</span>,<span class="dv">2</span>,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>)</span>
+<span id="cb11-195"><a href="#cb11-195" aria-hidden="true" tabindex="-1"></a>source_padding<span class="op">=</span>torch.tensor([[<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>],[<span class="va">False</span>,<span class="va">False</span>,<span class="va">False</span>,<span class="va">False</span>]])</span>
+<span id="cb11-196"><a href="#cb11-196" aria-hidden="true" tabindex="-1"></a>context,weights<span class="op">=</span>cross(target,source,source,key_padding_mask<span class="op">=</span>source_padding,need_weights<span class="op">=</span><span class="va">True</span>,average_attn_weights<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-197"><a href="#cb11-197" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"context shape:"</span>,<span class="bu">tuple</span>(context.shape))</span>
+<span id="cb11-198"><a href="#cb11-198" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weights shape:"</span>,<span class="bu">tuple</span>(weights.shape))</span>
+<span id="cb11-199"><a href="#cb11-199" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"masked source mass:"</span>,weights[<span class="dv">0</span>,:,:,<span class="dv">2</span>].<span class="bu">sum</span>().item())</span>
+<span id="cb11-200"><a href="#cb11-200" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-201"><a href="#cb11-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-202"><a href="#cb11-202" aria-hidden="true" tabindex="-1"></a>The <span class="in">`key_padding_mask`</span> is defined on source keys. The target queries remain present; a separate target padding policy is required if the target batch also contains padded queries. Frameworks differ on whether <span class="in">`True`</span> means ignore or allow, so a hand-checked test is preferable to assuming a convention.</span>
+<span id="cb11-203"><a href="#cb11-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-204"><a href="#cb11-204" aria-hidden="true" tabindex="-1"></a><span class="fu">### A minimal encoder-decoder skeleton exposes the two masks</span></span>
+<span id="cb11-205"><a href="#cb11-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-208"><a href="#cb11-208" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-209"><a href="#cb11-209" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TinyEncoderDecoder(nn.Module):</span>
+<span id="cb11-210"><a href="#cb11-210" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>,width<span class="op">=</span><span class="dv">8</span>,heads<span class="op">=</span><span class="dv">2</span>,ff_width<span class="op">=</span><span class="dv">16</span>):</span>
+<span id="cb11-211"><a href="#cb11-211" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb11-212"><a href="#cb11-212" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.encoder<span class="op">=</span>nn.TransformerEncoderLayer(width,heads,ff_width,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>,norm_first<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-213"><a href="#cb11-213" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.decoder<span class="op">=</span>nn.TransformerDecoderLayer(width,heads,ff_width,batch_first<span class="op">=</span><span class="va">True</span>,dropout<span class="op">=</span><span class="fl">0.0</span>,norm_first<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-214"><a href="#cb11-214" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>,source,target,source_padding<span class="op">=</span><span class="va">None</span>,target_padding<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb11-215"><a href="#cb11-215" aria-hidden="true" tabindex="-1"></a>        memory<span class="op">=</span><span class="va">self</span>.encoder(source,src_key_padding_mask<span class="op">=</span>source_padding)</span>
+<span id="cb11-216"><a href="#cb11-216" aria-hidden="true" tabindex="-1"></a>        t<span class="op">=</span>target.shape[<span class="dv">1</span>]<span class="op">;</span> target_causal<span class="op">=</span>torch.triu(torch.ones(t,t,device<span class="op">=</span>target.device,dtype<span class="op">=</span>torch.<span class="bu">bool</span>),diagonal<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-217"><a href="#cb11-217" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.decoder(target,memory,tgt_mask<span class="op">=</span>target_causal,memory_key_padding_mask<span class="op">=</span>source_padding,tgt_key_padding_mask<span class="op">=</span>target_padding)</span>
+<span id="cb11-218"><a href="#cb11-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-219"><a href="#cb11-219" aria-hidden="true" tabindex="-1"></a>model<span class="op">=</span>TinyEncoderDecoder().<span class="bu">eval</span>()<span class="op">;</span> source<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">8</span>)<span class="op">;</span> target<span class="op">=</span>torch.randn(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">8</span>)</span>
+<span id="cb11-220"><a href="#cb11-220" aria-hidden="true" tabindex="-1"></a>source_padding<span class="op">=</span>torch.tensor([[<span class="va">False</span>,<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>]])</span>
+<span id="cb11-221"><a href="#cb11-221" aria-hidden="true" tabindex="-1"></a>out<span class="op">=</span>model(source,target,source_padding<span class="op">=</span>source_padding)</span>
+<span id="cb11-222"><a href="#cb11-222" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"encoder-decoder output:"</span>,<span class="bu">tuple</span>(out.shape))</span>
+<span id="cb11-223"><a href="#cb11-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-224"><a href="#cb11-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-225"><a href="#cb11-225" aria-hidden="true" tabindex="-1"></a>The encoder processes source representations once in this minimal forward pass. The decoder's <span class="in">`tgt_mask`</span> prevents future target access; <span class="in">`memory_key_padding_mask`</span> prevents access to padded source positions. The source encoder and target decoder can have different sequence lengths while retaining the same model width for cross-attention.</span>
+<span id="cb11-226"><a href="#cb11-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-227"><a href="#cb11-227" aria-hidden="true" tabindex="-1"></a><span class="fu">### Perturbation tests distinguish source from future target information</span></span>
+<span id="cb11-228"><a href="#cb11-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-231"><a href="#cb11-231" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-232"><a href="#cb11-232" aria-hidden="true" tabindex="-1"></a>changed_future<span class="op">=</span>target.clone()<span class="op">;</span> changed_future[:,<span class="dv">2</span>]<span class="op">+=</span><span class="dv">100</span></span>
+<span id="cb11-233"><a href="#cb11-233" aria-hidden="true" tabindex="-1"></a>base<span class="op">=</span>model(source,target,source_padding<span class="op">=</span>source_padding)<span class="op">;</span> future_changed<span class="op">=</span>model(source,changed_future,source_padding<span class="op">=</span>source_padding)</span>
+<span id="cb11-234"><a href="#cb11-234" aria-hidden="true" tabindex="-1"></a>changed_source<span class="op">=</span>source.clone()<span class="op">;</span> changed_source[:,<span class="dv">0</span>]<span class="op">+=</span><span class="dv">100</span></span>
+<span id="cb11-235"><a href="#cb11-235" aria-hidden="true" tabindex="-1"></a>source_changed<span class="op">=</span>model(changed_source,target,source_padding<span class="op">=</span>source_padding)</span>
+<span id="cb11-236"><a href="#cb11-236" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"earlier target outputs unchanged by future target:"</span>,torch.allclose(base[:,:<span class="dv">2</span>],future_changed[:,:<span class="dv">2</span>],atol<span class="op">=</span><span class="fl">1e-6</span>))</span>
+<span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"target output can change when valid source changes:"</span>,<span class="kw">not</span> torch.allclose(base,source_changed))</span>
+<span id="cb11-238"><a href="#cb11-238" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-239"><a href="#cb11-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-240"><a href="#cb11-240" aria-hidden="true" tabindex="-1"></a>The two tests express different contracts. Causal target self-attention prevents a future target perturbation from affecting earlier output positions. Cross-attention permits a valid source perturbation to affect target representations. A model that passes only one of these tests has not established the complete encoder-decoder information boundary.</span>
+<span id="cb11-241"><a href="#cb11-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-242"><a href="#cb11-242" aria-hidden="true" tabindex="-1"></a>The tests use random untrained parameters, so the magnitude or direction of the source effect has no semantic interpretation. Their purpose is architectural: a permitted input path exists, and a prohibited future-target path does not. A trained system requires additional tests for output-head alignment, tokenizer boundaries, and the evaluation data pipeline.</span>
+<span id="cb11-243"><a href="#cb11-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-244"><a href="#cb11-244" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb11-245"><a href="#cb11-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-246"><a href="#cb11-246" aria-hidden="true" tabindex="-1"></a><span class="fu">### Architecture choice depends on the output contract</span></span>
+<span id="cb11-247"><a href="#cb11-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-248"><a href="#cb11-248" aria-hidden="true" tabindex="-1"></a>Encoder-only models are appropriate when the output is a representation or a prediction available after reading a complete input. Decoder-only models support left-to-right generation from a prefix. Encoder-decoder models make a source-target distinction explicit and can encode a source once while a target decoder repeatedly retrieves from it. These are general architectural consequences, not exclusive task assignments: a model family can be adapted to tasks beyond its most common examples.</span>
+<span id="cb11-249"><a href="#cb11-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-250"><a href="#cb11-250" aria-hidden="true" tabindex="-1"></a>The choice affects serving as well as modelling. An encoder-only retrieval or classification service can batch complete inputs and return outputs after a forward pass. A decoder-only service maintains a growing prefix and usually schedules sequential token steps across active requests. An encoder-decoder service has a source-encoding stage followed by target decoding, with source memory retained for the request. The appropriate design depends on the output contract, expected source and target lengths, latency requirements, and the available supervision.</span>
+<span id="cb11-251"><a href="#cb11-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-252"><a href="#cb11-252" aria-hidden="true" tabindex="-1"></a>BERT exemplifies bidirectional encoder representations <span class="co">[</span><span class="ot">@devlin2019bert</span><span class="co">]</span>. T5 uses an encoder-decoder text-to-text framework <span class="co">[</span><span class="ot">@raffel2020t5</span><span class="co">]</span>, and BART pre-trains a sequence-to-sequence architecture through denoising <span class="co">[</span><span class="ot">@lewis2020bart</span><span class="co">]</span>. The examples establish that the families are used in practice; they do not imply that pretraining objective, data, scale, or evaluation can be inferred from the architecture alone.</span>
+<span id="cb11-253"><a href="#cb11-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-256"><a href="#cb11-256" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-257"><a href="#cb11-257" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-generation-work</span></span>
+<span id="cb11-258"><a href="#cb11-258" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Encoder-only representations can be computed after the input is available; autoregressive decoders require sequential target steps, while an encoder-decoder can reuse encoded source memory across those steps."</span></span>
+<span id="cb11-259"><a href="#cb11-259" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A timeline compares one parallel encoder pass, four sequential decoder steps, and one encoder pass followed by four decoder steps that repeatedly reference retained source memory."</span></span>
+<span id="cb11-260"><a href="#cb11-260" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="fl">9.5</span>,<span class="fl">4.7</span>),sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-261"><a href="#cb11-261" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"encoder-only"</span>,[<span class="dv">0</span>],blue),(<span class="st">"decoder-only"</span>,[<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>],orange),(<span class="st">"encoder-decoder"</span>,[<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],teal)]</span>
+<span id="cb11-262"><a href="#cb11-262" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(label,steps,colour) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
+<span id="cb11-263"><a href="#cb11-263" aria-hidden="true" tabindex="-1"></a>    ax.set_yticks([])<span class="op">;</span> ax.set_ylabel(label,rotation<span class="op">=</span><span class="dv">0</span>,labelpad<span class="op">=</span><span class="dv">55</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb11-264"><a href="#cb11-264" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> step <span class="kw">in</span> steps:</span>
+<span id="cb11-265"><a href="#cb11-265" aria-hidden="true" tabindex="-1"></a>        text<span class="op">=</span><span class="st">"encode source"</span> <span class="cf">if</span> label<span class="op">==</span><span class="st">"encoder-decoder"</span> <span class="kw">and</span> step<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> (<span class="st">"encode input"</span> <span class="cf">if</span> label<span class="op">==</span><span class="st">"encoder-only"</span> <span class="cf">else</span> <span class="ss">f"decode </span><span class="sc">{</span>step <span class="cf">if</span> label<span class="op">==</span><span class="st">'decoder-only'</span> <span class="cf">else</span> step<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-266"><a href="#cb11-266" aria-hidden="true" tabindex="-1"></a>        ax.barh(<span class="dv">0</span>,<span class="fl">.75</span>,left<span class="op">=</span>step<span class="op">+</span><span class="fl">.08</span>,color<span class="op">=</span>colour)<span class="op">;</span> ax.text(step<span class="op">+</span><span class="fl">.455</span>,<span class="dv">0</span>,text,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb11-267"><a href="#cb11-267" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> label<span class="op">==</span><span class="st">"encoder-decoder"</span>: ax.text(<span class="fl">2.85</span>,<span class="fl">.35</span>,<span class="st">"encoded source memory reused"</span>,color<span class="op">=</span>grey,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb11-268"><a href="#cb11-268" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">.5</span>,<span class="fl">.6</span>)<span class="op">;</span> ax.grid(axis<span class="op">=</span><span class="st">"x"</span>,alpha<span class="op">=</span><span class="fl">.25</span>)</span>
+<span id="cb11-269"><a href="#cb11-269" aria-hidden="true" tabindex="-1"></a>axes[<span class="op">-</span><span class="dv">1</span>].set_xlabel(<span class="st">"successive inference steps"</span>)<span class="op">;</span> axes[<span class="op">-</span><span class="dv">1</span>].set_xticks(<span class="bu">range</span>(<span class="dv">5</span>),<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">6</span>))<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-270"><a href="#cb11-270" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-271"><a href="#cb11-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-272"><a href="#cb11-272" aria-hidden="true" tabindex="-1"></a><span class="fu">### Source encoding and target decoding have separate costs</span></span>
+<span id="cb11-273"><a href="#cb11-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-274"><a href="#cb11-274" aria-hidden="true" tabindex="-1"></a>An encoder-decoder service must account for source encoding, decoder self-attention over an increasing target prefix, cross-attention from each target query to source memory, and the memory retained for cached keys and values. A long source can make cross-attention costly at every decoding step even when the target is short. A long target increases decoder self-attention and cache size. Latency, memory, and throughput depend on both axes, batch composition, decoding strategy, dtype, and kernel implementation.</span>
+<span id="cb11-275"><a href="#cb11-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-276"><a href="#cb11-276" aria-hidden="true" tabindex="-1"></a>Model interfaces should also state ownership of special positions, boundary tokens, padding, attention masks, positional offsets, and output-head alignment. Off-by-one target shifts can produce superficially plausible training losses while teaching a decoder to use the wrong target position. Source and target tokenisation may share a vocabulary or differ; the choice belongs to the model specification and is taken up in Chapter 24.</span>
+<span id="cb11-277"><a href="#cb11-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-280"><a href="#cb11-280" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb11-281"><a href="#cb11-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-training-and-generation</span></span>
+<span id="cb11-282"><a href="#cb11-282" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Causal training can score a supplied shifted target sequence in parallel, while generation appends one selected target item before computing the next step."</span></span>
+<span id="cb11-283"><a href="#cb11-283" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "The upper timeline shows four shifted target inputs entering one parallel masked decoder pass. The lower timeline shows a prompt followed by three sequential select-and-append steps."</span></span>
+<span id="cb11-284"><a href="#cb11-284" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="fl">9.5</span>,<span class="fl">3.8</span>),sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-285"><a href="#cb11-285" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb11-286"><a href="#cb11-286" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].barh(<span class="dv">0</span>,<span class="fl">.76</span>,left<span class="op">=</span>i<span class="op">+</span><span class="fl">.1</span>,color<span class="op">=</span>purple)<span class="op">;</span> axes[<span class="dv">0</span>].text(i<span class="op">+</span><span class="fl">.48</span>,<span class="dv">0</span>,<span class="ss">f"target </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb11-287"><a href="#cb11-287" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].text(<span class="dv">2</span>,<span class="fl">.38</span>,<span class="st">"one masked training forward pass"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> axes[<span class="dv">0</span>].set_ylabel(<span class="st">"training"</span>,rotation<span class="op">=</span><span class="dv">0</span>,labelpad<span class="op">=</span><span class="dv">42</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb11-288"><a href="#cb11-288" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,label <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"prompt"</span>,<span class="st">"select 1"</span>,<span class="st">"select 2"</span>,<span class="st">"select 3"</span>]):</span>
+<span id="cb11-289"><a href="#cb11-289" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].barh(<span class="dv">0</span>,<span class="fl">.76</span>,left<span class="op">=</span>i<span class="op">+</span><span class="fl">.1</span>,color<span class="op">=</span>orange)<span class="op">;</span> axes[<span class="dv">1</span>].text(i<span class="op">+</span><span class="fl">.48</span>,<span class="dv">0</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb11-290"><a href="#cb11-290" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"generation"</span>,rotation<span class="op">=</span><span class="dv">0</span>,labelpad<span class="op">=</span><span class="dv">42</span>,va<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_xlabel(<span class="st">"successive decoding steps"</span>)</span>
+<span id="cb11-291"><a href="#cb11-291" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.set_yticks([])<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.45</span>,<span class="fl">.6</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>))<span class="op">;</span> ax.grid(axis<span class="op">=</span><span class="st">"x"</span>,alpha<span class="op">=</span><span class="fl">.25</span>)</span>
+<span id="cb11-292"><a href="#cb11-292" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb11-293"><a href="#cb11-293" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb11-294"><a href="#cb11-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-295"><a href="#cb11-295" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluation must respect what the model was allowed to see</span></span>
+<span id="cb11-296"><a href="#cb11-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-297"><a href="#cb11-297" aria-hidden="true" tabindex="-1"></a>A bidirectional encoder evaluation can use the complete input if that input would genuinely be available at the time of prediction. A causal decoder evaluation must not include the reference continuation inside the prompt. Conditional generation must ensure that target-side labels do not enter source features or cached decoder state. These are data and evaluation boundaries as much as mask boundaries.</span>
+<span id="cb11-298"><a href="#cb11-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-299"><a href="#cb11-299" aria-hidden="true" tabindex="-1"></a>An audit should record architecture family, number and type of blocks, normalisation convention, position method, source and target length distributions, mask semantics, padding and packing policy, vocabulary interface, target shift, generation settings, cache policy, and evaluation-time input availability. It should test source-padding invariance, target causal invariance, source-perturbation sensitivity, and exact agreement between cached and full-prefix decoding on a small reference example.</span>
+<span id="cb11-300"><a href="#cb11-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-301"><a href="#cb11-301" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb11-302"><a href="#cb11-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-303"><a href="#cb11-303" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**An encoder is simply a decoder with the mask removed.** Its output contract and typical use differ, even though both use Transformer blocks.</span>
+<span id="cb11-304"><a href="#cb11-304" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Decoder-only training must compute one token at a time.** A supplied sequence can be processed in parallel under a causal mask; generation remains sequential.</span>
+<span id="cb11-305"><a href="#cb11-305" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Cross-attention is bidirectional target attention.** It uses target queries and source keys and values across distinct axes.</span>
+<span id="cb11-306"><a href="#cb11-306" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**The source mask is a triangular target mask.** Source padding and target causality constrain different relationships.</span>
+<span id="cb11-307"><a href="#cb11-307" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Encoder-decoder models always have lower inference cost.** Their cross-attention adds work at each target step.</span>
+<span id="cb11-308"><a href="#cb11-308" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**BERT, T5, and BART names fully specify a model.** Variant, objective, data, widths, masks, and checkpoints remain necessary information.</span>
+<span id="cb11-309"><a href="#cb11-309" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Passing a source sequence to a decoder-only prompt is identical to cross-attention.** The representation, masking, cache, and source-target boundary differ.</span>
+<span id="cb11-310"><a href="#cb11-310" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A successful generated output proves no future-target leakage occurred.** The model and data pipeline require explicit information-boundary tests.</span>
+<span id="cb11-311"><a href="#cb11-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-312"><a href="#cb11-312" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb11-313"><a href="#cb11-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-314"><a href="#cb11-314" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Draw the self-attention eligibility matrix for a five-position encoder and decoder.</span>
+<span id="cb11-315"><a href="#cb11-315" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>State the score-tensor shape for eight heads, batch 2, target length 12, and source length 20.</span>
+<span id="cb11-316"><a href="#cb11-316" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why an encoder-only representation can use a right-context token while a causal decoder representation cannot.</span>
+<span id="cb11-317"><a href="#cb11-317" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Implement mean pooling over valid encoder output positions.</span>
+<span id="cb11-318"><a href="#cb11-318" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Add a target padding mask to the minimal encoder-decoder skeleton.</span>
+<span id="cb11-319"><a href="#cb11-319" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Verify that a padded source key receives zero cross-attention mass.</span>
+<span id="cb11-320"><a href="#cb11-320" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Write a test that changing a future target cannot change earlier decoder outputs.</span>
+<span id="cb11-321"><a href="#cb11-321" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Write a test that changing a valid source may change target outputs.</span>
+<span id="cb11-322"><a href="#cb11-322" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Compare source and target cache requirements for specified lengths, layers, heads, and widths.</span>
+<span id="cb11-323"><a href="#cb11-323" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>State the target shift needed to train a conditional autoregressive decoder.</span>
+<span id="cb11-324"><a href="#cb11-324" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Explain why a rectangular cross-attention score matrix has different query and key axes.</span>
+<span id="cb11-325"><a href="#cb11-325" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design an evaluation where a complete input is valid for an encoder but invalid for a causal decoder prompt.</span>
+<span id="cb11-326"><a href="#cb11-326" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Compare a decoder-only prompted translation interface with an encoder-decoder translation interface.</span>
+<span id="cb11-327"><a href="#cb11-327" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Identify the metadata needed to load an encoder-decoder checkpoint safely.</span>
+<span id="cb11-328"><a href="#cb11-328" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Test cached and full-prefix decoder outputs with identical source memory.</span>
+<span id="cb11-329"><a href="#cb11-329" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>State which chapter introduces tokenisation and which chapter derives the next-token objective.</span>
+<span id="cb11-330"><a href="#cb11-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-331"><a href="#cb11-331" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb11-332"><a href="#cb11-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-333"><a href="#cb11-333" aria-hidden="true" tabindex="-1"></a>Encoder-only, decoder-only, and encoder-decoder models arrange Transformer blocks around different information boundaries. Encoders form bidirectional input representations. Decoders preserve a causal target prefix. Encoder-decoder models combine a bidirectional source encoder, a causal target decoder, and target-to-source cross-attention.</span>
+<span id="cb11-334"><a href="#cb11-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-335"><a href="#cb11-335" aria-hidden="true" tabindex="-1"></a>The architecture choice affects outputs, masks, inference order, cache design, and valid evaluation inputs. It does not by itself specify a training objective, tokenizer, dataset, or decoding policy.</span>
+<span id="cb11-336"><a href="#cb11-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-337"><a href="#cb11-337" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb11-338"><a href="#cb11-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-339"><a href="#cb11-339" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 24</span><span class="co">](24-tokens-tokenisation.qmd)</span> defines how text becomes the discrete token sequences that these architectures consume. <span class="co">[</span><span class="ot">Chapter 25</span><span class="co">](25-next-token-prediction.qmd)</span> then derives next-token prediction and autoregressive generation in detail.</span>
+<span id="cb11-340"><a href="#cb11-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-341"><a href="#cb11-341" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb11-342"><a href="#cb11-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-343"><a href="#cb11-343" aria-hidden="true" tabindex="-1"></a>The original encoder-decoder Transformer is specified by @vaswani2017. BERT provides an encoder-only pretraining example <span class="co">[</span><span class="ot">@devlin2019bert</span><span class="co">]</span>; T5 and BART provide encoder-decoder examples <span class="co">[</span><span class="ot">@raffel2020t5; @lewis2020bart</span><span class="co">]</span>.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

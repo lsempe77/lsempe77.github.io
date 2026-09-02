@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Evaluating LLMs – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./35-what-makes-a-reasoning-model.html" rel="next">
+<link href="./33-retrieval-augmented-generation.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-navigation.css"></head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./34-evaluating-llms.html"><span class="chapter-title">Evaluating LLMs</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-evaluation" id="toc-running-evaluation" class="nav-link" data-scroll-target="#running-evaluation">Running evaluation</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#scores-answer-bounded-questions" id="toc-scores-answer-bounded-questions" class="nav-link" data-scroll-target="#scores-answer-bounded-questions">Scores answer bounded questions</a></li>
+  <li><a href="#reliability-requires-repeated-and-varied-evidence" id="toc-reliability-requires-repeated-and-varied-evidence" class="nav-link" data-scroll-target="#reliability-requires-repeated-and-varied-evidence">Reliability requires repeated and varied evidence</a></li>
+  </ul></li>
+  <li><a href="#level-2---measurement-mechanics" id="toc-level-2---measurement-mechanics" class="nav-link" data-scroll-target="#level-2---measurement-mechanics">Level 2 - Measurement mechanics</a>
+  <ul class="collapse">
+  <li><a href="#the-unit-and-denominator-determine-a-metric" id="toc-the-unit-and-denominator-determine-a-metric" class="nav-link" data-scroll-target="#the-unit-and-denominator-determine-a-metric">The unit and denominator determine a metric</a></li>
+  <li><a href="#prompt-and-scorer-choices-are-part-of-the-treatment" id="toc-prompt-and-scorer-choices-are-part-of-the-treatment" class="nav-link" data-scroll-target="#prompt-and-scorer-choices-are-part-of-the-treatment">Prompt and scorer choices are part of the treatment</a></li>
+  </ul></li>
+  <li><a href="#level-3---contamination-and-system-boundaries" id="toc-level-3---contamination-and-system-boundaries" class="nav-link" data-scroll-target="#level-3---contamination-and-system-boundaries">Level 3 - Contamination and system boundaries</a>
+  <ul class="collapse">
+  <li><a href="#contamination-changes-the-interpretation-of-benchmark-performance" id="toc-contamination-changes-the-interpretation-of-benchmark-performance" class="nav-link" data-scroll-target="#contamination-changes-the-interpretation-of-benchmark-performance">Contamination changes the interpretation of benchmark performance</a></li>
+  <li><a href="#evaluate-complete-systems-at-component-boundaries" id="toc-evaluate-complete-systems-at-component-boundaries" class="nav-link" data-scroll-target="#evaluate-complete-systems-at-component-boundaries">Evaluate complete systems at component boundaries</a></li>
+  </ul></li>
+  <li><a href="#level-4---evaluation-design-and-reporting" id="toc-level-4---evaluation-design-and-reporting" class="nav-link" data-scroll-target="#level-4---evaluation-design-and-reporting">Level 4 - Evaluation design and reporting</a>
+  <ul class="collapse">
+  <li><a href="#build-an-evaluation-around-a-decision" id="toc-build-an-evaluation-around-a-decision" class="nav-link" data-scroll-target="#build-an-evaluation-around-a-decision">Build an evaluation around a decision</a></li>
+  <li><a href="#report-disaggregated-evidence-and-limits" id="toc-report-disaggregated-evidence-and-limits" class="nav-link" data-scroll-target="#report-disaggregated-evidence-and-limits">Report disaggregated evidence and limits</a></li>
+  <li><a href="#reliability-includes-calibration-and-failure-concentration" id="toc-reliability-includes-calibration-and-failure-concentration" class="nav-link" data-scroll-target="#reliability-includes-calibration-and-failure-concentration">Reliability includes calibration and failure concentration</a></li>
+  <li><a href="#benchmark-development-is-itself-an-intervention" id="toc-benchmark-development-is-itself-an-intervention" class="nav-link" data-scroll-target="#benchmark-development-is-itself-an-intervention">Benchmark development is itself an intervention</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Evaluating LLMs</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Capability, reliability, contamination, and the limits of benchmark scores</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>An LLM evaluation produces evidence about a defined model or system under a defined input distribution, interface, scoring rule, and time. It does not produce a general scalar measure of intelligence, truthfulness, or fitness for every deployment. The same model can score differently after a template change, a decoding change, an index update, a tool change, or a contaminated test item.</p>
+<p>This chapter closes Part IV by treating evaluation as a design and measurement problem. It connects the earlier distinctions among token loss, instruction tuning, preference optimisation, inference, and RAG. Part V then turns to reasoning models and the additional question of how to evaluate multi-step computation.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish a capability benchmark, a reliability test, a safety evaluation, and a system evaluation;</li>
+<li>define the population, unit, interface, and scoring rule for an LLM evaluation;</li>
+<li>calculate an accuracy estimate and a simple confidence interval;</li>
+<li>explain contamination, prompt sensitivity, and benchmark overfitting;</li>
+<li>separate model, retrieval, tool, and decoding failures in a system trace;</li>
+<li>identify when aggregate scores conceal subgroup or task differences; and</li>
+<li>specify an evaluation report that can be audited and reproduced.</li>
+</ul>
+</section>
+<section id="running-evaluation" class="level3">
+<h3 class="anchored" data-anchor-id="running-evaluation">Running evaluation</h3>
+<p>The running test has labelled inputs, a fixed template, a checkpoint, a decoding policy, and an exact-match criterion. Changing any of these can change the reported score.</p>
+<div id="fig-evaluation-contract" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"checkpoint +</span><span class="ch">\n</span><span class="st">interface"</span>,blue),(<span class="fl">2.25</span>,<span class="st">"test items</span><span class="ch">\n</span><span class="st">+ labels"</span>,teal),(<span class="fl">4.25</span>,<span class="st">"decoding +</span><span class="ch">\n</span><span class="st">tools"</span>,orange),(<span class="fl">6.25</span>,<span class="st">"scoring</span><span class="ch">\n</span><span class="st">rule"</span>,purple),(<span class="fl">8.2</span>,<span class="st">"metric +</span><span class="ch">\n</span><span class="st">uncertainty"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.4</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.68</span>,<span class="fl">3.68</span>,<span class="fl">5.68</span>,<span class="fl">7.68</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"A score is conditional on the complete evaluation contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="scores-answer-bounded-questions" class="level3">
+<h3 class="anchored" data-anchor-id="scores-answer-bounded-questions">Scores answer bounded questions</h3>
+<p>Exact accuracy on multiple-choice questions measures success on those items under the supplied prompt and answer extraction rule. A factuality evaluation measures a different property. A safety red-team, long-context retrieval test, code execution task, and human preference study each answer other questions. A broad evaluation programme may combine them, but their scores should not be collapsed into one claim without explaining the aggregation and the uses it represents.</p>
+<p>Benchmark choice defines which errors are visible. A test with short English questions can miss multilingual performance, tool failures, source use, refusal behaviour, latency, and long-document reliability. A test with a fixed answer key can be appropriate for a narrow capability while being unsuitable for an open-ended assistant response.</p>
+<div id="ffdc215b" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>accuracy<span class="op">=</span>np.mean(items)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"accuracy:"</span>,accuracy,<span class="st">"n:"</span>,<span class="bu">len</span>(items))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="reliability-requires-repeated-and-varied-evidence" class="level3">
+<h3 class="anchored" data-anchor-id="reliability-requires-repeated-and-varied-evidence">Reliability requires repeated and varied evidence</h3>
+<p>One successful answer does not estimate how often a system will succeed. Reliability concerns the distribution of outcomes across relevant inputs, including rare but consequential failures. For stochastic generation, the same input can yield different outputs. For tools and retrieval, external state can change. Evaluation should therefore record repetitions, seeds or sampling settings, versions, and the time at which an external collection was queried.</p>
+<div id="fig-aggregate-and-slices" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>[<span class="fl">.72</span>,<span class="fl">.86</span>,<span class="fl">.61</span>,<span class="fl">.49</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.2
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-2---measurement-mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---measurement-mechanics">Level 2 - Measurement mechanics</h2>
+<section id="the-unit-and-denominator-determine-a-metric" class="level3">
+<h3 class="anchored" data-anchor-id="the-unit-and-denominator-determine-a-metric">The unit and denominator determine a metric</h3>
+<p>An accuracy denominator can be questions, examples, claims, generated tokens, tool calls, or complete episodes. These choices are not interchangeable. A system that answers one question with five claims may be correct on some claims and not others. A RAG system may retrieve a relevant document but fail the final answer. The report should state the unit, inclusion rule, missing-data rule, and whether an item can receive partial credit.</p>
+<p>For binary accuracy over (n) independent labelled units, a simple standard-error approximation is (). It is not sufficient for clustered, repeated, or adaptively sampled data, but it shows why a score from a small test set has substantial uncertainty.</p>
+<div id="d7005991" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>se<span class="op">=</span>np.sqrt(p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)<span class="op">/</span>n)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-uncertainty-size" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-uncertainty-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-uncertainty-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="prompt-and-scorer-choices-are-part-of-the-treatment" class="level3">
+<h3 class="anchored" data-anchor-id="prompt-and-scorer-choices-are-part-of-the-treatment">Prompt and scorer choices are part of the treatment</h3>
+<p>Few-shot examples, system messages, answer options, retrieval context, tool permissions, temperature, and output parsing can all change a score. The evaluation should freeze or systematically vary these choices rather than treating them as invisible plumbing. Automatic scorers should be validated on a labelled subset, particularly when judging open-ended answers, code, citations, or safety properties.</p>
+<div id="d6b5c63c" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>,<span class="st">"A"</span>]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>exact<span class="op">=</span>[p<span class="op">==</span>y <span class="cf">for</span> p,y <span class="kw">in</span> <span class="bu">zip</span>(predictions,labels)]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="level-3---contamination-and-system-boundaries" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---contamination-and-system-boundaries">Level 3 - Contamination and system boundaries</h2>
+<section id="contamination-changes-the-interpretation-of-benchmark-performance" class="level3">
+<h3 class="anchored" data-anchor-id="contamination-changes-the-interpretation-of-benchmark-performance">Contamination changes the interpretation of benchmark performance</h3>
+<p>If test items, answers, or close variants entered pretraining, fine-tuning, preference data, or prompt examples, benchmark performance can reflect prior exposure as well as generalisation. Exact-string searches are useful but insufficient because paraphrases, translated items, templates, and solutions can differ visibly while preserving the test content. A contamination policy should state search methods, source coverage, match thresholds, exclusions, and what score is reported when exposure is suspected.</p>
+<div id="132d2095" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>training_texts<span class="op">=</span>[<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"What is the eligibility rule?"</span>,<span class="st">"Other text"</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>matches<span class="op">=</span>[text <span class="cf">for</span> text <span class="kw">in</span> training_texts <span class="cf">if</span> test_item.lower() <span class="kw">in</span> text.lower()]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Contamination does not always make an evaluation useless, but it narrows the claim. A score may still measure retrieval from memorised material or performance under known exposure. It should not be presented as evidence of behaviour on unseen instances without a defensible boundary.</p>
+</section>
+<section id="evaluate-complete-systems-at-component-boundaries" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-complete-systems-at-component-boundaries">Evaluate complete systems at component boundaries</h3>
+<p>An LLM application can include a model, prompt template, decoder, retriever, index, tools, output validator, and user interface. A final failure may originate in any of these. The evaluation trace should retain input tokens, retrieved IDs, tool calls and outputs, generated IDs, validator decisions, and the final displayed answer. This supports component-level measurements and repair.</p>
+<div id="a4ffaaae" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-system-failure-trace" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-system-failure-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"input"</span>,blue),(<span class="st">"retrieve / tools"</span>,teal),(<span class="st">"context"</span>,orange),(<span class="st">"generate"</span>,purple),(<span class="st">"validate"</span>,teal),(<span class="st">"display"</span>,blue)]):</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.62</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.625</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-system-failure-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.4
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-4---evaluation-design-and-reporting" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---evaluation-design-and-reporting">Level 4 - Evaluation design and reporting</h2>
+<section id="build-an-evaluation-around-a-decision" class="level3">
+<h3 class="anchored" data-anchor-id="build-an-evaluation-around-a-decision">Build an evaluation around a decision</h3>
+<p>The intended decision should determine the test: whether to deploy a model version, select an adaptation, allow a tool action, use a retrieval corpus, or claim performance for a population. Define the target inputs, harm or cost of errors, baseline, required confidence, and stopping rule before inspecting the result. This prevents a convenient benchmark from becoming a proxy for a different deployment decision.</p>
+<div id="a3c135ac" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="report-disaggregated-evidence-and-limits" class="level3">
+<h3 class="anchored" data-anchor-id="report-disaggregated-evidence-and-limits">Report disaggregated evidence and limits</h3>
+<p>An audit report should state model, tokenizer, prompt, decoding, tools and index versions; test construction and dates; item counts and strata; scoring and adjudication; uncertainty; contamination checks; excluded cases; failures; cost and latency; and known limits. Where human judgements are used, report judge instructions, information access, agreement, and aggregation. Where benchmarks are public, report whether they may have influenced development.</p>
+<div id="fig-reporting-matrix" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fields<span class="op">=</span>[<span class="st">"claim"</span>,<span class="st">"population"</span>,<span class="st">"interface"</span>,<span class="st">"metric"</span>,<span class="st">"uncertainty"</span>,<span class="st">"contamination"</span>,<span class="st">"failures"</span>]</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,field <span class="kw">in</span> <span class="bu">enumerate</span>(fields):</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>(i<span class="op">%</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">2.15</span><span class="op">;</span> y<span class="op">=</span><span class="fl">2.45</span><span class="op">-</span>(i<span class="op">//</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">.85</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>[blue,teal,orange,purple][i<span class="op">%</span><span class="dv">4</span>],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,field,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="reliability-includes-calibration-and-failure-concentration" class="level3">
+<h3 class="anchored" data-anchor-id="reliability-includes-calibration-and-failure-concentration">Reliability includes calibration and failure concentration</h3>
+<p>An evaluation can ask whether a model’s expressed confidence or probability is related to correctness. Calibration is not solved by a single overall accuracy: a system may be reliable on routine examples and confidently wrong on one task slice. When a system does not expose calibrated probabilities, a proxy such as self-reported confidence, verifier score, or retrieval support should be treated as a separate predictor and evaluated against outcomes.</p>
+<p>Failure concentration also matters. Ten errors distributed across low-stakes formatting tasks have different implications from ten errors concentrated in access-control, medical, or financial cases. An evaluation report should preserve error categories and severity rules, rather than allowing a broad average to conceal the decision consequences of a rare failure.</p>
+<div id="c2535507" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="benchmark-development-is-itself-an-intervention" class="level3">
+<h3 class="anchored" data-anchor-id="benchmark-development-is-itself-an-intervention">Benchmark development is itself an intervention</h3>
+<p>Once a benchmark is public and used repeatedly for model selection, prompt design, data filtering, or reward design, its score can become a target. This can improve performance on the benchmark while narrowing the evidence it provides about unseen work. Held-out sets, refreshed item pools, task variants, and preregistered evaluation protocols can reduce this risk, but none removes the need to describe the development history.</p>
+<div id="5b56888c" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>A high benchmark score establishes general intelligence.</strong> It measures performance under a specific evaluation contract.</li>
+<li><strong>A single accuracy is enough for deployment.</strong> Slice performance, uncertainty, reliability, cost, and failure consequences may differ.</li>
+<li><strong>Public benchmarks are necessarily uncontaminated.</strong> Development and training exposure require explicit assessment.</li>
+<li><strong>A final wrong answer is always a model failure.</strong> Retrieval, tools, prompts, validators, and interfaces can fail first.</li>
+<li><strong>Automatic judging removes evaluation subjectivity.</strong> It introduces a scorer model and its own validation requirements.</li>
+<li><strong>More benchmarks automatically improve evidence.</strong> They can duplicate a narrow distribution or encourage benchmark-specific optimisation.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Define the unit and denominator for a claim-level factuality metric.</li>
+<li>Calculate accuracy and a simple interval for a supplied outcome vector.</li>
+<li>Explain why clustered examples violate a simple independent-item interval.</li>
+<li>List the interface fields to freeze for a reproducible benchmark run.</li>
+<li>Design a slice analysis for multilingual assistance.</li>
+<li>Identify an exact contamination check and one limitation of it.</li>
+<li>Construct a trace for a RAG answer that retrieved the wrong chunk.</li>
+<li>Compare a capability benchmark with a reliability test.</li>
+<li>Specify an adjudication process for open-ended human scoring.</li>
+<li>State why aggregate scores can conceal deployment risk.</li>
+<li>Propose a guardrail metric for a tool-using system.</li>
+<li>Design a prompt-sensitivity experiment.</li>
+<li>List report fields needed for a public benchmark claim.</li>
+<li>Explain why a validator can create false assurance.</li>
+<li>Define a decision that an evaluation should support.</li>
+<li>Identify the first chapter of Part V and its new evaluation problem.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>LLM evaluation measures defined systems on defined tasks under defined interfaces. Capability scores, reliability studies, safety tests, retrieval evaluation, and service benchmarks provide different evidence. Strong reports retain the population, denominator, uncertainty, contamination policy, component trace, and known limits rather than reducing the system to one aggregate number.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p><a href="./35-what-makes-a-reasoning-model.html">Chapter 35</a> begins Part V by distinguishing base models from reasoning-tuned models and examining what changes when systems are trained or prompted to use more computation on a problem.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>Holistic evaluation categories and scenarios are developed by <span class="citation" data-cites="liang2022holistic">Liang et al. (<a href="#ref-liang2022holistic" role="doc-biblioref">2022</a>)</span>. The MMLU benchmark illustrates multi-task knowledge evaluation and its scope limits <span class="citation" data-cites="hendrycks2021measuring">(<a href="#ref-hendrycks2021measuring" role="doc-biblioref">Hendrycks et al. 2021</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-hendrycks2021measuring" class="csl-entry" role="listitem">
+Hendrycks, Dan, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2021. <span>“Measuring Massive Multitask Language Understanding.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2009.03300">https://arxiv.org/abs/2009.03300</a>.
+</div>
+<div id="ref-liang2022holistic" class="csl-entry" role="listitem">
+Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihiro Yasunaga, Yian Zhang, et al. 2022. <span>“Holistic Evaluation of Language Models.”</span> <em>arXiv Preprint arXiv:2211.09110</em>. <a href="https://arxiv.org/abs/2211.09110">https://arxiv.org/abs/2211.09110</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./33-retrieval-augmented-generation.html" class="pagination-link" aria-label="Retrieval-augmented Generation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Retrieval-augmented Generation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./35-what-makes-a-reasoning-model.html" class="pagination-link" aria-label="What Makes a Reasoning Model?">
+        <span class="nav-page-text"><span class="chapter-title">What Makes a Reasoning Model?</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Evaluating LLMs"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Capability, reliability, contamination, and the limits of benchmark scores"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>An LLM evaluation produces evidence about a defined model or system under a defined input distribution, interface, scoring rule, and time. It does not produce a general scalar measure of intelligence, truthfulness, or fitness for every deployment. The same model can score differently after a template change, a decoding change, an index update, a tool change, or a contaminated test item.</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>This chapter closes Part IV by treating evaluation as a design and measurement problem. It connects the earlier distinctions among token loss, instruction tuning, preference optimisation, inference, and RAG. Part V then turns to reasoning models and the additional question of how to evaluate multi-step computation.</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a capability benchmark, a reliability test, a safety evaluation, and a system evaluation;</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define the population, unit, interface, and scoring rule for an LLM evaluation;</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate an accuracy estimate and a simple confidence interval;</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain contamination, prompt sensitivity, and benchmark overfitting;</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>separate model, retrieval, tool, and decoding failures in a system trace;</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify when aggregate scores conceal subgroup or task differences; and</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify an evaluation report that can be audited and reproduced.</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running evaluation</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>The running test has labelled inputs, a fixed template, a checkpoint, a decoding policy, and an exact-match criterion. Changing any of these can change the reported score.</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-evaluation-contract</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An LLM score is produced by a defined model and system interface, test set, decoding policy, and scoring procedure."</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval."</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"checkpoint +</span><span class="ch">\n</span><span class="st">interface"</span>,blue),(<span class="fl">2.25</span>,<span class="st">"test items</span><span class="ch">\n</span><span class="st">+ labels"</span>,teal),(<span class="fl">4.25</span>,<span class="st">"decoding +</span><span class="ch">\n</span><span class="st">tools"</span>,orange),(<span class="fl">6.25</span>,<span class="st">"scoring</span><span class="ch">\n</span><span class="st">rule"</span>,purple),(<span class="fl">8.2</span>,<span class="st">"metric +</span><span class="ch">\n</span><span class="st">uncertainty"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.4</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.68</span>,<span class="fl">3.68</span>,<span class="fl">5.68</span>,<span class="fl">7.68</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"A score is conditional on the complete evaluation contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scores answer bounded questions</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>Exact accuracy on multiple-choice questions measures success on those items under the supplied prompt and answer extraction rule. A factuality evaluation measures a different property. A safety red-team, long-context retrieval test, code execution task, and human preference study each answer other questions. A broad evaluation programme may combine them, but their scores should not be collapsed into one claim without explaining the aggregation and the uses it represents.</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>Benchmark choice defines which errors are visible. A test with short English questions can miss multilingual performance, tool failures, source use, refusal behaviour, latency, and long-document reliability. A test with a fixed answer key can be appropriate for a narrow capability while being unsuitable for an open-ended assistant response.</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>]</span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>accuracy<span class="op">=</span>np.mean(items)</span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"accuracy:"</span>,accuracy,<span class="st">"n:"</span>,<span class="bu">len</span>(items))</span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reliability requires repeated and varied evidence</span></span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>One successful answer does not estimate how often a system will succeed. Reliability concerns the distribution of outcomes across relevant inputs, including rare but consequential failures. For stochastic generation, the same input can yield different outputs. For tools and retrieval, external state can change. Evaluation should therefore record repetitions, seeds or sampling settings, versions, and the time at which an external collection was queried.</span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-aggregate-and-slices</span></span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An aggregate score can conceal different performance across task or population slices, so evaluation should retain the component results."</span></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices."</span></span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>[<span class="fl">.72</span>,<span class="fl">.86</span>,<span class="fl">.61</span>,<span class="fl">.49</span>]</span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Measurement mechanics</span></span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### The unit and denominator determine a metric</span></span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>An accuracy denominator can be questions, examples, claims, generated tokens, tool calls, or complete episodes. These choices are not interchangeable. A system that answers one question with five claims may be correct on some claims and not others. A RAG system may retrieve a relevant document but fail the final answer. The report should state the unit, inclusion rule, missing-data rule, and whether an item can receive partial credit.</span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>For binary accuracy over <span class="sc">\(</span>n<span class="sc">\)</span> independent labelled units, a simple standard-error approximation is <span class="sc">\(</span>\sqrt{\hat p(1-\hat p)/n}<span class="sc">\)</span>. It is not sufficient for clustered, repeated, or adaptively sampled data, but it shows why a score from a small test set has substantial uncertainty.</span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>se<span class="op">=</span>np.sqrt(p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)<span class="op">/</span>n)</span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-uncertainty-size</span></span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "For a fixed observed accuracy, a larger evaluation set yields a narrower simple binomial uncertainty interval."</span></span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items."</span></span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a><span class="fu">### Prompt and scorer choices are part of the treatment</span></span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>Few-shot examples, system messages, answer options, retrieval context, tool permissions, temperature, and output parsing can all change a score. The evaluation should freeze or systematically vary these choices rather than treating them as invisible plumbing. Automatic scorers should be validated on a labelled subset, particularly when judging open-ended answers, code, citations, or safety properties.</span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>,<span class="st">"A"</span>]</span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>exact<span class="op">=</span>[p<span class="op">==</span>y <span class="cf">for</span> p,y <span class="kw">in</span> <span class="bu">zip</span>(predictions,labels)]</span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Contamination and system boundaries</span></span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a><span class="fu">### Contamination changes the interpretation of benchmark performance</span></span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>If test items, answers, or close variants entered pretraining, fine-tuning, preference data, or prompt examples, benchmark performance can reflect prior exposure as well as generalisation. Exact-string searches are useful but insufficient because paraphrases, translated items, templates, and solutions can differ visibly while preserving the test content. A contamination policy should state search methods, source coverage, match thresholds, exclusions, and what score is reported when exposure is suspected.</span>
+<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>training_texts<span class="op">=</span>[<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"What is the eligibility rule?"</span>,<span class="st">"Other text"</span>]</span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a>matches<span class="op">=</span>[text <span class="cf">for</span> text <span class="kw">in</span> training_texts <span class="cf">if</span> test_item.lower() <span class="kw">in</span> text.lower()]</span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a>Contamination does not always make an evaluation useless, but it narrows the claim. A score may still measure retrieval from memorised material or performance under known exposure. It should not be presented as evidence of behaviour on unseen instances without a defensible boundary.</span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate complete systems at component boundaries</span></span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a>An LLM application can include a model, prompt template, decoder, retriever, index, tools, output validator, and user interface. A final failure may originate in any of these. The evaluation trace should retain input tokens, retrieved IDs, tool calls and outputs, generated IDs, validator decisions, and the final displayed answer. This supports component-level measurements and repair.</span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
+<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-system-failure-trace</span></span>
+<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A complete-system evaluation traces failures across input construction, retrieval or tools, generation, validation, and final output."</span></span>
+<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage."</span></span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"input"</span>,blue),(<span class="st">"retrieve / tools"</span>,teal),(<span class="st">"context"</span>,orange),(<span class="st">"generate"</span>,purple),(<span class="st">"validate"</span>,teal),(<span class="st">"display"</span>,blue)]):</span>
+<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.62</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.625</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Evaluation design and reporting</span></span>
+<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a><span class="fu">### Build an evaluation around a decision</span></span>
+<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a>The intended decision should determine the test: whether to deploy a model version, select an adaptation, allow a tool action, use a retrieval corpus, or claim performance for a population. Define the target inputs, harm or cost of errors, baseline, required confidence, and stopping rule before inspecting the result. This prevents a convenient benchmark from becoming a proxy for a different deployment decision.</span>
+<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
+<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span>
+<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a><span class="fu">### Report disaggregated evidence and limits</span></span>
+<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a>An audit report should state model, tokenizer, prompt, decoding, tools and index versions; test construction and dates; item counts and strata; scoring and adjudication; uncertainty; contamination checks; excluded cases; failures; cost and latency; and known limits. Where human judgements are used, report judge instructions, information access, agreement, and aggregation. Where benchmarks are public, report whether they may have influenced development.</span>
+<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reporting-matrix</span></span>
+<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A credible LLM evaluation report links each claim to its population, interface, metric, uncertainty, contamination status, and known limits."</span></span>
+<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures."</span></span>
+<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a>fields<span class="op">=</span>[<span class="st">"claim"</span>,<span class="st">"population"</span>,<span class="st">"interface"</span>,<span class="st">"metric"</span>,<span class="st">"uncertainty"</span>,<span class="st">"contamination"</span>,<span class="st">"failures"</span>]</span>
+<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,field <span class="kw">in</span> <span class="bu">enumerate</span>(fields):</span>
+<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>(i<span class="op">%</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">2.15</span><span class="op">;</span> y<span class="op">=</span><span class="fl">2.45</span><span class="op">-</span>(i<span class="op">//</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">.85</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>[blue,teal,orange,purple][i<span class="op">%</span><span class="dv">4</span>],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,field,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-186"><a href="#cb14-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-187"><a href="#cb14-187" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reliability includes calibration and failure concentration</span></span>
+<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a>An evaluation can ask whether a model's expressed confidence or probability is related to correctness. Calibration is not solved by a single overall accuracy: a system may be reliable on routine examples and confidently wrong on one task slice. When a system does not expose calibrated probabilities, a proxy such as self-reported confidence, verifier score, or retrieval support should be treated as a separate predictor and evaluated against outcomes.</span>
+<span id="cb14-190"><a href="#cb14-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a>Failure concentration also matters. Ten errors distributed across low-stakes formatting tasks have different implications from ten errors concentrated in access-control, medical, or financial cases. An evaluation report should preserve error categories and severity rules, rather than allowing a broad average to conceal the decision consequences of a rare failure.</span>
+<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
+<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span>
+<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-200"><a href="#cb14-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### Benchmark development is itself an intervention</span></span>
+<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a>Once a benchmark is public and used repeatedly for model selection, prompt design, data filtering, or reward design, its score can become a target. This can improve performance on the benchmark while narrowing the evidence it provides about unseen work. Held-out sets, refreshed item pools, task variants, and preregistered evaluation protocols can reduce this risk, but none removes the need to describe the development history.</span>
+<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-206"><a href="#cb14-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
+<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span>
+<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-213"><a href="#cb14-213" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A high benchmark score establishes general intelligence.** It measures performance under a specific evaluation contract.</span>
+<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A single accuracy is enough for deployment.** Slice performance, uncertainty, reliability, cost, and failure consequences may differ.</span>
+<span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Public benchmarks are necessarily uncontaminated.** Development and training exposure require explicit assessment.</span>
+<span id="cb14-216"><a href="#cb14-216" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A final wrong answer is always a model failure.** Retrieval, tools, prompts, validators, and interfaces can fail first.</span>
+<span id="cb14-217"><a href="#cb14-217" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Automatic judging removes evaluation subjectivity.** It introduces a scorer model and its own validation requirements.</span>
+<span id="cb14-218"><a href="#cb14-218" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More benchmarks automatically improve evidence.** They can duplicate a narrow distribution or encourage benchmark-specific optimisation.</span>
+<span id="cb14-219"><a href="#cb14-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-220"><a href="#cb14-220" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb14-221"><a href="#cb14-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-222"><a href="#cb14-222" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Define the unit and denominator for a claim-level factuality metric.</span>
+<span id="cb14-223"><a href="#cb14-223" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate accuracy and a simple interval for a supplied outcome vector.</span>
+<span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why clustered examples violate a simple independent-item interval.</span>
+<span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>List the interface fields to freeze for a reproducible benchmark run.</span>
+<span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Design a slice analysis for multilingual assistance.</span>
+<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Identify an exact contamination check and one limitation of it.</span>
+<span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Construct a trace for a RAG answer that retrieved the wrong chunk.</span>
+<span id="cb14-229"><a href="#cb14-229" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare a capability benchmark with a reliability test.</span>
+<span id="cb14-230"><a href="#cb14-230" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Specify an adjudication process for open-ended human scoring.</span>
+<span id="cb14-231"><a href="#cb14-231" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>State why aggregate scores can conceal deployment risk.</span>
+<span id="cb14-232"><a href="#cb14-232" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Propose a guardrail metric for a tool-using system.</span>
+<span id="cb14-233"><a href="#cb14-233" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a prompt-sensitivity experiment.</span>
+<span id="cb14-234"><a href="#cb14-234" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>List report fields needed for a public benchmark claim.</span>
+<span id="cb14-235"><a href="#cb14-235" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Explain why a validator can create false assurance.</span>
+<span id="cb14-236"><a href="#cb14-236" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Define a decision that an evaluation should support.</span>
+<span id="cb14-237"><a href="#cb14-237" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the first chapter of Part V and its new evaluation problem.</span>
+<span id="cb14-238"><a href="#cb14-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-239"><a href="#cb14-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb14-240"><a href="#cb14-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-241"><a href="#cb14-241" aria-hidden="true" tabindex="-1"></a>LLM evaluation measures defined systems on defined tasks under defined interfaces. Capability scores, reliability studies, safety tests, retrieval evaluation, and service benchmarks provide different evidence. Strong reports retain the population, denominator, uncertainty, contamination policy, component trace, and known limits rather than reducing the system to one aggregate number.</span>
+<span id="cb14-242"><a href="#cb14-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-243"><a href="#cb14-243" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb14-244"><a href="#cb14-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-245"><a href="#cb14-245" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 35</span><span class="co">](35-what-makes-a-reasoning-model.qmd)</span> begins Part V by distinguishing base models from reasoning-tuned models and examining what changes when systems are trained or prompted to use more computation on a problem.</span>
+<span id="cb14-246"><a href="#cb14-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb14-248"><a href="#cb14-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a>Holistic evaluation categories and scenarios are developed by @liang2022holistic. The MMLU benchmark illustrates multi-task knowledge evaluation and its scope limits <span class="co">[</span><span class="ot">@hendrycks2021measuring</span><span class="co">]</span>.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

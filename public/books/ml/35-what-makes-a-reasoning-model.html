@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>What Makes a Reasoning Model? – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./36-evaluating-reasoning.html" rel="next">
+<link href="./34-evaluating-llms.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-navigation.css"></head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./35-what-makes-a-reasoning-model.html"><span class="chapter-title">What Makes a Reasoning Model?</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-problem" id="toc-running-problem" class="nav-link" data-scroll-target="#running-problem">Running problem</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#reasoning-is-a-system-property-under-a-task-definition" id="toc-reasoning-is-a-system-property-under-a-task-definition" class="nav-link" data-scroll-target="#reasoning-is-a-system-property-under-a-task-definition">Reasoning is a system property under a task definition</a></li>
+  <li><a href="#visible-reasoning-is-not-automatically-faithful-reasoning" id="toc-visible-reasoning-is-not-automatically-faithful-reasoning" class="nav-link" data-scroll-target="#visible-reasoning-is-not-automatically-faithful-reasoning">Visible reasoning is not automatically faithful reasoning</a></li>
+  </ul></li>
+  <li><a href="#level-2---mechanisms" id="toc-level-2---mechanisms" class="nav-link" data-scroll-target="#level-2---mechanisms">Level 2 - Mechanisms</a>
+  <ul class="collapse">
+  <li><a href="#candidate-generation-and-selection-form-a-basic-search-loop" id="toc-candidate-generation-and-selection-form-a-basic-search-loop" class="nav-link" data-scroll-target="#candidate-generation-and-selection-form-a-basic-search-loop">Candidate generation and selection form a basic search loop</a></li>
+  <li><a href="#a-verifier-has-a-domain-an-error-rate-and-a-decision-role" id="toc-a-verifier-has-a-domain-an-error-rate-and-a-decision-role" class="nav-link" data-scroll-target="#a-verifier-has-a-domain-an-error-rate-and-a-decision-role">A verifier has a domain, an error rate, and a decision role</a></li>
+  <li><a href="#a-budget-makes-the-trade-off-observable" id="toc-a-budget-makes-the-trade-off-observable" class="nav-link" data-scroll-target="#a-budget-makes-the-trade-off-observable">A budget makes the trade-off observable</a></li>
+  </ul></li>
+  <li><a href="#level-3---training-and-inference-boundaries" id="toc-level-3---training-and-inference-boundaries" class="nav-link" data-scroll-target="#level-3---training-and-inference-boundaries">Level 3 - Training and inference boundaries</a>
+  <ul class="collapse">
+  <li><a href="#reasoning-tuning-changes-a-policy-under-selected-signals" id="toc-reasoning-tuning-changes-a-policy-under-selected-signals" class="nav-link" data-scroll-target="#reasoning-tuning-changes-a-policy-under-selected-signals">Reasoning tuning changes a policy under selected signals</a></li>
+  <li><a href="#latent-computation-has-an-observability-limit" id="toc-latent-computation-has-an-observability-limit" class="nav-link" data-scroll-target="#latent-computation-has-an-observability-limit">Latent computation has an observability limit</a></li>
+  <li><a href="#training-and-inference-mechanisms-should-not-be-conflated" id="toc-training-and-inference-mechanisms-should-not-be-conflated" class="nav-link" data-scroll-target="#training-and-inference-mechanisms-should-not-be-conflated">Training and inference mechanisms should not be conflated</a></li>
+  </ul></li>
+  <li><a href="#level-4---audit-and-scope" id="toc-level-4---audit-and-scope" class="nav-link" data-scroll-target="#level-4---audit-and-scope">Level 4 - Audit and scope</a>
+  <ul class="collapse">
+  <li><a href="#evaluate-the-mechanism-claimed" id="toc-evaluate-the-mechanism-claimed" class="nav-link" data-scroll-target="#evaluate-the-mechanism-claimed">Evaluate the mechanism claimed</a></li>
+  <li><a href="#scope-claims-should-remain-narrow" id="toc-scope-claims-should-remain-narrow" class="nav-link" data-scroll-target="#scope-claims-should-remain-narrow">Scope claims should remain narrow</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">What Makes a Reasoning Model?</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Additional computation, search, verification, and the limits of visible traces</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Language models can produce answers in one continuation, generate several candidate solutions, write intermediate steps, call a verifier, revise a proposal, or allocate more inference-time computation to difficult inputs. These behaviours are often grouped under “reasoning”, but they are not equivalent. A longer visible answer can be stylistic. A correct answer can result from retrieval or pattern completion. A system can perform substantial computation without exposing a faithful natural-language trace.</p>
+<p>This chapter uses an operational definition. A reasoning system uses multi-step computation, decomposition, search, verification, or extended inference in a way that can be evaluated against a task. The definition does not assume that a model has human-like reasoning or that its displayed steps reveal its causal internal process. Chapter 36 develops the evaluation problem; Chapters 37–40 develop inference-time scaling and training methods.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish a base model, an instruction-tuned model, and a reasoning-tuned system;</li>
+<li>distinguish visible rationale text, latent internal computation, and answer correctness;</li>
+<li>identify generation, search, verification, decomposition, and tool use as separate mechanisms;</li>
+<li>explain why longer outputs alone do not establish reasoning;</li>
+<li>describe an inference-time computation budget and its cost; and</li>
+<li>design a minimal trace that records candidates, checks, and answer selection.</li>
+</ul>
+</section>
+<section id="running-problem" class="level3">
+<h3 class="anchored" data-anchor-id="running-problem">Running problem</h3>
+<p>The running problem asks for an answer with a checkable result. The system can produce one response, sample several candidates, verify them, and select an answer. Each added step consumes tokens, model calls, or tool computation.</p>
+<div id="fig-reasoning-loop" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reasoning-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"problem"</span>,blue),(<span class="fl">2.05</span>,<span class="st">"candidate</span><span class="ch">\n</span><span class="st">generation"</span>,teal),(<span class="fl">4.2</span>,<span class="st">"verifier or</span><span class="ch">\n</span><span class="st">selection"</span>,orange),(<span class="fl">6.4</span>,<span class="st">"selected</span><span class="ch">\n</span><span class="st">answer"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.45</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.78</span>,<span class="fl">3.78</span>,<span class="fl">5.98</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.25</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"Tokens, samples, verifier calls, and latency are part of the reasoning-system budget."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-reasoning-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;36.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="reasoning-is-a-system-property-under-a-task-definition" class="level3">
+<h3 class="anchored" data-anchor-id="reasoning-is-a-system-property-under-a-task-definition">Reasoning is a system property under a task definition</h3>
+<p>A base model predicts a continuation from its prompt. Instruction tuning changes the response convention. A reasoning-tuned system may additionally be trained to produce intermediate work, reward verifiable outcomes, sample alternative solutions, or use more time before selecting an answer. The label should describe an observed mechanism and task result, not a marketing category.</p>
+<p>For an arithmetic expression, a model can answer immediately, write a calculation, generate several calculations and vote, or use a calculator tool. These may have different accuracy, token cost, and failure patterns. A system that calls a calculator can be reliable on arithmetic without demonstrating a general internal ability to reason about every task. A system that writes a long explanation can be incorrect despite a fluent trace.</p>
+<div id="d08750c0" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>strategies<span class="op">=</span>{<span class="st">"direct"</span>:<span class="st">"one answer"</span>,<span class="st">"rationale"</span>:<span class="st">"answer with steps"</span>,<span class="st">"sample-and-select"</span>:<span class="st">"several candidates plus selection"</span>,<span class="st">"tool-assisted"</span>:<span class="st">"external calculation"</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,description <span class="kw">in</span> strategies.items(): <span class="bu">print</span>(name<span class="op">+</span><span class="st">":"</span>,description)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The operational claim needs a comparison condition. For the same prompt set, hold the base checkpoint, prompt template, tools, and answer format fixed, then vary the proposed reasoning mechanism. If a system samples eight candidates, the relevant baseline is not an unrelated model with a shorter answer. It is the same system with one candidate, or with the selector removed, measured under the same task distribution. This comparison can show whether the additional computation improves the outcome and whether the gain survives the cost it introduces.</p>
+<p>The task definition must also specify what counts as a correct answer. Arithmetic often has an exact target. A coding task may require tests, resource limits, and a declared execution environment. A factual answer can require source attribution and a date boundary. Open-ended advice has no general exact verifier. Calling all of these settings “reasoning” hides the fact that the available checks, the likely errors, and the appropriate resource budget differ.</p>
+</section>
+<section id="visible-reasoning-is-not-automatically-faithful-reasoning" class="level3">
+<h3 class="anchored" data-anchor-id="visible-reasoning-is-not-automatically-faithful-reasoning">Visible reasoning is not automatically faithful reasoning</h3>
+<p>Chain-of-thought prompting asks a model to generate intermediate natural-language tokens before an answer. It can improve performance on some tasks <span class="citation" data-cites="wei2022chain">(<a href="#ref-wei2022chain" role="doc-biblioref">Wei et al. 2022</a>)</span>. The emitted text is still model output. It may be incomplete, post-hoc, strategically shaped by training, or unrelated to the internal features that caused the final answer. It should not be treated as a transparent record of all computation without a separate faithfulness test.</p>
+<p>The distinction matters in evaluation and deployment. A displayed rationale can help a person inspect arithmetic or source use. It can also create unwarranted confidence when the conclusion is unsupported. Some systems may use hidden or compressed intermediate computation and expose only an answer or summary. The appropriate evidence is task correctness, testable intermediate claims where relevant, and a documented system trace.</p>
+<div id="fig-trace-and-faithfulness" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trace-and-faithfulness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">2.6</span>,<span class="fl">2.3</span>,<span class="st">"visible</span><span class="ch">\n</span><span class="st">trace"</span>,blue),(<span class="fl">4.3</span>,<span class="fl">2.3</span>,<span class="st">"internal</span><span class="ch">\n</span><span class="st">computation"</span>,teal),(<span class="fl">3.45</span>,<span class="fl">1.25</span>,<span class="st">"correct</span><span class="ch">\n</span><span class="st">answer"</span>,orange)]:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    circle<span class="op">=</span>plt.Circle((x,y),<span class="fl">1.15</span>,color<span class="op">=</span>c,alpha<span class="op">=</span><span class="fl">.35</span>)<span class="op">;</span> ax.add_patch(circle)<span class="op">;</span> ax.text(x,y,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">1</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-trace-and-faithfulness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;36.2
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-2---mechanisms" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanisms">Level 2 - Mechanisms</h2>
+<section id="candidate-generation-and-selection-form-a-basic-search-loop" class="level3">
+<h3 class="anchored" data-anchor-id="candidate-generation-and-selection-form-a-basic-search-loop">Candidate generation and selection form a basic search loop</h3>
+<p>Sampling several completions creates a candidate set. A selection rule can choose the highest model score, a majority answer, a verifier-approved candidate, or an externally checked result. The improvement, if any, comes from the combination of candidate diversity and a selection signal that distinguishes better from worse candidates. More samples without a useful selector can simply add cost and inconsistent answers.</p>
+<div id="908279b3" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"valid"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>}]</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>valid<span class="op">=</span>[c[<span class="st">"answer"</span>] <span class="cf">for</span> c <span class="kw">in</span> candidates <span class="cf">if</span> c[<span class="st">"valid"</span>]]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected answer:"</span>,<span class="bu">max</span>(<span class="bu">set</span>(valid),key<span class="op">=</span>valid.count))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Decomposition divides a task into subproblems. Verification checks an answer, a step, or a constraint. Search chooses which partial solution to extend. Tool use delegates a defined operation to an external system. These mechanisms can be combined, but they should be named separately because they make different assumptions. A verifier that checks arithmetic cannot verify a legal interpretation; a decomposition can propagate an early mistaken subgoal.</p>
+</section>
+<section id="a-verifier-has-a-domain-an-error-rate-and-a-decision-role" class="level3">
+<h3 class="anchored" data-anchor-id="a-verifier-has-a-domain-an-error-rate-and-a-decision-role">A verifier has a domain, an error rate, and a decision role</h3>
+<p>An exact verifier can compare a submitted expression with a known answer or run a program against a defined test suite. A learned verifier assigns a score from examples and can make the same systematic mistakes as the generator. A process verifier scores intermediate steps, while an outcome verifier scores a final result. These are different measurement instruments. Work on training verifiers for mathematical problems illustrates why candidate quality and verifier quality must be reported separately: a selector can only improve the candidate set when it can distinguish the better candidates in that set <span class="citation" data-cites="cobbe2021training">(<a href="#ref-cobbe2021training" role="doc-biblioref">Cobbe et al. 2021</a>)</span>.</p>
+<p>The decision rule matters as much as the score. A system may reject every candidate below a threshold, choose the highest-scoring candidate, request another sample, or defer to a person. A threshold selected on an easy development set can accept errors on a changed task distribution. A verifier that marks a valid answer as invalid produces a false rejection; one that approves an invalid answer produces a false acceptance. These errors have different consequences in a system that answers automatically and a system that uses verification only to route uncertain cases for review.</p>
+<p>The record should therefore identify the object checked, the verifier type, the threshold or selection rule, and the cases on which verification is unavailable. A claim that a model “checks its work” is not informative until those choices are visible.</p>
+<div id="fig-mechanism-map" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mechanism-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">3.7</span>,<span class="fl">1.55</span>),<span class="fl">1.5</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.45</span>,<span class="fl">1.84</span>,<span class="st">"problem"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="fl">2.8</span>,<span class="st">"decompose"</span>,teal),(<span class="fl">2.2</span>,<span class="fl">.45</span>,<span class="st">"generate"</span>,orange),(<span class="fl">5.6</span>,<span class="fl">.45</span>,<span class="st">"search"</span>,purple),(<span class="fl">7.3</span>,<span class="fl">2.8</span>,<span class="st">"verify"</span>,teal),(<span class="fl">7.3</span>,<span class="fl">1.3</span>,<span class="st">"tools"</span>,orange)]: ax.add_patch(Rectangle((x,y),<span class="fl">1.25</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.625</span>,y<span class="op">+</span><span class="fl">.25</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.6</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-mechanism-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;36.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="a-budget-makes-the-trade-off-observable" class="level3">
+<h3 class="anchored" data-anchor-id="a-budget-makes-the-trade-off-observable">A budget makes the trade-off observable</h3>
+<p>Inference-time compute can be counted as generated tokens, model forward passes, samples, verifier calls, tool calls, wall-clock time, energy, or monetary cost. These measures are related but not identical. A system may generate fewer tokens but make more expensive verifier calls, or use a long hidden trace with no user-visible explanation. An evaluation should report the resource definition alongside accuracy.</p>
+<div id="05527bbd" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>budget<span class="op">=</span>{<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"tokens_per_sample"</span>:<span class="dv">250</span>,<span class="st">"verifier_calls"</span>:<span class="dv">8</span>,<span class="st">"latency_seconds"</span>:<span class="fl">4.2</span>}</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"generated tokens:"</span>,budget[<span class="st">"samples"</span>]<span class="op">*</span>budget[<span class="st">"tokens_per_sample"</span>])</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(budget)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Budget reporting should be per request and across a workload. The mean number of sampled tokens can conceal a small set of difficult inputs that trigger repeated generation or expensive tools. A deployment record can report median and tail latency, the fraction of requests that use search or tools, failed verifier calls, and the policy for exhausting a budget. These fields allow a reader to distinguish a system that uses extra computation routinely from one that reserves it for a defined slice of requests.</p>
+</section>
+</section>
+<section id="level-3---training-and-inference-boundaries" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---training-and-inference-boundaries">Level 3 - Training and inference boundaries</h2>
+<section id="reasoning-tuning-changes-a-policy-under-selected-signals" class="level3">
+<h3 class="anchored" data-anchor-id="reasoning-tuning-changes-a-policy-under-selected-signals">Reasoning tuning changes a policy under selected signals</h3>
+<p>Reasoning-oriented training may use demonstrations with intermediate steps, outcomes checked by a verifier, preference comparisons among solutions, or reinforcement learning over multi-step trajectories. The system learns from the data and reward signals available; it does not receive a general proof procedure. A reward based only on final answer can favour lucky or opaque trajectories. A process reward can favour steps that look plausible to its judge without guaranteeing they caused the result.</p>
+<div id="dd832749" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>trajectories<span class="op">=</span>[{<span class="st">"steps"</span>:<span class="dv">4</span>,<span class="st">"answer_correct"</span>:<span class="dv">1</span>,<span class="st">"process_score"</span>:<span class="fl">.7</span>},{<span class="st">"steps"</span>:<span class="dv">8</span>,<span class="st">"answer_correct"</span>:<span class="dv">0</span>,<span class="st">"process_score"</span>:<span class="fl">.9</span>}]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> trajectories: <span class="bu">print</span>(t)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The training objective, rollout policy, stopping rule, verifier, and selection procedure form the reasoning system. They must be separated from the base checkpoint identity. Two systems built on the same model can differ materially if one samples one answer and the other samples twenty candidates with a testable verifier.</p>
+</section>
+<section id="latent-computation-has-an-observability-limit" class="level3">
+<h3 class="anchored" data-anchor-id="latent-computation-has-an-observability-limit">Latent computation has an observability limit</h3>
+<p>Internal activations and any hidden intermediate tokens can influence an answer without being available to the user. This can protect proprietary methods or avoid exposing unsafe detailed work, but it limits direct inspection. A system should not substitute an invented visible rationale for an unavailable trace. It can instead report answer confidence limits, tool outputs, verified constraints, and the inference budget used.</p>
+<div id="a2de15bd" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>audit<span class="op">=</span>{<span class="st">"model"</span>:<span class="st">"versioned"</span>,<span class="st">"samples"</span>:<span class="dv">4</span>,<span class="st">"selector"</span>:<span class="st">"exact verifier"</span>,<span class="st">"visible_rationale"</span>:<span class="va">False</span>,<span class="st">"verified_constraint"</span>:<span class="st">"answer parses"</span>}</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(audit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="training-and-inference-mechanisms-should-not-be-conflated" class="level3">
+<h3 class="anchored" data-anchor-id="training-and-inference-mechanisms-should-not-be-conflated">Training and inference mechanisms should not be conflated</h3>
+<p>Some systems are trained on step-by-step demonstrations or verified outcomes and then answer in one pass. Others use an ordinary base or instruction model but add sampling, tools, or selection only at inference. A third class combines training changes with a multi-step inference loop. These routes can produce similar visible answers while making different resource, data, and evaluation claims.</p>
+<p>The distinction is useful because a claimed gain may come from additional test-time sampling rather than a changed base policy, or from a verifier rather than a better generator. Controlled comparisons should hold one component fixed at a time: compare one-pass and multi-sample inference for the same checkpoint; compare a learned selector and an exact verifier over the same candidate set; compare tuned and untuned checkpoints under the same budget.</p>
+<p>This separation also limits what a visible rationale can establish. A policy trained on worked solutions may produce orderly steps in one pass, while a search procedure may return a concise answer after evaluating many hidden candidates. The first system exposes more text; the second may use more inference-time computation. Neither observation identifies the cause of correctness without an intervention or a controlled comparison. Process-supervision research makes the distinction operational by scoring intermediate steps, but those scores still require validation against the task and the intended use <span class="citation" data-cites="lightman2023lets">(<a href="#ref-lightman2023lets" role="doc-biblioref">Lightman et al. 2023</a>)</span>.</p>
+<div id="fig-training-inference-routes" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-training-inference-routes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>paths<span class="op">=</span>[(<span class="st">"training change</span><span class="ch">\n</span><span class="st">→ one-pass answer"</span>,orange,<span class="fl">2.7</span>),(<span class="st">"base model</span><span class="ch">\n</span><span class="st">→ search + verifier"</span>,teal,<span class="fl">1.8</span>),(<span class="st">"training change</span><span class="ch">\n</span><span class="st">→ search + verifier"</span>,purple,<span class="fl">.9</span>)]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,y <span class="kw">in</span> paths:</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.45</span>,y),<span class="fl">2.0</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.45</span>,y<span class="op">+</span><span class="fl">.25</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">2.5</span>,y<span class="op">+</span><span class="fl">.25</span>),(<span class="fl">4.25</span>,y<span class="op">+</span><span class="fl">.25</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">4.35</span>,y),<span class="fl">1.4</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.05</span>,y<span class="op">+</span><span class="fl">.25</span>,<span class="st">"answer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.2</span>,<span class="fl">.25</span>,<span class="st">"Hold routes fixed or compare them explicitly."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">6.2</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-training-inference-routes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;36.4
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-4---audit-and-scope" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---audit-and-scope">Level 4 - Audit and scope</h2>
+<section id="evaluate-the-mechanism-claimed" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-the-mechanism-claimed">Evaluate the mechanism claimed</h3>
+<p>A system claiming search should show how candidates are expanded and selected. A system claiming verification should test verifier accuracy and failure modes. A system claiming improved reasoning from longer inference should compare accuracy against the same task under controlled compute budgets. A system claiming faithful traces needs evidence that changes in the trace correspond to changes in the computation or answer under an explicit intervention design.</p>
+<div id="fig-reasoning-audit" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reasoning-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"search"</span>,<span class="st">"candidate coverage and selection"</span>),(<span class="st">"verification"</span>,<span class="st">"verifier errors and calibration"</span>),(<span class="st">"extra inference"</span>,<span class="st">"accuracy versus cost"</span>),(<span class="st">"visible trace"</span>,<span class="st">"faithfulness intervention"</span>)]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(claim,test) <span class="kw">in</span> <span class="bu">enumerate</span>(rows):</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.8</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.62</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.45</span>,y),<span class="fl">2.1</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.5</span>,y<span class="op">+</span><span class="fl">.2</span>,claim,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">3.0</span>,y),<span class="fl">4.8</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.4</span>,y<span class="op">+</span><span class="fl">.2</span>,test,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.4</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-reasoning-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;36.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="scope-claims-should-remain-narrow" class="level3">
+<h3 class="anchored" data-anchor-id="scope-claims-should-remain-narrow">Scope claims should remain narrow</h3>
+<p>Reasoning benchmarks can reward answer formats, familiar problem templates, or verifier-compatible outputs. A gain on one set of mathematical problems does not establish general reasoning across science, law, planning, or open-ended advice. Contamination and benchmark-specific optimisation remain concerns from Chapter 34. The module will therefore report task distributions, inference cost, selected mechanisms, and failure cases rather than treating one score or one trace style as a global capability measure.</p>
+<p>An adequate report begins with the base model and task distribution, then states the generator, candidate budget, tools, verifier, selection rule, stopping rule, and answer interface. It reports the outcome measure and resource measures together, followed by examples of false acceptance, false rejection, exhausted budgets, and cases that the system could not verify. That record does not settle whether a system has a general reasoning capability. It does make the narrower claim inspectable and provides the inputs Chapter 36 needs for a valid evaluation.</p>
+<div id="fd03e06f" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable arithmetic"</span>,<span class="st">"base"</span>:<span class="st">"checkpoint-v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact answer"</span>,<span class="st">"cost"</span>:<span class="st">"tokens and latency"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out problems"</span>}</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"task"</span>,<span class="st">"samples"</span>,<span class="st">"verifier"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reasoning-system record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>A long explanation proves the model reasoned correctly.</strong> It is visible text that requires separate correctness and faithfulness checks.</li>
+<li><strong>Reasoning models are a distinct architecture class.</strong> They can share an architecture with base models while changing training or inference procedures.</li>
+<li><strong>More inference tokens always improve answers.</strong> Additional computation needs useful candidate diversity and selection or verification.</li>
+<li><strong>A correct final answer validates every intermediate step.</strong> Some trajectories are lucky, incomplete, or inconsistent.</li>
+<li><strong>A verifier establishes general reasoning.</strong> It validates only the property it is designed and tested to check.</li>
+<li><strong>Hidden computation makes evaluation impossible.</strong> It limits direct trace inspection but system-level outcomes and resource use remain evaluable.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Distinguish base, instruction-tuned, and reasoning-tuned systems.</li>
+<li>List three mechanisms that can add inference-time computation.</li>
+<li>Explain why visible chain-of-thought is not automatically faithful.</li>
+<li>Implement majority selection over sampled checkable answers.</li>
+<li>Define a verifier and one condition it cannot check.</li>
+<li>Calculate tokens and verifier calls for a candidate-generation budget.</li>
+<li>Design an evaluation of accuracy against number of sampled candidates.</li>
+<li>Separate decomposition from verification in a system trace.</li>
+<li>Explain why a final-answer reward can favour a lucky trajectory.</li>
+<li>List fields required to reproduce a reasoning-system result.</li>
+<li>Propose an intervention test for visible-trace faithfulness.</li>
+<li>Compare a tool-assisted answer with a model-only answer.</li>
+<li>Identify a mechanism that can fail despite a correct final answer.</li>
+<li>State why a task-specific reasoning gain should not be generalised broadly.</li>
+<li>Define an inference budget in two different units.</li>
+<li>Identify the next chapter’s reasoning-evaluation focus.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>A reasoning model is best defined operationally: it uses additional multi-step computation, search, decomposition, verification, or extended inference that can be evaluated on a task. Visible rationales, internal computation, and answer correctness are distinct objects. The relevant evidence includes task outcomes, mechanism-specific tests, inference cost, and failure traces.</p>
+<p><a href="./36-evaluating-reasoning.html">Chapter 36</a> develops evaluation for answer accuracy, process evidence, verifiers, contamination, robustness, and the cost of additional computation.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>An operational definition of reasoning needs an equally explicit evaluation design. <a href="./36-evaluating-reasoning.html">Chapter 36</a> separates outcome, process, robustness, and resource evidence for systems that use multi-step computation.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>Chain-of-thought prompting is studied by <span class="citation" data-cites="wei2022chain">Wei et al. (<a href="#ref-wei2022chain" role="doc-biblioref">2022</a>)</span>. The module’s educational build perspective is informed by <span class="citation" data-cites="raschka2025reasoning">Raschka (<a href="#ref-raschka2025reasoning" role="doc-biblioref">2025</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-cobbe2021training" class="csl-entry" role="listitem">
+Cobbe, Karl, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, et al. 2021. <span>“Training Verifiers to Solve Math Word Problems.”</span> <em>arXiv Preprint arXiv:2110.14168</em>. <a href="https://arxiv.org/abs/2110.14168">https://arxiv.org/abs/2110.14168</a>.
+</div>
+<div id="ref-lightman2023lets" class="csl-entry" role="listitem">
+Lightman, Hunter, Vineet Kosaraju, Yura Burda, Harri Edwards, Bowen Baker, Teddy Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe. 2023. <span>“Let’s Verify Step by Step.”</span> <em>arXiv Preprint arXiv:2305.20050</em>. <a href="https://arxiv.org/abs/2305.20050">https://arxiv.org/abs/2305.20050</a>.
+</div>
+<div id="ref-raschka2025reasoning" class="csl-entry" role="listitem">
+Raschka, Sebastian. 2025. <em>Build a Reasoning Model (from Scratch)</em>. Manning. <a href="https://github.com/rasbt/reasoning-from-scratch">https://github.com/rasbt/reasoning-from-scratch</a>.
+</div>
+<div id="ref-wei2022chain" class="csl-entry" role="listitem">
+Wei, Jason, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed H. Chi, Quoc V. Le, and Denny Zhou. 2022. <span>“Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.”</span> <em>Advances in Neural Information Processing Systems</em> 35: 24824–37. <a href="https://arxiv.org/abs/2201.11903">https://arxiv.org/abs/2201.11903</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./34-evaluating-llms.html" class="pagination-link" aria-label="Evaluating LLMs">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Evaluating LLMs</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./36-evaluating-reasoning.html" class="pagination-link" aria-label="Evaluating Reasoning">
+        <span class="nav-page-text"><span class="chapter-title">Evaluating Reasoning</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "What Makes a Reasoning Model?"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Additional computation, search, verification, and the limits of visible traces"</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>Language models can produce answers in one continuation, generate several candidate solutions, write intermediate steps, call a verifier, revise a proposal, or allocate more inference-time computation to difficult inputs. These behaviours are often grouped under “reasoning”, but they are not equivalent. A longer visible answer can be stylistic. A correct answer can result from retrieval or pattern completion. A system can perform substantial computation without exposing a faithful natural-language trace.</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>This chapter uses an operational definition. A reasoning system uses multi-step computation, decomposition, search, verification, or extended inference in a way that can be evaluated against a task. The definition does not assume that a model has human-like reasoning or that its displayed steps reveal its causal internal process. Chapter 36 develops the evaluation problem; Chapters 37–40 develop inference-time scaling and training methods.</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a base model, an instruction-tuned model, and a reasoning-tuned system;</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish visible rationale text, latent internal computation, and answer correctness;</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify generation, search, verification, decomposition, and tool use as separate mechanisms;</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why longer outputs alone do not establish reasoning;</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>describe an inference-time computation budget and its cost; and</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>design a minimal trace that records candidates, checks, and answer selection.</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running problem</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>The running problem asks for an answer with a checkable result. The system can produce one response, sample several candidates, verify them, and select an answer. Each added step consumes tokens, model calls, or tool computation.</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reasoning-loop</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A reasoning system can generate candidates, apply a verifier or selection rule, and return one answer under a finite inference-time budget."</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A prompt flows to candidate generation, verification, selection, and answer, with a budget label spanning the loop."</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"problem"</span>,blue),(<span class="fl">2.05</span>,<span class="st">"candidate</span><span class="ch">\n</span><span class="st">generation"</span>,teal),(<span class="fl">4.2</span>,<span class="st">"verifier or</span><span class="ch">\n</span><span class="st">selection"</span>,orange),(<span class="fl">6.4</span>,<span class="st">"selected</span><span class="ch">\n</span><span class="st">answer"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.45</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.78</span>,<span class="fl">3.78</span>,<span class="fl">5.98</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.25</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"Tokens, samples, verifier calls, and latency are part of the reasoning-system budget."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reasoning is a system property under a task definition</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>A base model predicts a continuation from its prompt. Instruction tuning changes the response convention. A reasoning-tuned system may additionally be trained to produce intermediate work, reward verifiable outcomes, sample alternative solutions, or use more time before selecting an answer. The label should describe an observed mechanism and task result, not a marketing category.</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>For an arithmetic expression, a model can answer immediately, write a calculation, generate several calculations and vote, or use a calculator tool. These may have different accuracy, token cost, and failure patterns. A system that calls a calculator can be reliable on arithmetic without demonstrating a general internal ability to reason about every task. A system that writes a long explanation can be incorrect despite a fluent trace.</span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>strategies<span class="op">=</span>{<span class="st">"direct"</span>:<span class="st">"one answer"</span>,<span class="st">"rationale"</span>:<span class="st">"answer with steps"</span>,<span class="st">"sample-and-select"</span>:<span class="st">"several candidates plus selection"</span>,<span class="st">"tool-assisted"</span>:<span class="st">"external calculation"</span>}</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,description <span class="kw">in</span> strategies.items(): <span class="bu">print</span>(name<span class="op">+</span><span class="st">":"</span>,description)</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>The operational claim needs a comparison condition. For the same prompt set, hold the base checkpoint, prompt template, tools, and answer format fixed, then vary the proposed reasoning mechanism. If a system samples eight candidates, the relevant baseline is not an unrelated model with a shorter answer. It is the same system with one candidate, or with the selector removed, measured under the same task distribution. This comparison can show whether the additional computation improves the outcome and whether the gain survives the cost it introduces.</span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>The task definition must also specify what counts as a correct answer. Arithmetic often has an exact target. A coding task may require tests, resource limits, and a declared execution environment. A factual answer can require source attribution and a date boundary. Open-ended advice has no general exact verifier. Calling all of these settings “reasoning” hides the fact that the available checks, the likely errors, and the appropriate resource budget differ.</span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a><span class="fu">### Visible reasoning is not automatically faithful reasoning</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>Chain-of-thought prompting asks a model to generate intermediate natural-language tokens before an answer. It can improve performance on some tasks <span class="co">[</span><span class="ot">@wei2022chain</span><span class="co">]</span>. The emitted text is still model output. It may be incomplete, post-hoc, strategically shaped by training, or unrelated to the internal features that caused the final answer. It should not be treated as a transparent record of all computation without a separate faithfulness test.</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>The distinction matters in evaluation and deployment. A displayed rationale can help a person inspect arithmetic or source use. It can also create unwarranted confidence when the conclusion is unsupported. Some systems may use hidden or compressed intermediate computation and expose only an answer or summary. The appropriate evidence is task correctness, testable intermediate claims where relevant, and a documented system trace.</span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-trace-and-faithfulness</span></span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A visible rationale, internal model computation, and answer correctness are related but distinct objects that require separate evaluation."</span></span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three overlapping circles are labelled visible trace, internal computation, and correct answer, with no claim that any circle fully contains another."</span></span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">2.6</span>,<span class="fl">2.3</span>,<span class="st">"visible</span><span class="ch">\n</span><span class="st">trace"</span>,blue),(<span class="fl">4.3</span>,<span class="fl">2.3</span>,<span class="st">"internal</span><span class="ch">\n</span><span class="st">computation"</span>,teal),(<span class="fl">3.45</span>,<span class="fl">1.25</span>,<span class="st">"correct</span><span class="ch">\n</span><span class="st">answer"</span>,orange)]:</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>    circle<span class="op">=</span>plt.Circle((x,y),<span class="fl">1.15</span>,color<span class="op">=</span>c,alpha<span class="op">=</span><span class="fl">.35</span>)<span class="op">;</span> ax.add_patch(circle)<span class="op">;</span> ax.text(x,y,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">1</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanisms</span></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a><span class="fu">### Candidate generation and selection form a basic search loop</span></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>Sampling several completions creates a candidate set. A selection rule can choose the highest model score, a majority answer, a verifier-approved candidate, or an externally checked result. The improvement, if any, comes from the combination of candidate diversity and a selection signal that distinguishes better from worse candidates. More samples without a useful selector can simply add cost and inconsistent answers.</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"valid"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>}]</span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>valid<span class="op">=</span>[c[<span class="st">"answer"</span>] <span class="cf">for</span> c <span class="kw">in</span> candidates <span class="cf">if</span> c[<span class="st">"valid"</span>]]</span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected answer:"</span>,<span class="bu">max</span>(<span class="bu">set</span>(valid),key<span class="op">=</span>valid.count))</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>Decomposition divides a task into subproblems. Verification checks an answer, a step, or a constraint. Search chooses which partial solution to extend. Tool use delegates a defined operation to an external system. These mechanisms can be combined, but they should be named separately because they make different assumptions. A verifier that checks arithmetic cannot verify a legal interpretation; a decomposition can propagate an early mistaken subgoal.</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a><span class="fu">### A verifier has a domain, an error rate, and a decision role</span></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>An exact verifier can compare a submitted expression with a known answer or run a program against a defined test suite. A learned verifier assigns a score from examples and can make the same systematic mistakes as the generator. A process verifier scores intermediate steps, while an outcome verifier scores a final result. These are different measurement instruments. Work on training verifiers for mathematical problems illustrates why candidate quality and verifier quality must be reported separately: a selector can only improve the candidate set when it can distinguish the better candidates in that set <span class="co">[</span><span class="ot">@cobbe2021training</span><span class="co">]</span>.</span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>The decision rule matters as much as the score. A system may reject every candidate below a threshold, choose the highest-scoring candidate, request another sample, or defer to a person. A threshold selected on an easy development set can accept errors on a changed task distribution. A verifier that marks a valid answer as invalid produces a false rejection; one that approves an invalid answer produces a false acceptance. These errors have different consequences in a system that answers automatically and a system that uses verification only to route uncertain cases for review.</span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>The record should therefore identify the object checked, the verifier type, the threshold or selection rule, and the cases on which verification is unavailable. A claim that a model “checks its work” is not informative until those choices are visible.</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-mechanism-map</span></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Generation, decomposition, search, verification, and tool use are distinct mechanisms that can be combined in a reasoning system."</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A central problem connects to separate boxes for decomposition, candidate generation, search, verification, and tools."</span></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">3.7</span>,<span class="fl">1.55</span>),<span class="fl">1.5</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.45</span>,<span class="fl">1.84</span>,<span class="st">"problem"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="fl">2.8</span>,<span class="st">"decompose"</span>,teal),(<span class="fl">2.2</span>,<span class="fl">.45</span>,<span class="st">"generate"</span>,orange),(<span class="fl">5.6</span>,<span class="fl">.45</span>,<span class="st">"search"</span>,purple),(<span class="fl">7.3</span>,<span class="fl">2.8</span>,<span class="st">"verify"</span>,teal),(<span class="fl">7.3</span>,<span class="fl">1.3</span>,<span class="st">"tools"</span>,orange)]: ax.add_patch(Rectangle((x,y),<span class="fl">1.25</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.625</span>,y<span class="op">+</span><span class="fl">.25</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.6</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a><span class="fu">### A budget makes the trade-off observable</span></span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>Inference-time compute can be counted as generated tokens, model forward passes, samples, verifier calls, tool calls, wall-clock time, energy, or monetary cost. These measures are related but not identical. A system may generate fewer tokens but make more expensive verifier calls, or use a long hidden trace with no user-visible explanation. An evaluation should report the resource definition alongside accuracy.</span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a>budget<span class="op">=</span>{<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"tokens_per_sample"</span>:<span class="dv">250</span>,<span class="st">"verifier_calls"</span>:<span class="dv">8</span>,<span class="st">"latency_seconds"</span>:<span class="fl">4.2</span>}</span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"generated tokens:"</span>,budget[<span class="st">"samples"</span>]<span class="op">*</span>budget[<span class="st">"tokens_per_sample"</span>])</span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(budget)</span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a>Budget reporting should be per request and across a workload. The mean number of sampled tokens can conceal a small set of difficult inputs that trigger repeated generation or expensive tools. A deployment record can report median and tail latency, the fraction of requests that use search or tools, failed verifier calls, and the policy for exhausting a budget. These fields allow a reader to distinguish a system that uses extra computation routinely from one that reserves it for a defined slice of requests.</span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Training and inference boundaries</span></span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reasoning tuning changes a policy under selected signals</span></span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>Reasoning-oriented training may use demonstrations with intermediate steps, outcomes checked by a verifier, preference comparisons among solutions, or reinforcement learning over multi-step trajectories. The system learns from the data and reward signals available; it does not receive a general proof procedure. A reward based only on final answer can favour lucky or opaque trajectories. A process reward can favour steps that look plausible to its judge without guaranteeing they caused the result.</span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a>trajectories<span class="op">=</span>[{<span class="st">"steps"</span>:<span class="dv">4</span>,<span class="st">"answer_correct"</span>:<span class="dv">1</span>,<span class="st">"process_score"</span>:<span class="fl">.7</span>},{<span class="st">"steps"</span>:<span class="dv">8</span>,<span class="st">"answer_correct"</span>:<span class="dv">0</span>,<span class="st">"process_score"</span>:<span class="fl">.9</span>}]</span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> trajectories: <span class="bu">print</span>(t)</span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a>The training objective, rollout policy, stopping rule, verifier, and selection procedure form the reasoning system. They must be separated from the base checkpoint identity. Two systems built on the same model can differ materially if one samples one answer and the other samples twenty candidates with a testable verifier.</span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a><span class="fu">### Latent computation has an observability limit</span></span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a>Internal activations and any hidden intermediate tokens can influence an answer without being available to the user. This can protect proprietary methods or avoid exposing unsafe detailed work, but it limits direct inspection. A system should not substitute an invented visible rationale for an unavailable trace. It can instead report answer confidence limits, tool outputs, verified constraints, and the inference budget used.</span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a>audit<span class="op">=</span>{<span class="st">"model"</span>:<span class="st">"versioned"</span>,<span class="st">"samples"</span>:<span class="dv">4</span>,<span class="st">"selector"</span>:<span class="st">"exact verifier"</span>,<span class="st">"visible_rationale"</span>:<span class="va">False</span>,<span class="st">"verified_constraint"</span>:<span class="st">"answer parses"</span>}</span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(audit)</span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training and inference mechanisms should not be conflated</span></span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a>Some systems are trained on step-by-step demonstrations or verified outcomes and then answer in one pass. Others use an ordinary base or instruction model but add sampling, tools, or selection only at inference. A third class combines training changes with a multi-step inference loop. These routes can produce similar visible answers while making different resource, data, and evaluation claims.</span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>The distinction is useful because a claimed gain may come from additional test-time sampling rather than a changed base policy, or from a verifier rather than a better generator. Controlled comparisons should hold one component fixed at a time: compare one-pass and multi-sample inference for the same checkpoint; compare a learned selector and an exact verifier over the same candidate set; compare tuned and untuned checkpoints under the same budget.</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a>This separation also limits what a visible rationale can establish. A policy trained on worked solutions may produce orderly steps in one pass, while a search procedure may return a concise answer after evaluating many hidden candidates. The first system exposes more text; the second may use more inference-time computation. Neither observation identifies the cause of correctness without an intervention or a controlled comparison. Process-supervision research makes the distinction operational by scoring intermediate steps, but those scores still require validation against the task and the intended use <span class="co">[</span><span class="ot">@lightman2023lets</span><span class="co">]</span>.</span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-training-inference-routes</span></span>
+<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Reasoning behaviour can arise from training changes, inference-time procedures, or their combination; evaluation should identify the route used."</span></span>
+<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three paths lead to an answer: reasoning-tuned model with one pass, base model with search and verification, and tuned model with search and verification."</span></span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a>paths<span class="op">=</span>[(<span class="st">"training change</span><span class="ch">\n</span><span class="st">→ one-pass answer"</span>,orange,<span class="fl">2.7</span>),(<span class="st">"base model</span><span class="ch">\n</span><span class="st">→ search + verifier"</span>,teal,<span class="fl">1.8</span>),(<span class="st">"training change</span><span class="ch">\n</span><span class="st">→ search + verifier"</span>,purple,<span class="fl">.9</span>)]</span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,y <span class="kw">in</span> paths:</span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.45</span>,y),<span class="fl">2.0</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.45</span>,y<span class="op">+</span><span class="fl">.25</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">2.5</span>,y<span class="op">+</span><span class="fl">.25</span>),(<span class="fl">4.25</span>,y<span class="op">+</span><span class="fl">.25</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">4.35</span>,y),<span class="fl">1.4</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.05</span>,y<span class="op">+</span><span class="fl">.25</span>,<span class="st">"answer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.2</span>,<span class="fl">.25</span>,<span class="st">"Hold routes fixed or compare them explicitly."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">6.2</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and scope</span></span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate the mechanism claimed</span></span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a>A system claiming search should show how candidates are expanded and selected. A system claiming verification should test verifier accuracy and failure modes. A system claiming improved reasoning from longer inference should compare accuracy against the same task under controlled compute budgets. A system claiming faithful traces needs evidence that changes in the trace correspond to changes in the computation or answer under an explicit intervention design.</span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reasoning-audit</span></span>
+<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A reasoning-system evaluation links each claimed mechanism to a test: search to candidate selection, verification to verifier accuracy, and extra inference to an accuracy-cost curve."</span></span>
+<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A table-like chart maps claimed mechanisms to corresponding tests and resource records."</span></span>
+<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"search"</span>,<span class="st">"candidate coverage and selection"</span>),(<span class="st">"verification"</span>,<span class="st">"verifier errors and calibration"</span>),(<span class="st">"extra inference"</span>,<span class="st">"accuracy versus cost"</span>),(<span class="st">"visible trace"</span>,<span class="st">"faithfulness intervention"</span>)]</span>
+<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(claim,test) <span class="kw">in</span> <span class="bu">enumerate</span>(rows):</span>
+<span id="cb12-195"><a href="#cb12-195" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.8</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.62</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.45</span>,y),<span class="fl">2.1</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.5</span>,y<span class="op">+</span><span class="fl">.2</span>,claim,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">3.0</span>,y),<span class="fl">4.8</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.4</span>,y<span class="op">+</span><span class="fl">.2</span>,test,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb12-196"><a href="#cb12-196" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.4</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scope claims should remain narrow</span></span>
+<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-201"><a href="#cb12-201" aria-hidden="true" tabindex="-1"></a>Reasoning benchmarks can reward answer formats, familiar problem templates, or verifier-compatible outputs. A gain on one set of mathematical problems does not establish general reasoning across science, law, planning, or open-ended advice. Contamination and benchmark-specific optimisation remain concerns from Chapter 34. The module will therefore report task distributions, inference cost, selected mechanisms, and failure cases rather than treating one score or one trace style as a global capability measure.</span>
+<span id="cb12-202"><a href="#cb12-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-203"><a href="#cb12-203" aria-hidden="true" tabindex="-1"></a>An adequate report begins with the base model and task distribution, then states the generator, candidate budget, tools, verifier, selection rule, stopping rule, and answer interface. It reports the outcome measure and resource measures together, followed by examples of false acceptance, false rejection, exhausted budgets, and cases that the system could not verify. That record does not settle whether a system has a general reasoning capability. It does make the narrower claim inspectable and provides the inputs Chapter 36 needs for a valid evaluation.</span>
+<span id="cb12-204"><a href="#cb12-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-207"><a href="#cb12-207" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-208"><a href="#cb12-208" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable arithmetic"</span>,<span class="st">"base"</span>:<span class="st">"checkpoint-v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact answer"</span>,<span class="st">"cost"</span>:<span class="st">"tokens and latency"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out problems"</span>}</span>
+<span id="cb12-209"><a href="#cb12-209" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"task"</span>,<span class="st">"samples"</span>,<span class="st">"verifier"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb12-210"><a href="#cb12-210" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reasoning-system record complete"</span>)</span>
+<span id="cb12-211"><a href="#cb12-211" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-212"><a href="#cb12-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-213"><a href="#cb12-213" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb12-214"><a href="#cb12-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-215"><a href="#cb12-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A long explanation proves the model reasoned correctly.** It is visible text that requires separate correctness and faithfulness checks.</span>
+<span id="cb12-216"><a href="#cb12-216" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Reasoning models are a distinct architecture class.** They can share an architecture with base models while changing training or inference procedures.</span>
+<span id="cb12-217"><a href="#cb12-217" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More inference tokens always improve answers.** Additional computation needs useful candidate diversity and selection or verification.</span>
+<span id="cb12-218"><a href="#cb12-218" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A correct final answer validates every intermediate step.** Some trajectories are lucky, incomplete, or inconsistent.</span>
+<span id="cb12-219"><a href="#cb12-219" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A verifier establishes general reasoning.** It validates only the property it is designed and tested to check.</span>
+<span id="cb12-220"><a href="#cb12-220" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Hidden computation makes evaluation impossible.** It limits direct trace inspection but system-level outcomes and resource use remain evaluable.</span>
+<span id="cb12-221"><a href="#cb12-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-224"><a href="#cb12-224" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish base, instruction-tuned, and reasoning-tuned systems.</span>
+<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>List three mechanisms that can add inference-time computation.</span>
+<span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why visible chain-of-thought is not automatically faithful.</span>
+<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Implement majority selection over sampled checkable answers.</span>
+<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Define a verifier and one condition it cannot check.</span>
+<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Calculate tokens and verifier calls for a candidate-generation budget.</span>
+<span id="cb12-230"><a href="#cb12-230" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Design an evaluation of accuracy against number of sampled candidates.</span>
+<span id="cb12-231"><a href="#cb12-231" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Separate decomposition from verification in a system trace.</span>
+<span id="cb12-232"><a href="#cb12-232" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Explain why a final-answer reward can favour a lucky trajectory.</span>
+<span id="cb12-233"><a href="#cb12-233" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>List fields required to reproduce a reasoning-system result.</span>
+<span id="cb12-234"><a href="#cb12-234" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Propose an intervention test for visible-trace faithfulness.</span>
+<span id="cb12-235"><a href="#cb12-235" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Compare a tool-assisted answer with a model-only answer.</span>
+<span id="cb12-236"><a href="#cb12-236" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Identify a mechanism that can fail despite a correct final answer.</span>
+<span id="cb12-237"><a href="#cb12-237" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why a task-specific reasoning gain should not be generalised broadly.</span>
+<span id="cb12-238"><a href="#cb12-238" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Define an inference budget in two different units.</span>
+<span id="cb12-239"><a href="#cb12-239" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the next chapter's reasoning-evaluation focus.</span>
+<span id="cb12-240"><a href="#cb12-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-241"><a href="#cb12-241" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb12-242"><a href="#cb12-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-243"><a href="#cb12-243" aria-hidden="true" tabindex="-1"></a>A reasoning model is best defined operationally: it uses additional multi-step computation, search, decomposition, verification, or extended inference that can be evaluated on a task. Visible rationales, internal computation, and answer correctness are distinct objects. The relevant evidence includes task outcomes, mechanism-specific tests, inference cost, and failure traces.</span>
+<span id="cb12-244"><a href="#cb12-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-245"><a href="#cb12-245" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 36</span><span class="co">](36-evaluating-reasoning.qmd)</span> develops evaluation for answer accuracy, process evidence, verifiers, contamination, robustness, and the cost of additional computation.</span>
+<span id="cb12-246"><a href="#cb12-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-247"><a href="#cb12-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb12-248"><a href="#cb12-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-249"><a href="#cb12-249" aria-hidden="true" tabindex="-1"></a>An operational definition of reasoning needs an equally explicit evaluation design. <span class="co">[</span><span class="ot">Chapter 36</span><span class="co">](36-evaluating-reasoning.qmd)</span> separates outcome, process, robustness, and resource evidence for systems that use multi-step computation.</span>
+<span id="cb12-250"><a href="#cb12-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-251"><a href="#cb12-251" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb12-252"><a href="#cb12-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-253"><a href="#cb12-253" aria-hidden="true" tabindex="-1"></a>Chain-of-thought prompting is studied by @wei2022chain. The module's educational build perspective is informed by @raschka2025reasoning.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

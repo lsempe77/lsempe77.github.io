@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Evaluating Reasoning – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./37-inference-time-scaling.html" rel="next">
+<link href="./35-what-makes-a-reasoning-model.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="book-navigation.css"></head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./36-evaluating-reasoning.html"><span class="chapter-title">Evaluating Reasoning</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-task" id="toc-running-task" class="nav-link" data-scroll-target="#running-task">Running task</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#a-final-answer-is-necessary-but-incomplete-evidence" id="toc-a-final-answer-is-necessary-but-incomplete-evidence" class="nav-link" data-scroll-target="#a-final-answer-is-necessary-but-incomplete-evidence">A final answer is necessary but incomplete evidence</a></li>
+  <li><a href="#outcome-measures-need-a-denominator-and-an-error-record" id="toc-outcome-measures-need-a-denominator-and-an-error-record" class="nav-link" data-scroll-target="#outcome-measures-need-a-denominator-and-an-error-record">Outcome measures need a denominator and an error record</a></li>
+  <li><a href="#process-text-and-process-evidence-are-different" id="toc-process-text-and-process-evidence-are-different" class="nav-link" data-scroll-target="#process-text-and-process-evidence-are-different">Process text and process evidence are different</a></li>
+  </ul></li>
+  <li><a href="#level-2---verifiers-and-metrics" id="toc-level-2---verifiers-and-metrics" class="nav-link" data-scroll-target="#level-2---verifiers-and-metrics">Level 2 - Verifiers and metrics</a>
+  <ul class="collapse">
+  <li><a href="#a-verifier-has-a-defined-acceptance-condition" id="toc-a-verifier-has-a-defined-acceptance-condition" class="nav-link" data-scroll-target="#a-verifier-has-a-defined-acceptance-condition">A verifier has a defined acceptance condition</a></li>
+  <li><a href="#candidate-coverage-verifier-quality-and-selection-quality-are-separate-quantities" id="toc-candidate-coverage-verifier-quality-and-selection-quality-are-separate-quantities" class="nav-link" data-scroll-target="#candidate-coverage-verifier-quality-and-selection-quality-are-separate-quantities">Candidate coverage, verifier quality, and selection quality are separate quantities</a></li>
+  </ul></li>
+  <li><a href="#level-3---robustness-and-cost" id="toc-level-3---robustness-and-cost" class="nav-link" data-scroll-target="#level-3---robustness-and-cost">Level 3 - Robustness and cost</a>
+  <ul class="collapse">
+  <li><a href="#robustness-tests-vary-a-declared-factor" id="toc-robustness-tests-vary-a-declared-factor" class="nav-link" data-scroll-target="#robustness-tests-vary-a-declared-factor">Robustness tests vary a declared factor</a></li>
+  <li><a href="#contamination-is-a-provenance-question" id="toc-contamination-is-a-provenance-question" class="nav-link" data-scroll-target="#contamination-is-a-provenance-question">Contamination is a provenance question</a></li>
+  <li><a href="#accuracy-must-be-paired-with-computation" id="toc-accuracy-must-be-paired-with-computation" class="nav-link" data-scroll-target="#accuracy-must-be-paired-with-computation">Accuracy must be paired with computation</a></li>
+  <li><a href="#open-ended-tasks-require-a-scoring-protocol-not-an-implied-exact-answer" id="toc-open-ended-tasks-require-a-scoring-protocol-not-an-implied-exact-answer" class="nav-link" data-scroll-target="#open-ended-tasks-require-a-scoring-protocol-not-an-implied-exact-answer">Open-ended tasks require a scoring protocol, not an implied exact answer</a></li>
+  </ul></li>
+  <li><a href="#level-4---audit-and-interpretation" id="toc-level-4---audit-and-interpretation" class="nav-link" data-scroll-target="#level-4---audit-and-interpretation">Level 4 - Audit and interpretation</a>
+  <ul class="collapse">
+  <li><a href="#faithfulness-requires-an-intervention-claim" id="toc-faithfulness-requires-an-intervention-claim" class="nav-link" data-scroll-target="#faithfulness-requires-an-intervention-claim">Faithfulness requires an intervention claim</a></li>
+  <li><a href="#a-reasoning-evaluation-record-joins-components" id="toc-a-reasoning-evaluation-record-joins-components" class="nav-link" data-scroll-target="#a-reasoning-evaluation-record-joins-components">A reasoning evaluation record joins components</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Evaluating Reasoning</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Outcomes, processes, verifiers, robustness, and inference-time cost</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Chapter 35 defined reasoning systems through additional computation, search, decomposition, and verification. An evaluation must now determine whether those mechanisms improve the intended task and at what cost. A correct final answer is useful evidence, but it cannot show whether a visible trace was faithful, whether a verifier was valid, whether the gain survives prompt variation, or whether more inference-time compute is worth its latency and expense.</p>
+<p>Reasoning evaluation should therefore retain outcome, process, and systems measures. The relevant criterion depends on the task. Exact arithmetic permits an exact verifier; open-ended planning requires another source of evidence. Chapter 37 will compare accuracy against inference-time computation, using the measurement contract established here.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish outcome, process, verifier, robustness, and systems evaluation;</li>
+<li>define an exact verifier and state its scope;</li>
+<li>calculate outcome accuracy and verifier precision or recall on a toy set;</li>
+<li>explain why a plausible trace is not evidence of faithfulness;</li>
+<li>design prompt- and problem-variant robustness tests;</li>
+<li>report accuracy together with samples, tokens, calls, latency, and cost; and</li>
+<li>build a trace that separates candidate, verifier, selection, and final-answer errors.</li>
+</ul>
+</section>
+<section id="running-task" class="level3">
+<h3 class="anchored" data-anchor-id="running-task">Running task</h3>
+<p>The running task has a checkable answer. The system generates candidate solutions, applies a verifier, and selects one result. This permits separate measurements of candidate coverage, verifier behaviour, and final accuracy.</p>
+<div id="fig-reasoning-evaluation-stack" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reasoning-evaluation-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"task"</span>,blue),(<span class="fl">1.8</span>,<span class="st">"candidates"</span>,teal),(<span class="fl">3.55</span>,<span class="st">"verifier"</span>,orange),(<span class="fl">5.3</span>,<span class="st">"selection"</span>,purple),(<span class="fl">7.05</span>,<span class="st">"outcome</span><span class="ch">\n</span><span class="st">score"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.3</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.65</span>,<span class="fl">1.64</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.58</span>,<span class="fl">3.33</span>,<span class="fl">5.08</span>,<span class="fl">6.83</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.64</span>),(x<span class="op">+</span><span class="fl">.2</span>,<span class="fl">1.64</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"Record tokens, samples, calls, latency, and cost alongside task outcomes."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-reasoning-evaluation-stack-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;37.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="a-final-answer-is-necessary-but-incomplete-evidence" class="level3">
+<h3 class="anchored" data-anchor-id="a-final-answer-is-necessary-but-incomplete-evidence">A final answer is necessary but incomplete evidence</h3>
+<p>For a task with one exact answer, outcome accuracy asks whether the selected result is correct. This is often the primary metric. It does not show whether the system used a valid method, whether a visible rationale was accurate, whether a tool call succeeded, or whether the same result would survive a modest change in wording.</p>
+<p>A reasoning system may produce a correct answer through a lucky candidate, a memorised pattern, an external tool, or a verified search process. These mechanisms have different implications for generalisation and cost. Evaluation should not claim more than the measure supports.</p>
+<div id="d433b377" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"outcome accuracy:"</span>,outcomes.mean(),<span class="st">"items:"</span>,<span class="bu">len</span>(outcomes))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="outcome-measures-need-a-denominator-and-an-error-record" class="level3">
+<h3 class="anchored" data-anchor-id="outcome-measures-need-a-denominator-and-an-error-record">Outcome measures need a denominator and an error record</h3>
+<p>Accuracy is the proportion of scored items for which the selected answer meets the stated criterion. It is only interpretable with its denominator: the task version, number of items, inclusion and exclusion rules, answer normalisation, and treatment of abstentions, timeouts, and tool failures. A system that abstains on unverified cases can appear more accurate if those cases are removed from the denominator. Report coverage alongside accuracy, and state whether an abstention is counted as incorrect, deferred, or outside the task.</p>
+<p>Aggregate accuracy also compresses different errors. A candidate generator may never produce a valid answer; a verifier may reject the valid candidate; a selector may choose an inferior accepted candidate; an answer parser may score a correct response as wrong. Retaining these boundaries identifies which component changed after a revision. It also prevents a later chapter from interpreting an accuracy gain as evidence that the generator improved when the gain came from a more permissive answer parser.</p>
+</section>
+<section id="process-text-and-process-evidence-are-different" class="level3">
+<h3 class="anchored" data-anchor-id="process-text-and-process-evidence-are-different">Process text and process evidence are different</h3>
+<p>A visible chain of steps can be checked for local arithmetic or logical consistency. It may still omit the operation that determined the answer, contain a post-hoc explanation, or lead to a different answer after a small intervention. Process evaluation is useful when steps are observable and a task supplies criteria for them. It should not be treated as a general window into latent computation.</p>
+<div id="fig-outcome-process" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-outcome-process-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c,test <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"correct</span><span class="ch">\n</span><span class="st">answer"</span>,blue,<span class="st">"outcome scorer"</span>),(<span class="fl">3.0</span>,<span class="st">"valid visible</span><span class="ch">\n</span><span class="st">steps"</span>,teal,<span class="st">"step checks"</span>),(<span class="fl">5.7</span>,<span class="st">"faithful</span><span class="ch">\n</span><span class="st">trace"</span>,orange,<span class="st">"intervention test"</span>)]:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.45</span>),<span class="fl">1.9</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">1.76</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">.9</span>,test,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-outcome-process-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;37.2
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-2---verifiers-and-metrics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---verifiers-and-metrics">Level 2 - Verifiers and metrics</h2>
+<section id="a-verifier-has-a-defined-acceptance-condition" class="level3">
+<h3 class="anchored" data-anchor-id="a-verifier-has-a-defined-acceptance-condition">A verifier has a defined acceptance condition</h3>
+<p>An exact verifier can check a numeric answer, proof syntax, executable code output, a formal constraint, or a known solution. Its value comes from a clearly specified condition. A verifier can be wrong, incomplete, vulnerable to formatting, or unable to assess the property that matters. A code test suite may accept an implementation that fails an untested case; a symbolic checker may reject a correct answer in an unsupported form.</p>
+<div id="a30e6be0" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_verifier(candidate,answer):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> candidate<span class="op">==</span>answer</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>([exact_verifier(x,<span class="dv">12</span>) <span class="cf">for</span> x <span class="kw">in</span> [<span class="dv">12</span>,<span class="dv">11</span>,<span class="dv">12</span>,<span class="dv">13</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Verifier evaluation itself needs labelled cases. Precision asks how often accepted candidates are actually correct; recall asks how often correct candidates are accepted. A selector built on a low-precision verifier can choose attractive errors. A low-recall verifier can discard valid solutions and flatten the gain from candidate generation.</p>
+<div id="3fb0b981" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>accepted<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>])<span class="op">;</span> actually_correct<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>precision<span class="op">=</span>(accepted <span class="op">&amp;</span> actually_correct).<span class="bu">sum</span>()<span class="op">/</span>accepted.<span class="bu">sum</span>()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>recall<span class="op">=</span>(accepted <span class="op">&amp;</span> actually_correct).<span class="bu">sum</span>()<span class="op">/</span>actually_correct.<span class="bu">sum</span>()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"verifier precision:"</span>,<span class="bu">round</span>(precision,<span class="dv">2</span>),<span class="st">"recall:"</span>,<span class="bu">round</span>(recall,<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-verifier-confusion" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-verifier-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>matrix<span class="op">=</span>np.array([[<span class="dv">18</span>,<span class="dv">3</span>],[<span class="dv">4</span>,<span class="dv">25</span>]])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">5</span>,<span class="dv">4</span>))<span class="op">;</span> im<span class="op">=</span>ax.imshow(matrix,cmap<span class="op">=</span><span class="st">"Blues"</span>)<span class="op">;</span> ax.set_xticks([<span class="dv">0</span>,<span class="dv">1</span>],[<span class="st">"actually correct"</span>,<span class="st">"actually incorrect"</span>])<span class="op">;</span> ax.set_yticks([<span class="dv">0</span>,<span class="dv">1</span>],[<span class="st">"accepted"</span>,<span class="st">"rejected"</span>])</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>): ax.text(j,i,<span class="bu">str</span>(matrix[i,j]),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Verifier confusion matrix (illustrative)"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-verifier-confusion-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;37.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="candidate-coverage-verifier-quality-and-selection-quality-are-separate-quantities" class="level3">
+<h3 class="anchored" data-anchor-id="candidate-coverage-verifier-quality-and-selection-quality-are-separate-quantities">Candidate coverage, verifier quality, and selection quality are separate quantities</h3>
+<p>For a multi-candidate system, candidate coverage asks whether at least one generated candidate is correct. Verifier precision and recall ask whether the verifier classifies individual candidates accurately. Selection accuracy asks whether the final policy chooses a correct candidate from the candidates available. These measures identify different ceilings. Sampling cannot rescue a task when coverage remains low; a highly accurate verifier cannot help if no valid candidate is generated; a selector can still fail when several accepted candidates disagree.</p>
+<p>Report the measures on the same items and candidate sets. If a verifier is evaluated only on generated candidates, its score may differ from its score on deliberately constructed hard negatives or different answer formats. The difference is useful: it describes the verifier’s operating distribution. Evaluation work on language models treats performance as conditional on the scenario, metric, and slice being measured, rather than as a single property of a model <span class="citation" data-cites="liang2022holistic">(<a href="#ref-liang2022holistic" role="doc-biblioref">Liang et al. 2022</a>)</span>.</p>
+</section>
+</section>
+<section id="level-3---robustness-and-cost" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---robustness-and-cost">Level 3 - Robustness and cost</h2>
+<section id="robustness-tests-vary-a-declared-factor" class="level3">
+<h3 class="anchored" data-anchor-id="robustness-tests-vary-a-declared-factor">Robustness tests vary a declared factor</h3>
+<p>Reasoning claims should be tested under controlled variants: paraphrase the prompt while preserving the answer, alter irrelevant numbers or names, move evidence position, change the order of answer options, or generate new instances from a problem family. The purpose is to identify whether performance depends on surface cues rather than the relation the task is intended to measure.</p>
+<div id="4dcb6ec1" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>variants<span class="op">=</span>{<span class="st">"original"</span>:<span class="dv">1</span>,<span class="st">"paraphrase"</span>:<span class="dv">1</span>,<span class="st">"renamed variables"</span>:<span class="dv">0</span>,<span class="st">"reordered options"</span>:<span class="dv">0</span>}</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"variant outcomes:"</span>,variants)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Robustness does not mean invariance to every transformation. A wording change can legitimately alter the problem. The evaluation must state which property is preserved and how variants were built. It should also avoid constructing variants after viewing the model’s failures in a way that turns the test into an unreported development set.</p>
+<p>The unit of analysis should remain visible. Report the original and each variant as paired outcomes, rather than pooling them immediately into one score. A system that succeeds on the original item and fails whenever variable names change has a different failure pattern from one that fails randomly across variants, even when their pooled accuracy is the same. Paired records also show whether candidate generation, verification, or selection caused the difference.</p>
+</section>
+<section id="contamination-is-a-provenance-question" class="level3">
+<h3 class="anchored" data-anchor-id="contamination-is-a-provenance-question">Contamination is a provenance question</h3>
+<p>Benchmark exposure can inflate an outcome score without showing that a system solves new instances. The relevant question is not whether an item appears verbatim in a public dataset alone. It is whether the training data, instruction data, demonstrations, retrieval index, prompt template, or evaluation-development process supplied information that makes the test easier. A reasoning benchmark can also become a development target through repeated prompting and manual inspection, even if the model checkpoint was trained earlier.</p>
+<p>Record the dataset version, item source, generation procedure, public availability date, benchmark access policy, and any overlap search or decontamination rule. When a task family permits it, use newly generated or held-out instances and keep the generator and answer key separate from the system-development loop. Established broad benchmarks demonstrate the value of specifying task categories and scoring conventions, but their scores remain tied to the particular item collection and answer format <span class="citation" data-cites="hendrycks2021measuring">(<a href="#ref-hendrycks2021measuring" role="doc-biblioref">Hendrycks et al. 2021</a>)</span>. A contamination check cannot prove absence of all exposure; it can make the remaining uncertainty visible.</p>
+<div id="fig-robustness-slices" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-robustness-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>variants<span class="op">=</span>[<span class="st">"original"</span>,<span class="st">"paraphrase"</span>,<span class="st">"renamed</span><span class="ch">\n</span><span class="st">variables"</span>,<span class="st">"reordered</span><span class="ch">\n</span><span class="st">options"</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>candidate_acc<span class="op">=</span>[<span class="fl">.82</span>,<span class="fl">.79</span>,<span class="fl">.61</span>,<span class="fl">.67</span>]<span class="op">;</span> selected_acc<span class="op">=</span>[<span class="fl">.88</span>,<span class="fl">.83</span>,<span class="fl">.64</span>,<span class="fl">.70</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.arange(<span class="bu">len</span>(variants))<span class="op">;</span> fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.4</span>,<span class="dv">4</span>))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.bar(x<span class="op">-</span><span class="fl">.18</span>,candidate_acc,<span class="fl">.36</span>,label<span class="op">=</span><span class="st">"candidate coverage"</span>,color<span class="op">=</span>teal)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>ax.bar(x<span class="op">+</span><span class="fl">.18</span>,selected_acc,<span class="fl">.36</span>,label<span class="op">=</span><span class="st">"selected-answer accuracy"</span>,color<span class="op">=</span>purple)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(x,variants)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Illustrative paired robustness slices"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-robustness-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;37.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="accuracy-must-be-paired-with-computation" class="level3">
+<h3 class="anchored" data-anchor-id="accuracy-must-be-paired-with-computation">Accuracy must be paired with computation</h3>
+<p>If a reasoning system samples ten candidates and calls a verifier ten times, its accuracy cannot be compared fairly with a one-pass answer without reporting the additional tokens, calls, latency, and cost. The relationship may be nonlinear: one extra sample can help substantially, while later samples add little. Chapter 37 will estimate such curves; this chapter establishes the shared denominator.</p>
+<p>Cost records also need a decision rule. Mean latency can conceal a long tail caused by retries, tool calls, or a search budget reached only for difficult prompts. State whether calls were parallel, whether failed calls count, the hardware or service configuration, and whether cost includes verification. These choices determine what a reported token or latency budget means in deployment.</p>
+<p>Comparisons also need uncertainty appropriate to the evaluation unit. When two systems answer the same items, retain their paired outcomes and report how many items changed from wrong to correct and from correct to wrong. A small average difference can be driven by a few cases, especially on a short benchmark or a rare but costly slice. Confidence intervals or resampling summaries can describe sampling uncertainty, but they do not repair an unrepresentative task set or an undeclared change in prompt policy.</p>
+<div id="247bfe8e" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>records<span class="op">=</span>[{<span class="st">"n"</span>:<span class="dv">1</span>,<span class="st">"accuracy"</span>:<span class="fl">.54</span>,<span class="st">"tokens"</span>:<span class="dv">180</span>,<span class="st">"latency"</span>:<span class="fl">.4</span>},{<span class="st">"n"</span>:<span class="dv">4</span>,<span class="st">"accuracy"</span>:<span class="fl">.68</span>,<span class="st">"tokens"</span>:<span class="dv">720</span>,<span class="st">"latency"</span>:<span class="fl">1.7</span>},{<span class="st">"n"</span>:<span class="dv">8</span>,<span class="st">"accuracy"</span>:<span class="fl">.72</span>,<span class="st">"tokens"</span>:<span class="dv">1440</span>,<span class="st">"latency"</span>:<span class="fl">3.3</span>}]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> records: <span class="bu">print</span>(row)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-accuracy-cost" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-accuracy-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>np.array([<span class="dv">180</span>,<span class="dv">720</span>,<span class="dv">1440</span>])<span class="op">;</span> accuracy<span class="op">=</span>np.array([<span class="fl">.54</span>,<span class="fl">.68</span>,<span class="fl">.72</span>])</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(tokens,accuracy,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_xlabel(<span class="st">"generated-token budget"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"task accuracy"</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">.8</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative accuracy-cost curve"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-accuracy-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;37.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="open-ended-tasks-require-a-scoring-protocol-not-an-implied-exact-answer" class="level3">
+<h3 class="anchored" data-anchor-id="open-ended-tasks-require-a-scoring-protocol-not-an-implied-exact-answer">Open-ended tasks require a scoring protocol, not an implied exact answer</h3>
+<p>Some reasoning applications produce plans, explanations, or recommendations for which there is no single reference string. Evaluation then needs a rubric that states the required facts, constraints, source use, prohibited content, and treatment of uncertainty. Human assessment can judge properties that an exact verifier cannot, but it introduces assessor training, disagreement, order effects, and cost. Model-based judging adds another model with its own prompt, calibration, and failure modes.</p>
+<p>The protocol should specify who scores which outputs, whether assessors are blinded to system identity, how disagreements are resolved, and which cases require expert review. A rubric score should be reported by criterion and, where possible, alongside concrete error categories. This does not make an open-ended task exact. It permits claims about the property that was actually assessed and leaves the unassessed properties outside the conclusion.</p>
+</section>
+</section>
+<section id="level-4---audit-and-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---audit-and-interpretation">Level 4 - Audit and interpretation</h2>
+<section id="faithfulness-requires-an-intervention-claim" class="level3">
+<h3 class="anchored" data-anchor-id="faithfulness-requires-an-intervention-claim">Faithfulness requires an intervention claim</h3>
+<p>To claim that a visible trace explains an answer, an evaluation needs more than a correlation between plausible steps and correct answers. Interventions can alter, remove, reorder, or replace parts of the trace and test whether the answer changes in the predicted way. These tests are difficult because a model may regenerate a different trace, rely on hidden state, or answer from a shortcut. A negative result should be reported as a limit rather than repaired with a more persuasive explanation.</p>
+<div id="443735f7" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>trace_test<span class="op">=</span>{<span class="st">"original_answer"</span>:<span class="dv">12</span>,<span class="st">"altered_trace_answer"</span>:<span class="dv">12</span>,<span class="st">"expected_change"</span>:<span class="va">True</span>}</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"trace intervention supports claim:"</span>,trace_test[<span class="st">"altered_trace_answer"</span>]<span class="op">!=</span>trace_test[<span class="st">"original_answer"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="a-reasoning-evaluation-record-joins-components" class="level3">
+<h3 class="anchored" data-anchor-id="a-reasoning-evaluation-record-joins-components">A reasoning evaluation record joins components</h3>
+<p>The audit should retain task generator or dataset version, answer key or verifier, prompt and template, checkpoint, candidate-generation policy, samples, selection rule, tool and verifier versions, visible-trace policy, token and call counts, latency, outcome scoring, robustness variants, contamination checks, and error categories. It should record whether an item was solved directly, through a verifier, or through a tool. This is the minimum needed to interpret an apparent reasoning gain.</p>
+<p>Evaluation should also distinguish a planned test from a diagnostic added after observing errors. Diagnostic slices are often useful, especially when a failure points to a specific parser, tool, or prompt condition. They should not be folded silently into a confirmatory headline score. Keep a development record, freeze the evaluation policy for the final comparison, and state which analyses were exploratory. The resulting account is less tidy than one number, but it permits another evaluator to reproduce the decision boundary.</p>
+<div id="bfb87d67" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable problems"</span>,<span class="st">"generator"</span>:<span class="st">"v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact-v1"</span>,<span class="st">"selector"</span>:<span class="st">"first accepted"</span>,<span class="st">"tokens"</span>:<span class="dv">1440</span>,<span class="st">"robustness"</span>:<span class="st">"paraphrase set"</span>}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"task"</span>,<span class="st">"samples"</span>,<span class="st">"verifier"</span>,<span class="st">"selector"</span>,<span class="st">"tokens"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reasoning evaluation record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>A correct answer proves a correct reasoning process.</strong> It does not identify the route that produced the answer.</li>
+<li><strong>A verifier is objective by definition.</strong> It has coverage, parsing, and implementation limits.</li>
+<li><strong>A plausible rationale is a faithful explanation.</strong> Faithfulness requires an intervention or another causal test.</li>
+<li><strong>More samples can be compared without reporting cost.</strong> Candidate count, tokens, calls, and latency change the system.</li>
+<li><strong>Prompt robustness means invariant outputs under every rewording.</strong> Variants need a declared preserved property.</li>
+<li><strong>A reasoning benchmark rules out contamination.</strong> Development and training exposure still require checks.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Define outcome, process, and faithfulness measures for a checkable task.</li>
+<li>Implement an exact verifier for a toy answer type.</li>
+<li>Calculate verifier precision and recall from a labelled set.</li>
+<li>Construct a case of false verifier acceptance.</li>
+<li>Design a paraphrase robustness test with a preserved answer.</li>
+<li>State why a prompt variant can be invalid.</li>
+<li>Draw an accuracy-cost curve for three candidate budgets.</li>
+<li>Separate a generation failure from a verifier failure in a trace.</li>
+<li>Propose an intervention test for a visible rationale.</li>
+<li>List fields required for a reasoning evaluation record.</li>
+<li>Explain why a final-answer reward can conceal process errors.</li>
+<li>Design a multi-step task where evidence must be retrieved from two sources.</li>
+<li>State how you would check contamination for a reasoning benchmark.</li>
+<li>Compare exact scoring and human evaluation for open-ended planning.</li>
+<li>Identify a cost measure other than token count.</li>
+<li>Identify the next chapter’s inference-time scaling question.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Reasoning evaluation needs outcome metrics, verifier diagnostics, robustness tests, faithfulness limits, and inference-time resource records. No single metric establishes all of these properties. A system should be evaluated at its candidate, verifier, selection, and final-answer boundaries under a declared task distribution.</p>
+<p><a href="./37-inference-time-scaling.html">Chapter 37</a> uses this measurement framework to test when sampling, voting, and verification improve accuracy enough to justify their additional computation.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>Reasoning evaluation makes the cost of additional computation observable. <a href="./37-inference-time-scaling.html">Chapter 37</a> examines how a fixed model can allocate that computation across candidates, verification, and search.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>Process supervision and outcome supervision are compared by <span class="citation" data-cites="lightman2023lets">Lightman et al. (<a href="#ref-lightman2023lets" role="doc-biblioref">2023</a>)</span>. Verifier-guided mathematical reasoning is studied by <span class="citation" data-cites="cobbe2021training">Cobbe et al. (<a href="#ref-cobbe2021training" role="doc-biblioref">2021</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-cobbe2021training" class="csl-entry" role="listitem">
+Cobbe, Karl, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, et al. 2021. <span>“Training Verifiers to Solve Math Word Problems.”</span> <em>arXiv Preprint arXiv:2110.14168</em>. <a href="https://arxiv.org/abs/2110.14168">https://arxiv.org/abs/2110.14168</a>.
+</div>
+<div id="ref-hendrycks2021measuring" class="csl-entry" role="listitem">
+Hendrycks, Dan, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2021. <span>“Measuring Massive Multitask Language Understanding.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2009.03300">https://arxiv.org/abs/2009.03300</a>.
+</div>
+<div id="ref-liang2022holistic" class="csl-entry" role="listitem">
+Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihiro Yasunaga, Yian Zhang, et al. 2022. <span>“Holistic Evaluation of Language Models.”</span> <em>arXiv Preprint arXiv:2211.09110</em>. <a href="https://arxiv.org/abs/2211.09110">https://arxiv.org/abs/2211.09110</a>.
+</div>
+<div id="ref-lightman2023lets" class="csl-entry" role="listitem">
+Lightman, Hunter, Vineet Kosaraju, Yura Burda, Harri Edwards, Bowen Baker, Teddy Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe. 2023. <span>“Let’s Verify Step by Step.”</span> <em>arXiv Preprint arXiv:2305.20050</em>. <a href="https://arxiv.org/abs/2305.20050">https://arxiv.org/abs/2305.20050</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./35-what-makes-a-reasoning-model.html" class="pagination-link" aria-label="What Makes a Reasoning Model?">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">What Makes a Reasoning Model?</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./37-inference-time-scaling.html" class="pagination-link" aria-label="Inference-time Scaling">
+        <span class="nav-page-text"><span class="chapter-title">Inference-time Scaling</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Evaluating Reasoning"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Outcomes, processes, verifiers, robustness, and inference-time cost"</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>Chapter 35 defined reasoning systems through additional computation, search, decomposition, and verification. An evaluation must now determine whether those mechanisms improve the intended task and at what cost. A correct final answer is useful evidence, but it cannot show whether a visible trace was faithful, whether a verifier was valid, whether the gain survives prompt variation, or whether more inference-time compute is worth its latency and expense.</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>Reasoning evaluation should therefore retain outcome, process, and systems measures. The relevant criterion depends on the task. Exact arithmetic permits an exact verifier; open-ended planning requires another source of evidence. Chapter 37 will compare accuracy against inference-time computation, using the measurement contract established here.</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish outcome, process, verifier, robustness, and systems evaluation;</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define an exact verifier and state its scope;</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate outcome accuracy and verifier precision or recall on a toy set;</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why a plausible trace is not evidence of faithfulness;</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>design prompt- and problem-variant robustness tests;</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>report accuracy together with samples, tokens, calls, latency, and cost; and</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>build a trace that separates candidate, verifier, selection, and final-answer errors.</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running task</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>The running task has a checkable answer. The system generates candidate solutions, applies a verifier, and selects one result. This permits separate measurements of candidate coverage, verifier behaviour, and final accuracy.</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reasoning-evaluation-stack</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Reasoning evaluation separates candidate generation, verifier decisions, selected answers, outcome scoring, and inference-time resource records."</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A pipeline flows from a task to candidates, verifier, selection, outcome score, and a parallel cost record."</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"task"</span>,blue),(<span class="fl">1.8</span>,<span class="st">"candidates"</span>,teal),(<span class="fl">3.55</span>,<span class="st">"verifier"</span>,orange),(<span class="fl">5.3</span>,<span class="st">"selection"</span>,purple),(<span class="fl">7.05</span>,<span class="st">"outcome</span><span class="ch">\n</span><span class="st">score"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.3</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.65</span>,<span class="fl">1.64</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.58</span>,<span class="fl">3.33</span>,<span class="fl">5.08</span>,<span class="fl">6.83</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.64</span>),(x<span class="op">+</span><span class="fl">.2</span>,<span class="fl">1.64</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"Record tokens, samples, calls, latency, and cost alongside task outcomes."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="fu">### A final answer is necessary but incomplete evidence</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>For a task with one exact answer, outcome accuracy asks whether the selected result is correct. This is often the primary metric. It does not show whether the system used a valid method, whether a visible rationale was accurate, whether a tool call succeeded, or whether the same result would survive a modest change in wording.</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>A reasoning system may produce a correct answer through a lucky candidate, a memorised pattern, an external tool, or a verified search process. These mechanisms have different implications for generalisation and cost. Evaluation should not claim more than the measure supports.</span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"outcome accuracy:"</span>,outcomes.mean(),<span class="st">"items:"</span>,<span class="bu">len</span>(outcomes))</span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="fu">### Outcome measures need a denominator and an error record</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>Accuracy is the proportion of scored items for which the selected answer meets the stated criterion. It is only interpretable with its denominator: the task version, number of items, inclusion and exclusion rules, answer normalisation, and treatment of abstentions, timeouts, and tool failures. A system that abstains on unverified cases can appear more accurate if those cases are removed from the denominator. Report coverage alongside accuracy, and state whether an abstention is counted as incorrect, deferred, or outside the task.</span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a>Aggregate accuracy also compresses different errors. A candidate generator may never produce a valid answer; a verifier may reject the valid candidate; a selector may choose an inferior accepted candidate; an answer parser may score a correct response as wrong. Retaining these boundaries identifies which component changed after a revision. It also prevents a later chapter from interpreting an accuracy gain as evidence that the generator improved when the gain came from a more permissive answer parser.</span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a><span class="fu">### Process text and process evidence are different</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>A visible chain of steps can be checked for local arithmetic or logical consistency. It may still omit the operation that determined the answer, contain a post-hoc explanation, or lead to a different answer after a small intervention. Process evaluation is useful when steps are observable and a task supplies criteria for them. It should not be treated as a general window into latent computation.</span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-outcome-process</span></span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Outcome correctness, visible process quality, and faithfulness of a trace are separate evaluation targets."</span></span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three adjacent boxes label correct answer, locally valid visible steps, and faithful computation, with separate tests under each."</span></span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c,test <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"correct</span><span class="ch">\n</span><span class="st">answer"</span>,blue,<span class="st">"outcome scorer"</span>),(<span class="fl">3.0</span>,<span class="st">"valid visible</span><span class="ch">\n</span><span class="st">steps"</span>,teal,<span class="st">"step checks"</span>),(<span class="fl">5.7</span>,<span class="st">"faithful</span><span class="ch">\n</span><span class="st">trace"</span>,orange,<span class="st">"intervention test"</span>)]:</span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.45</span>),<span class="fl">1.9</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">1.76</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">.9</span>,test,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Verifiers and metrics</span></span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a><span class="fu">### A verifier has a defined acceptance condition</span></span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a>An exact verifier can check a numeric answer, proof syntax, executable code output, a formal constraint, or a known solution. Its value comes from a clearly specified condition. A verifier can be wrong, incomplete, vulnerable to formatting, or unable to assess the property that matters. A code test suite may accept an implementation that fails an untested case; a symbolic checker may reject a correct answer in an unsupported form.</span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_verifier(candidate,answer):</span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> candidate<span class="op">==</span>answer</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>([exact_verifier(x,<span class="dv">12</span>) <span class="cf">for</span> x <span class="kw">in</span> [<span class="dv">12</span>,<span class="dv">11</span>,<span class="dv">12</span>,<span class="dv">13</span>]])</span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a>Verifier evaluation itself needs labelled cases. Precision asks how often accepted candidates are actually correct; recall asks how often correct candidates are accepted. A selector built on a low-precision verifier can choose attractive errors. A low-recall verifier can discard valid solutions and flatten the gain from candidate generation.</span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>accepted<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>])<span class="op">;</span> actually_correct<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>])</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a>precision<span class="op">=</span>(accepted <span class="op">&amp;</span> actually_correct).<span class="bu">sum</span>()<span class="op">/</span>accepted.<span class="bu">sum</span>()</span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a>recall<span class="op">=</span>(accepted <span class="op">&amp;</span> actually_correct).<span class="bu">sum</span>()<span class="op">/</span>actually_correct.<span class="bu">sum</span>()</span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"verifier precision:"</span>,<span class="bu">round</span>(precision,<span class="dv">2</span>),<span class="st">"recall:"</span>,<span class="bu">round</span>(recall,<span class="dv">2</span>))</span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-verifier-confusion</span></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Verifier quality depends on accepted and rejected candidates relative to actual correctness; both false acceptance and false rejection affect selection."</span></span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A two-by-two confusion matrix labels accepted or rejected candidates against actually correct or incorrect candidates."</span></span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>matrix<span class="op">=</span>np.array([[<span class="dv">18</span>,<span class="dv">3</span>],[<span class="dv">4</span>,<span class="dv">25</span>]])</span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">5</span>,<span class="dv">4</span>))<span class="op">;</span> im<span class="op">=</span>ax.imshow(matrix,cmap<span class="op">=</span><span class="st">"Blues"</span>)<span class="op">;</span> ax.set_xticks([<span class="dv">0</span>,<span class="dv">1</span>],[<span class="st">"actually correct"</span>,<span class="st">"actually incorrect"</span>])<span class="op">;</span> ax.set_yticks([<span class="dv">0</span>,<span class="dv">1</span>],[<span class="st">"accepted"</span>,<span class="st">"rejected"</span>])</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>): ax.text(j,i,<span class="bu">str</span>(matrix[i,j]),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">14</span>)</span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Verifier confusion matrix (illustrative)"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a><span class="fu">### Candidate coverage, verifier quality, and selection quality are separate quantities</span></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>For a multi-candidate system, candidate coverage asks whether at least one generated candidate is correct. Verifier precision and recall ask whether the verifier classifies individual candidates accurately. Selection accuracy asks whether the final policy chooses a correct candidate from the candidates available. These measures identify different ceilings. Sampling cannot rescue a task when coverage remains low; a highly accurate verifier cannot help if no valid candidate is generated; a selector can still fail when several accepted candidates disagree.</span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a>Report the measures on the same items and candidate sets. If a verifier is evaluated only on generated candidates, its score may differ from its score on deliberately constructed hard negatives or different answer formats. The difference is useful: it describes the verifier's operating distribution. Evaluation work on language models treats performance as conditional on the scenario, metric, and slice being measured, rather than as a single property of a model <span class="co">[</span><span class="ot">@liang2022holistic</span><span class="co">]</span>.</span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Robustness and cost</span></span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a><span class="fu">### Robustness tests vary a declared factor</span></span>
+<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a>Reasoning claims should be tested under controlled variants: paraphrase the prompt while preserving the answer, alter irrelevant numbers or names, move evidence position, change the order of answer options, or generate new instances from a problem family. The purpose is to identify whether performance depends on surface cues rather than the relation the task is intended to measure.</span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a>variants<span class="op">=</span>{<span class="st">"original"</span>:<span class="dv">1</span>,<span class="st">"paraphrase"</span>:<span class="dv">1</span>,<span class="st">"renamed variables"</span>:<span class="dv">0</span>,<span class="st">"reordered options"</span>:<span class="dv">0</span>}</span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"variant outcomes:"</span>,variants)</span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a>Robustness does not mean invariance to every transformation. A wording change can legitimately alter the problem. The evaluation must state which property is preserved and how variants were built. It should also avoid constructing variants after viewing the model's failures in a way that turns the test into an unreported development set.</span>
+<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a>The unit of analysis should remain visible. Report the original and each variant as paired outcomes, rather than pooling them immediately into one score. A system that succeeds on the original item and fails whenever variable names change has a different failure pattern from one that fails randomly across variants, even when their pooled accuracy is the same. Paired records also show whether candidate generation, verification, or selection caused the difference.</span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a><span class="fu">### Contamination is a provenance question</span></span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a>Benchmark exposure can inflate an outcome score without showing that a system solves new instances. The relevant question is not whether an item appears verbatim in a public dataset alone. It is whether the training data, instruction data, demonstrations, retrieval index, prompt template, or evaluation-development process supplied information that makes the test easier. A reasoning benchmark can also become a development target through repeated prompting and manual inspection, even if the model checkpoint was trained earlier.</span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a>Record the dataset version, item source, generation procedure, public availability date, benchmark access policy, and any overlap search or decontamination rule. When a task family permits it, use newly generated or held-out instances and keep the generator and answer key separate from the system-development loop. Established broad benchmarks demonstrate the value of specifying task categories and scoring conventions, but their scores remain tied to the particular item collection and answer format <span class="co">[</span><span class="ot">@hendrycks2021measuring</span><span class="co">]</span>. A contamination check cannot prove absence of all exposure; it can make the remaining uncertainty visible.</span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-robustness-slices</span></span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Paired robustness results show whether reasoning-system failures concentrate in a declared prompt or problem variant rather than only changing the pooled score."</span></span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A grouped bar chart compares original, paraphrased, renamed-variable, and reordered-option accuracy for candidate generation and selected answers."</span></span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a>variants<span class="op">=</span>[<span class="st">"original"</span>,<span class="st">"paraphrase"</span>,<span class="st">"renamed</span><span class="ch">\n</span><span class="st">variables"</span>,<span class="st">"reordered</span><span class="ch">\n</span><span class="st">options"</span>]</span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a>candidate_acc<span class="op">=</span>[<span class="fl">.82</span>,<span class="fl">.79</span>,<span class="fl">.61</span>,<span class="fl">.67</span>]<span class="op">;</span> selected_acc<span class="op">=</span>[<span class="fl">.88</span>,<span class="fl">.83</span>,<span class="fl">.64</span>,<span class="fl">.70</span>]</span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.arange(<span class="bu">len</span>(variants))<span class="op">;</span> fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.4</span>,<span class="dv">4</span>))</span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a>ax.bar(x<span class="op">-</span><span class="fl">.18</span>,candidate_acc,<span class="fl">.36</span>,label<span class="op">=</span><span class="st">"candidate coverage"</span>,color<span class="op">=</span>teal)</span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a>ax.bar(x<span class="op">+</span><span class="fl">.18</span>,selected_acc,<span class="fl">.36</span>,label<span class="op">=</span><span class="st">"selected-answer accuracy"</span>,color<span class="op">=</span>purple)</span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(x,variants)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)</span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Illustrative paired robustness slices"</span>)</span>
+<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Accuracy must be paired with computation</span></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a>If a reasoning system samples ten candidates and calls a verifier ten times, its accuracy cannot be compared fairly with a one-pass answer without reporting the additional tokens, calls, latency, and cost. The relationship may be nonlinear: one extra sample can help substantially, while later samples add little. Chapter 37 will estimate such curves; this chapter establishes the shared denominator.</span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>Cost records also need a decision rule. Mean latency can conceal a long tail caused by retries, tool calls, or a search budget reached only for difficult prompts. State whether calls were parallel, whether failed calls count, the hardware or service configuration, and whether cost includes verification. These choices determine what a reported token or latency budget means in deployment.</span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a>Comparisons also need uncertainty appropriate to the evaluation unit. When two systems answer the same items, retain their paired outcomes and report how many items changed from wrong to correct and from correct to wrong. A small average difference can be driven by a few cases, especially on a short benchmark or a rare but costly slice. Confidence intervals or resampling summaries can describe sampling uncertainty, but they do not repair an unrepresentative task set or an undeclared change in prompt policy.</span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a>records<span class="op">=</span>[{<span class="st">"n"</span>:<span class="dv">1</span>,<span class="st">"accuracy"</span>:<span class="fl">.54</span>,<span class="st">"tokens"</span>:<span class="dv">180</span>,<span class="st">"latency"</span>:<span class="fl">.4</span>},{<span class="st">"n"</span>:<span class="dv">4</span>,<span class="st">"accuracy"</span>:<span class="fl">.68</span>,<span class="st">"tokens"</span>:<span class="dv">720</span>,<span class="st">"latency"</span>:<span class="fl">1.7</span>},{<span class="st">"n"</span>:<span class="dv">8</span>,<span class="st">"accuracy"</span>:<span class="fl">.72</span>,<span class="st">"tokens"</span>:<span class="dv">1440</span>,<span class="st">"latency"</span>:<span class="fl">3.3</span>}]</span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> records: <span class="bu">print</span>(row)</span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-accuracy-cost</span></span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Reasoning-system comparisons should report accuracy against a declared inference-time cost rather than accuracy alone."</span></span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A curve plots illustrative task accuracy against generated token budget for one, four, and eight candidates."</span></span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>np.array([<span class="dv">180</span>,<span class="dv">720</span>,<span class="dv">1440</span>])<span class="op">;</span> accuracy<span class="op">=</span>np.array([<span class="fl">.54</span>,<span class="fl">.68</span>,<span class="fl">.72</span>])</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(tokens,accuracy,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_xlabel(<span class="st">"generated-token budget"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"task accuracy"</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">.8</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative accuracy-cost curve"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a><span class="fu">### Open-ended tasks require a scoring protocol, not an implied exact answer</span></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a>Some reasoning applications produce plans, explanations, or recommendations for which there is no single reference string. Evaluation then needs a rubric that states the required facts, constraints, source use, prohibited content, and treatment of uncertainty. Human assessment can judge properties that an exact verifier cannot, but it introduces assessor training, disagreement, order effects, and cost. Model-based judging adds another model with its own prompt, calibration, and failure modes.</span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a>The protocol should specify who scores which outputs, whether assessors are blinded to system identity, how disagreements are resolved, and which cases require expert review. A rubric score should be reported by criterion and, where possible, alongside concrete error categories. This does not make an open-ended task exact. It permits claims about the property that was actually assessed and leaves the unassessed properties outside the conclusion.</span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and interpretation</span></span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### Faithfulness requires an intervention claim</span></span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a>To claim that a visible trace explains an answer, an evaluation needs more than a correlation between plausible steps and correct answers. Interventions can alter, remove, reorder, or replace parts of the trace and test whether the answer changes in the predicted way. These tests are difficult because a model may regenerate a different trace, rely on hidden state, or answer from a shortcut. A negative result should be reported as a limit rather than repaired with a more persuasive explanation.</span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a>trace_test<span class="op">=</span>{<span class="st">"original_answer"</span>:<span class="dv">12</span>,<span class="st">"altered_trace_answer"</span>:<span class="dv">12</span>,<span class="st">"expected_change"</span>:<span class="va">True</span>}</span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"trace intervention supports claim:"</span>,trace_test[<span class="st">"altered_trace_answer"</span>]<span class="op">!=</span>trace_test[<span class="st">"original_answer"</span>])</span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a><span class="fu">### A reasoning evaluation record joins components</span></span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a>The audit should retain task generator or dataset version, answer key or verifier, prompt and template, checkpoint, candidate-generation policy, samples, selection rule, tool and verifier versions, visible-trace policy, token and call counts, latency, outcome scoring, robustness variants, contamination checks, and error categories. It should record whether an item was solved directly, through a verifier, or through a tool. This is the minimum needed to interpret an apparent reasoning gain.</span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a>Evaluation should also distinguish a planned test from a diagnostic added after observing errors. Diagnostic slices are often useful, especially when a failure points to a specific parser, tool, or prompt condition. They should not be folded silently into a confirmatory headline score. Keep a development record, freeze the evaluation policy for the final comparison, and state which analyses were exploratory. The resulting account is less tidy than one number, but it permits another evaluator to reproduce the decision boundary.</span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable problems"</span>,<span class="st">"generator"</span>:<span class="st">"v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact-v1"</span>,<span class="st">"selector"</span>:<span class="st">"first accepted"</span>,<span class="st">"tokens"</span>:<span class="dv">1440</span>,<span class="st">"robustness"</span>:<span class="st">"paraphrase set"</span>}</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"task"</span>,<span class="st">"samples"</span>,<span class="st">"verifier"</span>,<span class="st">"selector"</span>,<span class="st">"tokens"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reasoning evaluation record complete"</span>)</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A correct answer proves a correct reasoning process.** It does not identify the route that produced the answer.</span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A verifier is objective by definition.** It has coverage, parsing, and implementation limits.</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A plausible rationale is a faithful explanation.** Faithfulness requires an intervention or another causal test.</span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More samples can be compared without reporting cost.** Candidate count, tokens, calls, and latency change the system.</span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Prompt robustness means invariant outputs under every rewording.** Variants need a declared preserved property.</span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A reasoning benchmark rules out contamination.** Development and training exposure still require checks.</span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Define outcome, process, and faithfulness measures for a checkable task.</span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Implement an exact verifier for a toy answer type.</span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate verifier precision and recall from a labelled set.</span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Construct a case of false verifier acceptance.</span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Design a paraphrase robustness test with a preserved answer.</span>
+<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>State why a prompt variant can be invalid.</span>
+<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Draw an accuracy-cost curve for three candidate budgets.</span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Separate a generation failure from a verifier failure in a trace.</span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Propose an intervention test for a visible rationale.</span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>List fields required for a reasoning evaluation record.</span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Explain why a final-answer reward can conceal process errors.</span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a multi-step task where evidence must be retrieved from two sources.</span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>State how you would check contamination for a reasoning benchmark.</span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Compare exact scoring and human evaluation for open-ended planning.</span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Identify a cost measure other than token count.</span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the next chapter's inference-time scaling question.</span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a>Reasoning evaluation needs outcome metrics, verifier diagnostics, robustness tests, faithfulness limits, and inference-time resource records. No single metric establishes all of these properties. A system should be evaluated at its candidate, verifier, selection, and final-answer boundaries under a declared task distribution.</span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 37</span><span class="co">](37-inference-time-scaling.qmd)</span> uses this measurement framework to test when sampling, voting, and verification improve accuracy enough to justify their additional computation.</span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a>Reasoning evaluation makes the cost of additional computation observable. <span class="co">[</span><span class="ot">Chapter 37</span><span class="co">](37-inference-time-scaling.qmd)</span> examines how a fixed model can allocate that computation across candidates, verification, and search.</span>
+<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a>Process supervision and outcome supervision are compared by @lightman2023lets. Verifier-guided mathematical reasoning is studied by @cobbe2021training.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
