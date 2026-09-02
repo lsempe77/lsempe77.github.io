@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Generalisation and Overfitting – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./10-regularisation.html" rel="next">
+<link href="./08-small-neural-network.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./09-generalisation-overfitting.html"><span class="chapter-title">Generalisation and Overfitting</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-example" id="toc-running-example" class="nav-link" data-scroll-target="#running-example">Running example</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#learning-the-sample-is-not-the-same-as-learning-the-pattern" id="toc-learning-the-sample-is-not-the-same-as-learning-the-pattern" class="nav-link" data-scroll-target="#learning-the-sample-is-not-the-same-as-learning-the-pattern">Learning the sample is not the same as learning the pattern</a></li>
+  <li><a href="#held-out-data-create-a-partial-test-of-transfer" id="toc-held-out-data-create-a-partial-test-of-transfer" class="nav-link" data-scroll-target="#held-out-data-create-a-partial-test-of-transfer">Held-out data create a partial test of transfer</a></li>
+  <li><a href="#capacity-describes-options-not-inevitable-behaviour" id="toc-capacity-describes-options-not-inevitable-behaviour" class="nav-link" data-scroll-target="#capacity-describes-options-not-inevitable-behaviour">Capacity describes options, not inevitable behaviour</a></li>
+  </ul></li>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
+  <ul class="collapse">
+  <li><a href="#training-validation-and-test-data-answer-different-questions" id="toc-training-validation-and-test-data-answer-different-questions" class="nav-link" data-scroll-target="#training-validation-and-test-data-answer-different-questions">Training, validation, and test data answer different questions</a></li>
+  <li><a href="#error-curves-reveal-the-trainingevaluation-gap" id="toc-error-curves-reveal-the-trainingevaluation-gap" class="nav-link" data-scroll-target="#error-curves-reveal-the-trainingevaluation-gap">Error curves reveal the training–evaluation gap</a></li>
+  <li><a href="#learning-curves-separate-data-scarcity-from-persistent-underfitting" id="toc-learning-curves-separate-data-scarcity-from-persistent-underfitting" class="nav-link" data-scroll-target="#learning-curves-separate-data-scarcity-from-persistent-underfitting">Learning curves separate data scarcity from persistent underfitting</a></li>
+  </ul></li>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
+  <ul class="collapse">
+  <li><a href="#empirical-risk-estimates-population-risk" id="toc-empirical-risk-estimates-population-risk" class="nav-link" data-scroll-target="#empirical-risk-estimates-population-risk">Empirical risk estimates population risk</a></li>
+  <li><a href="#bias-and-variance-describe-repeated-sampling" id="toc-bias-and-variance-describe-repeated-sampling" class="nav-link" data-scroll-target="#bias-and-variance-describe-repeated-sampling">Bias and variance describe repeated sampling</a></li>
+  <li><a href="#a-test-estimate-has-its-own-sampling-error" id="toc-a-test-estimate-has-its-own-sampling-error" class="nav-link" data-scroll-target="#a-test-estimate-has-its-own-sampling-error">A test estimate has its own sampling error</a></li>
+  <li><a href="#cross-validation-reuses-data-without-making-it-independent" id="toc-cross-validation-reuses-data-without-making-it-independent" class="nav-link" data-scroll-target="#cross-validation-reuses-data-without-making-it-independent">Cross-validation reuses data without making it independent</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
+  <li><a href="#interpolation-does-not-determine-generalisation" id="toc-interpolation-does-not-determine-generalisation" class="nav-link" data-scroll-target="#interpolation-does-not-determine-generalisation">Interpolation does not determine generalisation</a></li>
+  <li><a href="#the-learning-algorithm-helps-select-among-many-fitting-solutions" id="toc-the-learning-algorithm-helps-select-among-many-fitting-solutions" class="nav-link" data-scroll-target="#the-learning-algorithm-helps-select-among-many-fitting-solutions">The learning algorithm helps select among many fitting solutions</a></li>
+  <li><a href="#benchmark-performance-depends-on-the-test-distribution" id="toc-benchmark-performance-depends-on-the-test-distribution" class="nav-link" data-scroll-target="#benchmark-performance-depends-on-the-test-distribution">Benchmark performance depends on the test distribution</a></li>
+  <li><a href="#repeated-evaluation-can-overfit-the-test-procedure" id="toc-repeated-evaluation-can-overfit-the-test-procedure" class="nav-link" data-scroll-target="#repeated-evaluation-can-overfit-the-test-procedure">Repeated evaluation can overfit the test procedure</a></li>
+  <li><a href="#a-defensible-generalisation-claim-states-its-target" id="toc-a-defensible-generalisation-claim-states-its-target" class="nav-link" data-scroll-target="#a-defensible-generalisation-claim-states-its-target">A defensible generalisation claim states its target</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Generalisation and Overfitting</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">From fitting observed data to performing on new cases</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Chapter 8 trained a network until it classified a synthetic training set and a held-out set correctly. Because that held-out result was inspected throughout training, it functioned as validation evidence rather than as an untouched final test. The result also depended on a simple data-generating process, a favourable split, and a model suited to the pattern. In applied work, the training sample is finite, labels contain error, and future observations may differ from those used to fit the model.</p>
+<p>Generalisation describes performance on observations not used to estimate or select the model. Overfitting occurs when a fitted model captures idiosyncrasies of the training sample that do not transfer to the target population. A low training loss is therefore evidence about optimisation on observed data. It is not, by itself, evidence about future performance.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish training fit, held-out performance, and target-population performance;</li>
+<li>identify underfitting and overfitting from fitted functions and error curves;</li>
+<li>explain the separate roles of training, validation, and test data;</li>
+<li>define empirical risk, population risk, and the generalisation gap;</li>
+<li>describe bias and variance without treating them as fixed properties of an algorithm;</li>
+<li>implement capacity and sample-size experiments in Python;</li>
+<li>explain why one favourable split is uncertain evidence;</li>
+<li>distinguish interpolation from generalisation;</li>
+<li>explain how test-set reuse, contamination, and distribution shift weaken performance claims.</li>
+</ul>
+</section>
+<section id="running-example" class="level3">
+<h3 class="anchored" data-anchor-id="running-example">Running example</h3>
+<p>The chapter uses a one-dimensional synthetic regression problem with known signal</p>
+<p><span class="math display">\[
+f(x)=\sin(\pi x)+0.3x,
+\]</span></p>
+<p>and observations <span class="math inline">\(y=f(x)+\varepsilon\)</span>, where <span class="math inline">\(\varepsilon\sim\mathcal{N}(0,0.25^2)\)</span>. Training inputs are sampled from <span class="math inline">\([-1,1]\)</span>. The known function lets us separate approximation error from the noise in observed labels. No substantive interpretation is attached to <span class="math inline">\(x\)</span> or <span class="math inline">\(y\)</span>.</p>
+<div id="fig-capacity-fits" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-capacity-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpy.polynomial <span class="im">import</span> Polynomial</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> FancyBboxPatch, FancyArrowPatch</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7a5195"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">41</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> true_function(x):</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sin(np.pi <span class="op">*</span> x) <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> x</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>n_train <span class="op">=</span> <span class="dv">18</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> np.sort(rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n_train))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> true_function(x_train) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, n_train)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">500</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="fl">13.5</span>, <span class="fl">4.2</span>), sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, degree, colour, title <span class="kw">in</span> <span class="bu">zip</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    axes, [<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">17</span>], [blue, teal, orange],</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Degree 1: underfitting"</span>, <span class="st">"Degree 5: useful fit"</span>, <span class="st">"Degree 17: overfitting"</span>]</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    fitted <span class="op">=</span> Polynomial.fit(x_train, y_train, degree)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid, true_function(x_grid), color<span class="op">=</span>grey, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span><span class="st">"true signal"</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid, fitted(x_grid), color<span class="op">=</span>colour, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"fitted model"</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x_train, y_train, color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">28</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"training data"</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">2.2</span>, <span class="fl">2.2</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-capacity-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.1
+</figcaption>
+</figure>
+</div>
+<p>All three models see the same observations. The degree-1 model cannot represent the curved signal. The degree-5 model follows the broad pattern while leaving some noise unexplained. The degree-17 model can pass close to every training point, but it oscillates between them. Its greater training fit has produced a worse estimate of the known signal.</p>
+<div id="concept-generalisation" class="concept-box concept-core" data-term="Generalisation and overfitting" data-domain="Training and evaluation">
+<p><strong>Generalisation and overfitting.</strong> Generalisation is performance on observations not used to fit or select the procedure, within a stated target population. Overfitting occurs when an apparent training improvement relies on details that do not transfer. Neither label can be inferred from training loss alone.</p>
+</div>
+<div id="concept-training-validation-test" class="concept-box concept-distinction" data-term="Training, validation, and test sets" data-domain="Training and evaluation">
+<p><strong>Training, validation, and test sets.</strong> Training data estimate parameters. Validation data support choices among procedures or checkpoints and therefore belong to development. A test set is reserved for the final assessment after those choices are fixed. A <strong>held-out</strong> set is excluded from the particular fitting or selection stage under discussion; it is not automatically an untouched final test set.</p>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="learning-the-sample-is-not-the-same-as-learning-the-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="learning-the-sample-is-not-the-same-as-learning-the-pattern">Learning the sample is not the same as learning the pattern</h3>
+<p>Training data contain regularities that can recur and details that arose from sampling or measurement noise. A model cannot label one component as signal and the other as noise before fitting. Its architecture, training procedure, and data determine which patterns it can capture.</p>
+<p>Underfitting occurs when the model or training procedure fails to capture a transferable pattern that is present. Overfitting occurs when improvements on the training sample depend on details that do not transfer. Both are defined relative to a target: a model may generalise to new observations from the same source and fail after the population, measurement process, or deployment conditions change.</p>
+</section>
+<section id="held-out-data-create-a-partial-test-of-transfer" class="level3">
+<h3 class="anchored" data-anchor-id="held-out-data-create-a-partial-test-of-transfer">Held-out data create a partial test of transfer</h3>
+<p>An observation cannot provide an independent assessment after its label has influenced parameter estimates or model choices. Holding out data preserves observations for later evaluation. Performance on those observations estimates transfer from the training sample to the process that generated the held-out sample.</p>
+<p>The estimate remains uncertain. A small test set can be unusually easy or hard. A random split can place near-duplicates on both sides. A test set drawn at the same time and place may say little about later deployment. Held-out performance is evidence whose scope is set by the sampling and splitting procedure.</p>
+</section>
+<section id="capacity-describes-options-not-inevitable-behaviour" class="level3">
+<h3 class="anchored" data-anchor-id="capacity-describes-options-not-inevitable-behaviour">Capacity describes options, not inevitable behaviour</h3>
+<p>A higher-capacity model can represent more functions. The degree-17 polynomial can represent the smoother degree-5 relationship as well as many oscillating alternatives. Capacity creates the possibility of fitting noise; it does not establish that a particular training algorithm will select the worst alternative. Data quantity, optimisation, architecture, and regularisation influence which fitted function is obtained.</p>
+<p>The practical conclusion at this level is limited: training performance must be compared with genuinely unseen data, and the comparison must match the population or conditions for which the model is claimed to work. Level 2 shows how the data and diagnostics are organised.</p>
+</section>
+</section>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
+<section id="training-validation-and-test-data-answer-different-questions" class="level3">
+<h3 class="anchored" data-anchor-id="training-validation-and-test-data-answer-different-questions">Training, validation, and test data answer different questions</h3>
+<p>The training set estimates parameters. The validation set supports choices such as polynomial degree, hidden width, or stopping point. The test set is reserved for a final assessment after those choices are fixed. If the test result changes the model, the test set has become part of model development and a further untouched set is needed for an independent assessment.</p>
+<div id="fig-data-split-roles" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-data-split-roles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="fl">4.8</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>boxes <span class="op">=</span> [</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.08</span>, <span class="fl">0.60</span>, <span class="st">"Training data"</span>, <span class="st">"fit parameters"</span>, blue),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.38</span>, <span class="fl">0.60</span>, <span class="st">"Candidate models"</span>, <span class="st">"degrees, widths, epochs"</span>, teal),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.68</span>, <span class="fl">0.60</span>, <span class="st">"Validation data"</span>, <span class="st">"select a candidate"</span>, orange),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.68</span>, <span class="fl">0.18</span>, <span class="st">"Selected model"</span>, <span class="st">"choices fixed"</span>, purple),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.38</span>, <span class="fl">0.18</span>, <span class="st">"Test data"</span>, <span class="st">"final assessment"</span>, blue),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x, y, heading, detail, colour <span class="kw">in</span> boxes:</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    box <span class="op">=</span> FancyBboxPatch((x<span class="op">-</span><span class="fl">0.11</span>,y<span class="op">-</span><span class="fl">0.09</span>),<span class="fl">0.22</span>,<span class="fl">0.18</span>,boxstyle<span class="op">=</span><span class="st">"round,pad=0.02"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                         facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(box)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    ax.text(x,y<span class="op">+</span><span class="fl">0.025</span>,heading,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    ax.text(x,y<span class="op">-</span><span class="fl">0.035</span>,detail,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>arrows<span class="op">=</span>[((<span class="fl">0.20</span>,<span class="fl">0.60</span>),(<span class="fl">0.26</span>,<span class="fl">0.60</span>)),((<span class="fl">0.50</span>,<span class="fl">0.60</span>),(<span class="fl">0.56</span>,<span class="fl">0.60</span>)),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        ((<span class="fl">0.68</span>,<span class="fl">0.49</span>),(<span class="fl">0.68</span>,<span class="fl">0.30</span>)),((<span class="fl">0.56</span>,<span class="fl">0.18</span>),(<span class="fl">0.50</span>,<span class="fl">0.18</span>))]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start,end <span class="kw">in</span> arrows:</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch(start,end,arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">15</span>,color<span class="op">=</span>grey))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.53</span>,<span class="fl">0.40</span>,<span class="st">"development loop stays above"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">0.82</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">0.04</span>,<span class="fl">0.76</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-data-split-roles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.2
+</figcaption>
+</figure>
+</div>
+<p>The diagram separates parameter fitting from model selection. Repeated validation is expected during development, although extensive reuse can itself overfit the validation set. Test data remain outside the loop. For time-dependent or grouped observations, random splitting may be inappropriate: later periods, sites, individuals, or clusters may need to remain intact.</p>
+</section>
+<section id="error-curves-reveal-the-trainingevaluation-gap" class="level3">
+<h3 class="anchored" data-anchor-id="error-curves-reveal-the-trainingevaluation-gap">Error curves reveal the training–evaluation gap</h3>
+<p>The next experiment fits polynomial degrees 0 through 17 and evaluates mean squared error on 4,000 fresh observations from the same process.</p>
+<div id="fig-capacity-error" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-capacity-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_fresh <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4000</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>y_fresh <span class="op">=</span> true_function(x_fresh) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="bu">len</span>(x_fresh))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>degrees <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">18</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>training_mse, fresh_mse <span class="op">=</span> [], []</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> degrees:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    fitted <span class="op">=</span> Polynomial.fit(x_train, y_train, <span class="bu">int</span>(degree))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    training_mse.append(np.mean((fitted(x_train)<span class="op">-</span>y_train)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    fresh_mse.append(np.mean((fitted(x_fresh)<span class="op">-</span>y_fresh)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">5</span>))</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>ax.plot(degrees, training_mse, marker<span class="op">=</span><span class="st">"o"</span>, color<span class="op">=</span>blue, linewidth<span class="op">=</span><span class="fl">2.4</span>, label<span class="op">=</span><span class="st">"training MSE"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>ax.plot(degrees, fresh_mse, marker<span class="op">=</span><span class="st">"s"</span>, color<span class="op">=</span>orange, linewidth<span class="op">=</span><span class="fl">2.4</span>, label<span class="op">=</span><span class="st">"fresh-sample MSE"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Polynomial degree"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Mean squared error"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Capacity and error on observed versus fresh data"</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>ax.axvline(degrees[np.argmin(fresh_mse)], color<span class="op">=</span>grey, linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"best fresh-sample degree"</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="fl">1e-4</span>, <span class="fl">1e6</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-capacity-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.3
+</figcaption>
+</figure>
+</div>
+<p>Training error provides no turning point because a higher-degree polynomial can match the training observations at least as closely. Fresh-sample error initially falls as the model captures curvature, then rises as the fitted oscillations become sensitive to the particular sample. The exact minimum changes if the observations or noise are regenerated.</p>
+</section>
+<section id="learning-curves-separate-data-scarcity-from-persistent-underfitting" class="level3">
+<h3 class="anchored" data-anchor-id="learning-curves-separate-data-scarcity-from-persistent-underfitting">Learning curves separate data scarcity from persistent underfitting</h3>
+<p>A learning curve plots error against training-sample size. If training error is low and held-out error is much higher, more representative data may narrow the gap. If both errors remain high and close together, additional observations alone may not repair a model that cannot represent the signal or has not been trained adequately.</p>
+<div id="fig-learning-curves" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-learning-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sample_sizes <span class="op">=</span> np.array([<span class="dv">12</span>, <span class="dv">18</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">80</span>, <span class="dv">140</span>])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>repetitions <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>evaluation_x <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">800</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>evaluation_y <span class="op">=</span> true_function(evaluation_x)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {}</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">15</span>]:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    train_runs, eval_runs <span class="op">=</span> [], []</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> sample_sizes:</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        tr_values, ev_values <span class="op">=</span> [], []</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(repetitions):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>            xs <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            ys <span class="op">=</span> true_function(xs) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, n)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            fit <span class="op">=</span> Polynomial.fit(xs, ys, degree)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            tr_values.append(np.mean((fit(xs)<span class="op">-</span>ys)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            ev_values.append(np.mean((fit(evaluation_x)<span class="op">-</span>evaluation_y)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        train_runs.append(tr_values)<span class="op">;</span> eval_runs.append(ev_values)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    results[degree] <span class="op">=</span> (np.array(train_runs), np.array(eval_runs))</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, degree <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="dv">1</span>, <span class="dv">15</span>]):</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    train_runs, eval_runs <span class="op">=</span> results[degree]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> values, colour, label <span class="kw">in</span> [(train_runs,blue,<span class="st">"training error"</span>),(eval_runs,orange,<span class="st">"signal error"</span>)]:</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        median<span class="op">=</span>np.median(values,axis<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> low<span class="op">=</span>np.quantile(values,<span class="fl">0.1</span>,axis<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> high<span class="op">=</span>np.quantile(values,<span class="fl">0.9</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        ax.plot(sample_sizes,median,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.3</span>,label<span class="op">=</span>label)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        ax.fill_between(sample_sizes,low,high,color<span class="op">=</span>colour,alpha<span class="op">=</span><span class="fl">0.16</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_title(<span class="ss">f"Degree </span><span class="sc">{</span>degree<span class="sc">}</span><span class="ss">"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Training observations"</span>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Mean squared error"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend()</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylim(<span class="fl">3e-2</span>, <span class="dv">1</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylim(<span class="fl">1e-3</span>, <span class="fl">1e9</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-learning-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.4
+</figcaption>
+</figure>
+</div>
+<p>The degree-1 model has persistent signal error because its straight line cannot reproduce the curve. The degree-15 model is unstable with very small samples, but its median error and dispersion fall as more observations constrain the fitted function. This example shows why capacity cannot be judged without sample size.</p>
+<p>Level 2 uses held-out errors as diagnostics. Level 3 defines the quantities those diagnostics estimate and decomposes their sampling behaviour.</p>
+</section>
+</section>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
+<section id="empirical-risk-estimates-population-risk" class="level3">
+<h3 class="anchored" data-anchor-id="empirical-risk-estimates-population-risk">Empirical risk estimates population risk</h3>
+<p>Let <span class="math inline">\(D=\{(x_i,y_i)\}_{i=1}^n\)</span> be a training sample from distribution <span class="math inline">\(P\)</span>. For model <span class="math inline">\(f_\theta\)</span> and loss <span class="math inline">\(\ell\)</span>, empirical risk is</p>
+<p><span class="math display">\[
+\widehat R_D(\theta)=\frac{1}{n}\sum_{i=1}^n\ell(f_\theta(x_i),y_i).
+\]</span></p>
+<p>Population risk is</p>
+<p><span class="math display">\[
+R_P(\theta)=\mathbb{E}_{(X,Y)\sim P}[\ell(f_\theta(X),Y)].
+\]</span></p>
+<p>Training minimises or approximately minimises <span class="math inline">\(\widehat R_D\)</span>. The quantity of interest is usually <span class="math inline">\(R_P\)</span>, which is unavailable because <span class="math inline">\(P\)</span> is not observed in full. A test-set mean estimates <span class="math inline">\(R_P\)</span> when test observations are independent draws from the relevant <span class="math inline">\(P\)</span> and have not shaped the fitted model or evaluation procedure.</p>
+<p>The generalisation gap for a fitted model is often written</p>
+<p><span class="math display">\[
+R_P(\hat\theta_D)-\widehat R_D(\hat\theta_D).
+\]</span></p>
+<p>It is random because both the fitted parameters and empirical risk depend on the sampled dataset. A negative observed test–training difference can occur by chance and does not prove that overfitting is impossible.</p>
+</section>
+<section id="bias-and-variance-describe-repeated-sampling" class="level3">
+<h3 class="anchored" data-anchor-id="bias-and-variance-describe-repeated-sampling">Bias and variance describe repeated sampling</h3>
+<p>For squared-error regression at input <span class="math inline">\(x\)</span>, suppose <span class="math inline">\(Y=f(x)+\varepsilon\)</span>, with <span class="math inline">\(\mathbb{E}[\varepsilon]=0\)</span> and variance <span class="math inline">\(\sigma^2\)</span>. Across repeated training samples <span class="math inline">\(D\)</span>,</p>
+<p><span class="math display">\[
+\mathbb{E}_D[(\hat f_D(x)-Y)^2]
+=\underbrace{(\mathbb{E}_D[\hat f_D(x)]-f(x))^2}_{\text{bias}^2}
++\underbrace{\mathbb{V}_D[\hat f_D(x)]}_{\text{variance}}
++\underbrace{\sigma^2}_{\text{irreducible noise}}.
+\]</span></p>
+<p>Bias and variance are properties of a learning procedure under a data-generating process, sample size, and evaluation point. They are not permanent labels attached to a model name.</p>
+<div id="fig-bias-variance" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">0.65</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>noise_variance <span class="op">=</span> <span class="fl">0.25</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>components <span class="op">=</span> []</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">15</span>]:</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> []</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">400</span>):</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        xs <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">24</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        ys <span class="op">=</span> true_function(xs) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="bu">len</span>(xs))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        predictions.append(Polynomial.fit(xs, ys, degree)(x0))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> np.array(predictions)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    bias_squared <span class="op">=</span> (predictions.mean()<span class="op">-</span>true_function(x0))<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    variance <span class="op">=</span> predictions.var()</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    components.append((bias_squared, variance, noise_variance))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>components <span class="op">=</span> np.array(components)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="dv">5</span>))</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>np.arange(<span class="dv">3</span>)<span class="op">;</span> bottom<span class="op">=</span>np.zeros(<span class="dv">3</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> values, colour, label <span class="kw">in</span> <span class="bu">zip</span>(components.T,[blue,orange,grey],[<span class="vs">r"bias</span><span class="dv">$^</span><span class="vs">2</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"variance"</span>,<span class="st">"noise"</span>]):</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    ax.bar(positions,values,bottom<span class="op">=</span>bottom,color<span class="op">=</span>colour,label<span class="op">=</span>label)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    bottom <span class="op">+=</span> values</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xticks(positions,[<span class="st">"Degree 1"</span>,<span class="st">"Degree 5"</span>,<span class="st">"Degree 15"</span>])</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Estimated error component at x = 0.65"</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Bias–variance decomposition across repeated samples"</span>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.5
+</figcaption>
+</figure>
+</div>
+<p>Degree 1 cannot represent the local curve and therefore has appreciable squared bias. Degree 15 can move sharply as the 24 observations change and therefore has high variance. Degree 5 balances these components in this specified experiment. Another input, sample size, or noise level would change the bars.</p>
+</section>
+<section id="a-test-estimate-has-its-own-sampling-error" class="level3">
+<h3 class="anchored" data-anchor-id="a-test-estimate-has-its-own-sampling-error">A test estimate has its own sampling error</h3>
+<p>For test losses <span class="math inline">\(L_1,\ldots,L_m\)</span>, the estimated mean test loss is <span class="math inline">\(\bar L=m^{-1}\sum_jL_j\)</span>. If losses are independent with finite variance, its standard error can be estimated as</p>
+<p><span class="math display">\[
+\operatorname{SE}(\bar L)=\frac{s_L}{\sqrt m}.
+\]</span></p>
+<p>The independence assumption fails for clustered observations or repeated measurements from the same entity. Confidence intervals must then respect the sampling structure. Comparing many models on the same test observations also creates paired losses; analysing their differences is usually more informative than treating model estimates as independent.</p>
+<div id="0eeb7de4" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate fresh-sample error and a simple independent-observation standard error.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>selected_model <span class="op">=</span> Polynomial.fit(x_train, y_train, <span class="dv">5</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>test_losses <span class="op">=</span> (selected_model(x_fresh) <span class="op">-</span> y_fresh)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>mean_loss <span class="op">=</span> test_losses.mean()</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>standard_error <span class="op">=</span> test_losses.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(<span class="bu">len</span>(test_losses))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimated test MSE: </span><span class="sc">{</span>mean_loss<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Approximate standard error: </span><span class="sc">{</span>standard_error<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The standard error quantifies uncertainty from the finite test sample under the stated assumptions. It does not cover uncertainty from choosing degree 5 after inspecting these same test results, nor does it cover a change in the deployment distribution.</p>
+</section>
+<section id="cross-validation-reuses-data-without-making-it-independent" class="level3">
+<h3 class="anchored" data-anchor-id="cross-validation-reuses-data-without-making-it-independent">Cross-validation reuses data without making it independent</h3>
+<p>In <span class="math inline">\(K\)</span>-fold cross-validation, the data are divided into <span class="math inline">\(K\)</span> subsets. Each subset is evaluated once using a model fitted on the other <span class="math inline">\(K-1\)</span> subsets. Averaging the fold losses uses observations efficiently for model comparison. The fold estimates are dependent because their training sets overlap. Cross-validation is therefore a model-selection procedure and uncertainty estimator with assumptions, not a way to manufacture new independent observations.</p>
+<p>After selecting settings, the model is commonly refitted on the available development data and assessed on an untouched test set. If observations are temporal, spatial, clustered, or grouped by person, folds should preserve the corresponding dependence and intended transfer task.</p>
+<p>Level 3 has treated generalisation as estimation under repeated sampling. Modern overparameterised systems add empirical patterns that are not captured by one simple U-shaped curve.</p>
+</section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
+<section id="interpolation-does-not-determine-generalisation" class="level3">
+<h3 class="anchored" data-anchor-id="interpolation-does-not-determine-generalisation">Interpolation does not determine generalisation</h3>
+<p>An interpolating model achieves zero or near-zero training error. <span class="citation" data-cites="zhang2017">Zhang et al. (<a href="#ref-zhang2017" role="doc-biblioref">2017</a>)</span> showed that large neural networks could fit random labels, demonstrating that parameter count and training fit alone do not explain their generalisation on structured data. The result does not imply that real-label generalisation is accidental. It shows that explanations based only on an inability to fit arbitrary labels are inadequate.</p>
+<p>Classical presentations often describe test error as U-shaped in model capacity. In some modern settings, error rises near the interpolation threshold and then falls again as capacity increases. <span class="citation" data-cites="belkin2019">Belkin et al. (<a href="#ref-belkin2019" role="doc-biblioref">2019</a>)</span> describe this <em>double-descent</em> pattern, and <span class="citation" data-cites="nakkiran2020">Nakkiran et al. (<a href="#ref-nakkiran2020" role="doc-biblioref">2020</a>)</span> report related behaviour as model size, training time, and sample size vary. These are empirical and theoretical patterns under specified conditions, not a rule that a larger model will eventually repair any overfitting problem.</p>
+</section>
+<section id="the-learning-algorithm-helps-select-among-many-fitting-solutions" class="level3">
+<h3 class="anchored" data-anchor-id="the-learning-algorithm-helps-select-among-many-fitting-solutions">The learning algorithm helps select among many fitting solutions</h3>
+<p>Overparameterised networks can contain many parameter settings with near-zero training loss. Architecture, initialisation, optimiser, batch order, augmentation, and stopping determine which solution is reached. Generalisation therefore depends on the interaction between data, model, and training procedure. Parameter count remains useful for memory and computation, but it is an incomplete measure of effective capacity.</p>
+<p>This interaction is often described as implicit regularisation: the training procedure favours some fitting solutions without an explicit penalty term. The label does not identify a single mechanism, and evidence from one architecture or data distribution should not be transferred without testing.</p>
+</section>
+<section id="benchmark-performance-depends-on-the-test-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="benchmark-performance-depends-on-the-test-distribution">Benchmark performance depends on the test distribution</h3>
+<p>A test set estimates performance for the process that produced it. <span class="citation" data-cites="recht2019">Recht et al. (<a href="#ref-recht2019" role="doc-biblioref">2019</a>)</span> constructed new CIFAR-10 and ImageNet test sets following the original collection processes and observed accuracy drops across many classifiers. Relative rankings were largely preserved, while changes in image difficulty appeared to explain much of the absolute decline. The study shows that even careful replication of a benchmark’s collection process can yield a meaningfully different evaluation distribution.</p>
+<div id="fig-distribution-shift" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-distribution-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x_extended<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">1</span>,<span class="fl">1.6</span>,<span class="dv">650</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fit_degree5<span class="op">=</span>Polynomial.fit(x_train,y_train,<span class="dv">5</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.axvspan(<span class="dv">1</span>,<span class="fl">1.6</span>,color<span class="op">=</span>orange,alpha<span class="op">=</span><span class="fl">0.13</span>,label<span class="op">=</span><span class="st">"shifted input region"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.plot(x_extended,true_function(x_extended),color<span class="op">=</span>grey,linestyle<span class="op">=</span><span class="st">"--"</span>,linewidth<span class="op">=</span><span class="dv">2</span>,label<span class="op">=</span><span class="st">"true signal"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax.plot(x_extended,fit_degree5(x_extended),color<span class="op">=</span>teal,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"fitted degree-5 model"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.scatter(x_train,y_train,color<span class="op">=</span>blue,s<span class="op">=</span><span class="dv">28</span>,label<span class="op">=</span><span class="st">"training observations"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">1</span>,color<span class="op">=</span>orange,linestyle<span class="op">=</span><span class="st">":"</span>,linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"y"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="dv">4</span>,<span class="dv">3</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Interpolation evidence does not establish extrapolation"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-distribution-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10.6
+</figcaption>
+</figure>
+</div>
+<p>The model was evaluated successfully on fresh inputs from <span class="math inline">\([-1,1]\)</span>. Beyond that range, the fitted polynomial is unconstrained by observations and departs rapidly from the signal. Distribution shift can also occur without a visible range change: the relationship between features and labels, measurement quality, class balance, or decision environment may change.</p>
+</section>
+<section id="repeated-evaluation-can-overfit-the-test-procedure" class="level3">
+<h3 class="anchored" data-anchor-id="repeated-evaluation-can-overfit-the-test-procedure">Repeated evaluation can overfit the test procedure</h3>
+<p>Model developers may not train directly on test labels, yet repeated benchmark submissions reveal information about the test set through scores. Choices then adapt to that feedback. Public leaderboards, shared preprocessing, benchmark-specific prompts, and manual error analysis can all make the final system dependent on the evaluation procedure.</p>
+<p>Data contamination is a stronger form of dependence: test observations or close variants appear in training data. For large web-trained models, exact provenance may be difficult to establish. Deduplication, time-based cut-offs, canary examples, source documentation, and newly collected evaluations reduce specific risks but do not prove independence from every benchmark.</p>
+</section>
+<section id="a-defensible-generalisation-claim-states-its-target" class="level3">
+<h3 class="anchored" data-anchor-id="a-defensible-generalisation-claim-states-its-target">A defensible generalisation claim states its target</h3>
+<p>An evaluation record should specify:</p>
+<ul>
+<li>the target population, period, sites, and measurement process;</li>
+<li>the unit of splitting and any grouping or temporal constraints;</li>
+<li>which data informed parameters, hyperparameters, thresholds, and stopping;</li>
+<li>test-set size, uncertainty, and subgroup coverage;</li>
+<li>missing data, duplicates, contamination checks, and exclusions;</li>
+<li>the number of models or prompts compared against the evaluation data;</li>
+<li>performance under plausible shifts and known failure conditions;</li>
+<li>the evidence required after deployment to detect deterioration.</li>
+</ul>
+<p>The phrase <em>held-out test set</em> answers only one part of this record. Generalisation is a claim about transfer, and its scope should be no broader than the data and design that test it.</p>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>Low training loss proves that the model learned the underlying pattern.</strong> It proves fit to the training objective on observed data.</li>
+<li><strong>Overfitting means the optimiser ran for too many epochs.</strong> Epoch count is one possible mechanism; capacity, noise, selection, and data scarcity also matter.</li>
+<li><strong>A complex model must overfit.</strong> Capacity permits many fits, while data and the learning procedure influence the selected solution.</li>
+<li><strong>A simple model always generalises better.</strong> It may underfit a transferable pattern.</li>
+<li><strong>Test error is the true population error.</strong> It is a finite-sample estimate for a specified sampling process.</li>
+<li><strong>A random split guarantees independence.</strong> Duplicates, repeated individuals, clusters, or temporal dependence can cross the split.</li>
+<li><strong>Validation and test sets are interchangeable.</strong> Validation informs choices; the test set assesses the fixed procedure.</li>
+<li><strong>Cross-validation creates more data.</strong> It reuses observed data under several train–validation partitions.</li>
+<li><strong>Zero training error implies poor test performance.</strong> Interpolating models can generalise well or badly.</li>
+<li><strong>Double descent means increasing model size always improves performance.</strong> The pattern depends on the problem and training regime.</li>
+<li><strong>A fixed seed removes evaluation uncertainty.</strong> It fixes one computational path, not variation across samples or environments.</li>
+<li><strong>In-distribution performance establishes robustness to shift.</strong> Shift changes the distribution the estimate refers to.</li>
+<li><strong>A larger test set repairs test-set reuse.</strong> Repeated adaptation compromises independence even when the set is large.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Explain the difference between training fit and generalisation using the degree-17 model.</li>
+<li>Identify the evidence of underfitting in the degree-1 panel.</li>
+<li>State the roles of training, validation, and test data.</li>
+<li>Give an example where a random row split would leak information.</li>
+<li>Calculate empirical mean squared error for four stated predictions and labels.</li>
+<li>Write population risk for binary cross-entropy.</li>
+<li>Explain why the generalisation gap is random across training samples.</li>
+<li>Reproduce the degree-versus-error experiment with a different seed.</li>
+<li>Increase the noise standard deviation and describe how the curves change.</li>
+<li>Increase the training sample to 100 and compare the degree-15 fit.</li>
+<li>Estimate a confidence interval for the degree-5 test MSE under independent losses.</li>
+<li>Explain why that interval does not include model-selection uncertainty.</li>
+<li>Implement five-fold cross-validation for polynomial degree selection.</li>
+<li>Redesign the folds for repeated observations from the same person.</li>
+<li>Calculate bias squared and variance from a supplied set of repeated predictions.</li>
+<li>Explain how a model can interpolate training data and still generalise.</li>
+<li>Distinguish capacity double descent from epoch-wise double descent.</li>
+<li>Design an evaluation for a model deployed one year after training.</li>
+<li>List two mechanisms of benchmark contamination and one diagnostic for each.</li>
+<li>Write a bounded generalisation claim for the synthetic example.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Generalisation concerns performance beyond observations used to fit and select a model. Overfitting occurs when training improvements depend on sample-specific details that do not transfer; underfitting occurs when a learning procedure fails to capture transferable structure. Training, validation, and test sets have different roles because parameter estimation, model selection, and final assessment create different forms of dependence.</p>
+<p>Empirical risk estimates population risk under a sampling design. Test performance has sampling error, and the fitted model varies when the training sample changes. Bias and variance describe that repeated-sampling behaviour for a specified procedure and data-generating process. Learning curves and capacity curves help diagnose error, but their interpretation depends on sample size and the target distribution.</p>
+<p>Modern networks can interpolate training data and still generalise. Double descent and implicit regularisation qualify a simple capacity narrative without removing the need for independent evaluation. Test-set reuse, contamination, and distribution shift can invalidate a performance claim even when the training loop is technically correct.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>Chapter 10 examines explicit responses to overfitting, including weight penalties, dropout, data augmentation, and early stopping. Those methods alter the fitted solution or effective training data; their value must still be assessed on validation and test designs that match the intended transfer task.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>Classical statistical-learning treatments of model complexity and generalisation appear in <span class="citation" data-cites="hastie2009">Hastie, Tibshirani, and Friedman (<a href="#ref-hastie2009" role="doc-biblioref">2009</a>)</span>. The ability of large networks to fit random labels is demonstrated by <span class="citation" data-cites="zhang2017">Zhang et al. (<a href="#ref-zhang2017" role="doc-biblioref">2017</a>)</span>. Double-descent formulations are developed by <span class="citation" data-cites="belkin2019">Belkin et al. (<a href="#ref-belkin2019" role="doc-biblioref">2019</a>)</span> and <span class="citation" data-cites="nakkiran2020">Nakkiran et al. (<a href="#ref-nakkiran2020" role="doc-biblioref">2020</a>)</span>. The sensitivity of benchmark performance to newly collected test sets is examined by <span class="citation" data-cites="recht2019">Recht et al. (<a href="#ref-recht2019" role="doc-biblioref">2019</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-belkin2019" class="csl-entry" role="listitem">
+Belkin, Mikhail, Daniel Hsu, Siyuan Ma, and Soumik Mandal. 2019. <span>“Reconciling Modern Machine-Learning Practice and the Classical Bias–Variance Trade-Off.”</span> <em>Proceedings of the National Academy of Sciences</em> 116 (32): 15849–54. <a href="https://doi.org/10.1073/pnas.1903070116">https://doi.org/10.1073/pnas.1903070116</a>.
+</div>
+<div id="ref-hastie2009" class="csl-entry" role="listitem">
+Hastie, Trevor, Robert Tibshirani, and Jerome Friedman. 2009. <em>The Elements of Statistical Learning</em>. 2nd ed. Springer. <a href="https://doi.org/10.1007/978-0-387-84858-7">https://doi.org/10.1007/978-0-387-84858-7</a>.
+</div>
+<div id="ref-nakkiran2020" class="csl-entry" role="listitem">
+Nakkiran, Preetum, Gal Kaplun, Yamini Bansal, Tristan Yang, Boaz Barak, and Ilya Sutskever. 2020. <span>“Deep Double Descent: Where Bigger Models and More Data Hurt.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=-bJ_Hb7lCVH">https://openreview.net/forum?id=-bJ_Hb7lCVH</a>.
+</div>
+<div id="ref-recht2019" class="csl-entry" role="listitem">
+Recht, Benjamin, Rebecca Roelofs, Ludwig Schmidt, and Vaishaal Shankar. 2019. <span>“Do <span>ImageNet</span> Classifiers Generalize to <span>ImageNet</span>?”</span> In <em>Proceedings of the 36th International Conference on Machine Learning</em>, 97:5389–5400. Proceedings of Machine Learning Research. PMLR. <a href="https://proceedings.mlr.press/v97/recht19a.html">https://proceedings.mlr.press/v97/recht19a.html</a>.
+</div>
+<div id="ref-zhang2017" class="csl-entry" role="listitem">
+Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 2017. <span>“Understanding Deep Learning Requires Rethinking Generalization.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=Sy8gdB9xx">https://openreview.net/forum?id=Sy8gdB9xx</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./08-small-neural-network.html" class="pagination-link" aria-label="Building a Small Neural Network">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Building a Small Neural Network</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./10-regularisation.html" class="pagination-link" aria-label="Regularisation">
+        <span class="nav-page-text"><span class="chapter-title">Regularisation</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb8" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Generalisation and Overfitting"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "From fitting observed data to performing on new cases"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>Chapter 8 trained a network until it classified a synthetic training set and a held-out set correctly. Because that held-out result was inspected throughout training, it functioned as validation evidence rather than as an untouched final test. The result also depended on a simple data-generating process, a favourable split, and a model suited to the pattern. In applied work, the training sample is finite, labels contain error, and future observations may differ from those used to fit the model.</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>Generalisation describes performance on observations not used to estimate or select the model. Overfitting occurs when a fitted model captures idiosyncrasies of the training sample that do not transfer to the target population. A low training loss is therefore evidence about optimisation on observed data. It is not, by itself, evidence about future performance.</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish training fit, held-out performance, and target-population performance;</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify underfitting and overfitting from fitted functions and error curves;</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain the separate roles of training, validation, and test data;</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define empirical risk, population risk, and the generalisation gap;</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>describe bias and variance without treating them as fixed properties of an algorithm;</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement capacity and sample-size experiments in Python;</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why one favourable split is uncertain evidence;</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish interpolation from generalisation;</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain how test-set reuse, contamination, and distribution shift weaken performance claims.</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running example</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>The chapter uses a one-dimensional synthetic regression problem with known signal</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>f(x)=\sin(\pi x)+0.3x,</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>and observations $y=f(x)+\varepsilon$, where $\varepsilon\sim\mathcal{N}(0,0.25^2)$. Training inputs are sampled from $<span class="co">[</span><span class="ot">-1,1</span><span class="co">]</span>$. The known function lets us separate approximation error from the noise in observed labels. No substantive interpretation is attached to $x$ or $y$.</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-capacity-fits</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Polynomial capacity changes what the model follows: degree 1 misses the curve, degree 5 follows the signal, and degree 17 follows individual noisy observations."</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three panels show the same 18 noisy training observations with polynomial fits of degree 1, 5, and 17 against the true smooth function."</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpy.polynomial <span class="im">import</span> Polynomial</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> FancyBboxPatch, FancyArrowPatch</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7a5195"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">41</span>)</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> true_function(x):</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sin(np.pi <span class="op">*</span> x) <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> x</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>n_train <span class="op">=</span> <span class="dv">18</span></span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> np.sort(rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n_train))</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> true_function(x_train) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, n_train)</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">500</span>)</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="fl">13.5</span>, <span class="fl">4.2</span>), sharex<span class="op">=</span><span class="va">True</span>, sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, degree, colour, title <span class="kw">in</span> <span class="bu">zip</span>(</span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>    axes, [<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">17</span>], [blue, teal, orange],</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Degree 1: underfitting"</span>, <span class="st">"Degree 5: useful fit"</span>, <span class="st">"Degree 17: overfitting"</span>]</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>    fitted <span class="op">=</span> Polynomial.fit(x_train, y_train, degree)</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid, true_function(x_grid), color<span class="op">=</span>grey, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span><span class="st">"true signal"</span>)</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid, fitted(x_grid), color<span class="op">=</span>colour, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"fitted model"</span>)</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x_train, y_train, color<span class="op">=</span><span class="st">"black"</span>, s<span class="op">=</span><span class="dv">28</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"training data"</span>)</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">2.2</span>, <span class="fl">2.2</span>)</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>All three models see the same observations. The degree-1 model cannot represent the curved signal. The degree-5 model follows the broad pattern while leaving some noise unexplained. The degree-17 model can pass close to every training point, but it oscillates between them. Its greater training fit has produced a worse estimate of the known signal.</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-generalisation data-term="Generalisation and overfitting" data-domain="Training and evaluation"}</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>**Generalisation and overfitting.** Generalisation is performance on observations not used to fit or select the procedure, within a stated target population. Overfitting occurs when an apparent training improvement relies on details that do not transfer. Neither label can be inferred from training loss alone.</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-training-validation-test data-term="Training, validation, and test sets" data-domain="Training and evaluation"}</span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>**Training, validation, and test sets.** Training data estimate parameters. Validation data support choices among procedures or checkpoints and therefore belong to development. A test set is reserved for the final assessment after those choices are fixed. A **held-out** set is excluded from the particular fitting or selection stage under discussion; it is not automatically an untouched final test set.</span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning the sample is not the same as learning the pattern</span></span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a>Training data contain regularities that can recur and details that arose from sampling or measurement noise. A model cannot label one component as signal and the other as noise before fitting. Its architecture, training procedure, and data determine which patterns it can capture.</span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a>Underfitting occurs when the model or training procedure fails to capture a transferable pattern that is present. Overfitting occurs when improvements on the training sample depend on details that do not transfer. Both are defined relative to a target: a model may generalise to new observations from the same source and fail after the population, measurement process, or deployment conditions change.</span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Held-out data create a partial test of transfer</span></span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a>An observation cannot provide an independent assessment after its label has influenced parameter estimates or model choices. Holding out data preserves observations for later evaluation. Performance on those observations estimates transfer from the training sample to the process that generated the held-out sample.</span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a>The estimate remains uncertain. A small test set can be unusually easy or hard. A random split can place near-duplicates on both sides. A test set drawn at the same time and place may say little about later deployment. Held-out performance is evidence whose scope is set by the sampling and splitting procedure.</span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a><span class="fu">### Capacity describes options, not inevitable behaviour</span></span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>A higher-capacity model can represent more functions. The degree-17 polynomial can represent the smoother degree-5 relationship as well as many oscillating alternatives. Capacity creates the possibility of fitting noise; it does not establish that a particular training algorithm will select the worst alternative. Data quantity, optimisation, architecture, and regularisation influence which fitted function is obtained.</span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a>The practical conclusion at this level is limited: training performance must be compared with genuinely unseen data, and the comparison must match the population or conditions for which the model is claimed to work. Level 2 shows how the data and diagnostics are organised.</span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training, validation, and test data answer different questions</span></span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>The training set estimates parameters. The validation set supports choices such as polynomial degree, hidden width, or stopping point. The test set is reserved for a final assessment after those choices are fixed. If the test result changes the model, the test set has become part of model development and a further untouched set is needed for an independent assessment.</span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-data-split-roles</span></span>
+<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Training, validation, and test sets enter the workflow at different points."</span></span>
+<span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A flow diagram shows training data fitting parameters, validation data selecting among fitted candidates, and test data assessing the selected model once."</span></span>
+<span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="fl">4.8</span>))</span>
+<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a>boxes <span class="op">=</span> [</span>
+<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.08</span>, <span class="fl">0.60</span>, <span class="st">"Training data"</span>, <span class="st">"fit parameters"</span>, blue),</span>
+<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.38</span>, <span class="fl">0.60</span>, <span class="st">"Candidate models"</span>, <span class="st">"degrees, widths, epochs"</span>, teal),</span>
+<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.68</span>, <span class="fl">0.60</span>, <span class="st">"Validation data"</span>, <span class="st">"select a candidate"</span>, orange),</span>
+<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.68</span>, <span class="fl">0.18</span>, <span class="st">"Selected model"</span>, <span class="st">"choices fixed"</span>, purple),</span>
+<span id="cb8-125"><a href="#cb8-125" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.38</span>, <span class="fl">0.18</span>, <span class="st">"Test data"</span>, <span class="st">"final assessment"</span>, blue),</span>
+<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb8-127"><a href="#cb8-127" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x, y, heading, detail, colour <span class="kw">in</span> boxes:</span>
+<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a>    box <span class="op">=</span> FancyBboxPatch((x<span class="op">-</span><span class="fl">0.11</span>,y<span class="op">-</span><span class="fl">0.09</span>),<span class="fl">0.22</span>,<span class="fl">0.18</span>,boxstyle<span class="op">=</span><span class="st">"round,pad=0.02"</span>,</span>
+<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a>                         facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"black"</span>)</span>
+<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(box)</span>
+<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a>    ax.text(x,y<span class="op">+</span><span class="fl">0.025</span>,heading,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a>    ax.text(x,y<span class="op">-</span><span class="fl">0.035</span>,detail,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a>arrows<span class="op">=</span>[((<span class="fl">0.20</span>,<span class="fl">0.60</span>),(<span class="fl">0.26</span>,<span class="fl">0.60</span>)),((<span class="fl">0.50</span>,<span class="fl">0.60</span>),(<span class="fl">0.56</span>,<span class="fl">0.60</span>)),</span>
+<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a>        ((<span class="fl">0.68</span>,<span class="fl">0.49</span>),(<span class="fl">0.68</span>,<span class="fl">0.30</span>)),((<span class="fl">0.56</span>,<span class="fl">0.18</span>),(<span class="fl">0.50</span>,<span class="fl">0.18</span>))]</span>
+<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start,end <span class="kw">in</span> arrows:</span>
+<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch(start,end,arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">15</span>,color<span class="op">=</span>grey))</span>
+<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.53</span>,<span class="fl">0.40</span>,<span class="st">"development loop stays above"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">0.82</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">0.04</span>,<span class="fl">0.76</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a>The diagram separates parameter fitting from model selection. Repeated validation is expected during development, although extensive reuse can itself overfit the validation set. Test data remain outside the loop. For time-dependent or grouped observations, random splitting may be inappropriate: later periods, sites, individuals, or clusters may need to remain intact.</span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a><span class="fu">### Error curves reveal the training–evaluation gap</span></span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a>The next experiment fits polynomial degrees 0 through 17 and evaluates mean squared error on 4,000 fresh observations from the same process.</span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-capacity-error</span></span>
+<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Training error falls as polynomial degree rises, while error on fresh observations reaches a minimum and then increases."</span></span>
+<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A log-scale line chart shows monotonically decreasing training mean squared error and U-shaped fresh-sample error over polynomial degrees zero to seventeen."</span></span>
+<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a>x_fresh <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4000</span>)</span>
+<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a>y_fresh <span class="op">=</span> true_function(x_fresh) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="bu">len</span>(x_fresh))</span>
+<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a>degrees <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">18</span>)</span>
+<span id="cb8-157"><a href="#cb8-157" aria-hidden="true" tabindex="-1"></a>training_mse, fresh_mse <span class="op">=</span> [], []</span>
+<span id="cb8-158"><a href="#cb8-158" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> degrees:</span>
+<span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a>    fitted <span class="op">=</span> Polynomial.fit(x_train, y_train, <span class="bu">int</span>(degree))</span>
+<span id="cb8-160"><a href="#cb8-160" aria-hidden="true" tabindex="-1"></a>    training_mse.append(np.mean((fitted(x_train)<span class="op">-</span>y_train)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb8-161"><a href="#cb8-161" aria-hidden="true" tabindex="-1"></a>    fresh_mse.append(np.mean((fitted(x_fresh)<span class="op">-</span>y_fresh)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb8-162"><a href="#cb8-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-163"><a href="#cb8-163" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">5</span>))</span>
+<span id="cb8-164"><a href="#cb8-164" aria-hidden="true" tabindex="-1"></a>ax.plot(degrees, training_mse, marker<span class="op">=</span><span class="st">"o"</span>, color<span class="op">=</span>blue, linewidth<span class="op">=</span><span class="fl">2.4</span>, label<span class="op">=</span><span class="st">"training MSE"</span>)</span>
+<span id="cb8-165"><a href="#cb8-165" aria-hidden="true" tabindex="-1"></a>ax.plot(degrees, fresh_mse, marker<span class="op">=</span><span class="st">"s"</span>, color<span class="op">=</span>orange, linewidth<span class="op">=</span><span class="fl">2.4</span>, label<span class="op">=</span><span class="st">"fresh-sample MSE"</span>)</span>
+<span id="cb8-166"><a href="#cb8-166" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Polynomial degree"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Mean squared error"</span>)</span>
+<span id="cb8-167"><a href="#cb8-167" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Capacity and error on observed versus fresh data"</span>)</span>
+<span id="cb8-168"><a href="#cb8-168" aria-hidden="true" tabindex="-1"></a>ax.axvline(degrees[np.argmin(fresh_mse)], color<span class="op">=</span>grey, linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"best fresh-sample degree"</span>)</span>
+<span id="cb8-169"><a href="#cb8-169" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="fl">1e-4</span>, <span class="fl">1e6</span>)</span>
+<span id="cb8-170"><a href="#cb8-170" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb8-171"><a href="#cb8-171" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a>Training error provides no turning point because a higher-degree polynomial can match the training observations at least as closely. Fresh-sample error initially falls as the model captures curvature, then rises as the fitted oscillations become sensitive to the particular sample. The exact minimum changes if the observations or noise are regenerated.</span>
+<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning curves separate data scarcity from persistent underfitting</span></span>
+<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a>A learning curve plots error against training-sample size. If training error is low and held-out error is much higher, more representative data may narrow the gap. If both errors remain high and close together, additional observations alone may not repair a model that cannot represent the signal or has not been trained adequately.</span>
+<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-181"><a href="#cb8-181" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-182"><a href="#cb8-182" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-learning-curves</span></span>
+<span id="cb8-183"><a href="#cb8-183" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Additional observations stabilise the flexible polynomial, while the low-capacity model retains systematic error."</span></span>
+<span id="cb8-184"><a href="#cb8-184" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two panels show median training and fresh-sample error against sample size for degree-1 and degree-15 polynomial models, with uncertainty bands across repeated samples."</span></span>
+<span id="cb8-185"><a href="#cb8-185" aria-hidden="true" tabindex="-1"></a>sample_sizes <span class="op">=</span> np.array([<span class="dv">12</span>, <span class="dv">18</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">80</span>, <span class="dv">140</span>])</span>
+<span id="cb8-186"><a href="#cb8-186" aria-hidden="true" tabindex="-1"></a>repetitions <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb8-187"><a href="#cb8-187" aria-hidden="true" tabindex="-1"></a>evaluation_x <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">800</span>)</span>
+<span id="cb8-188"><a href="#cb8-188" aria-hidden="true" tabindex="-1"></a>evaluation_y <span class="op">=</span> true_function(evaluation_x)</span>
+<span id="cb8-189"><a href="#cb8-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-190"><a href="#cb8-190" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> {}</span>
+<span id="cb8-191"><a href="#cb8-191" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">15</span>]:</span>
+<span id="cb8-192"><a href="#cb8-192" aria-hidden="true" tabindex="-1"></a>    train_runs, eval_runs <span class="op">=</span> [], []</span>
+<span id="cb8-193"><a href="#cb8-193" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> sample_sizes:</span>
+<span id="cb8-194"><a href="#cb8-194" aria-hidden="true" tabindex="-1"></a>        tr_values, ev_values <span class="op">=</span> [], []</span>
+<span id="cb8-195"><a href="#cb8-195" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(repetitions):</span>
+<span id="cb8-196"><a href="#cb8-196" aria-hidden="true" tabindex="-1"></a>            xs <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, n)</span>
+<span id="cb8-197"><a href="#cb8-197" aria-hidden="true" tabindex="-1"></a>            ys <span class="op">=</span> true_function(xs) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, n)</span>
+<span id="cb8-198"><a href="#cb8-198" aria-hidden="true" tabindex="-1"></a>            fit <span class="op">=</span> Polynomial.fit(xs, ys, degree)</span>
+<span id="cb8-199"><a href="#cb8-199" aria-hidden="true" tabindex="-1"></a>            tr_values.append(np.mean((fit(xs)<span class="op">-</span>ys)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb8-200"><a href="#cb8-200" aria-hidden="true" tabindex="-1"></a>            ev_values.append(np.mean((fit(evaluation_x)<span class="op">-</span>evaluation_y)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb8-201"><a href="#cb8-201" aria-hidden="true" tabindex="-1"></a>        train_runs.append(tr_values)<span class="op">;</span> eval_runs.append(ev_values)</span>
+<span id="cb8-202"><a href="#cb8-202" aria-hidden="true" tabindex="-1"></a>    results[degree] <span class="op">=</span> (np.array(train_runs), np.array(eval_runs))</span>
+<span id="cb8-203"><a href="#cb8-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-204"><a href="#cb8-204" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-205"><a href="#cb8-205" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, degree <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="dv">1</span>, <span class="dv">15</span>]):</span>
+<span id="cb8-206"><a href="#cb8-206" aria-hidden="true" tabindex="-1"></a>    train_runs, eval_runs <span class="op">=</span> results[degree]</span>
+<span id="cb8-207"><a href="#cb8-207" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> values, colour, label <span class="kw">in</span> [(train_runs,blue,<span class="st">"training error"</span>),(eval_runs,orange,<span class="st">"signal error"</span>)]:</span>
+<span id="cb8-208"><a href="#cb8-208" aria-hidden="true" tabindex="-1"></a>        median<span class="op">=</span>np.median(values,axis<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> low<span class="op">=</span>np.quantile(values,<span class="fl">0.1</span>,axis<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> high<span class="op">=</span>np.quantile(values,<span class="fl">0.9</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-209"><a href="#cb8-209" aria-hidden="true" tabindex="-1"></a>        ax.plot(sample_sizes,median,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.3</span>,label<span class="op">=</span>label)</span>
+<span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a>        ax.fill_between(sample_sizes,low,high,color<span class="op">=</span>colour,alpha<span class="op">=</span><span class="fl">0.16</span>)</span>
+<span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a>    ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_title(<span class="ss">f"Degree </span><span class="sc">{</span>degree<span class="sc">}</span><span class="ss">"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Training observations"</span>)</span>
+<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Mean squared error"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend()</span>
+<span id="cb8-213"><a href="#cb8-213" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylim(<span class="fl">3e-2</span>, <span class="dv">1</span>)</span>
+<span id="cb8-214"><a href="#cb8-214" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylim(<span class="fl">1e-3</span>, <span class="fl">1e9</span>)</span>
+<span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb8-216"><a href="#cb8-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-217"><a href="#cb8-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-218"><a href="#cb8-218" aria-hidden="true" tabindex="-1"></a>The degree-1 model has persistent signal error because its straight line cannot reproduce the curve. The degree-15 model is unstable with very small samples, but its median error and dispersion fall as more observations constrain the fitted function. This example shows why capacity cannot be judged without sample size.</span>
+<span id="cb8-219"><a href="#cb8-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-220"><a href="#cb8-220" aria-hidden="true" tabindex="-1"></a>Level 2 uses held-out errors as diagnostics. Level 3 defines the quantities those diagnostics estimate and decomposes their sampling behaviour.</span>
+<span id="cb8-221"><a href="#cb8-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-222"><a href="#cb8-222" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb8-223"><a href="#cb8-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-224"><a href="#cb8-224" aria-hidden="true" tabindex="-1"></a><span class="fu">### Empirical risk estimates population risk</span></span>
+<span id="cb8-225"><a href="#cb8-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-226"><a href="#cb8-226" aria-hidden="true" tabindex="-1"></a>Let $D=<span class="sc">\{</span>(x_i,y_i)<span class="sc">\}</span>_{i=1}^n$ be a training sample from distribution $P$. For model $f_\theta$ and loss $\ell$, empirical risk is</span>
+<span id="cb8-227"><a href="#cb8-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-228"><a href="#cb8-228" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-229"><a href="#cb8-229" aria-hidden="true" tabindex="-1"></a>\widehat R_D(\theta)=\frac{1}{n}\sum_{i=1}^n\ell(f_\theta(x_i),y_i).</span>
+<span id="cb8-230"><a href="#cb8-230" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-231"><a href="#cb8-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-232"><a href="#cb8-232" aria-hidden="true" tabindex="-1"></a>Population risk is</span>
+<span id="cb8-233"><a href="#cb8-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-234"><a href="#cb8-234" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-235"><a href="#cb8-235" aria-hidden="true" tabindex="-1"></a>R_P(\theta)=\mathbb{E}_{(X,Y)\sim P}[\ell(f_\theta(X),Y)].</span>
+<span id="cb8-236"><a href="#cb8-236" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-237"><a href="#cb8-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-238"><a href="#cb8-238" aria-hidden="true" tabindex="-1"></a>Training minimises or approximately minimises $\widehat R_D$. The quantity of interest is usually $R_P$, which is unavailable because $P$ is not observed in full. A test-set mean estimates $R_P$ when test observations are independent draws from the relevant $P$ and have not shaped the fitted model or evaluation procedure.</span>
+<span id="cb8-239"><a href="#cb8-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-240"><a href="#cb8-240" aria-hidden="true" tabindex="-1"></a>The generalisation gap for a fitted model is often written</span>
+<span id="cb8-241"><a href="#cb8-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-242"><a href="#cb8-242" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-243"><a href="#cb8-243" aria-hidden="true" tabindex="-1"></a>R_P(\hat\theta_D)-\widehat R_D(\hat\theta_D).</span>
+<span id="cb8-244"><a href="#cb8-244" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-245"><a href="#cb8-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-246"><a href="#cb8-246" aria-hidden="true" tabindex="-1"></a>It is random because both the fitted parameters and empirical risk depend on the sampled dataset. A negative observed test–training difference can occur by chance and does not prove that overfitting is impossible.</span>
+<span id="cb8-247"><a href="#cb8-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-248"><a href="#cb8-248" aria-hidden="true" tabindex="-1"></a><span class="fu">### Bias and variance describe repeated sampling</span></span>
+<span id="cb8-249"><a href="#cb8-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-250"><a href="#cb8-250" aria-hidden="true" tabindex="-1"></a>For squared-error regression at input $x$, suppose $Y=f(x)+\varepsilon$, with $\mathbb{E}<span class="co">[</span><span class="ot">\varepsilon</span><span class="co">]</span>=0$ and variance $\sigma^2$. Across repeated training samples $D$,</span>
+<span id="cb8-251"><a href="#cb8-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-252"><a href="#cb8-252" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-253"><a href="#cb8-253" aria-hidden="true" tabindex="-1"></a>\mathbb{E}_D<span class="co">[</span><span class="ot">(\hat f_D(x)-Y)^2</span><span class="co">]</span></span>
+<span id="cb8-254"><a href="#cb8-254" aria-hidden="true" tabindex="-1"></a>=\underbrace{(\mathbb{E}_D[\hat f_D(x)]-f(x))^2}_{\text{bias}^2}</span>
+<span id="cb8-255"><a href="#cb8-255" aria-hidden="true" tabindex="-1"></a>+\underbrace{\mathbb{V}_D[\hat f_D(x)]}_{\text{variance}}</span>
+<span id="cb8-256"><a href="#cb8-256" aria-hidden="true" tabindex="-1"></a>+\underbrace{\sigma^2}_{\text{irreducible noise}}.</span>
+<span id="cb8-257"><a href="#cb8-257" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-258"><a href="#cb8-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-259"><a href="#cb8-259" aria-hidden="true" tabindex="-1"></a>Bias and variance are properties of a learning procedure under a data-generating process, sample size, and evaluation point. They are not permanent labels attached to a model name.</span>
+<span id="cb8-260"><a href="#cb8-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-263"><a href="#cb8-263" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-264"><a href="#cb8-264" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-bias-variance</span></span>
+<span id="cb8-265"><a href="#cb8-265" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "At one input value, low degree produces bias while high degree produces sampling variance; observation noise remains for every model."</span></span>
+<span id="cb8-266"><a href="#cb8-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A stacked bar chart decomposes estimated prediction error into squared bias, variance, and noise for polynomial degrees 1, 5, and 15."</span></span>
+<span id="cb8-267"><a href="#cb8-267" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">0.65</span></span>
+<span id="cb8-268"><a href="#cb8-268" aria-hidden="true" tabindex="-1"></a>noise_variance <span class="op">=</span> <span class="fl">0.25</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb8-269"><a href="#cb8-269" aria-hidden="true" tabindex="-1"></a>components <span class="op">=</span> []</span>
+<span id="cb8-270"><a href="#cb8-270" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">15</span>]:</span>
+<span id="cb8-271"><a href="#cb8-271" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> []</span>
+<span id="cb8-272"><a href="#cb8-272" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">400</span>):</span>
+<span id="cb8-273"><a href="#cb8-273" aria-hidden="true" tabindex="-1"></a>        xs <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">24</span>)</span>
+<span id="cb8-274"><a href="#cb8-274" aria-hidden="true" tabindex="-1"></a>        ys <span class="op">=</span> true_function(xs) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="bu">len</span>(xs))</span>
+<span id="cb8-275"><a href="#cb8-275" aria-hidden="true" tabindex="-1"></a>        predictions.append(Polynomial.fit(xs, ys, degree)(x0))</span>
+<span id="cb8-276"><a href="#cb8-276" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> np.array(predictions)</span>
+<span id="cb8-277"><a href="#cb8-277" aria-hidden="true" tabindex="-1"></a>    bias_squared <span class="op">=</span> (predictions.mean()<span class="op">-</span>true_function(x0))<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb8-278"><a href="#cb8-278" aria-hidden="true" tabindex="-1"></a>    variance <span class="op">=</span> predictions.var()</span>
+<span id="cb8-279"><a href="#cb8-279" aria-hidden="true" tabindex="-1"></a>    components.append((bias_squared, variance, noise_variance))</span>
+<span id="cb8-280"><a href="#cb8-280" aria-hidden="true" tabindex="-1"></a>components <span class="op">=</span> np.array(components)</span>
+<span id="cb8-281"><a href="#cb8-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-282"><a href="#cb8-282" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="dv">5</span>))</span>
+<span id="cb8-283"><a href="#cb8-283" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>np.arange(<span class="dv">3</span>)<span class="op">;</span> bottom<span class="op">=</span>np.zeros(<span class="dv">3</span>)</span>
+<span id="cb8-284"><a href="#cb8-284" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> values, colour, label <span class="kw">in</span> <span class="bu">zip</span>(components.T,[blue,orange,grey],[<span class="vs">r"bias</span><span class="dv">$^</span><span class="vs">2</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"variance"</span>,<span class="st">"noise"</span>]):</span>
+<span id="cb8-285"><a href="#cb8-285" aria-hidden="true" tabindex="-1"></a>    ax.bar(positions,values,bottom<span class="op">=</span>bottom,color<span class="op">=</span>colour,label<span class="op">=</span>label)</span>
+<span id="cb8-286"><a href="#cb8-286" aria-hidden="true" tabindex="-1"></a>    bottom <span class="op">+=</span> values</span>
+<span id="cb8-287"><a href="#cb8-287" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xticks(positions,[<span class="st">"Degree 1"</span>,<span class="st">"Degree 5"</span>,<span class="st">"Degree 15"</span>])</span>
+<span id="cb8-288"><a href="#cb8-288" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Estimated error component at x = 0.65"</span>)</span>
+<span id="cb8-289"><a href="#cb8-289" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Bias–variance decomposition across repeated samples"</span>)</span>
+<span id="cb8-290"><a href="#cb8-290" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb8-291"><a href="#cb8-291" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-292"><a href="#cb8-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-293"><a href="#cb8-293" aria-hidden="true" tabindex="-1"></a>Degree 1 cannot represent the local curve and therefore has appreciable squared bias. Degree 15 can move sharply as the 24 observations change and therefore has high variance. Degree 5 balances these components in this specified experiment. Another input, sample size, or noise level would change the bars.</span>
+<span id="cb8-294"><a href="#cb8-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-295"><a href="#cb8-295" aria-hidden="true" tabindex="-1"></a><span class="fu">### A test estimate has its own sampling error</span></span>
+<span id="cb8-296"><a href="#cb8-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-297"><a href="#cb8-297" aria-hidden="true" tabindex="-1"></a>For test losses $L_1,\ldots,L_m$, the estimated mean test loss is $\bar L=m^{-1}\sum_jL_j$. If losses are independent with finite variance, its standard error can be estimated as</span>
+<span id="cb8-298"><a href="#cb8-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-299"><a href="#cb8-299" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-300"><a href="#cb8-300" aria-hidden="true" tabindex="-1"></a>\operatorname{SE}(\bar L)=\frac{s_L}{\sqrt m}.</span>
+<span id="cb8-301"><a href="#cb8-301" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb8-302"><a href="#cb8-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-303"><a href="#cb8-303" aria-hidden="true" tabindex="-1"></a>The independence assumption fails for clustered observations or repeated measurements from the same entity. Confidence intervals must then respect the sampling structure. Comparing many models on the same test observations also creates paired losses; analysing their differences is usually more informative than treating model estimates as independent.</span>
+<span id="cb8-304"><a href="#cb8-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-307"><a href="#cb8-307" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-308"><a href="#cb8-308" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate fresh-sample error and a simple independent-observation standard error.</span></span>
+<span id="cb8-309"><a href="#cb8-309" aria-hidden="true" tabindex="-1"></a>selected_model <span class="op">=</span> Polynomial.fit(x_train, y_train, <span class="dv">5</span>)</span>
+<span id="cb8-310"><a href="#cb8-310" aria-hidden="true" tabindex="-1"></a>test_losses <span class="op">=</span> (selected_model(x_fresh) <span class="op">-</span> y_fresh)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb8-311"><a href="#cb8-311" aria-hidden="true" tabindex="-1"></a>mean_loss <span class="op">=</span> test_losses.mean()</span>
+<span id="cb8-312"><a href="#cb8-312" aria-hidden="true" tabindex="-1"></a>standard_error <span class="op">=</span> test_losses.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(<span class="bu">len</span>(test_losses))</span>
+<span id="cb8-313"><a href="#cb8-313" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimated test MSE: </span><span class="sc">{</span>mean_loss<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb8-314"><a href="#cb8-314" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Approximate standard error: </span><span class="sc">{</span>standard_error<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb8-315"><a href="#cb8-315" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-316"><a href="#cb8-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-317"><a href="#cb8-317" aria-hidden="true" tabindex="-1"></a>The standard error quantifies uncertainty from the finite test sample under the stated assumptions. It does not cover uncertainty from choosing degree 5 after inspecting these same test results, nor does it cover a change in the deployment distribution.</span>
+<span id="cb8-318"><a href="#cb8-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-319"><a href="#cb8-319" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cross-validation reuses data without making it independent</span></span>
+<span id="cb8-320"><a href="#cb8-320" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-321"><a href="#cb8-321" aria-hidden="true" tabindex="-1"></a>In $K$-fold cross-validation, the data are divided into $K$ subsets. Each subset is evaluated once using a model fitted on the other $K-1$ subsets. Averaging the fold losses uses observations efficiently for model comparison. The fold estimates are dependent because their training sets overlap. Cross-validation is therefore a model-selection procedure and uncertainty estimator with assumptions, not a way to manufacture new independent observations.</span>
+<span id="cb8-322"><a href="#cb8-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-323"><a href="#cb8-323" aria-hidden="true" tabindex="-1"></a>After selecting settings, the model is commonly refitted on the available development data and assessed on an untouched test set. If observations are temporal, spatial, clustered, or grouped by person, folds should preserve the corresponding dependence and intended transfer task.</span>
+<span id="cb8-324"><a href="#cb8-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-325"><a href="#cb8-325" aria-hidden="true" tabindex="-1"></a>Level 3 has treated generalisation as estimation under repeated sampling. Modern overparameterised systems add empirical patterns that are not captured by one simple U-shaped curve.</span>
+<span id="cb8-326"><a href="#cb8-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-327"><a href="#cb8-327" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb8-328"><a href="#cb8-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-329"><a href="#cb8-329" aria-hidden="true" tabindex="-1"></a><span class="fu">### Interpolation does not determine generalisation</span></span>
+<span id="cb8-330"><a href="#cb8-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-331"><a href="#cb8-331" aria-hidden="true" tabindex="-1"></a>An interpolating model achieves zero or near-zero training error. @zhang2017 showed that large neural networks could fit random labels, demonstrating that parameter count and training fit alone do not explain their generalisation on structured data. The result does not imply that real-label generalisation is accidental. It shows that explanations based only on an inability to fit arbitrary labels are inadequate.</span>
+<span id="cb8-332"><a href="#cb8-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-333"><a href="#cb8-333" aria-hidden="true" tabindex="-1"></a>Classical presentations often describe test error as U-shaped in model capacity. In some modern settings, error rises near the interpolation threshold and then falls again as capacity increases. @belkin2019 describe this *double-descent* pattern, and @nakkiran2020 report related behaviour as model size, training time, and sample size vary. These are empirical and theoretical patterns under specified conditions, not a rule that a larger model will eventually repair any overfitting problem.</span>
+<span id="cb8-334"><a href="#cb8-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-335"><a href="#cb8-335" aria-hidden="true" tabindex="-1"></a><span class="fu">### The learning algorithm helps select among many fitting solutions</span></span>
+<span id="cb8-336"><a href="#cb8-336" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-337"><a href="#cb8-337" aria-hidden="true" tabindex="-1"></a>Overparameterised networks can contain many parameter settings with near-zero training loss. Architecture, initialisation, optimiser, batch order, augmentation, and stopping determine which solution is reached. Generalisation therefore depends on the interaction between data, model, and training procedure. Parameter count remains useful for memory and computation, but it is an incomplete measure of effective capacity.</span>
+<span id="cb8-338"><a href="#cb8-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-339"><a href="#cb8-339" aria-hidden="true" tabindex="-1"></a>This interaction is often described as implicit regularisation: the training procedure favours some fitting solutions without an explicit penalty term. The label does not identify a single mechanism, and evidence from one architecture or data distribution should not be transferred without testing.</span>
+<span id="cb8-340"><a href="#cb8-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-341"><a href="#cb8-341" aria-hidden="true" tabindex="-1"></a><span class="fu">### Benchmark performance depends on the test distribution</span></span>
+<span id="cb8-342"><a href="#cb8-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-343"><a href="#cb8-343" aria-hidden="true" tabindex="-1"></a>A test set estimates performance for the process that produced it. @recht2019 constructed new CIFAR-10 and ImageNet test sets following the original collection processes and observed accuracy drops across many classifiers. Relative rankings were largely preserved, while changes in image difficulty appeared to explain much of the absolute decline. The study shows that even careful replication of a benchmark's collection process can yield a meaningfully different evaluation distribution.</span>
+<span id="cb8-344"><a href="#cb8-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-347"><a href="#cb8-347" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb8-348"><a href="#cb8-348" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-distribution-shift</span></span>
+<span id="cb8-349"><a href="#cb8-349" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A model fitted within the training range can generalise there and fail when asked to extrapolate beyond it."</span></span>
+<span id="cb8-350"><a href="#cb8-350" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A plot shows training observations and a degree-5 fit on minus one to one, then extends the same fitted curve into a shaded shifted region from one to one point six where it diverges from the true function."</span></span>
+<span id="cb8-351"><a href="#cb8-351" aria-hidden="true" tabindex="-1"></a>x_extended<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">1</span>,<span class="fl">1.6</span>,<span class="dv">650</span>)</span>
+<span id="cb8-352"><a href="#cb8-352" aria-hidden="true" tabindex="-1"></a>fit_degree5<span class="op">=</span>Polynomial.fit(x_train,y_train,<span class="dv">5</span>)</span>
+<span id="cb8-353"><a href="#cb8-353" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
+<span id="cb8-354"><a href="#cb8-354" aria-hidden="true" tabindex="-1"></a>ax.axvspan(<span class="dv">1</span>,<span class="fl">1.6</span>,color<span class="op">=</span>orange,alpha<span class="op">=</span><span class="fl">0.13</span>,label<span class="op">=</span><span class="st">"shifted input region"</span>)</span>
+<span id="cb8-355"><a href="#cb8-355" aria-hidden="true" tabindex="-1"></a>ax.plot(x_extended,true_function(x_extended),color<span class="op">=</span>grey,linestyle<span class="op">=</span><span class="st">"--"</span>,linewidth<span class="op">=</span><span class="dv">2</span>,label<span class="op">=</span><span class="st">"true signal"</span>)</span>
+<span id="cb8-356"><a href="#cb8-356" aria-hidden="true" tabindex="-1"></a>ax.plot(x_extended,fit_degree5(x_extended),color<span class="op">=</span>teal,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"fitted degree-5 model"</span>)</span>
+<span id="cb8-357"><a href="#cb8-357" aria-hidden="true" tabindex="-1"></a>ax.scatter(x_train,y_train,color<span class="op">=</span>blue,s<span class="op">=</span><span class="dv">28</span>,label<span class="op">=</span><span class="st">"training observations"</span>)</span>
+<span id="cb8-358"><a href="#cb8-358" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">1</span>,color<span class="op">=</span>orange,linestyle<span class="op">=</span><span class="st">":"</span>,linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb8-359"><a href="#cb8-359" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"y"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="dv">4</span>,<span class="dv">3</span>)</span>
+<span id="cb8-360"><a href="#cb8-360" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Interpolation evidence does not establish extrapolation"</span>)</span>
+<span id="cb8-361"><a href="#cb8-361" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb8-362"><a href="#cb8-362" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb8-363"><a href="#cb8-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-364"><a href="#cb8-364" aria-hidden="true" tabindex="-1"></a>The model was evaluated successfully on fresh inputs from $<span class="co">[</span><span class="ot">-1,1</span><span class="co">]</span>$. Beyond that range, the fitted polynomial is unconstrained by observations and departs rapidly from the signal. Distribution shift can also occur without a visible range change: the relationship between features and labels, measurement quality, class balance, or decision environment may change.</span>
+<span id="cb8-365"><a href="#cb8-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-366"><a href="#cb8-366" aria-hidden="true" tabindex="-1"></a><span class="fu">### Repeated evaluation can overfit the test procedure</span></span>
+<span id="cb8-367"><a href="#cb8-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-368"><a href="#cb8-368" aria-hidden="true" tabindex="-1"></a>Model developers may not train directly on test labels, yet repeated benchmark submissions reveal information about the test set through scores. Choices then adapt to that feedback. Public leaderboards, shared preprocessing, benchmark-specific prompts, and manual error analysis can all make the final system dependent on the evaluation procedure.</span>
+<span id="cb8-369"><a href="#cb8-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-370"><a href="#cb8-370" aria-hidden="true" tabindex="-1"></a>Data contamination is a stronger form of dependence: test observations or close variants appear in training data. For large web-trained models, exact provenance may be difficult to establish. Deduplication, time-based cut-offs, canary examples, source documentation, and newly collected evaluations reduce specific risks but do not prove independence from every benchmark.</span>
+<span id="cb8-371"><a href="#cb8-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-372"><a href="#cb8-372" aria-hidden="true" tabindex="-1"></a><span class="fu">### A defensible generalisation claim states its target</span></span>
+<span id="cb8-373"><a href="#cb8-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-374"><a href="#cb8-374" aria-hidden="true" tabindex="-1"></a>An evaluation record should specify:</span>
+<span id="cb8-375"><a href="#cb8-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-376"><a href="#cb8-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the target population, period, sites, and measurement process;</span>
+<span id="cb8-377"><a href="#cb8-377" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the unit of splitting and any grouping or temporal constraints;</span>
+<span id="cb8-378"><a href="#cb8-378" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>which data informed parameters, hyperparameters, thresholds, and stopping;</span>
+<span id="cb8-379"><a href="#cb8-379" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>test-set size, uncertainty, and subgroup coverage;</span>
+<span id="cb8-380"><a href="#cb8-380" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>missing data, duplicates, contamination checks, and exclusions;</span>
+<span id="cb8-381"><a href="#cb8-381" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the number of models or prompts compared against the evaluation data;</span>
+<span id="cb8-382"><a href="#cb8-382" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>performance under plausible shifts and known failure conditions;</span>
+<span id="cb8-383"><a href="#cb8-383" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the evidence required after deployment to detect deterioration.</span>
+<span id="cb8-384"><a href="#cb8-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-385"><a href="#cb8-385" aria-hidden="true" tabindex="-1"></a>The phrase *held-out test set* answers only one part of this record. Generalisation is a claim about transfer, and its scope should be no broader than the data and design that test it.</span>
+<span id="cb8-386"><a href="#cb8-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-387"><a href="#cb8-387" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb8-388"><a href="#cb8-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-389"><a href="#cb8-389" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Low training loss proves that the model learned the underlying pattern.** It proves fit to the training objective on observed data.</span>
+<span id="cb8-390"><a href="#cb8-390" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Overfitting means the optimiser ran for too many epochs.** Epoch count is one possible mechanism; capacity, noise, selection, and data scarcity also matter.</span>
+<span id="cb8-391"><a href="#cb8-391" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A complex model must overfit.** Capacity permits many fits, while data and the learning procedure influence the selected solution.</span>
+<span id="cb8-392"><a href="#cb8-392" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A simple model always generalises better.** It may underfit a transferable pattern.</span>
+<span id="cb8-393"><a href="#cb8-393" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Test error is the true population error.** It is a finite-sample estimate for a specified sampling process.</span>
+<span id="cb8-394"><a href="#cb8-394" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A random split guarantees independence.** Duplicates, repeated individuals, clusters, or temporal dependence can cross the split.</span>
+<span id="cb8-395"><a href="#cb8-395" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Validation and test sets are interchangeable.** Validation informs choices; the test set assesses the fixed procedure.</span>
+<span id="cb8-396"><a href="#cb8-396" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Cross-validation creates more data.** It reuses observed data under several train–validation partitions.</span>
+<span id="cb8-397"><a href="#cb8-397" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Zero training error implies poor test performance.** Interpolating models can generalise well or badly.</span>
+<span id="cb8-398"><a href="#cb8-398" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Double descent means increasing model size always improves performance.** The pattern depends on the problem and training regime.</span>
+<span id="cb8-399"><a href="#cb8-399" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A fixed seed removes evaluation uncertainty.** It fixes one computational path, not variation across samples or environments.</span>
+<span id="cb8-400"><a href="#cb8-400" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**In-distribution performance establishes robustness to shift.** Shift changes the distribution the estimate refers to.</span>
+<span id="cb8-401"><a href="#cb8-401" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A larger test set repairs test-set reuse.** Repeated adaptation compromises independence even when the set is large.</span>
+<span id="cb8-402"><a href="#cb8-402" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-403"><a href="#cb8-403" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb8-404"><a href="#cb8-404" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-405"><a href="#cb8-405" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Explain the difference between training fit and generalisation using the degree-17 model.</span>
+<span id="cb8-406"><a href="#cb8-406" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Identify the evidence of underfitting in the degree-1 panel.</span>
+<span id="cb8-407"><a href="#cb8-407" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>State the roles of training, validation, and test data.</span>
+<span id="cb8-408"><a href="#cb8-408" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Give an example where a random row split would leak information.</span>
+<span id="cb8-409"><a href="#cb8-409" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Calculate empirical mean squared error for four stated predictions and labels.</span>
+<span id="cb8-410"><a href="#cb8-410" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Write population risk for binary cross-entropy.</span>
+<span id="cb8-411"><a href="#cb8-411" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Explain why the generalisation gap is random across training samples.</span>
+<span id="cb8-412"><a href="#cb8-412" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Reproduce the degree-versus-error experiment with a different seed.</span>
+<span id="cb8-413"><a href="#cb8-413" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Increase the noise standard deviation and describe how the curves change.</span>
+<span id="cb8-414"><a href="#cb8-414" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Increase the training sample to 100 and compare the degree-15 fit.</span>
+<span id="cb8-415"><a href="#cb8-415" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Estimate a confidence interval for the degree-5 test MSE under independent losses.</span>
+<span id="cb8-416"><a href="#cb8-416" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Explain why that interval does not include model-selection uncertainty.</span>
+<span id="cb8-417"><a href="#cb8-417" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Implement five-fold cross-validation for polynomial degree selection.</span>
+<span id="cb8-418"><a href="#cb8-418" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Redesign the folds for repeated observations from the same person.</span>
+<span id="cb8-419"><a href="#cb8-419" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Calculate bias squared and variance from a supplied set of repeated predictions.</span>
+<span id="cb8-420"><a href="#cb8-420" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Explain how a model can interpolate training data and still generalise.</span>
+<span id="cb8-421"><a href="#cb8-421" aria-hidden="true" tabindex="-1"></a><span class="ss">17. </span>Distinguish capacity double descent from epoch-wise double descent.</span>
+<span id="cb8-422"><a href="#cb8-422" aria-hidden="true" tabindex="-1"></a><span class="ss">18. </span>Design an evaluation for a model deployed one year after training.</span>
+<span id="cb8-423"><a href="#cb8-423" aria-hidden="true" tabindex="-1"></a><span class="ss">19. </span>List two mechanisms of benchmark contamination and one diagnostic for each.</span>
+<span id="cb8-424"><a href="#cb8-424" aria-hidden="true" tabindex="-1"></a><span class="ss">20. </span>Write a bounded generalisation claim for the synthetic example.</span>
+<span id="cb8-425"><a href="#cb8-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-426"><a href="#cb8-426" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb8-427"><a href="#cb8-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-428"><a href="#cb8-428" aria-hidden="true" tabindex="-1"></a>Generalisation concerns performance beyond observations used to fit and select a model. Overfitting occurs when training improvements depend on sample-specific details that do not transfer; underfitting occurs when a learning procedure fails to capture transferable structure. Training, validation, and test sets have different roles because parameter estimation, model selection, and final assessment create different forms of dependence.</span>
+<span id="cb8-429"><a href="#cb8-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-430"><a href="#cb8-430" aria-hidden="true" tabindex="-1"></a>Empirical risk estimates population risk under a sampling design. Test performance has sampling error, and the fitted model varies when the training sample changes. Bias and variance describe that repeated-sampling behaviour for a specified procedure and data-generating process. Learning curves and capacity curves help diagnose error, but their interpretation depends on sample size and the target distribution.</span>
+<span id="cb8-431"><a href="#cb8-431" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-432"><a href="#cb8-432" aria-hidden="true" tabindex="-1"></a>Modern networks can interpolate training data and still generalise. Double descent and implicit regularisation qualify a simple capacity narrative without removing the need for independent evaluation. Test-set reuse, contamination, and distribution shift can invalidate a performance claim even when the training loop is technically correct.</span>
+<span id="cb8-433"><a href="#cb8-433" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-434"><a href="#cb8-434" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb8-435"><a href="#cb8-435" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-436"><a href="#cb8-436" aria-hidden="true" tabindex="-1"></a>Chapter 10 examines explicit responses to overfitting, including weight penalties, dropout, data augmentation, and early stopping. Those methods alter the fitted solution or effective training data; their value must still be assessed on validation and test designs that match the intended transfer task.</span>
+<span id="cb8-437"><a href="#cb8-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-438"><a href="#cb8-438" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb8-439"><a href="#cb8-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-440"><a href="#cb8-440" aria-hidden="true" tabindex="-1"></a>Classical statistical-learning treatments of model complexity and generalisation appear in @hastie2009. The ability of large networks to fit random labels is demonstrated by @zhang2017. Double-descent formulations are developed by @belkin2019 and @nakkiran2020. The sensitivity of benchmark performance to newly collected test sets is examined by @recht2019.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

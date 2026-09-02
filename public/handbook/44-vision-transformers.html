@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Vision Transformers – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./45-diffusion-models.html" rel="next">
+<link href="./43-mixture-of-experts-models.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./44-vision-transformers.html"><span class="chapter-title">Vision Transformers</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  </ul></li>
+  <li><a href="#level-1---images-become-token-sequences" id="toc-level-1---images-become-token-sequences" class="nav-link" data-scroll-target="#level-1---images-become-token-sequences">Level 1 - Images become token sequences</a>
+  <ul class="collapse">
+  <li><a href="#patchification-determines-the-visual-interface" id="toc-patchification-determines-the-visual-interface" class="nav-link" data-scroll-target="#patchification-determines-the-visual-interface">Patchification determines the visual interface</a></li>
+  <li><a href="#patch-projection-fixes-channels-scale-and-patch-boundaries" id="toc-patch-projection-fixes-channels-scale-and-patch-boundaries" class="nav-link" data-scroll-target="#patch-projection-fixes-channels-scale-and-patch-boundaries">Patch projection fixes channels, scale, and patch boundaries</a></li>
+  <li><a href="#resolution-and-patch-size-are-model-choices" id="toc-resolution-and-patch-size-are-model-choices" class="nav-link" data-scroll-target="#resolution-and-patch-size-are-model-choices">Resolution and patch size are model choices</a></li>
+  <li><a href="#resolution-changes-both-evidence-and-computation" id="toc-resolution-changes-both-evidence-and-computation" class="nav-link" data-scroll-target="#resolution-changes-both-evidence-and-computation">Resolution changes both evidence and computation</a></li>
+  </ul></li>
+  <li><a href="#level-2---position-and-attention" id="toc-level-2---position-and-attention" class="nav-link" data-scroll-target="#level-2---position-and-attention">Level 2 - Position and attention</a>
+  <ul class="collapse">
+  <li><a href="#patches-require-an-explicit-spatial-contract" id="toc-patches-require-an-explicit-spatial-contract" class="nav-link" data-scroll-target="#patches-require-an-explicit-spatial-contract">Patches require an explicit spatial contract</a></li>
+  <li><a href="#spatial-position-and-visual-invariance-are-different-requirements" id="toc-spatial-position-and-visual-invariance-are-different-requirements" class="nav-link" data-scroll-target="#spatial-position-and-visual-invariance-are-different-requirements">Spatial position and visual invariance are different requirements</a></li>
+  <li><a href="#global-attention-and-local-inductive-bias-differ" id="toc-global-attention-and-local-inductive-bias-differ" class="nav-link" data-scroll-target="#global-attention-and-local-inductive-bias-differ">Global attention and local inductive bias differ</a></li>
+  <li><a href="#architecture-comparisons-require-matched-visual-evidence" id="toc-architecture-comparisons-require-matched-visual-evidence" class="nav-link" data-scroll-target="#architecture-comparisons-require-matched-visual-evidence">Architecture comparisons require matched visual evidence</a></li>
+  </ul></li>
+  <li><a href="#level-3---training-and-representation-checks" id="toc-level-3---training-and-representation-checks" class="nav-link" data-scroll-target="#level-3---training-and-representation-checks">Level 3 - Training and representation checks</a>
+  <ul class="collapse">
+  <li><a href="#the-classification-representation-is-a-declared-interface" id="toc-the-classification-representation-is-a-declared-interface" class="nav-link" data-scroll-target="#the-classification-representation-is-a-declared-interface">The classification representation is a declared interface</a></li>
+  <li><a href="#pretraining-data-and-labels-define-the-visual-task" id="toc-pretraining-data-and-labels-define-the-visual-task" class="nav-link" data-scroll-target="#pretraining-data-and-labels-define-the-visual-task">Pretraining data and labels define the visual task</a></li>
+  <li><a href="#training-comparisons-need-checkpoint-and-augmentation-controls" id="toc-training-comparisons-need-checkpoint-and-augmentation-controls" class="nav-link" data-scroll-target="#training-comparisons-need-checkpoint-and-augmentation-controls">Training comparisons need checkpoint and augmentation controls</a></li>
+  </ul></li>
+  <li><a href="#level-4---evaluation-and-limits" id="toc-level-4---evaluation-and-limits" class="nav-link" data-scroll-target="#level-4---evaluation-and-limits">Level 4 - Evaluation and limits</a>
+  <ul class="collapse">
+  <li><a href="#image-accuracy-is-conditional-on-the-visual-distribution" id="toc-image-accuracy-is-conditional-on-the-visual-distribution" class="nav-link" data-scroll-target="#image-accuracy-is-conditional-on-the-visual-distribution">Image accuracy is conditional on the visual distribution</a></li>
+  <li><a href="#visual-explanations-need-a-prediction-changing-intervention" id="toc-visual-explanations-need-a-prediction-changing-intervention" class="nav-link" data-scroll-target="#visual-explanations-need-a-prediction-changing-intervention">Visual explanations need a prediction-changing intervention</a></li>
+  <li><a href="#slice-evaluation-should-distinguish-acquisition-label-and-representation-failures" id="toc-slice-evaluation-should-distinguish-acquisition-label-and-representation-failures" class="nav-link" data-scroll-target="#slice-evaluation-should-distinguish-acquisition-label-and-representation-failures">Slice evaluation should distinguish acquisition, label, and representation failures</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Vision Transformers</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Image patches, positional structure, attention, and visual evaluation</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Transformers expect a sequence of vector representations. A vision transformer (ViT) constructs that sequence by dividing an image into fixed-size patches, mapping each patch to an embedding, adding positional information, and applying Transformer blocks. The architecture therefore reuses the representation, attention, and positional mechanisms developed in Chapters 16-23, while changing the meaning and number of tokens.</p>
+<p>An image is not a sequence of words. Patch size determines what visual detail enters the model, positional embeddings supply spatial order, and attention provides global token interactions. The original ViT showed that a pure Transformer over patch sequences can perform strongly when pretrained at sufficient scale <span class="citation" data-cites="dosovitskiy2021vit">(<a href="#ref-dosovitskiy2021vit" role="doc-biblioref">Dosovitskiy et al. 2021</a>)</span>. Training regime matters: data-efficient ViTs use augmentation and distillation choices that change the comparison with convolutional models <span class="citation" data-cites="touvron2021deit">(<a href="#ref-touvron2021deit" role="doc-biblioref">Touvron et al. 2021</a>)</span>.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>calculate the number of image patches and resulting attention-token cost;</li>
+<li>explain patch projection, positional embeddings, and a classification representation;</li>
+<li>distinguish spatial information supplied by patches from information supplied by position;</li>
+<li>compare global attention with convolutional locality under declared conditions; and</li>
+<li>design an image-classification evaluation that reports resolution, preprocessing, and data shifts.</li>
+</ul>
+</section>
+</section>
+<section id="level-1---images-become-token-sequences" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---images-become-token-sequences">Level 1 - Images become token sequences</h2>
+<section id="patchification-determines-the-visual-interface" class="level3">
+<h3 class="anchored" data-anchor-id="patchification-determines-the-visual-interface">Patchification determines the visual interface</h3>
+<p>For an image of height (H) and width (W), square patches of side (P) produce (N=(H/P)(W/P)) tokens when the dimensions divide exactly. Each flattened patch is projected into the model dimension. The projection does not preserve every pixel relationship explicitly; it supplies a learned representation from which later layers must recover useful visual structure.</p>
+<div id="fig-image-patches" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-image-patches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a> <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>): ax.add_patch(Rectangle((<span class="fl">.4</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.28</span>,<span class="fl">1.3</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.28</span>),<span class="fl">.27</span>,<span class="fl">.27</span>,facecolor<span class="op">=</span>blue <span class="cf">if</span> (i<span class="op">+</span>j)<span class="op">%</span><span class="dv">2</span> <span class="cf">else</span> teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">.95</span>,<span class="fl">.75</span>,<span class="st">"image patches"</span>,ha<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): ax.add_patch(Rectangle((<span class="fl">2.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.52</span>,<span class="fl">1.55</span>),<span class="fl">.42</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">1.7</span>,<span class="fl">1.8</span>),(<span class="fl">2.1</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,<span class="fl">1.2</span>,<span class="st">"patch + position embeddings"</span>,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">4.9</span>,<span class="fl">1.8</span>),(<span class="fl">5.5</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.6</span>,<span class="fl">1.48</span>),<span class="fl">1.4</span>,<span class="fl">.64</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.3</span>,<span class="fl">1.8</span>,<span class="st">"Transformer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">7.1</span>,<span class="fl">1.8</span>),(<span class="fl">7.7</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.text(<span class="fl">8.3</span>,<span class="fl">1.8</span>,<span class="st">"class"</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.7</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-image-patches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;45.1
+</figcaption>
+</figure>
+</div>
+<div id="2366d702" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>H<span class="op">=</span>W<span class="op">=</span><span class="dv">224</span><span class="op">;</span> P<span class="op">=</span><span class="dv">16</span><span class="op">;</span> N<span class="op">=</span>(H<span class="op">//</span>P)<span class="op">*</span>(W<span class="op">//</span>P)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"patches"</span>:N,<span class="st">"tokens_with_class"</span>:N<span class="op">+</span><span class="dv">1</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="patch-projection-fixes-channels-scale-and-patch-boundaries" class="level3">
+<h3 class="anchored" data-anchor-id="patch-projection-fixes-channels-scale-and-patch-boundaries">Patch projection fixes channels, scale, and patch boundaries</h3>
+<p>Patchification begins with a specific image representation: colour channels, value range, orientation, resizing policy, and crop. Flattening a 16-by-16 RGB patch produces a vector with 768 scalar values before projection; a grayscale image or a multispectral image has a different input dimension and cannot use the same projection without an explicit adaptation. The patch projection is therefore an interface between image acquisition and the Transformer, not a generic conversion from pixels to tokens.</p>
+<p>Patch boundaries also matter. An object or edge can fall across two patches, a crop can remove a small object, and resampling can blur the feature that a downstream label depends on. Smaller patches expose more local detail but do not guarantee that the model will use it; larger patches can be sufficient when the visual signal is coarse. Store the resize, crop, channel, and patch policy with the checkpoint and evaluate the same policy on the held-out images.</p>
+</section>
+<section id="resolution-and-patch-size-are-model-choices" class="level3">
+<h3 class="anchored" data-anchor-id="resolution-and-patch-size-are-model-choices">Resolution and patch size are model choices</h3>
+<p>Smaller patches retain finer detail but create more tokens. Since full self-attention compares token pairs, the attention-score matrix grows approximately with (N^2). A 224-by-224 image with 16-by-16 patches gives 196 patch tokens; halving patch side length gives 784. The later model may have more visual detail available, but it also has a much larger attention computation and memory requirement.</p>
+<div id="fig-patch-cost" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-patch-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">32</span>,<span class="dv">16</span>,<span class="dv">8</span>])<span class="op">;</span> tokens<span class="op">=</span>(<span class="dv">224</span><span class="op">//</span>sizes)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(sizes,tokens<span class="op">**</span><span class="dv">2</span>,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.invert_xaxis()<span class="op">;</span> ax.set_xlabel(<span class="st">"patch side length (pixels)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"token-pair count"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Attention cost from patch resolution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-patch-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;45.2
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="resolution-changes-both-evidence-and-computation" class="level3">
+<h3 class="anchored" data-anchor-id="resolution-changes-both-evidence-and-computation">Resolution changes both evidence and computation</h3>
+<p>Increasing resolution can reveal a small object, text, or boundary that was absent from a lower-resolution input. It also changes the number of positions the model must process and the memory needed for attention. A comparison between two resolutions is therefore not a pure systems benchmark: it changes the information available to the classifier as well as the cost. Report the acquisition resolution, resize rule, crop selection, patch size, token count, and evaluation distribution together.</p>
+<p>Position representations need a declared treatment when image grids change. A learned position table trained for one patch grid may be interpolated, resized, replaced, or used only at its original resolution. Each choice changes the input contract. Test performance at the intended resolution and, if resolution transfer is claimed, on a separately reported set rather than assuming that a position representation will generalise without loss.</p>
+</section>
+</section>
+<section id="level-2---position-and-attention" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---position-and-attention">Level 2 - Position and attention</h2>
+<section id="patches-require-an-explicit-spatial-contract" class="level3">
+<h3 class="anchored" data-anchor-id="patches-require-an-explicit-spatial-contract">Patches require an explicit spatial contract</h3>
+<p>Flattening patches produces a sequence but does not itself specify where each patch came from. Learned or fixed positional embeddings add location information before the Transformer blocks. Without them, permuting patch order leaves the attention mechanism equivariant to that permutation, as in Chapter 21. Position tells the model that a patch came from the upper left rather than the lower right; it does not by itself supply translation invariance or local edge detectors.</p>
+<div id="fig-position-grid" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-position-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,pos <span class="kw">in</span> [(<span class="fl">1.0</span>,<span class="st">"row 1, col 1"</span>),(<span class="fl">4.3</span>,<span class="st">"row 4, col 4"</span>)]:</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a> ax.add_patch(Rectangle((x,<span class="fl">1.5</span>),<span class="fl">1.4</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.78</span>,<span class="st">"patch content"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.1</span>,pos,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-position-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;45.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="spatial-position-and-visual-invariance-are-different-requirements" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-position-and-visual-invariance-are-different-requirements">Spatial position and visual invariance are different requirements</h3>
+<p>Position embeddings identify where a patch occurs in the processed image grid. They do not specify whether a class should remain unchanged after translation, crop, rotation, scale change, illumination shift, or a new camera. Some transformations should leave a label stable; others should not. A medical image label may depend on a small position change, while an object-class label may not. The appropriate invariance is a property of the task and data-generating process, not of the word Transformer.</p>
+<p>Specify which transformations are represented in training augmentation, which are held out for evaluation, and which make an image no longer comparable. An augmented crop that removes the labelled object changes the target rather than testing invariance. This distinction prevents an apparent robustness result from mixing valid visual variation with a changed task definition.</p>
+</section>
+<section id="global-attention-and-local-inductive-bias-differ" class="level3">
+<h3 class="anchored" data-anchor-id="global-attention-and-local-inductive-bias-differ">Global attention and local inductive bias differ</h3>
+<p>Convolution applies shared local filters and builds larger receptive fields across layers. ViT attention can connect distant patches directly within a layer. Neither property settles which model is preferable: the answer depends on data scale, augmentation, pretraining, resolution, compute, and the intended transfer task. A fair comparison fixes those conditions and reports them rather than treating architecture labels as results.</p>
+<div id="fig-local-global-access" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-local-global-access-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.set_xticks([])<span class="op">;</span> ax.set_yticks([])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a> <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): ax.add_patch(Rectangle((i,j),<span class="dv">1</span>,<span class="dv">1</span>,facecolor<span class="op">=</span><span class="st">"#e7edf1"</span>,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="dv">1</span>,<span class="dv">1</span>),<span class="dv">3</span>,<span class="dv">3</span>,fill<span class="op">=</span><span class="va">False</span>,edgecolor<span class="op">=</span>orange,lw<span class="op">=</span><span class="dv">3</span>))<span class="op">;</span> ax.annotate(<span class="st">"attention"</span>,xy<span class="op">=</span>(<span class="fl">4.5</span>,<span class="fl">4.5</span>),xytext<span class="op">=</span>(<span class="fl">.5</span>,<span class="fl">.5</span>),arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-|&gt;"</span>,<span class="st">"color"</span>:purple})<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_title(<span class="st">"Local window and distant token access"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-local-global-access-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;45.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="architecture-comparisons-require-matched-visual-evidence" class="level3">
+<h3 class="anchored" data-anchor-id="architecture-comparisons-require-matched-visual-evidence">Architecture comparisons require matched visual evidence</h3>
+<p>Global attention and convolutional locality are architectural properties, but a reported image result also depends on the images and training policy available to each model. Match preprocessing, augmentation, label set, pretraining data boundary, optimiser, schedule, parameter or compute budget, resolution, and checkpoint-selection rule before attributing a difference to the architecture. The original ViT and data-efficient DeiT results illustrate how pretraining scale, augmentation, and distillation change the setting in which a visual Transformer is assessed <span class="citation" data-cites="dosovitskiy2021vit touvron2021deit">(<a href="#ref-dosovitskiy2021vit" role="doc-biblioref">Dosovitskiy et al. 2021</a>; <a href="#ref-touvron2021deit" role="doc-biblioref">Touvron et al. 2021</a>)</span>.</p>
+<p>The comparison should also define the prediction interface. A class token, average pooling, multi-scale feature aggregation, or a dense prediction head uses the final patch representations differently. A classification result does not establish object detection, segmentation, or localisation behaviour without a head, labels, and metrics for those tasks. Keep the claim at the task interface actually evaluated.</p>
+</section>
+</section>
+<section id="level-3---training-and-representation-checks" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---training-and-representation-checks">Level 3 - Training and representation checks</h2>
+<section id="the-classification-representation-is-a-declared-interface" class="level3">
+<h3 class="anchored" data-anchor-id="the-classification-representation-is-a-declared-interface">The classification representation is a declared interface</h3>
+<p>A classification ViT can prepend a learned class token and use its final representation for a classifier, or pool patch representations. These are different interfaces and should be reported. Training also inherits the earlier contracts: image normalisation, crop policy, augmentation, label mapping, optimiser, schedule, checkpoint selection, and the split used for final evaluation.</p>
+<div id="bc2514e3" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>patches<span class="op">=</span>np.array([[<span class="fl">.2</span>,<span class="fl">.1</span>],[<span class="fl">.7</span>,<span class="fl">.3</span>],[<span class="fl">.1</span>,<span class="fl">.8</span>]])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>class_token<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.5</span>])<span class="op">;</span> sequence<span class="op">=</span>np.vstack([class_token,patches])</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sequence shape including class token:"</span>,sequence.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="pretraining-data-and-labels-define-the-visual-task" class="level3">
+<h3 class="anchored" data-anchor-id="pretraining-data-and-labels-define-the-visual-task">Pretraining data and labels define the visual task</h3>
+<p>Pretraining can provide visual features that a small labelled dataset alone would not learn reliably. It can also introduce label definitions, geographic concentration, image-source conventions, or licensing and privacy constraints that differ from the deployment setting. Record the pretraining objective and data boundary separately from the fine-tuning dataset. A claim about transfer should identify which visual condition changed and which remained shared between pretraining and evaluation.</p>
+<p>Label quality needs the same attention as architecture. A label may describe the whole image, a central object, a scene, a temporal state, or an annotator judgment. Crop and resize policies can change whether the labelled feature is visible. Inspect disagreement, class imbalance, missing labels, and the treatment of multi-label or ambiguous images before interpreting an apparent model error as a representation failure. The data and label contract determines the error that accuracy measures.</p>
+<div id="fig-training-contract" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-training-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"image"</span>,blue),(<span class="st">"preprocess"</span>,teal),(<span class="st">"patches"</span>,purple),(<span class="st">"train"</span>,orange),(<span class="st">"held-out</span><span class="ch">\n</span><span class="st">evaluation"</span>,blue)]):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a> x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.75</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.25</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.63</span>,<span class="fl">1.53</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-training-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;45.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="training-comparisons-need-checkpoint-and-augmentation-controls" class="level3">
+<h3 class="anchored" data-anchor-id="training-comparisons-need-checkpoint-and-augmentation-controls">Training comparisons need checkpoint and augmentation controls</h3>
+<p>Augmentation may include random crops, flips, colour changes, masking, or mixing images and labels. These transformations can improve a model’s fit to a declared visual distribution, but they can also create examples that no longer support the original label. State the augmentation probability and order, the normalisation statistics, the optimisation schedule, and the criterion used to select the final checkpoint. Do not compare a ViT chosen from a large hyperparameter search with a baseline chosen from one run without recording the search policy.</p>
+<p>Evaluate training stability as well as the selected checkpoint. Report variation across seeds or repeated runs where feasible, learning curves, and the relation between validation and held-out performance. A visual model can appear to improve because a crop policy matches one validation source unusually well. Preserving the split definition and checkpoint-selection record makes that possibility testable.</p>
+</section>
+</section>
+<section id="level-4---evaluation-and-limits" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---evaluation-and-limits">Level 4 - Evaluation and limits</h2>
+<section id="image-accuracy-is-conditional-on-the-visual-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="image-accuracy-is-conditional-on-the-visual-distribution">Image accuracy is conditional on the visual distribution</h3>
+<p>Image-classification results should report resolution, patch size, crop and normalisation policy, augmentation, pretraining data, class definitions, label quality, and test distribution. Evaluate slices where the visual task changes: viewpoint, lighting, background, object size, camera type, or geographic source. A high score on a fixed benchmark does not establish that the model recognises the same object under a changed acquisition process.</p>
+<p>Attention maps can support an inspection of which patch relations received high weight. They do not on their own establish a causal explanation for the class prediction. Test an interpretation with interventions on patches, positional information, or the relevant visual feature, and report when the result is sensitive to preprocessing or patch boundaries.</p>
+</section>
+<section id="visual-explanations-need-a-prediction-changing-intervention" class="level3">
+<h3 class="anchored" data-anchor-id="visual-explanations-need-a-prediction-changing-intervention">Visual explanations need a prediction-changing intervention</h3>
+<p>An attention map, saliency map, or selected patch can be a useful hypothesis about which visual region matters. Test that hypothesis by masking, replacing, moving, or perturbing the specified region while preserving the task as far as possible, then measure the resulting prediction change. A patch that receives high attention but can be altered without affecting the result is not established as causally necessary. A prediction that changes after a broad blur or crop may reflect a preprocessing shift rather than the importance of one semantic object.</p>
+<p>Record the intervention, the images selected for inspection, the baseline prediction, the transformed prediction, and any change in the model’s confidence or abstention decision. Visual explanations should be evaluated by image and slice; a convincing example can coexist with a procedure that fails on another acquisition condition. These records establish the limited claim that the intervention supports, not a general account of what the model sees.</p>
+</section>
+<section id="slice-evaluation-should-distinguish-acquisition-label-and-representation-failures" class="level3">
+<h3 class="anchored" data-anchor-id="slice-evaluation-should-distinguish-acquisition-label-and-representation-failures">Slice evaluation should distinguish acquisition, label, and representation failures</h3>
+<p>When performance falls on a visual slice, the source can be acquisition quality, a shifted class definition, label error, preprocessing mismatch, insufficient resolution, or a representation failure. Record the slice construction and inspect a bounded sample of errors before assigning cause. Low-light images may be darker because of a camera pipeline; small objects may be lost at the resize stage; a new geographic source may use another background or label convention. These are different interventions and need different responses.</p>
+<p>For high-consequence image tasks, report abstentions, confidence calibration, review routes, and the consequences of false positives and false negatives by slice. A high aggregate accuracy cannot determine an appropriate decision threshold when the cost of errors differs across visual conditions. The evaluation record should make clear whether the model was assessed as a classifier, a triage aid, or a component that can defer to a human or another measurement process.</p>
+<div id="fig-slice-evaluation" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-slice-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>slices<span class="op">=</span>[<span class="st">"standard"</span>,<span class="st">"low light"</span>,<span class="st">"small object"</span>,<span class="st">"new camera"</span>]<span class="op">;</span> acc<span class="op">=</span>[<span class="fl">.88</span>,<span class="fl">.74</span>,<span class="fl">.67</span>,<span class="fl">.70</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(slices,acc,color<span class="op">=</span>[blue,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative visual-distribution slices"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-slice-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;45.6
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>Image patches are semantic objects.</strong> They are fixed spatial blocks projected into vectors.</li>
+<li><strong>Position embeddings create visual invariance.</strong> They identify location; invariance must be learned or evaluated.</li>
+<li><strong>Smaller patches are always better.</strong> They trade visual detail for token and attention cost.</li>
+<li><strong>An attention map is a causal explanation.</strong> It is a weight pattern that needs an intervention test.</li>
+<li><strong>ViT and convolutional models can be compared by architecture alone.</strong> Data, augmentation, resolution, pretraining, and compute affect the result.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Calculate patch count for a 256-by-256 image with 16-by-16 patches.</li>
+<li>Compare token-pair counts for 16 and 8 pixel patches.</li>
+<li>Explain why position is needed after patch flattening.</li>
+<li>State one spatial property that positional embeddings do not guarantee.</li>
+<li>Implement a patch projection for a toy grayscale image.</li>
+<li>Compare class-token and mean-pooling interfaces.</li>
+<li>Draw a local convolutional receptive field and a distant attention relation.</li>
+<li>Identify training-contract fields that affect a ViT comparison.</li>
+<li>Design a low-light evaluation slice.</li>
+<li>Explain how crop policy can change a label’s apparent difficulty.</li>
+<li>Propose an intervention test for an attention-map interpretation.</li>
+<li>State why a patch boundary can matter for a small object.</li>
+<li>Compare dense attention cost at two image resolutions.</li>
+<li>Specify a held-out visual distribution for transfer evaluation.</li>
+<li>Identify a pretraining-data risk in image classification.</li>
+<li>State the next chapter’s diffusion-model question.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Vision transformers turn images into patch-token sequences and use position-aware Transformer blocks to combine visual information. Patch size, position, training data, and evaluation distribution are part of the modelling contract. The architecture offers global token interactions, but its visual claims require evidence across the relevant image conditions.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>Patch-based Transformers describe how an image can be represented as a sequence; they do not specify how a new image is generated. <a href="./45-diffusion-models.html">Chapter 45</a> addresses that generative problem by treating image synthesis as a sequence of noise-removal decisions under a declared sampling procedure.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>Vision Transformer is introduced by <span class="citation" data-cites="dosovitskiy2021vit">Dosovitskiy et al. (<a href="#ref-dosovitskiy2021vit" role="doc-biblioref">2021</a>)</span>. Data-efficient image Transformer training and distillation are studied by <span class="citation" data-cites="touvron2021deit">Touvron et al. (<a href="#ref-touvron2021deit" role="doc-biblioref">2021</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-dosovitskiy2021vit" class="csl-entry" role="listitem">
+Dosovitskiy, Alexey, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, et al. 2021. <span>“An Image Is Worth 16x16 Words: Transformers for Image Recognition at Scale.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2010.11929">https://arxiv.org/abs/2010.11929</a>.
+</div>
+<div id="ref-touvron2021deit" class="csl-entry" role="listitem">
+Touvron, Hugo, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles, and Hervé Jégou. 2021. <span>“Training Data-Efficient Image Transformers and Distillation Through Attention.”</span> In <em>International Conference on Machine Learning</em>. <a href="https://arxiv.org/abs/2012.12877">https://arxiv.org/abs/2012.12877</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./43-mixture-of-experts-models.html" class="pagination-link" aria-label="Mixture-of-experts Models">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Mixture-of-experts Models</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./45-diffusion-models.html" class="pagination-link" aria-label="Diffusion Models">
+        <span class="nav-page-text"><span class="chapter-title">Diffusion Models</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Vision Transformers"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Image patches, positional structure, attention, and visual evaluation"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>Transformers expect a sequence of vector representations. A vision transformer (ViT) constructs that sequence by dividing an image into fixed-size patches, mapping each patch to an embedding, adding positional information, and applying Transformer blocks. The architecture therefore reuses the representation, attention, and positional mechanisms developed in Chapters 16-23, while changing the meaning and number of tokens.</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>An image is not a sequence of words. Patch size determines what visual detail enters the model, positional embeddings supply spatial order, and attention provides global token interactions. The original ViT showed that a pure Transformer over patch sequences can perform strongly when pretrained at sufficient scale <span class="co">[</span><span class="ot">@dosovitskiy2021vit</span><span class="co">]</span>. Training regime matters: data-efficient ViTs use augmentation and distillation choices that change the comparison with convolutional models <span class="co">[</span><span class="ot">@touvron2021deit</span><span class="co">]</span>.</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate the number of image patches and resulting attention-token cost;</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain patch projection, positional embeddings, and a classification representation;</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish spatial information supplied by patches from information supplied by position;</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>compare global attention with convolutional locality under declared conditions; and</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>design an image-classification evaluation that reports resolution, preprocessing, and data shifts.</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Images become token sequences</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Patchification determines the visual interface</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>For an image of height (H) and width (W), square patches of side (P) produce (N=(H/P)(W/P)) tokens when the dimensions divide exactly. Each flattened patch is projected into the model dimension. The projection does not preserve every pixel relationship explicitly; it supplies a learned representation from which later layers must recover useful visual structure.</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-image-patches</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A vision transformer divides an image into patches, projects them to embeddings, adds positional information, and processes the resulting token sequence."</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A gridded image becomes a row of patch embeddings with position vectors before Transformer blocks and a classifier."</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a> <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>): ax.add_patch(Rectangle((<span class="fl">.4</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.28</span>,<span class="fl">1.3</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.28</span>),<span class="fl">.27</span>,<span class="fl">.27</span>,facecolor<span class="op">=</span>blue <span class="cf">if</span> (i<span class="op">+</span>j)<span class="op">%</span><span class="dv">2</span> <span class="cf">else</span> teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">.95</span>,<span class="fl">.75</span>,<span class="st">"image patches"</span>,ha<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): ax.add_patch(Rectangle((<span class="fl">2.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.52</span>,<span class="fl">1.55</span>),<span class="fl">.42</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">1.7</span>,<span class="fl">1.8</span>),(<span class="fl">2.1</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,<span class="fl">1.2</span>,<span class="st">"patch + position embeddings"</span>,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">4.9</span>,<span class="fl">1.8</span>),(<span class="fl">5.5</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.6</span>,<span class="fl">1.48</span>),<span class="fl">1.4</span>,<span class="fl">.64</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.3</span>,<span class="fl">1.8</span>,<span class="st">"Transformer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">7.1</span>,<span class="fl">1.8</span>),(<span class="fl">7.7</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.text(<span class="fl">8.3</span>,<span class="fl">1.8</span>,<span class="st">"class"</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.7</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>H<span class="op">=</span>W<span class="op">=</span><span class="dv">224</span><span class="op">;</span> P<span class="op">=</span><span class="dv">16</span><span class="op">;</span> N<span class="op">=</span>(H<span class="op">//</span>P)<span class="op">*</span>(W<span class="op">//</span>P)</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"patches"</span>:N,<span class="st">"tokens_with_class"</span>:N<span class="op">+</span><span class="dv">1</span>})</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="fu">### Patch projection fixes channels, scale, and patch boundaries</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>Patchification begins with a specific image representation: colour channels, value range, orientation, resizing policy, and crop. Flattening a 16-by-16 RGB patch produces a vector with 768 scalar values before projection; a grayscale image or a multispectral image has a different input dimension and cannot use the same projection without an explicit adaptation. The patch projection is therefore an interface between image acquisition and the Transformer, not a generic conversion from pixels to tokens.</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>Patch boundaries also matter. An object or edge can fall across two patches, a crop can remove a small object, and resampling can blur the feature that a downstream label depends on. Smaller patches expose more local detail but do not guarantee that the model will use it; larger patches can be sufficient when the visual signal is coarse. Store the resize, crop, channel, and patch policy with the checkpoint and evaluate the same policy on the held-out images.</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### Resolution and patch size are model choices</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>Smaller patches retain finer detail but create more tokens. Since full self-attention compares token pairs, the attention-score matrix grows approximately with (N^2). A 224-by-224 image with 16-by-16 patches gives 196 patch tokens; halving patch side length gives 784. The later model may have more visual detail available, but it also has a much larger attention computation and memory requirement.</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-patch-cost</span></span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Smaller image patches create more visual tokens and increase the quadratic attention relation count."</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A line chart plots patch-token count and token-pair count for patch sizes 32, 16, and 8 on a 224 pixel image."</span></span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">32</span>,<span class="dv">16</span>,<span class="dv">8</span>])<span class="op">;</span> tokens<span class="op">=</span>(<span class="dv">224</span><span class="op">//</span>sizes)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(sizes,tokens<span class="op">**</span><span class="dv">2</span>,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.invert_xaxis()<span class="op">;</span> ax.set_xlabel(<span class="st">"patch side length (pixels)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"token-pair count"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Attention cost from patch resolution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a><span class="fu">### Resolution changes both evidence and computation</span></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>Increasing resolution can reveal a small object, text, or boundary that was absent from a lower-resolution input. It also changes the number of positions the model must process and the memory needed for attention. A comparison between two resolutions is therefore not a pure systems benchmark: it changes the information available to the classifier as well as the cost. Report the acquisition resolution, resize rule, crop selection, patch size, token count, and evaluation distribution together.</span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>Position representations need a declared treatment when image grids change. A learned position table trained for one patch grid may be interpolated, resized, replaced, or used only at its original resolution. Each choice changes the input contract. Test performance at the intended resolution and, if resolution transfer is claimed, on a separately reported set rather than assuming that a position representation will generalise without loss.</span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Position and attention</span></span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a><span class="fu">### Patches require an explicit spatial contract</span></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a>Flattening patches produces a sequence but does not itself specify where each patch came from. Learned or fixed positional embeddings add location information before the Transformer blocks. Without them, permuting patch order leaves the attention mechanism equivariant to that permutation, as in Chapter 21. Position tells the model that a patch came from the upper left rather than the lower right; it does not by itself supply translation invariance or local edge detectors.</span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-position-grid</span></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Patch embeddings identify local visual content, while positional embeddings identify the patch's place in the image grid."</span></span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two identical patch-content boxes receive different position labels because they occur at different grid locations."</span></span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,pos <span class="kw">in</span> [(<span class="fl">1.0</span>,<span class="st">"row 1, col 1"</span>),(<span class="fl">4.3</span>,<span class="st">"row 4, col 4"</span>)]:</span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a> ax.add_patch(Rectangle((x,<span class="fl">1.5</span>),<span class="fl">1.4</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.78</span>,<span class="st">"patch content"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.1</span>,pos,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)</span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### Spatial position and visual invariance are different requirements</span></span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>Position embeddings identify where a patch occurs in the processed image grid. They do not specify whether a class should remain unchanged after translation, crop, rotation, scale change, illumination shift, or a new camera. Some transformations should leave a label stable; others should not. A medical image label may depend on a small position change, while an object-class label may not. The appropriate invariance is a property of the task and data-generating process, not of the word Transformer.</span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a>Specify which transformations are represented in training augmentation, which are held out for evaluation, and which make an image no longer comparable. An augmented crop that removes the labelled object changes the target rather than testing invariance. This distinction prevents an apparent robustness result from mixing valid visual variation with a changed task definition.</span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a><span class="fu">### Global attention and local inductive bias differ</span></span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a>Convolution applies shared local filters and builds larger receptive fields across layers. ViT attention can connect distant patches directly within a layer. Neither property settles which model is preferable: the answer depends on data scale, augmentation, pretraining, resolution, compute, and the intended transfer task. A fair comparison fixes those conditions and reports them rather than treating architecture labels as results.</span>
+<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-local-global-access</span></span>
+<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A convolutional layer begins with local neighbourhoods, whereas a ViT attention head can assign weight between distant patch tokens in one layer."</span></span>
+<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A grid highlights a local convolution window and an arrow connecting two distant patches for attention."</span></span>
+<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.set_xticks([])<span class="op">;</span> ax.set_yticks([])</span>
+<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a> <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): ax.add_patch(Rectangle((i,j),<span class="dv">1</span>,<span class="dv">1</span>,facecolor<span class="op">=</span><span class="st">"#e7edf1"</span>,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
+<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="dv">1</span>,<span class="dv">1</span>),<span class="dv">3</span>,<span class="dv">3</span>,fill<span class="op">=</span><span class="va">False</span>,edgecolor<span class="op">=</span>orange,lw<span class="op">=</span><span class="dv">3</span>))<span class="op">;</span> ax.annotate(<span class="st">"attention"</span>,xy<span class="op">=</span>(<span class="fl">4.5</span>,<span class="fl">4.5</span>),xytext<span class="op">=</span>(<span class="fl">.5</span>,<span class="fl">.5</span>),arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-|&gt;"</span>,<span class="st">"color"</span>:purple})<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_title(<span class="st">"Local window and distant token access"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a><span class="fu">### Architecture comparisons require matched visual evidence</span></span>
+<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a>Global attention and convolutional locality are architectural properties, but a reported image result also depends on the images and training policy available to each model. Match preprocessing, augmentation, label set, pretraining data boundary, optimiser, schedule, parameter or compute budget, resolution, and checkpoint-selection rule before attributing a difference to the architecture. The original ViT and data-efficient DeiT results illustrate how pretraining scale, augmentation, and distillation change the setting in which a visual Transformer is assessed <span class="co">[</span><span class="ot">@dosovitskiy2021vit; @touvron2021deit</span><span class="co">]</span>.</span>
+<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>The comparison should also define the prediction interface. A class token, average pooling, multi-scale feature aggregation, or a dense prediction head uses the final patch representations differently. A classification result does not establish object detection, segmentation, or localisation behaviour without a head, labels, and metrics for those tasks. Keep the claim at the task interface actually evaluated.</span>
+<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Training and representation checks</span></span>
+<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a><span class="fu">### The classification representation is a declared interface</span></span>
+<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a>A classification ViT can prepend a learned class token and use its final representation for a classifier, or pool patch representations. These are different interfaces and should be reported. Training also inherits the earlier contracts: image normalisation, crop policy, augmentation, label mapping, optimiser, schedule, checkpoint selection, and the split used for final evaluation.</span>
+<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a>patches<span class="op">=</span>np.array([[<span class="fl">.2</span>,<span class="fl">.1</span>],[<span class="fl">.7</span>,<span class="fl">.3</span>],[<span class="fl">.1</span>,<span class="fl">.8</span>]])</span>
+<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>class_token<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.5</span>])<span class="op">;</span> sequence<span class="op">=</span>np.vstack([class_token,patches])</span>
+<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sequence shape including class token:"</span>,sequence.shape)</span>
+<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a><span class="fu">### Pretraining data and labels define the visual task</span></span>
+<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a>Pretraining can provide visual features that a small labelled dataset alone would not learn reliably. It can also introduce label definitions, geographic concentration, image-source conventions, or licensing and privacy constraints that differ from the deployment setting. Record the pretraining objective and data boundary separately from the fine-tuning dataset. A claim about transfer should identify which visual condition changed and which remained shared between pretraining and evaluation.</span>
+<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a>Label quality needs the same attention as architecture. A label may describe the whole image, a central object, a scene, a temporal state, or an annotator judgment. Crop and resize policies can change whether the labelled feature is visible. Inspect disagreement, class imbalance, missing labels, and the treatment of multi-label or ambiguous images before interpreting an apparent model error as a representation failure. The data and label contract determines the error that accuracy measures.</span>
+<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-training-contract</span></span>
+<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A ViT result depends on the image and training contract: preprocessing, patching, position, augmentation, labels, and evaluation split."</span></span>
+<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A pipeline runs from raw image through preprocessing and patches to training, held-out evaluation, and a record of settings."</span></span>
+<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"image"</span>,blue),(<span class="st">"preprocess"</span>,teal),(<span class="st">"patches"</span>,purple),(<span class="st">"train"</span>,orange),(<span class="st">"held-out</span><span class="ch">\n</span><span class="st">evaluation"</span>,blue)]):</span>
+<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a> x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.75</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.25</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.63</span>,<span class="fl">1.53</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training comparisons need checkpoint and augmentation controls</span></span>
+<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a>Augmentation may include random crops, flips, colour changes, masking, or mixing images and labels. These transformations can improve a model's fit to a declared visual distribution, but they can also create examples that no longer support the original label. State the augmentation probability and order, the normalisation statistics, the optimisation schedule, and the criterion used to select the final checkpoint. Do not compare a ViT chosen from a large hyperparameter search with a baseline chosen from one run without recording the search policy.</span>
+<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a>Evaluate training stability as well as the selected checkpoint. Report variation across seeds or repeated runs where feasible, learning curves, and the relation between validation and held-out performance. A visual model can appear to improve because a crop policy matches one validation source unusually well. Preserving the split definition and checkpoint-selection record makes that possibility testable.</span>
+<span id="cb9-167"><a href="#cb9-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-168"><a href="#cb9-168" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Evaluation and limits</span></span>
+<span id="cb9-169"><a href="#cb9-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-170"><a href="#cb9-170" aria-hidden="true" tabindex="-1"></a><span class="fu">### Image accuracy is conditional on the visual distribution</span></span>
+<span id="cb9-171"><a href="#cb9-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-172"><a href="#cb9-172" aria-hidden="true" tabindex="-1"></a>Image-classification results should report resolution, patch size, crop and normalisation policy, augmentation, pretraining data, class definitions, label quality, and test distribution. Evaluate slices where the visual task changes: viewpoint, lighting, background, object size, camera type, or geographic source. A high score on a fixed benchmark does not establish that the model recognises the same object under a changed acquisition process.</span>
+<span id="cb9-173"><a href="#cb9-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-174"><a href="#cb9-174" aria-hidden="true" tabindex="-1"></a>Attention maps can support an inspection of which patch relations received high weight. They do not on their own establish a causal explanation for the class prediction. Test an interpretation with interventions on patches, positional information, or the relevant visual feature, and report when the result is sensitive to preprocessing or patch boundaries.</span>
+<span id="cb9-175"><a href="#cb9-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-176"><a href="#cb9-176" aria-hidden="true" tabindex="-1"></a><span class="fu">### Visual explanations need a prediction-changing intervention</span></span>
+<span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-178"><a href="#cb9-178" aria-hidden="true" tabindex="-1"></a>An attention map, saliency map, or selected patch can be a useful hypothesis about which visual region matters. Test that hypothesis by masking, replacing, moving, or perturbing the specified region while preserving the task as far as possible, then measure the resulting prediction change. A patch that receives high attention but can be altered without affecting the result is not established as causally necessary. A prediction that changes after a broad blur or crop may reflect a preprocessing shift rather than the importance of one semantic object.</span>
+<span id="cb9-179"><a href="#cb9-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-180"><a href="#cb9-180" aria-hidden="true" tabindex="-1"></a>Record the intervention, the images selected for inspection, the baseline prediction, the transformed prediction, and any change in the model's confidence or abstention decision. Visual explanations should be evaluated by image and slice; a convincing example can coexist with a procedure that fails on another acquisition condition. These records establish the limited claim that the intervention supports, not a general account of what the model sees.</span>
+<span id="cb9-181"><a href="#cb9-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-182"><a href="#cb9-182" aria-hidden="true" tabindex="-1"></a><span class="fu">### Slice evaluation should distinguish acquisition, label, and representation failures</span></span>
+<span id="cb9-183"><a href="#cb9-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-184"><a href="#cb9-184" aria-hidden="true" tabindex="-1"></a>When performance falls on a visual slice, the source can be acquisition quality, a shifted class definition, label error, preprocessing mismatch, insufficient resolution, or a representation failure. Record the slice construction and inspect a bounded sample of errors before assigning cause. Low-light images may be darker because of a camera pipeline; small objects may be lost at the resize stage; a new geographic source may use another background or label convention. These are different interventions and need different responses.</span>
+<span id="cb9-185"><a href="#cb9-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-186"><a href="#cb9-186" aria-hidden="true" tabindex="-1"></a>For high-consequence image tasks, report abstentions, confidence calibration, review routes, and the consequences of false positives and false negatives by slice. A high aggregate accuracy cannot determine an appropriate decision threshold when the cost of errors differs across visual conditions. The evaluation record should make clear whether the model was assessed as a classifier, a triage aid, or a component that can defer to a human or another measurement process.</span>
+<span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-190"><a href="#cb9-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb9-191"><a href="#cb9-191" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-slice-evaluation</span></span>
+<span id="cb9-192"><a href="#cb9-192" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "ViT evaluation should report performance by visual slice because changes in resolution, object scale, or acquisition conditions can alter the image distribution."</span></span>
+<span id="cb9-193"><a href="#cb9-193" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A grouped bar chart compares illustrative accuracy for standard, low-light, small-object, and shifted-camera image slices."</span></span>
+<span id="cb9-194"><a href="#cb9-194" aria-hidden="true" tabindex="-1"></a>slices<span class="op">=</span>[<span class="st">"standard"</span>,<span class="st">"low light"</span>,<span class="st">"small object"</span>,<span class="st">"new camera"</span>]<span class="op">;</span> acc<span class="op">=</span>[<span class="fl">.88</span>,<span class="fl">.74</span>,<span class="fl">.67</span>,<span class="fl">.70</span>]</span>
+<span id="cb9-195"><a href="#cb9-195" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(slices,acc,color<span class="op">=</span>[blue,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative visual-distribution slices"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb9-196"><a href="#cb9-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-197"><a href="#cb9-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-198"><a href="#cb9-198" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb9-199"><a href="#cb9-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-200"><a href="#cb9-200" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Image patches are semantic objects.** They are fixed spatial blocks projected into vectors.</span>
+<span id="cb9-201"><a href="#cb9-201" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Position embeddings create visual invariance.** They identify location; invariance must be learned or evaluated.</span>
+<span id="cb9-202"><a href="#cb9-202" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Smaller patches are always better.** They trade visual detail for token and attention cost.</span>
+<span id="cb9-203"><a href="#cb9-203" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**An attention map is a causal explanation.** It is a weight pattern that needs an intervention test.</span>
+<span id="cb9-204"><a href="#cb9-204" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ViT and convolutional models can be compared by architecture alone.** Data, augmentation, resolution, pretraining, and compute affect the result.</span>
+<span id="cb9-205"><a href="#cb9-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-206"><a href="#cb9-206" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb9-207"><a href="#cb9-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-208"><a href="#cb9-208" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate patch count for a 256-by-256 image with 16-by-16 patches.</span>
+<span id="cb9-209"><a href="#cb9-209" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Compare token-pair counts for 16 and 8 pixel patches.</span>
+<span id="cb9-210"><a href="#cb9-210" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why position is needed after patch flattening.</span>
+<span id="cb9-211"><a href="#cb9-211" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>State one spatial property that positional embeddings do not guarantee.</span>
+<span id="cb9-212"><a href="#cb9-212" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Implement a patch projection for a toy grayscale image.</span>
+<span id="cb9-213"><a href="#cb9-213" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Compare class-token and mean-pooling interfaces.</span>
+<span id="cb9-214"><a href="#cb9-214" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Draw a local convolutional receptive field and a distant attention relation.</span>
+<span id="cb9-215"><a href="#cb9-215" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Identify training-contract fields that affect a ViT comparison.</span>
+<span id="cb9-216"><a href="#cb9-216" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Design a low-light evaluation slice.</span>
+<span id="cb9-217"><a href="#cb9-217" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Explain how crop policy can change a label's apparent difficulty.</span>
+<span id="cb9-218"><a href="#cb9-218" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Propose an intervention test for an attention-map interpretation.</span>
+<span id="cb9-219"><a href="#cb9-219" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>State why a patch boundary can matter for a small object.</span>
+<span id="cb9-220"><a href="#cb9-220" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Compare dense attention cost at two image resolutions.</span>
+<span id="cb9-221"><a href="#cb9-221" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Specify a held-out visual distribution for transfer evaluation.</span>
+<span id="cb9-222"><a href="#cb9-222" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Identify a pretraining-data risk in image classification.</span>
+<span id="cb9-223"><a href="#cb9-223" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>State the next chapter's diffusion-model question.</span>
+<span id="cb9-224"><a href="#cb9-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-225"><a href="#cb9-225" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb9-226"><a href="#cb9-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-227"><a href="#cb9-227" aria-hidden="true" tabindex="-1"></a>Vision transformers turn images into patch-token sequences and use position-aware Transformer blocks to combine visual information. Patch size, position, training data, and evaluation distribution are part of the modelling contract. The architecture offers global token interactions, but its visual claims require evidence across the relevant image conditions.</span>
+<span id="cb9-228"><a href="#cb9-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-229"><a href="#cb9-229" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb9-230"><a href="#cb9-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-231"><a href="#cb9-231" aria-hidden="true" tabindex="-1"></a>Patch-based Transformers describe how an image can be represented as a sequence; they do not specify how a new image is generated. <span class="co">[</span><span class="ot">Chapter 45</span><span class="co">](45-diffusion-models.qmd)</span> addresses that generative problem by treating image synthesis as a sequence of noise-removal decisions under a declared sampling procedure.</span>
+<span id="cb9-232"><a href="#cb9-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-233"><a href="#cb9-233" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb9-234"><a href="#cb9-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-235"><a href="#cb9-235" aria-hidden="true" tabindex="-1"></a>Vision Transformer is introduced by @dosovitskiy2021vit. Data-efficient image Transformer training and distillation are studied by @touvron2021deit.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

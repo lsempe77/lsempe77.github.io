@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Backpropagation – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./05-artificial-neuron.html" rel="next">
+<link href="./03-gradient-descent.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./04-backpropagation.html"><span class="chapter-title">Backpropagation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-example" id="toc-running-example" class="nav-link" data-scroll-target="#running-example">Running example</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#forward-computation-and-backward-attribution" id="toc-forward-computation-and-backward-attribution" class="nav-link" data-scroll-target="#forward-computation-and-backward-attribution">Forward computation and backward attribution</a></li>
+  <li><a href="#a-production-line-analogy" id="toc-a-production-line-analogy" class="nav-link" data-scroll-target="#a-production-line-analogy">A production-line analogy</a></li>
+  </ul></li>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
+  <ul class="collapse">
+  <li><a href="#the-forward-pass" id="toc-the-forward-pass" class="nav-link" data-scroll-target="#the-forward-pass">The forward pass</a></li>
+  <li><a href="#the-backward-pass" id="toc-the-backward-pass" class="nav-link" data-scroll-target="#the-backward-pass">The backward pass</a></li>
+  <li><a href="#gradients-and-updates-are-separate" id="toc-gradients-and-updates-are-separate" class="nav-link" data-scroll-target="#gradients-and-updates-are-separate">Gradients and updates are separate</a></li>
+  </ul></li>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
+  <ul class="collapse">
+  <li><a href="#the-chain-rule" id="toc-the-chain-rule" class="nav-link" data-scroll-target="#the-chain-rule">The chain rule</a></li>
+  <li><a href="#checking-the-derivative-numerically" id="toc-checking-the-derivative-numerically" class="nav-link" data-scroll-target="#checking-the-derivative-numerically">Checking the derivative numerically</a></li>
+  <li><a href="#a-small-neural-network" id="toc-a-small-neural-network" class="nav-link" data-scroll-target="#a-small-neural-network">A small neural network</a></li>
+  <li><a href="#gradient-flow-through-a-network" id="toc-gradient-flow-through-a-network" class="nav-link" data-scroll-target="#gradient-flow-through-a-network">Gradient flow through a network</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
+  <li><a href="#why-the-forward-pass-uses-memory" id="toc-why-the-forward-pass-uses-memory" class="nav-link" data-scroll-target="#why-the-forward-pass-uses-memory">Why the forward pass uses memory</a></li>
+  <li><a href="#activation-checkpointing" id="toc-activation-checkpointing" class="nav-link" data-scroll-target="#activation-checkpointing">Activation checkpointing</a></li>
+  <li><a href="#automatic-differentiation-is-broader-than-backpropagation" id="toc-automatic-differentiation-is-broader-than-backpropagation" class="nav-link" data-scroll-target="#automatic-differentiation-is-broader-than-backpropagation">Automatic differentiation is broader than backpropagation</a></li>
+  <li><a href="#distributed-training" id="toc-distributed-training" class="nav-link" data-scroll-target="#distributed-training">Distributed training</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Backpropagation</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">How a network computes the gradients it needs to learn</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Gradient descent specifies how parameters should change once their gradients are known. Backpropagation computes those gradients efficiently by applying the chain rule through the operations that produced the loss. Without this procedure, training a neural network one parameter at a time would be prohibitively expensive.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish a forward pass from a backward pass;</li>
+<li>interpret a computation graph;</li>
+<li>apply the chain rule to a small network;</li>
+<li>explain why backpropagation reuses intermediate values;</li>
+<li>compare analytical, finite-difference, and automatic derivatives;</li>
+<li>inspect gradients in PyTorch;</li>
+<li>explain activation memory and gradient checkpointing.</li>
+</ul>
+</section>
+<section id="running-example" class="level3">
+<h3 class="anchored" data-anchor-id="running-example">Running example</h3>
+<p>We will use a three-operation computation:</p>
+<p><span class="math display">\[
+a=3x,\qquad b=a+4,\qquad L=b^2.
+\]</span></p>
+<p>It is small enough to calculate by hand, but it contains the same structure as a larger network: operations are composed in a forward direction, and the derivative of the final loss is propagated backwards through them.</p>
+<div id="concept-backpropagation" class="concept-box concept-core" data-term="Backpropagation" data-domain="Foundations">
+<p><strong>Backpropagation.</strong> A method for calculating derivatives of a model’s scalar loss with respect to its parameters by applying the chain rule backwards through the recorded forward computation. It calculates gradients; an optimiser uses those gradients to choose parameter updates.</p>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<div id="cell-fig-forward-backward-intuition" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>blue, teal, orange <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.7</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>positions <span class="op">=</span> [<span class="fl">0.15</span>, <span class="fl">0.38</span>, <span class="fl">0.61</span>, <span class="fl">0.84</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">"input"</span>, <span class="st">"operation 1"</span>, <span class="st">"operation 2"</span>, <span class="st">"loss"</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos, label <span class="kw">in</span> <span class="bu">zip</span>(positions, labels):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ax.text(xpos, <span class="fl">0.68</span>, label, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, weight<span class="op">=</span><span class="st">"bold"</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>: <span class="st">"round,pad=0.45"</span>, <span class="st">"facecolor"</span>: blue <span class="cf">if</span> label <span class="op">!=</span> <span class="st">"loss"</span> <span class="cf">else</span> orange})</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    ax.text(xpos, <span class="fl">0.28</span>, <span class="st">"gradient"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>: <span class="st">"round,pad=0.35"</span>, <span class="st">"facecolor"</span>: teal})</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(positions[:<span class="op">-</span><span class="dv">1</span>], positions[<span class="dv">1</span>:]):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(right <span class="op">-</span> <span class="fl">0.08</span>, <span class="fl">0.68</span>), xytext<span class="op">=</span>(left <span class="op">+</span> <span class="fl">0.08</span>, <span class="fl">0.68</span>), arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"color"</span>: blue, <span class="st">"lw"</span>: <span class="fl">1.8</span>})</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(positions[<span class="dv">1</span>:], positions[:<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(right <span class="op">+</span> <span class="fl">0.08</span>, <span class="fl">0.28</span>), xytext<span class="op">=</span>(left <span class="op">-</span> <span class="fl">0.08</span>, <span class="fl">0.28</span>), arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"color"</span>: orange, <span class="st">"lw"</span>: <span class="fl">1.8</span>})</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.5</span>, <span class="fl">0.88</span>, <span class="st">"forward computation"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>blue)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.5</span>, <span class="fl">0.06</span>, <span class="st">"backward gradient signal"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-forward-backward-intuition" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A simple two-row diagram with forward values moving left to right and backward gradient information moving right to left.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-forward-backward-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04-backpropagation_files/figure-html/fig-forward-backward-intuition-output-1.png" class="img-fluid figure-img" alt="A simple two-row diagram with forward values moving left to right and backward gradient information moving right to left.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-forward-backward-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: The forward pass produces a result; the backward pass traces how the result changed.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The upper row shows the computation used to produce the loss. Each operation receives a value from the left and sends a new value to the right. The lower row shows a different quantity moving in the opposite direction: the sensitivity of the final loss to each intermediate value. The backward arrows do not undo the forward computation; they calculate how a small change at each point would affect the final loss.</p>
+<section id="forward-computation-and-backward-attribution" class="level3">
+<h3 class="anchored" data-anchor-id="forward-computation-and-backward-attribution">Forward computation and backward attribution</h3>
+<p>The forward pass computes an output. In a neural network, input values pass through layers, produce a prediction, and are compared with the target to produce a loss.</p>
+<p>The backward pass starts with that loss and calculates its local sensitivity to each preceding value and parameter. A large gradient means that a small parameter change would produce a large local change in the loss; a small gradient means that the loss is locally less sensitive. The resulting gradients provide the information an optimiser uses to update the parameters.</p>
+<p>This is an attribution of mathematical sensitivity, not a causal explanation of why an individual person received a prediction. Backpropagation describes how the loss changes when parameters change within the specified model.</p>
+</section>
+<section id="a-production-line-analogy" class="level3">
+<h3 class="anchored" data-anchor-id="a-production-line-analogy">A production-line analogy</h3>
+<p>Suppose a production process applies three transformations to an input. The final quality score is poor. To improve the process, we need to trace the score backwards through the transformations and determine which adjustable settings affected it.</p>
+<p>The analogy is useful only up to a point. A neural network does not assign moral or substantive responsibility to a neuron. It computes derivatives using local rules. The value of backpropagation lies in the efficiency of this calculation.</p>
+</section>
+</section>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
+<div id="cell-fig-chain-rule-mechanics" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.3</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>items <span class="op">=</span> [(<span class="fl">0.14</span>, <span class="st">"x"</span>, blue), (<span class="fl">0.36</span>, <span class="st">"a = 3x"</span>, blue), (<span class="fl">0.58</span>, <span class="st">"b = a + 4"</span>, blue), (<span class="fl">0.82</span>, <span class="st">"L = b²"</span>, orange)]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos, label, colour <span class="kw">in</span> items:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    ax.text(xpos, <span class="fl">0.65</span>, label, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, weight<span class="op">=</span><span class="st">"bold"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>: <span class="st">"round,pad=0.45"</span>, <span class="st">"facecolor"</span>: colour})</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(items[:<span class="op">-</span><span class="dv">1</span>], items[<span class="dv">1</span>:]):</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(right[<span class="dv">0</span>] <span class="op">-</span> <span class="fl">0.08</span>, <span class="fl">0.65</span>), xytext<span class="op">=</span>(left[<span class="dv">0</span>] <span class="op">+</span> <span class="fl">0.08</span>, <span class="fl">0.65</span>), arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"color"</span>: <span class="st">"#666666"</span>})</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.25</span>, <span class="fl">0.25</span>, <span class="st">"d a / d x = 3"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>teal)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.47</span>, <span class="fl">0.25</span>, <span class="st">"d b / d a = 1"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>teal)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.70</span>, <span class="fl">0.25</span>, <span class="st">"d L / d b = 20"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>teal)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-chain-rule-mechanics" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A chain of three operations labelled with local derivatives and a final product of those derivatives.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-chain-rule-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04-backpropagation_files/figure-html/fig-chain-rule-mechanics-output-1.png" class="img-fluid figure-img" alt="A chain of three operations labelled with local derivatives and a final product of those derivatives.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chain-rule-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: Backpropagation combines local derivatives along the path from a parameter to the loss.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The boxes show the values computed during the forward pass. The labels beneath the arrows are the local derivatives associated with each operation. Backpropagation combines these local pieces rather than deriving the complete function from scratch for every parameter. In the running example, multiplying <span class="math inline">\(3\)</span>, <span class="math inline">\(1\)</span>, and <span class="math inline">\(20\)</span> gives the sensitivity of the loss to <span class="math inline">\(x\)</span>.</p>
+<section id="the-forward-pass" class="level3">
+<h3 class="anchored" data-anchor-id="the-forward-pass">The forward pass</h3>
+<p>For the running example, start with <span class="math inline">\(x=2\)</span>:</p>
+<p><span class="math display">\[
+x=2\rightarrow a=3x=6\rightarrow b=a+4=10\rightarrow L=b^2=100.
+\]</span></p>
+<p>The forward pass stores the intermediate values because they will be needed when the derivative is calculated. In a neural network, these intermediate values are called activations. The loss is the final output of the forward computation.</p>
+<p>The stored values are needed to evaluate the derivative rules numerically. The derivative of <span class="math inline">\(L=b^2\)</span> is <span class="math inline">\(2b\)</span>, so the backward pass needs the forward value <span class="math inline">\(b=10\)</span> to obtain the local derivative 20. A neural network repeats this dependency across many operations: the derivative formula is known, but its numerical value depends on the activation produced for the current batch.</p>
+</section>
+<section id="the-backward-pass" class="level3">
+<h3 class="anchored" data-anchor-id="the-backward-pass">The backward pass</h3>
+<p>The backward pass works from right to left. First calculate how the loss changes with <span class="math inline">\(b\)</span>. Then calculate how <span class="math inline">\(b\)</span> changes with <span class="math inline">\(a\)</span>. Finally calculate how <span class="math inline">\(a\)</span> changes with <span class="math inline">\(x\)</span>.</p>
+<p>Each operation contributes a local derivative:</p>
+<p><span class="math display">\[
+\frac{\partial L}{\partial b}=2b,
+\qquad
+\frac{\partial b}{\partial a}=1,
+\qquad
+\frac{\partial a}{\partial x}=3.
+\]</span></p>
+<p>The local derivatives are multiplied together to obtain the derivative with respect to the input. In a larger graph, the same procedure is applied at every node. If several paths lead from a parameter to the loss, their contributions are summed.</p>
+<p>Working backwards does not reconstruct the original input or target. The procedure carries a sensitivity value. At the loss node that sensitivity starts at 1 because <span class="math inline">\(dL/dL=1\)</span>. Each preceding operation transforms the incoming sensitivity using its local derivative and sends the result to its own inputs.</p>
+</section>
+<section id="gradients-and-updates-are-separate" class="level3">
+<h3 class="anchored" data-anchor-id="gradients-and-updates-are-separate">Gradients and updates are separate</h3>
+<p>Backpropagation computes a gradient. An optimiser uses that gradient to update parameters. In PyTorch, <code>loss.backward()</code> and <code>optimizer.step()</code> therefore perform different operations. Confusing them makes it difficult to diagnose training failures.</p>
+</section>
+</section>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
+<p>The chain rule is the mathematical link between the forward computation and the gradients required by gradient descent. We will calculate one derivative by hand, check it with a finite difference, and then use automatic differentiation to apply the same logic to a small neural network.</p>
+<section id="the-chain-rule" class="level3">
+<h3 class="anchored" data-anchor-id="the-chain-rule">The chain rule</h3>
+<p>The running example contains three functions applied in sequence. The input <span class="math inline">\(x\)</span> is first multiplied by 3, the result is increased by 4, and the result is then squared. Writing the intermediate values explicitly gives:</p>
+<p><span class="math display">\[
+x\xrightarrow{\,a=3x\,}a\xrightarrow{\,b=a+4\,}b\xrightarrow{\,L=b^2\,}L.
+\]</span></p>
+<p>The loss depends directly on <span class="math inline">\(b\)</span>. It depends on <span class="math inline">\(a\)</span> only because <span class="math inline">\(a\)</span> determines <span class="math inline">\(b\)</span>, and it depends on <span class="math inline">\(x\)</span> only because <span class="math inline">\(x\)</span> determines <span class="math inline">\(a\)</span>. To find how <span class="math inline">\(x\)</span> affects the final loss, we therefore multiply the local sensitivities along this path.</p>
+<p>For the computation <span class="math inline">\(L(b(a(x)))\)</span>, the chain rule gives:</p>
+<p><span class="math display">\[
+\frac{dL}{dx}=\frac{dL}{db}\frac{db}{da}\frac{da}{dx}.
+\]</span></p>
+<p>The three factors answer three separate questions:</p>
+<ol type="1">
+<li>How much does the loss change when <span class="math inline">\(b\)</span> changes?</li>
+<li>How much does <span class="math inline">\(b\)</span> change when <span class="math inline">\(a\)</span> changes?</li>
+<li>How much does <span class="math inline">\(a\)</span> change when <span class="math inline">\(x\)</span> changes?</li>
+</ol>
+<p>At <span class="math inline">\(x=2\)</span>, the forward pass gives <span class="math inline">\(a=6\)</span>, <span class="math inline">\(b=10\)</span>, and <span class="math inline">\(L=100\)</span>. We can now calculate each local derivative at the value reached by that forward pass:</p>
+<p><span class="math display">\[
+\frac{dL}{db}=20,\qquad
+\frac{db}{da}=1,\qquad
+\frac{da}{dx}=3,
+\]</span></p>
+<p>so:</p>
+<p><span class="math display">\[
+\frac{dL}{dx}=20\times1\times3=60.
+\]</span></p>
+<p>A small increase in <span class="math inline">\(x\)</span> would therefore increase the loss by approximately 60 times that increase, locally. The derivative is not a new prediction and it is not the loss itself. It is a sensitivity of the loss to one input of the computation.</p>
+<p>The same calculation also gives the derivative with respect to the intermediate values. Once <span class="math inline">\(dL/db=20\)</span> is known, the derivative with respect to <span class="math inline">\(a\)</span> is:</p>
+<p><span class="math display">\[
+\frac{dL}{da}=\frac{dL}{db}\frac{db}{da}=20\times1=20.
+\]</span></p>
+<p>This is the quantity that would be passed further backwards if <span class="math inline">\(a\)</span> were the output of an earlier layer. In a neural network, every operation receives an incoming gradient from the right, multiplies it by its local derivative, and passes the result to the left.</p>
+<div id="e283c995" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor(<span class="fl">2.0</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> x</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> a <span class="op">+</span> <span class="dv">4</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> b <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"a = </span><span class="sc">{</span>a<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"b = </span><span class="sc">{</span>b<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"loss = </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"dL/dx = </span><span class="sc">{</span>x<span class="sc">.</span>grad<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>a = 6.0
+b = 10.0
+loss = 100.0
+dL/dx = 60.0</code></pre>
+</div>
+</div>
+<p>PyTorch records the operations used to produce <code>loss</code>. Calling <code>backward()</code> traverses that graph in reverse and stores the derivative in <code>x.grad</code>.</p>
+<p>The code follows the derivation in the same order as the mathematics. <code>a = 3 * x</code> creates the first operation, <code>b = a + 4</code> creates the second, and <code>loss = b ** 2</code> creates the third. Setting <code>requires_grad=True</code> tells PyTorch to retain the information needed to differentiate with respect to <code>x</code>. The call to <code>backward()</code> starts at the scalar loss and applies the chain rule in reverse. The value printed from <code>x.grad</code> is therefore the computed value of <span class="math inline">\(dL/dx\)</span>, not a finite-difference approximation.</p>
+</section>
+<section id="checking-the-derivative-numerically" class="level3">
+<h3 class="anchored" data-anchor-id="checking-the-derivative-numerically">Checking the derivative numerically</h3>
+<p>Finite differences provide an independent diagnostic:</p>
+<p><span class="math display">\[
+\frac{dL}{dx}\approx\frac{L(x+h)-L(x-h)}{2h}.
+\]</span></p>
+<div id="9865642d" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_function(value):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">3</span> <span class="op">*</span> value <span class="op">+</span> <span class="dv">4</span>) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x_value <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">1e-5</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>finite_difference <span class="op">=</span> (loss_function(x_value <span class="op">+</span> h) <span class="op">-</span> loss_function(x_value <span class="op">-</span> h)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> h)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"finite-difference derivative: </span><span class="sc">{</span>finite_difference<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>finite-difference derivative: 60.000000</code></pre>
+</div>
+</div>
+<p>Finite differences are useful for gradient checks, but they are not a practical training method. With <span class="math inline">\(p\)</span> parameters, estimating one derivative per parameter requires many additional function evaluations. Backpropagation computes all derivatives by reusing the forward graph.</p>
+<p>The distinction can be seen in the numerical example. To estimate the derivative with respect to one value of <span class="math inline">\(x\)</span>, finite differences evaluate the entire function twice, at <span class="math inline">\(x+h\)</span> and <span class="math inline">\(x-h\)</span>. A neural network with millions of parameters would require comparable perturbation calculations for each parameter. Backpropagation instead evaluates the network once forwards and once backwards, reusing the intermediate values and local derivative rules.</p>
+<div id="cell-fig-local-slope" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>blue, teal, orange <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">3.6</span>, <span class="dv">400</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>loss_grid <span class="op">=</span> (<span class="dv">3</span> <span class="op">*</span> x_grid <span class="op">+</span> <span class="dv">4</span>) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>loss0 <span class="op">=</span> loss_function(x0)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>slope <span class="op">=</span> <span class="fl">60.0</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>tangent <span class="op">=</span> loss0 <span class="op">+</span> slope <span class="op">*</span> (x_grid <span class="op">-</span> x0)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>h_plot <span class="op">=</span> <span class="fl">0.18</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.2</span>, <span class="fl">4.3</span>))</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>ax.plot(x_grid, loss_grid, color<span class="op">=</span>blue, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">L</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs">=</span><span class="kw">(</span><span class="vs">3x</span><span class="op">+</span><span class="vs">4</span><span class="kw">)</span><span class="dv">^</span><span class="vs">2</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>ax.plot(x_grid, tangent, color<span class="op">=</span>orange, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="vs">r"tangent at </span><span class="dv">$</span><span class="vs">x=2</span><span class="dv">$</span><span class="vs">; slope </span><span class="dv">$</span><span class="vs">dL/dx=60</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>ax.scatter([x0], [loss0], s<span class="op">=</span><span class="dv">70</span>, color<span class="op">=</span>teal, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"forward-pass value"</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>ax.scatter([x0 <span class="op">-</span> h_plot, x0 <span class="op">+</span> h_plot],</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>           [loss_function(x0 <span class="op">-</span> h_plot), loss_function(x0 <span class="op">+</span> h_plot)],</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>           s<span class="op">=</span><span class="dv">48</span>, color<span class="op">=</span>orange, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"nearby finite-difference values"</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"input x"</span>, ylabel<span class="op">=</span><span class="st">"loss L(x)"</span>, title<span class="op">=</span><span class="st">"The gradient describes local change in the loss"</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-local-slope" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A parabola for the loss as the input changes, with the forward-pass value at x equals two, two nearby finite-difference points, and a tangent line whose slope is sixty.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-local-slope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04-backpropagation_files/figure-html/fig-local-slope-output-1.png" class="img-fluid figure-img" alt="A parabola for the loss as the input changes, with the forward-pass value at x equals two, two nearby finite-difference points, and a tangent line whose slope is sixty.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-local-slope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.3: A derivative is the slope of the loss near the value reached by the forward pass; the tangent is a local approximation, not the full loss curve.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The tangent line touches the loss curve at the value produced by the forward pass. Its slope is 60, so an increase of roughly 0.01 in <span class="math inline">\(x\)</span> predicts an increase of roughly 0.6 in the loss near <span class="math inline">\(x=2\)</span>. The nearby points show why this is a local statement: as the points move further away, the curvature of the loss makes the tangent approximation less exact. Finite differences estimate this local slope from two function evaluations. Backpropagation calculates the same sensitivity from the graph’s derivative rules.</p>
+</section>
+<section id="a-small-neural-network" class="level3">
+<h3 class="anchored" data-anchor-id="a-small-neural-network">A small neural network</h3>
+<div id="3ca75d6a" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">3</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(nn.Linear(<span class="dv">2</span>, <span class="dv">3</span>), nn.Tanh(), nn.Linear(<span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>x_batch <span class="op">=</span> torch.tensor([[<span class="fl">1.0</span>, <span class="fl">2.0</span>], [<span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>]])</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>y_batch <span class="op">=</span> torch.tensor([[<span class="fl">1.0</span>], [<span class="fl">0.0</span>]])</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>prediction <span class="op">=</span> model(x_batch)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> ((prediction <span class="op">-</span> y_batch) <span class="op">**</span> <span class="dv">2</span>).mean()</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, parameter <span class="kw">in</span> model.named_parameters():</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name, parameter.grad.shape, parameter.grad.norm().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.weight torch.Size([3, 2]) 0.7815805673599243
+0.bias torch.Size([3]) 0.472900390625
+2.weight torch.Size([1, 3]) 2.924274206161499
+2.bias torch.Size([1]) 2.4533448219299316</code></pre>
+</div>
+</div>
+<p>Every parameter tensor receives a gradient. The gradient shapes match the parameter shapes because each weight and bias has its own local contribution to the final loss.</p>
+<p>The network in this example has two inputs, a hidden layer with three units, a <code>Tanh</code> activation, and one output. The forward pass produces two predictions, one for each row in <code>x_batch</code>. The mean squared error reduces those two prediction errors to one scalar loss. Because the backward pass begins with that scalar, it can propagate one learning signal through the entire network and accumulate a gradient for every weight and bias.</p>
+</section>
+<section id="gradient-flow-through-a-network" class="level3">
+<h3 class="anchored" data-anchor-id="gradient-flow-through-a-network">Gradient flow through a network</h3>
+<div id="cell-fig-gradient-flow" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Circle, FancyArrowPatch</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>blue, teal, orange <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">2.8</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> [(<span class="fl">0.12</span>, <span class="st">"x"</span>, blue), (<span class="fl">0.36</span>, <span class="st">"a = 3x"</span>, blue), (<span class="fl">0.60</span>, <span class="st">"b = a + 4"</span>, blue), (<span class="fl">0.84</span>, <span class="st">"L = b²"</span>, orange)]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x_pos, label, colour <span class="kw">in</span> nodes:</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Circle((x_pos, <span class="fl">0.60</span>), <span class="fl">0.09</span>, facecolor<span class="op">=</span>colour, alpha<span class="op">=</span><span class="fl">0.9</span>))</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    ax.text(x_pos, <span class="fl">0.60</span>, label, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">10</span>, weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(nodes[:<span class="op">-</span><span class="dv">1</span>], nodes[<span class="dv">1</span>:]):</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((left[<span class="dv">0</span>] <span class="op">+</span> <span class="fl">0.1</span>, <span class="fl">0.60</span>), (right[<span class="dv">0</span>] <span class="op">-</span> <span class="fl">0.1</span>, <span class="fl">0.60</span>),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                                 arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>, mutation_scale<span class="op">=</span><span class="dv">14</span>, color<span class="op">=</span>blue))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"forward values"</span>, xy<span class="op">=</span>(<span class="fl">0.50</span>, <span class="fl">0.72</span>), ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>blue)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"backward derivatives"</span>, xy<span class="op">=</span>(<span class="fl">0.50</span>, <span class="fl">0.28</span>), ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"←"</span>, xy<span class="op">=</span>(<span class="fl">0.66</span>, <span class="fl">0.39</span>), fontsize<span class="op">=</span><span class="dv">20</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-gradient-flow" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A directed diagram showing x flowing through a, b, and loss in the forward direction, with derivatives flowing back in the opposite direction.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04-backpropagation_files/figure-html/fig-gradient-flow-output-1.png" class="img-fluid figure-img" alt="A directed diagram showing x flowing through a, b, and loss in the forward direction, with derivatives flowing back in the opposite direction.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.4: A computation graph carries values forward and gradient signals backward.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
+<p>Backpropagation is computationally efficient, but it is not free. The backward pass requires information from the forward pass, and large models must store, recompute, and communicate that information. This level examines those costs and the implementation choices used to manage them.</p>
+<section id="why-the-forward-pass-uses-memory" class="level3">
+<h3 class="anchored" data-anchor-id="why-the-forward-pass-uses-memory">Why the forward pass uses memory</h3>
+<p>Backpropagation needs intermediate activations to calculate local derivatives. A training system therefore stores some of the values produced during the forward pass. For a deep network with long sequences and large hidden states, activation storage can consume more memory than the parameters themselves.</p>
+<p>Inference normally requires only the forward computation. Training requires the forward computation, stored activations, backward computation, gradients, and optimiser state. This is one reason why a model can be inexpensive to run after training but expensive to train.</p>
+<p>For a batch of sequences, the model produces an activation tensor at every layer and token position. Increasing the batch size, sequence length, hidden width, or number of layers increases the amount of activation data that may need to remain available until the backward pass reaches that operation. Parameter count alone therefore does not determine training memory.</p>
+</section>
+<section id="activation-checkpointing" class="level3">
+<h3 class="anchored" data-anchor-id="activation-checkpointing">Activation checkpointing</h3>
+<p>Activation checkpointing reduces memory use by storing only selected intermediate values. During the backward pass, the system recomputes the missing values. The trade-off is explicit: less memory is exchanged for more computation.</p>
+<div id="cell-fig-checkpoint-tradeoff" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">3.5</span>))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>settings <span class="op">=</span> [<span class="st">"Store all</span><span class="ch">\n</span><span class="st">activations"</span>, <span class="st">"Checkpoint</span><span class="ch">\n</span><span class="st">and recompute"</span>]</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(settings, [<span class="dv">100</span>, <span class="dv">42</span>], color<span class="op">=</span>[blue, teal])</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(ylabel<span class="op">=</span><span class="st">"Relative activation memory"</span>, title<span class="op">=</span><span class="st">"Memory"</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="dv">115</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar(settings, [<span class="dv">100</span>, <span class="dv">135</span>], color<span class="op">=</span>[blue, orange])</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(ylabel<span class="op">=</span><span class="st">"Relative computation"</span>, title<span class="op">=</span><span class="st">"Computation"</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="dv">150</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-checkpoint-tradeoff" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A conceptual comparison showing lower activation memory and higher computation when checkpointing is used.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-checkpoint-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="04-backpropagation_files/figure-html/fig-checkpoint-tradeoff-output-1.png" class="img-fluid figure-img" alt="A conceptual comparison showing lower activation memory and higher computation when checkpointing is used.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-checkpoint-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.5: Activation checkpointing reduces stored activations by repeating part of the forward computation.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The values in the figure are illustrative rather than benchmark measurements. They show the direction of the trade-off. Storing every activation minimises recomputation but uses more memory. Checkpointing stores selected boundaries and reruns the missing forward operations when their values are needed during the backward pass. The exact saving depends on the architecture and checkpoint schedule <span class="citation" data-cites="chen2016checkpointing">(<a href="#ref-chen2016checkpointing" role="doc-biblioref">Chen et al. 2016</a>)</span>.</p>
+<p>The technique illustrates a general systems principle. The mathematical computation graph is fixed, but implementations choose how much of that graph to materialise, recompute, fuse, or distribute. Training performance therefore depends on memory bandwidth and kernel implementation as well as on arithmetic complexity.</p>
+</section>
+<section id="automatic-differentiation-is-broader-than-backpropagation" class="level3">
+<h3 class="anchored" data-anchor-id="automatic-differentiation-is-broader-than-backpropagation">Automatic differentiation is broader than backpropagation</h3>
+<p>Automatic differentiation combines elementary derivative rules to calculate exact derivatives up to numerical precision. Reverse-mode automatic differentiation is closely related to backpropagation and is efficient when a computation has many inputs and a small number of outputs, as is common for neural-network losses <span class="citation" data-cites="baydin2018">(<a href="#ref-baydin2018" role="doc-biblioref">Baydin et al. 2018</a>)</span>.</p>
+<p>Frameworks such as PyTorch and JAX construct or transform computation graphs and apply these rules automatically. This removes the need to derive every large-network gradient by hand, but it does not remove the need to understand the graph. In-place operations, detached tensors, incorrect reductions, and stale gradients can all produce training errors that the framework cannot infer from the user’s intention.</p>
+<p>For example, detaching a tensor tells the framework to stop tracking how it was produced. Operations before that point then receive no gradient from the later loss. This may be intentional, as in a frozen component, or accidental. Automatic differentiation guarantees that the recorded graph is differentiated; it cannot guarantee that the recorded graph represents the model the author intended.</p>
+</section>
+<section id="distributed-training" class="level3">
+<h3 class="anchored" data-anchor-id="distributed-training">Distributed training</h3>
+<p>In data-parallel training, several workers process different mini-batches and combine their gradients before updating the model. The calculation is mathematically similar to a larger mini-batch, but communication introduces additional constraints. Synchronisation time, network bandwidth, fault tolerance, and uneven workloads can limit scaling even when more accelerators are available <span class="citation" data-cites="li2020ddp">(<a href="#ref-li2020ddp" role="doc-biblioref">Li et al. 2020</a>)</span>.</p>
+<p>Suppose four workers each process 32 observations. Each worker performs its own forward and backward passes, producing a gradient from its local mini-batch. The workers then average or sum those gradients before applying one common update. The effective batch contains 128 observations, but the update cannot proceed until the gradient communication is complete. A slow worker or constrained network can therefore delay every other worker.</p>
+<p>The chain rule remains local. The systems problem is to apply it to a large graph, store or recompute the required values, and coordinate the resulting updates across hardware.</p>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>Backpropagation is the same as gradient descent.</strong> Backpropagation computes gradients; gradient descent applies them to update parameters.</li>
+<li><strong><code>loss.backward()</code> changes the weights.</strong> It computes and accumulates gradients. The optimiser changes the weights.</li>
+<li><strong>A large gradient means a parameter is important in a substantive sense.</strong> It means the loss is locally sensitive to that parameter under the current example and parameter values.</li>
+<li><strong>Automatic differentiation is numerical differentiation.</strong> It applies derivative rules through the computation graph; it does not estimate each derivative by perturbing the parameter.</li>
+<li><strong>Backpropagation explains why a prediction was made.</strong> It gives parameter sensitivities for a specified loss, not a complete human explanation.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Describe the forward and backward passes in the running example.</li>
+<li>Calculate <span class="math inline">\(dL/dx\)</span> for <span class="math inline">\(a=2x\)</span>, <span class="math inline">\(b=a-1\)</span>, and <span class="math inline">\(L=b^2\)</span> at <span class="math inline">\(x=3\)</span>.</li>
+<li>Why are the local derivatives multiplied along a path?</li>
+<li>Why are contributions added when multiple paths connect a parameter to the loss?</li>
+<li>Compare finite differences with automatic differentiation.</li>
+<li>What does <code>loss.backward()</code> store in a PyTorch parameter?</li>
+<li>Why does training require more memory than inference?</li>
+<li>Explain the memory-computation trade-off in activation checkpointing.</li>
+<li>Why can distributed training fail to scale linearly with the number of accelerators?</li>
+<li>Explain why a gradient should not be interpreted as a causal explanation of a prediction.</li>
+<li>Starting with <span class="math inline">\(a=4x\)</span>, <span class="math inline">\(b=a^2\)</span>, and <span class="math inline">\(L=b+3\)</span>, calculate the forward values and <span class="math inline">\(dL/dx\)</span> at <span class="math inline">\(x=2\)</span>.</li>
+<li>For <span class="math inline">\(L(x)=(3x+4)^2\)</span>, use the central-difference formula with <span class="math inline">\(h=0.1\)</span> and <span class="math inline">\(h=0.001\)</span>. Compare each estimate with the analytical gradient at <span class="math inline">\(x=2\)</span> and explain why the estimates differ.</li>
+<li>A parameter has gradient <span class="math inline">\(-0.4\)</span> and an SGD learning rate of <span class="math inline">\(0.05\)</span>. State the parameter update and distinguish it from the gradient calculation.</li>
+<li>Write a short gradient-check procedure for one parameter in the small neural network. State what quantity you would compare and one reason a mismatch could occur.</li>
+<li>A training run is limited by activation memory rather than parameter memory. Explain why reducing batch size and enabling activation checkpointing are different interventions, and name the cost of each.</li>
+<li>Draw a computation graph with one intermediate value used along two paths to a scalar loss. Explain why the gradient arriving at that intermediate value is the sum of contributions from both paths.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Backpropagation applies the chain rule through a computation graph. The forward pass produces predictions and a loss; the backward pass propagates derivatives from that loss to every parameter. Reusing intermediate values makes the calculation feasible for large networks. Automatic differentiation implements the procedure in modern frameworks, while checkpointing and distributed training address the memory and communication costs of applying it at scale.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>The examples so far treated the model as a sequence of abstract operations. <a href="./05-artificial-neuron.html">Chapter 5</a> examines the smallest parameterised building block in that sequence: the artificial neuron.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>The original neural-network treatment of backpropagation is provided by <span class="citation" data-cites="rumelhart1986">Rumelhart, Hinton, and Williams (<a href="#ref-rumelhart1986" role="doc-biblioref">1986</a>)</span>. The practical and systems issues surrounding large-scale optimisation are discussed by <span class="citation" data-cites="bottou2018">Bottou, Curtis, and Nocedal (<a href="#ref-bottou2018" role="doc-biblioref">2018</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-baydin2018" class="csl-entry" role="listitem">
+Baydin, Atilim Gunes, Barak A. Pearlmutter, Alexey Andreyevich Radul, and Jeffrey Mark Siskind. 2018. <span>“Automatic Differentiation in Machine Learning: A Survey.”</span> <em>Journal of Machine Learning Research</em> 18 (153): 1–43. <a href="https://www.jmlr.org/papers/v18/17-468.html">https://www.jmlr.org/papers/v18/17-468.html</a>.
+</div>
+<div id="ref-bottou2018" class="csl-entry" role="listitem">
+Bottou, Léon, Frank E. Curtis, and Jorge Nocedal. 2018. <span>“Optimization Methods for Large-Scale Machine Learning.”</span> <em>SIAM Review</em> 60 (2): 223–311. <a href="https://doi.org/10.1137/16M1080173">https://doi.org/10.1137/16M1080173</a>.
+</div>
+<div id="ref-chen2016checkpointing" class="csl-entry" role="listitem">
+Chen, Tianqi, Bing Xu, Chiyuan Zhang, and Carlos Guestrin. 2016. <span>“Training Deep Nets with Sublinear Memory Cost.”</span> <em>arXiv Preprint arXiv:1604.06174</em>. <a href="https://arxiv.org/abs/1604.06174">https://arxiv.org/abs/1604.06174</a>.
+</div>
+<div id="ref-li2020ddp" class="csl-entry" role="listitem">
+Li, Shen, Yanli Zhao, Rohan Varma, Omkar Salpekar, Pieter Noordhuis, Teng Li, Adam Paszke, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
+</div>
+<div id="ref-rumelhart1986" class="csl-entry" role="listitem">
+Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. 1986. <span>“Learning Representations by Back-Propagating Errors.”</span> <em>Nature</em> 323: 533–36. <a href="https://doi.org/10.1038/323533a0">https://doi.org/10.1038/323533a0</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./03-gradient-descent.html" class="pagination-link" aria-label="Gradient Descent">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Gradient Descent</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./05-artificial-neuron.html" class="pagination-link" aria-label="The Artificial Neuron">
+        <span class="nav-page-text"><span class="chapter-title">The Artificial Neuron</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Backpropagation"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "How a network computes the gradients it needs to learn"</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>Gradient descent specifies how parameters should change once their gradients are known. Backpropagation computes those gradients efficiently by applying the chain rule through the operations that produced the loss. Without this procedure, training a neural network one parameter at a time would be prohibitively expensive.</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a forward pass from a backward pass;</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>interpret a computation graph;</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>apply the chain rule to a small network;</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why backpropagation reuses intermediate values;</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>compare analytical, finite-difference, and automatic derivatives;</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>inspect gradients in PyTorch;</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain activation memory and gradient checkpointing.</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running example</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>We will use a three-operation computation:</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>a=3x,\qquad b=a+4,\qquad L=b^2.</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>It is small enough to calculate by hand, but it contains the same structure as a larger network: operations are composed in a forward direction, and the derivative of the final loss is propagated backwards through them.</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-backpropagation data-term="Backpropagation" data-domain="Foundations"}</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>**Backpropagation.** A method for calculating derivatives of a model's scalar loss with respect to its parameters by applying the chain rule backwards through the recorded forward computation. It calculates gradients; an optimiser uses those gradients to choose parameter updates.</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-forward-backward-intuition</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The forward pass produces a result; the backward pass traces how the result changed."</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A simple two-row diagram with forward values moving left to right and backward gradient information moving right to left."</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>blue, teal, orange <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.7</span>))</span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>positions <span class="op">=</span> [<span class="fl">0.15</span>, <span class="fl">0.38</span>, <span class="fl">0.61</span>, <span class="fl">0.84</span>]</span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">"input"</span>, <span class="st">"operation 1"</span>, <span class="st">"operation 2"</span>, <span class="st">"loss"</span>]</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos, label <span class="kw">in</span> <span class="bu">zip</span>(positions, labels):</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    ax.text(xpos, <span class="fl">0.68</span>, label, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, weight<span class="op">=</span><span class="st">"bold"</span>,</span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>: <span class="st">"round,pad=0.45"</span>, <span class="st">"facecolor"</span>: blue <span class="cf">if</span> label <span class="op">!=</span> <span class="st">"loss"</span> <span class="cf">else</span> orange})</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>    ax.text(xpos, <span class="fl">0.28</span>, <span class="st">"gradient"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">9</span>,</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>: <span class="st">"round,pad=0.35"</span>, <span class="st">"facecolor"</span>: teal})</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(positions[:<span class="op">-</span><span class="dv">1</span>], positions[<span class="dv">1</span>:]):</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(right <span class="op">-</span> <span class="fl">0.08</span>, <span class="fl">0.68</span>), xytext<span class="op">=</span>(left <span class="op">+</span> <span class="fl">0.08</span>, <span class="fl">0.68</span>), arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"color"</span>: blue, <span class="st">"lw"</span>: <span class="fl">1.8</span>})</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(positions[<span class="dv">1</span>:], positions[:<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(right <span class="op">+</span> <span class="fl">0.08</span>, <span class="fl">0.28</span>), xytext<span class="op">=</span>(left <span class="op">-</span> <span class="fl">0.08</span>, <span class="fl">0.28</span>), arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"color"</span>: orange, <span class="st">"lw"</span>: <span class="fl">1.8</span>})</span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.5</span>, <span class="fl">0.88</span>, <span class="st">"forward computation"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>blue)</span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.5</span>, <span class="fl">0.06</span>, <span class="st">"backward gradient signal"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>The upper row shows the computation used to produce the loss. Each operation receives a value from the left and sends a new value to the right. The lower row shows a different quantity moving in the opposite direction: the sensitivity of the final loss to each intermediate value. The backward arrows do not undo the forward computation; they calculate how a small change at each point would affect the final loss.</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### Forward computation and backward attribution</span></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>The forward pass computes an output. In a neural network, input values pass through layers, produce a prediction, and are compared with the target to produce a loss.</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>The backward pass starts with that loss and calculates its local sensitivity to each preceding value and parameter. A large gradient means that a small parameter change would produce a large local change in the loss; a small gradient means that the loss is locally less sensitive. The resulting gradients provide the information an optimiser uses to update the parameters.</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>This is an attribution of mathematical sensitivity, not a causal explanation of why an individual person received a prediction. Backpropagation describes how the loss changes when parameters change within the specified model.</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### A production-line analogy</span></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>Suppose a production process applies three transformations to an input. The final quality score is poor. To improve the process, we need to trace the score backwards through the transformations and determine which adjustable settings affected it.</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>The analogy is useful only up to a point. A neural network does not assign moral or substantive responsibility to a neuron. It computes derivatives using local rules. The value of backpropagation lies in the efficiency of this calculation.</span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-chain-rule-mechanics</span></span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Backpropagation combines local derivatives along the path from a parameter to the loss."</span></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A chain of three operations labelled with local derivatives and a final product of those derivatives."</span></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.3</span>))</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>items <span class="op">=</span> [(<span class="fl">0.14</span>, <span class="st">"x"</span>, blue), (<span class="fl">0.36</span>, <span class="st">"a = 3x"</span>, blue), (<span class="fl">0.58</span>, <span class="st">"b = a + 4"</span>, blue), (<span class="fl">0.82</span>, <span class="st">"L = b²"</span>, orange)]</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos, label, colour <span class="kw">in</span> items:</span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>    ax.text(xpos, <span class="fl">0.65</span>, label, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, weight<span class="op">=</span><span class="st">"bold"</span>,</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>: <span class="st">"round,pad=0.45"</span>, <span class="st">"facecolor"</span>: colour})</span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(items[:<span class="op">-</span><span class="dv">1</span>], items[<span class="dv">1</span>:]):</span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(right[<span class="dv">0</span>] <span class="op">-</span> <span class="fl">0.08</span>, <span class="fl">0.65</span>), xytext<span class="op">=</span>(left[<span class="dv">0</span>] <span class="op">+</span> <span class="fl">0.08</span>, <span class="fl">0.65</span>), arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"color"</span>: <span class="st">"#666666"</span>})</span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.25</span>, <span class="fl">0.25</span>, <span class="st">"d a / d x = 3"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>teal)</span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.47</span>, <span class="fl">0.25</span>, <span class="st">"d b / d a = 1"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>teal)</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.70</span>, <span class="fl">0.25</span>, <span class="st">"d L / d b = 20"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>teal)</span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>The boxes show the values computed during the forward pass. The labels beneath the arrows are the local derivatives associated with each operation. Backpropagation combines these local pieces rather than deriving the complete function from scratch for every parameter. In the running example, multiplying $3$, $1$, and $20$ gives the sensitivity of the loss to $x$.</span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a><span class="fu">### The forward pass</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>For the running example, start with $x=2$:</span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>x=2\rightarrow a=3x=6\rightarrow b=a+4=10\rightarrow L=b^2=100.</span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>The forward pass stores the intermediate values because they will be needed when the derivative is calculated. In a neural network, these intermediate values are called activations. The loss is the final output of the forward computation.</span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>The stored values are needed to evaluate the derivative rules numerically. The derivative of $L=b^2$ is $2b$, so the backward pass needs the forward value $b=10$ to obtain the local derivative 20. A neural network repeats this dependency across many operations: the derivative formula is known, but its numerical value depends on the activation produced for the current batch.</span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a><span class="fu">### The backward pass</span></span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>The backward pass works from right to left. First calculate how the loss changes with $b$. Then calculate how $b$ changes with $a$. Finally calculate how $a$ changes with $x$.</span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a>Each operation contributes a local derivative:</span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a>\frac{\partial L}{\partial b}=2b,</span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a>\frac{\partial b}{\partial a}=1,</span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a>\frac{\partial a}{\partial x}=3.</span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>The local derivatives are multiplied together to obtain the derivative with respect to the input. In a larger graph, the same procedure is applied at every node. If several paths lead from a parameter to the loss, their contributions are summed.</span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>Working backwards does not reconstruct the original input or target. The procedure carries a sensitivity value. At the loss node that sensitivity starts at 1 because $dL/dL=1$. Each preceding operation transforms the incoming sensitivity using its local derivative and sends the result to its own inputs.</span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gradients and updates are separate</span></span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a>Backpropagation computes a gradient. An optimiser uses that gradient to update parameters. In PyTorch, <span class="in">`loss.backward()`</span> and <span class="in">`optimizer.step()`</span> therefore perform different operations. Confusing them makes it difficult to diagnose training failures.</span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>The chain rule is the mathematical link between the forward computation and the gradients required by gradient descent. We will calculate one derivative by hand, check it with a finite difference, and then use automatic differentiation to apply the same logic to a small neural network.</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a><span class="fu">### The chain rule</span></span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a>The running example contains three functions applied in sequence. The input $x$ is first multiplied by 3, the result is increased by 4, and the result is then squared. Writing the intermediate values explicitly gives:</span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a>x\xrightarrow{\,a=3x\,}a\xrightarrow{\,b=a+4\,}b\xrightarrow{\,L=b^2\,}L.</span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a>The loss depends directly on $b$. It depends on $a$ only because $a$ determines $b$, and it depends on $x$ only because $x$ determines $a$. To find how $x$ affects the final loss, we therefore multiply the local sensitivities along this path.</span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>For the computation $L(b(a(x)))$, the chain rule gives:</span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a>\frac{dL}{dx}=\frac{dL}{db}\frac{db}{da}\frac{da}{dx}.</span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a>The three factors answer three separate questions:</span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How much does the loss change when $b$ changes?</span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>How much does $b$ change when $a$ changes?</span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>How much does $a$ change when $x$ changes?</span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a>At $x=2$, the forward pass gives $a=6$, $b=10$, and $L=100$. We can now calculate each local derivative at the value reached by that forward pass:</span>
+<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a>\frac{dL}{db}=20,\qquad</span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a>\frac{db}{da}=1,\qquad</span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a>\frac{da}{dx}=3,</span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a>so:</span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a>\frac{dL}{dx}=20\times1\times3=60.</span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a>A small increase in $x$ would therefore increase the loss by approximately 60 times that increase, locally. The derivative is not a new prediction and it is not the loss itself. It is a sensitivity of the loss to one input of the computation.</span>
+<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a>The same calculation also gives the derivative with respect to the intermediate values. Once $dL/db=20$ is known, the derivative with respect to $a$ is:</span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a>\frac{dL}{da}=\frac{dL}{db}\frac{db}{da}=20\times1=20.</span>
+<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a>This is the quantity that would be passed further backwards if $a$ were the output of an earlier layer. In a neural network, every operation receives an incoming gradient from the right, multiplies it by its local derivative, and passes the result to the left.</span>
+<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor(<span class="fl">2.0</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-201"><a href="#cb12-201" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> x</span>
+<span id="cb12-202"><a href="#cb12-202" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> a <span class="op">+</span> <span class="dv">4</span></span>
+<span id="cb12-203"><a href="#cb12-203" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> b <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb12-204"><a href="#cb12-204" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
+<span id="cb12-205"><a href="#cb12-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-206"><a href="#cb12-206" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"a = </span><span class="sc">{</span>a<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb12-207"><a href="#cb12-207" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"b = </span><span class="sc">{</span>b<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb12-208"><a href="#cb12-208" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"loss = </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb12-209"><a href="#cb12-209" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"dL/dx = </span><span class="sc">{</span>x<span class="sc">.</span>grad<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb12-210"><a href="#cb12-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-211"><a href="#cb12-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-212"><a href="#cb12-212" aria-hidden="true" tabindex="-1"></a>PyTorch records the operations used to produce <span class="in">`loss`</span>. Calling <span class="in">`backward()`</span> traverses that graph in reverse and stores the derivative in <span class="in">`x.grad`</span>.</span>
+<span id="cb12-213"><a href="#cb12-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-214"><a href="#cb12-214" aria-hidden="true" tabindex="-1"></a>The code follows the derivation in the same order as the mathematics. <span class="in">`a = 3 * x`</span> creates the first operation, <span class="in">`b = a + 4`</span> creates the second, and <span class="in">`loss = b ** 2`</span> creates the third. Setting <span class="in">`requires_grad=True`</span> tells PyTorch to retain the information needed to differentiate with respect to <span class="in">`x`</span>. The call to <span class="in">`backward()`</span> starts at the scalar loss and applies the chain rule in reverse. The value printed from <span class="in">`x.grad`</span> is therefore the computed value of $dL/dx$, not a finite-difference approximation.</span>
+<span id="cb12-215"><a href="#cb12-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-216"><a href="#cb12-216" aria-hidden="true" tabindex="-1"></a><span class="fu">### Checking the derivative numerically</span></span>
+<span id="cb12-217"><a href="#cb12-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-218"><a href="#cb12-218" aria-hidden="true" tabindex="-1"></a>Finite differences provide an independent diagnostic:</span>
+<span id="cb12-219"><a href="#cb12-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-220"><a href="#cb12-220" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-221"><a href="#cb12-221" aria-hidden="true" tabindex="-1"></a>\frac{dL}{dx}\approx\frac{L(x+h)-L(x-h)}{2h}.</span>
+<span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_function(value):</span>
+<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">3</span> <span class="op">*</span> value <span class="op">+</span> <span class="dv">4</span>) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-230"><a href="#cb12-230" aria-hidden="true" tabindex="-1"></a>x_value <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb12-231"><a href="#cb12-231" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">1e-5</span></span>
+<span id="cb12-232"><a href="#cb12-232" aria-hidden="true" tabindex="-1"></a>finite_difference <span class="op">=</span> (loss_function(x_value <span class="op">+</span> h) <span class="op">-</span> loss_function(x_value <span class="op">-</span> h)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> h)</span>
+<span id="cb12-233"><a href="#cb12-233" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"finite-difference derivative: </span><span class="sc">{</span>finite_difference<span class="sc">:.6f}</span><span class="ss">"</span>)</span>
+<span id="cb12-234"><a href="#cb12-234" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-235"><a href="#cb12-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-236"><a href="#cb12-236" aria-hidden="true" tabindex="-1"></a>Finite differences are useful for gradient checks, but they are not a practical training method. With $p$ parameters, estimating one derivative per parameter requires many additional function evaluations. Backpropagation computes all derivatives by reusing the forward graph.</span>
+<span id="cb12-237"><a href="#cb12-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-238"><a href="#cb12-238" aria-hidden="true" tabindex="-1"></a>The distinction can be seen in the numerical example. To estimate the derivative with respect to one value of $x$, finite differences evaluate the entire function twice, at $x+h$ and $x-h$. A neural network with millions of parameters would require comparable perturbation calculations for each parameter. Backpropagation instead evaluates the network once forwards and once backwards, reusing the intermediate values and local derivative rules.</span>
+<span id="cb12-239"><a href="#cb12-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-242"><a href="#cb12-242" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-243"><a href="#cb12-243" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-local-slope</span></span>
+<span id="cb12-244"><a href="#cb12-244" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A derivative is the slope of the loss near the value reached by the forward pass; the tangent is a local approximation, not the full loss curve."</span></span>
+<span id="cb12-245"><a href="#cb12-245" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A parabola for the loss as the input changes, with the forward-pass value at x equals two, two nearby finite-difference points, and a tangent line whose slope is sixty."</span></span>
+<span id="cb12-246"><a href="#cb12-246" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-247"><a href="#cb12-247" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-248"><a href="#cb12-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-249"><a href="#cb12-249" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb12-250"><a href="#cb12-250" aria-hidden="true" tabindex="-1"></a>blue, teal, orange <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span></span>
+<span id="cb12-251"><a href="#cb12-251" aria-hidden="true" tabindex="-1"></a>x_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">0.1</span>, <span class="fl">3.6</span>, <span class="dv">400</span>)</span>
+<span id="cb12-252"><a href="#cb12-252" aria-hidden="true" tabindex="-1"></a>loss_grid <span class="op">=</span> (<span class="dv">3</span> <span class="op">*</span> x_grid <span class="op">+</span> <span class="dv">4</span>) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb12-253"><a href="#cb12-253" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb12-254"><a href="#cb12-254" aria-hidden="true" tabindex="-1"></a>loss0 <span class="op">=</span> loss_function(x0)</span>
+<span id="cb12-255"><a href="#cb12-255" aria-hidden="true" tabindex="-1"></a>slope <span class="op">=</span> <span class="fl">60.0</span></span>
+<span id="cb12-256"><a href="#cb12-256" aria-hidden="true" tabindex="-1"></a>tangent <span class="op">=</span> loss0 <span class="op">+</span> slope <span class="op">*</span> (x_grid <span class="op">-</span> x0)</span>
+<span id="cb12-257"><a href="#cb12-257" aria-hidden="true" tabindex="-1"></a>h_plot <span class="op">=</span> <span class="fl">0.18</span></span>
+<span id="cb12-258"><a href="#cb12-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-259"><a href="#cb12-259" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.2</span>, <span class="fl">4.3</span>))</span>
+<span id="cb12-260"><a href="#cb12-260" aria-hidden="true" tabindex="-1"></a>ax.plot(x_grid, loss_grid, color<span class="op">=</span>blue, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="vs">r"</span><span class="dv">$</span><span class="vs">L</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs">=</span><span class="kw">(</span><span class="vs">3x</span><span class="op">+</span><span class="vs">4</span><span class="kw">)</span><span class="dv">^</span><span class="vs">2</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb12-261"><a href="#cb12-261" aria-hidden="true" tabindex="-1"></a>ax.plot(x_grid, tangent, color<span class="op">=</span>orange, linestyle<span class="op">=</span><span class="st">"--"</span>, linewidth<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb12-262"><a href="#cb12-262" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="vs">r"tangent at </span><span class="dv">$</span><span class="vs">x=2</span><span class="dv">$</span><span class="vs">; slope </span><span class="dv">$</span><span class="vs">dL/dx=60</span><span class="dv">$</span><span class="vs">"</span>)</span>
+<span id="cb12-263"><a href="#cb12-263" aria-hidden="true" tabindex="-1"></a>ax.scatter([x0], [loss0], s<span class="op">=</span><span class="dv">70</span>, color<span class="op">=</span>teal, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"forward-pass value"</span>)</span>
+<span id="cb12-264"><a href="#cb12-264" aria-hidden="true" tabindex="-1"></a>ax.scatter([x0 <span class="op">-</span> h_plot, x0 <span class="op">+</span> h_plot],</span>
+<span id="cb12-265"><a href="#cb12-265" aria-hidden="true" tabindex="-1"></a>           [loss_function(x0 <span class="op">-</span> h_plot), loss_function(x0 <span class="op">+</span> h_plot)],</span>
+<span id="cb12-266"><a href="#cb12-266" aria-hidden="true" tabindex="-1"></a>           s<span class="op">=</span><span class="dv">48</span>, color<span class="op">=</span>orange, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">"nearby finite-difference values"</span>)</span>
+<span id="cb12-267"><a href="#cb12-267" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"input x"</span>, ylabel<span class="op">=</span><span class="st">"loss L(x)"</span>, title<span class="op">=</span><span class="st">"The gradient describes local change in the loss"</span>)</span>
+<span id="cb12-268"><a href="#cb12-268" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
+<span id="cb12-269"><a href="#cb12-269" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb12-270"><a href="#cb12-270" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb12-271"><a href="#cb12-271" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-272"><a href="#cb12-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-273"><a href="#cb12-273" aria-hidden="true" tabindex="-1"></a>The tangent line touches the loss curve at the value produced by the forward pass. Its slope is 60, so an increase of roughly 0.01 in $x$ predicts an increase of roughly 0.6 in the loss near $x=2$. The nearby points show why this is a local statement: as the points move further away, the curvature of the loss makes the tangent approximation less exact. Finite differences estimate this local slope from two function evaluations. Backpropagation calculates the same sensitivity from the graph's derivative rules.</span>
+<span id="cb12-274"><a href="#cb12-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-275"><a href="#cb12-275" aria-hidden="true" tabindex="-1"></a><span class="fu">### A small neural network</span></span>
+<span id="cb12-276"><a href="#cb12-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-279"><a href="#cb12-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-280"><a href="#cb12-280" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb12-281"><a href="#cb12-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-282"><a href="#cb12-282" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">3</span>)</span>
+<span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(nn.Linear(<span class="dv">2</span>, <span class="dv">3</span>), nn.Tanh(), nn.Linear(<span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb12-284"><a href="#cb12-284" aria-hidden="true" tabindex="-1"></a>x_batch <span class="op">=</span> torch.tensor([[<span class="fl">1.0</span>, <span class="fl">2.0</span>], [<span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>]])</span>
+<span id="cb12-285"><a href="#cb12-285" aria-hidden="true" tabindex="-1"></a>y_batch <span class="op">=</span> torch.tensor([[<span class="fl">1.0</span>], [<span class="fl">0.0</span>]])</span>
+<span id="cb12-286"><a href="#cb12-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-287"><a href="#cb12-287" aria-hidden="true" tabindex="-1"></a>prediction <span class="op">=</span> model(x_batch)</span>
+<span id="cb12-288"><a href="#cb12-288" aria-hidden="true" tabindex="-1"></a>loss <span class="op">=</span> ((prediction <span class="op">-</span> y_batch) <span class="op">**</span> <span class="dv">2</span>).mean()</span>
+<span id="cb12-289"><a href="#cb12-289" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
+<span id="cb12-290"><a href="#cb12-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-291"><a href="#cb12-291" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, parameter <span class="kw">in</span> model.named_parameters():</span>
+<span id="cb12-292"><a href="#cb12-292" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name, parameter.grad.shape, parameter.grad.norm().item())</span>
+<span id="cb12-293"><a href="#cb12-293" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-294"><a href="#cb12-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-295"><a href="#cb12-295" aria-hidden="true" tabindex="-1"></a>Every parameter tensor receives a gradient. The gradient shapes match the parameter shapes because each weight and bias has its own local contribution to the final loss.</span>
+<span id="cb12-296"><a href="#cb12-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-297"><a href="#cb12-297" aria-hidden="true" tabindex="-1"></a>The network in this example has two inputs, a hidden layer with three units, a <span class="in">`Tanh`</span> activation, and one output. The forward pass produces two predictions, one for each row in <span class="in">`x_batch`</span>. The mean squared error reduces those two prediction errors to one scalar loss. Because the backward pass begins with that scalar, it can propagate one learning signal through the entire network and accumulate a gradient for every weight and bias.</span>
+<span id="cb12-298"><a href="#cb12-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-299"><a href="#cb12-299" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gradient flow through a network</span></span>
+<span id="cb12-300"><a href="#cb12-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-303"><a href="#cb12-303" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-304"><a href="#cb12-304" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-gradient-flow</span></span>
+<span id="cb12-305"><a href="#cb12-305" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A computation graph carries values forward and gradient signals backward."</span></span>
+<span id="cb12-306"><a href="#cb12-306" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A directed diagram showing x flowing through a, b, and loss in the forward direction, with derivatives flowing back in the opposite direction."</span></span>
+<span id="cb12-307"><a href="#cb12-307" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-308"><a href="#cb12-308" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Circle, FancyArrowPatch</span>
+<span id="cb12-309"><a href="#cb12-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-310"><a href="#cb12-310" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb12-311"><a href="#cb12-311" aria-hidden="true" tabindex="-1"></a>blue, teal, orange <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span></span>
+<span id="cb12-312"><a href="#cb12-312" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">2.8</span>))</span>
+<span id="cb12-313"><a href="#cb12-313" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> [(<span class="fl">0.12</span>, <span class="st">"x"</span>, blue), (<span class="fl">0.36</span>, <span class="st">"a = 3x"</span>, blue), (<span class="fl">0.60</span>, <span class="st">"b = a + 4"</span>, blue), (<span class="fl">0.84</span>, <span class="st">"L = b²"</span>, orange)]</span>
+<span id="cb12-314"><a href="#cb12-314" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x_pos, label, colour <span class="kw">in</span> nodes:</span>
+<span id="cb12-315"><a href="#cb12-315" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Circle((x_pos, <span class="fl">0.60</span>), <span class="fl">0.09</span>, facecolor<span class="op">=</span>colour, alpha<span class="op">=</span><span class="fl">0.9</span>))</span>
+<span id="cb12-316"><a href="#cb12-316" aria-hidden="true" tabindex="-1"></a>    ax.text(x_pos, <span class="fl">0.60</span>, label, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, fontsize<span class="op">=</span><span class="dv">10</span>, weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb12-317"><a href="#cb12-317" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> left, right <span class="kw">in</span> <span class="bu">zip</span>(nodes[:<span class="op">-</span><span class="dv">1</span>], nodes[<span class="dv">1</span>:]):</span>
+<span id="cb12-318"><a href="#cb12-318" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((left[<span class="dv">0</span>] <span class="op">+</span> <span class="fl">0.1</span>, <span class="fl">0.60</span>), (right[<span class="dv">0</span>] <span class="op">-</span> <span class="fl">0.1</span>, <span class="fl">0.60</span>),</span>
+<span id="cb12-319"><a href="#cb12-319" aria-hidden="true" tabindex="-1"></a>                                 arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>, mutation_scale<span class="op">=</span><span class="dv">14</span>, color<span class="op">=</span>blue))</span>
+<span id="cb12-320"><a href="#cb12-320" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"forward values"</span>, xy<span class="op">=</span>(<span class="fl">0.50</span>, <span class="fl">0.72</span>), ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>blue)</span>
+<span id="cb12-321"><a href="#cb12-321" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"backward derivatives"</span>, xy<span class="op">=</span>(<span class="fl">0.50</span>, <span class="fl">0.28</span>), ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
+<span id="cb12-322"><a href="#cb12-322" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"←"</span>, xy<span class="op">=</span>(<span class="fl">0.66</span>, <span class="fl">0.39</span>), fontsize<span class="op">=</span><span class="dv">20</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
+<span id="cb12-323"><a href="#cb12-323" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-324"><a href="#cb12-324" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb12-325"><a href="#cb12-325" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb12-326"><a href="#cb12-326" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-327"><a href="#cb12-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-328"><a href="#cb12-328" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb12-329"><a href="#cb12-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-330"><a href="#cb12-330" aria-hidden="true" tabindex="-1"></a>Backpropagation is computationally efficient, but it is not free. The backward pass requires information from the forward pass, and large models must store, recompute, and communicate that information. This level examines those costs and the implementation choices used to manage them.</span>
+<span id="cb12-331"><a href="#cb12-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-332"><a href="#cb12-332" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why the forward pass uses memory</span></span>
+<span id="cb12-333"><a href="#cb12-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-334"><a href="#cb12-334" aria-hidden="true" tabindex="-1"></a>Backpropagation needs intermediate activations to calculate local derivatives. A training system therefore stores some of the values produced during the forward pass. For a deep network with long sequences and large hidden states, activation storage can consume more memory than the parameters themselves.</span>
+<span id="cb12-335"><a href="#cb12-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-336"><a href="#cb12-336" aria-hidden="true" tabindex="-1"></a>Inference normally requires only the forward computation. Training requires the forward computation, stored activations, backward computation, gradients, and optimiser state. This is one reason why a model can be inexpensive to run after training but expensive to train.</span>
+<span id="cb12-337"><a href="#cb12-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-338"><a href="#cb12-338" aria-hidden="true" tabindex="-1"></a>For a batch of sequences, the model produces an activation tensor at every layer and token position. Increasing the batch size, sequence length, hidden width, or number of layers increases the amount of activation data that may need to remain available until the backward pass reaches that operation. Parameter count alone therefore does not determine training memory.</span>
+<span id="cb12-339"><a href="#cb12-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-340"><a href="#cb12-340" aria-hidden="true" tabindex="-1"></a><span class="fu">### Activation checkpointing</span></span>
+<span id="cb12-341"><a href="#cb12-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-342"><a href="#cb12-342" aria-hidden="true" tabindex="-1"></a>Activation checkpointing reduces memory use by storing only selected intermediate values. During the backward pass, the system recomputes the missing values. The trade-off is explicit: less memory is exchanged for more computation.</span>
+<span id="cb12-343"><a href="#cb12-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-346"><a href="#cb12-346" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-347"><a href="#cb12-347" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-checkpoint-tradeoff</span></span>
+<span id="cb12-348"><a href="#cb12-348" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Activation checkpointing reduces stored activations by repeating part of the forward computation."</span></span>
+<span id="cb12-349"><a href="#cb12-349" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A conceptual comparison showing lower activation memory and higher computation when checkpointing is used."</span></span>
+<span id="cb12-350"><a href="#cb12-350" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-351"><a href="#cb12-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-352"><a href="#cb12-352" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">3.5</span>))</span>
+<span id="cb12-353"><a href="#cb12-353" aria-hidden="true" tabindex="-1"></a>settings <span class="op">=</span> [<span class="st">"Store all</span><span class="ch">\n</span><span class="st">activations"</span>, <span class="st">"Checkpoint</span><span class="ch">\n</span><span class="st">and recompute"</span>]</span>
+<span id="cb12-354"><a href="#cb12-354" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(settings, [<span class="dv">100</span>, <span class="dv">42</span>], color<span class="op">=</span>[blue, teal])</span>
+<span id="cb12-355"><a href="#cb12-355" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].<span class="bu">set</span>(ylabel<span class="op">=</span><span class="st">"Relative activation memory"</span>, title<span class="op">=</span><span class="st">"Memory"</span>)</span>
+<span id="cb12-356"><a href="#cb12-356" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="dv">115</span>)</span>
+<span id="cb12-357"><a href="#cb12-357" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar(settings, [<span class="dv">100</span>, <span class="dv">135</span>], color<span class="op">=</span>[blue, orange])</span>
+<span id="cb12-358"><a href="#cb12-358" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(ylabel<span class="op">=</span><span class="st">"Relative computation"</span>, title<span class="op">=</span><span class="st">"Computation"</span>)</span>
+<span id="cb12-359"><a href="#cb12-359" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="dv">150</span>)</span>
+<span id="cb12-360"><a href="#cb12-360" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb12-361"><a href="#cb12-361" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb12-362"><a href="#cb12-362" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-363"><a href="#cb12-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-364"><a href="#cb12-364" aria-hidden="true" tabindex="-1"></a>The values in the figure are illustrative rather than benchmark measurements. They show the direction of the trade-off. Storing every activation minimises recomputation but uses more memory. Checkpointing stores selected boundaries and reruns the missing forward operations when their values are needed during the backward pass. The exact saving depends on the architecture and checkpoint schedule <span class="co">[</span><span class="ot">@chen2016checkpointing</span><span class="co">]</span>.</span>
+<span id="cb12-365"><a href="#cb12-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-366"><a href="#cb12-366" aria-hidden="true" tabindex="-1"></a>The technique illustrates a general systems principle. The mathematical computation graph is fixed, but implementations choose how much of that graph to materialise, recompute, fuse, or distribute. Training performance therefore depends on memory bandwidth and kernel implementation as well as on arithmetic complexity.</span>
+<span id="cb12-367"><a href="#cb12-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-368"><a href="#cb12-368" aria-hidden="true" tabindex="-1"></a><span class="fu">### Automatic differentiation is broader than backpropagation</span></span>
+<span id="cb12-369"><a href="#cb12-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-370"><a href="#cb12-370" aria-hidden="true" tabindex="-1"></a>Automatic differentiation combines elementary derivative rules to calculate exact derivatives up to numerical precision. Reverse-mode automatic differentiation is closely related to backpropagation and is efficient when a computation has many inputs and a small number of outputs, as is common for neural-network losses <span class="co">[</span><span class="ot">@baydin2018</span><span class="co">]</span>.</span>
+<span id="cb12-371"><a href="#cb12-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-372"><a href="#cb12-372" aria-hidden="true" tabindex="-1"></a>Frameworks such as PyTorch and JAX construct or transform computation graphs and apply these rules automatically. This removes the need to derive every large-network gradient by hand, but it does not remove the need to understand the graph. In-place operations, detached tensors, incorrect reductions, and stale gradients can all produce training errors that the framework cannot infer from the user's intention.</span>
+<span id="cb12-373"><a href="#cb12-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-374"><a href="#cb12-374" aria-hidden="true" tabindex="-1"></a>For example, detaching a tensor tells the framework to stop tracking how it was produced. Operations before that point then receive no gradient from the later loss. This may be intentional, as in a frozen component, or accidental. Automatic differentiation guarantees that the recorded graph is differentiated; it cannot guarantee that the recorded graph represents the model the author intended.</span>
+<span id="cb12-375"><a href="#cb12-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-376"><a href="#cb12-376" aria-hidden="true" tabindex="-1"></a><span class="fu">### Distributed training</span></span>
+<span id="cb12-377"><a href="#cb12-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-378"><a href="#cb12-378" aria-hidden="true" tabindex="-1"></a>In data-parallel training, several workers process different mini-batches and combine their gradients before updating the model. The calculation is mathematically similar to a larger mini-batch, but communication introduces additional constraints. Synchronisation time, network bandwidth, fault tolerance, and uneven workloads can limit scaling even when more accelerators are available <span class="co">[</span><span class="ot">@li2020ddp</span><span class="co">]</span>.</span>
+<span id="cb12-379"><a href="#cb12-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-380"><a href="#cb12-380" aria-hidden="true" tabindex="-1"></a>Suppose four workers each process 32 observations. Each worker performs its own forward and backward passes, producing a gradient from its local mini-batch. The workers then average or sum those gradients before applying one common update. The effective batch contains 128 observations, but the update cannot proceed until the gradient communication is complete. A slow worker or constrained network can therefore delay every other worker.</span>
+<span id="cb12-381"><a href="#cb12-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-382"><a href="#cb12-382" aria-hidden="true" tabindex="-1"></a>The chain rule remains local. The systems problem is to apply it to a large graph, store or recompute the required values, and coordinate the resulting updates across hardware.</span>
+<span id="cb12-383"><a href="#cb12-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-384"><a href="#cb12-384" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb12-385"><a href="#cb12-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-386"><a href="#cb12-386" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Backpropagation is the same as gradient descent.** Backpropagation computes gradients; gradient descent applies them to update parameters.</span>
+<span id="cb12-387"><a href="#cb12-387" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**`loss.backward()` changes the weights.** It computes and accumulates gradients. The optimiser changes the weights.</span>
+<span id="cb12-388"><a href="#cb12-388" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A large gradient means a parameter is important in a substantive sense.** It means the loss is locally sensitive to that parameter under the current example and parameter values.</span>
+<span id="cb12-389"><a href="#cb12-389" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Automatic differentiation is numerical differentiation.** It applies derivative rules through the computation graph; it does not estimate each derivative by perturbing the parameter.</span>
+<span id="cb12-390"><a href="#cb12-390" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Backpropagation explains why a prediction was made.** It gives parameter sensitivities for a specified loss, not a complete human explanation.</span>
+<span id="cb12-391"><a href="#cb12-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-392"><a href="#cb12-392" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb12-393"><a href="#cb12-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-394"><a href="#cb12-394" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Describe the forward and backward passes in the running example.</span>
+<span id="cb12-395"><a href="#cb12-395" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate $dL/dx$ for $a=2x$, $b=a-1$, and $L=b^2$ at $x=3$.</span>
+<span id="cb12-396"><a href="#cb12-396" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Why are the local derivatives multiplied along a path?</span>
+<span id="cb12-397"><a href="#cb12-397" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Why are contributions added when multiple paths connect a parameter to the loss?</span>
+<span id="cb12-398"><a href="#cb12-398" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Compare finite differences with automatic differentiation.</span>
+<span id="cb12-399"><a href="#cb12-399" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>What does <span class="in">`loss.backward()`</span> store in a PyTorch parameter?</span>
+<span id="cb12-400"><a href="#cb12-400" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Why does training require more memory than inference?</span>
+<span id="cb12-401"><a href="#cb12-401" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Explain the memory-computation trade-off in activation checkpointing.</span>
+<span id="cb12-402"><a href="#cb12-402" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Why can distributed training fail to scale linearly with the number of accelerators?</span>
+<span id="cb12-403"><a href="#cb12-403" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Explain why a gradient should not be interpreted as a causal explanation of a prediction.</span>
+<span id="cb12-404"><a href="#cb12-404" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Starting with $a=4x$, $b=a^2$, and $L=b+3$, calculate the forward values and $dL/dx$ at $x=2$.</span>
+<span id="cb12-405"><a href="#cb12-405" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>For $L(x)=(3x+4)^2$, use the central-difference formula with $h=0.1$ and $h=0.001$. Compare each estimate with the analytical gradient at $x=2$ and explain why the estimates differ.</span>
+<span id="cb12-406"><a href="#cb12-406" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>A parameter has gradient $-0.4$ and an SGD learning rate of $0.05$. State the parameter update and distinguish it from the gradient calculation.</span>
+<span id="cb12-407"><a href="#cb12-407" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Write a short gradient-check procedure for one parameter in the small neural network. State what quantity you would compare and one reason a mismatch could occur.</span>
+<span id="cb12-408"><a href="#cb12-408" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>A training run is limited by activation memory rather than parameter memory. Explain why reducing batch size and enabling activation checkpointing are different interventions, and name the cost of each.</span>
+<span id="cb12-409"><a href="#cb12-409" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Draw a computation graph with one intermediate value used along two paths to a scalar loss. Explain why the gradient arriving at that intermediate value is the sum of contributions from both paths.</span>
+<span id="cb12-410"><a href="#cb12-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-411"><a href="#cb12-411" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb12-412"><a href="#cb12-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-413"><a href="#cb12-413" aria-hidden="true" tabindex="-1"></a>Backpropagation applies the chain rule through a computation graph. The forward pass produces predictions and a loss; the backward pass propagates derivatives from that loss to every parameter. Reusing intermediate values makes the calculation feasible for large networks. Automatic differentiation implements the procedure in modern frameworks, while checkpointing and distributed training address the memory and communication costs of applying it at scale.</span>
+<span id="cb12-414"><a href="#cb12-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-415"><a href="#cb12-415" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb12-416"><a href="#cb12-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-417"><a href="#cb12-417" aria-hidden="true" tabindex="-1"></a>The examples so far treated the model as a sequence of abstract operations. <span class="co">[</span><span class="ot">Chapter 5</span><span class="co">](05-artificial-neuron.qmd)</span> examines the smallest parameterised building block in that sequence: the artificial neuron.</span>
+<span id="cb12-418"><a href="#cb12-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-419"><a href="#cb12-419" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb12-420"><a href="#cb12-420" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-421"><a href="#cb12-421" aria-hidden="true" tabindex="-1"></a>The original neural-network treatment of backpropagation is provided by @rumelhart1986. The practical and systems issues surrounding large-scale optimisation are discussed by @bottou2018.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

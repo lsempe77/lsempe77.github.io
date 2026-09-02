@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Retrieval-augmented Generation – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./34-evaluating-llms.html" rel="next">
+<link href="./32-quantisation-efficient-inference.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./33-retrieval-augmented-generation.html"><span class="chapter-title">Retrieval-augmented Generation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-collection" id="toc-running-collection" class="nav-link" data-scroll-target="#running-collection">Running collection</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#retrieval-changes-which-evidence-is-available-at-inference" id="toc-retrieval-changes-which-evidence-is-available-at-inference" class="nav-link" data-scroll-target="#retrieval-changes-which-evidence-is-available-at-inference">Retrieval changes which evidence is available at inference</a></li>
+  <li><a href="#a-chunk-is-a-retrieval-unit-not-necessarily-a-meaningful-document" id="toc-a-chunk-is-a-retrieval-unit-not-necessarily-a-meaningful-document" class="nav-link" data-scroll-target="#a-chunk-is-a-retrieval-unit-not-necessarily-a-meaningful-document">A chunk is a retrieval unit, not necessarily a meaningful document</a></li>
+  </ul></li>
+  <li><a href="#level-2---retrieval-mechanics" id="toc-level-2---retrieval-mechanics" class="nav-link" data-scroll-target="#level-2---retrieval-mechanics">Level 2 - Retrieval mechanics</a>
+  <ul class="collapse">
+  <li><a href="#lexical-and-dense-retrieval-use-different-matching-signals" id="toc-lexical-and-dense-retrieval-use-different-matching-signals" class="nav-link" data-scroll-target="#lexical-and-dense-retrieval-use-different-matching-signals">Lexical and dense retrieval use different matching signals</a></li>
+  <li><a href="#context-construction-is-a-budget-allocation" id="toc-context-construction-is-a-budget-allocation" class="nav-link" data-scroll-target="#context-construction-is-a-budget-allocation">Context construction is a budget allocation</a></li>
+  </ul></li>
+  <li><a href="#level-3---grounded-generation" id="toc-level-3---grounded-generation" class="nav-link" data-scroll-target="#level-3---grounded-generation">Level 3 - Grounded generation</a>
+  <ul class="collapse">
+  <li><a href="#retrieval-relevance-is-not-answer-grounding" id="toc-retrieval-relevance-is-not-answer-grounding" class="nav-link" data-scroll-target="#retrieval-relevance-is-not-answer-grounding">Retrieval relevance is not answer grounding</a></li>
+  <li><a href="#citations-need-a-defined-link-to-evidence" id="toc-citations-need-a-defined-link-to-evidence" class="nav-link" data-scroll-target="#citations-need-a-defined-link-to-evidence">Citations need a defined link to evidence</a></li>
+  <li><a href="#query-rewriting-and-reranking-alter-the-evidence-path" id="toc-query-rewriting-and-reranking-alter-the-evidence-path" class="nav-link" data-scroll-target="#query-rewriting-and-reranking-alter-the-evidence-path">Query rewriting and reranking alter the evidence path</a></li>
+  <li><a href="#corpus-quality-and-permission-are-upstream-conditions" id="toc-corpus-quality-and-permission-are-upstream-conditions" class="nav-link" data-scroll-target="#corpus-quality-and-permission-are-upstream-conditions">Corpus quality and permission are upstream conditions</a></li>
+  <li><a href="#retrieval-metrics-require-relevance-judgements" id="toc-retrieval-metrics-require-relevance-judgements" class="nav-link" data-scroll-target="#retrieval-metrics-require-relevance-judgements">Retrieval metrics require relevance judgements</a></li>
+  <li><a href="#abstention-is-part-of-a-grounded-answer-policy" id="toc-abstention-is-part-of-a-grounded-answer-policy" class="nav-link" data-scroll-target="#abstention-is-part-of-a-grounded-answer-policy">Abstention is part of a grounded-answer policy</a></li>
+  </ul></li>
+  <li><a href="#level-4---evaluation-and-operations" id="toc-level-4---evaluation-and-operations" class="nav-link" data-scroll-target="#level-4---evaluation-and-operations">Level 4 - Evaluation and operations</a>
+  <ul class="collapse">
+  <li><a href="#evaluate-the-pipeline-at-its-component-boundaries" id="toc-evaluate-the-pipeline-at-its-component-boundaries" class="nav-link" data-scroll-target="#evaluate-the-pipeline-at-its-component-boundaries">Evaluate the pipeline at its component boundaries</a></li>
+  <li><a href="#index-updates-and-access-policies-are-model-inputs" id="toc-index-updates-and-access-policies-are-model-inputs" class="nav-link" data-scroll-target="#index-updates-and-access-policies-are-model-inputs">Index updates and access policies are model inputs</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Retrieval-augmented Generation</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Indexing evidence, constructing context, and evaluating the full pipeline</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Retrieval-augmented generation (RAG) supplies a language model with selected external material at inference time. It can make current, private, or domain-specific information available without placing all of it in model weights. It also introduces a pipeline: documents are collected and versioned, split into chunks, indexed, retrieved for a query, placed in a prompt, and used by a generator.</p>
+<p>An answer can fail at any stage. Relevant evidence may be absent from the corpus, split across chunks, missed by retrieval, removed by reranking or truncation, ignored by the model, or cited inaccurately. Evaluating only final answer quality cannot diagnose these causes. This chapter treats RAG as a system with explicit information boundaries.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>distinguish a corpus, document, chunk, embedding, index, retriever, reranker, and generator;</li>
+<li>explain dense and lexical retrieval at a conceptual level;</li>
+<li>calculate simple retrieval recall for a labelled query set;</li>
+<li>identify chunking, metadata, and context-budget choices as system decisions;</li>
+<li>distinguish retrieval relevance, evidence use, citation accuracy, and final-answer correctness;</li>
+<li>design a failure trace for a RAG answer; and</li>
+<li>specify a versioned RAG evaluation record.</li>
+</ul>
+</section>
+<section id="running-collection" class="level3">
+<h3 class="anchored" data-anchor-id="running-collection">Running collection</h3>
+<p>The running collection has three short chunks. A query is embedded or represented for retrieval; selected chunks are placed into a context template before answer generation.</p>
+<div id="fig-rag-pipeline" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rag-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.2</span>,<span class="st">"versioned</span><span class="ch">\n</span><span class="st">documents"</span>,blue),(<span class="fl">2.15</span>,<span class="st">"chunks +</span><span class="ch">\n</span><span class="st">metadata"</span>,teal),(<span class="fl">4.1</span>,<span class="st">"index"</span>,purple),(<span class="fl">6.0</span>,<span class="st">"retrieve +</span><span class="ch">\n</span><span class="st">rerank"</span>,orange),(<span class="fl">7.95</span>,<span class="st">"bounded</span><span class="ch">\n</span><span class="st">context"</span>,teal),(<span class="fl">9.9</span>,<span class="st">"answer"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.35</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.675</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.58</span>,<span class="fl">3.53</span>,<span class="fl">5.43</span>,<span class="fl">7.33</span>,<span class="fl">9.28</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.56</span>),(x<span class="op">+</span><span class="fl">.52</span>,<span class="fl">1.56</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.5</span>,<span class="fl">.55</span>,<span class="st">"The generator sees constructed context, not the complete indexed collection."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">11.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-rag-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="retrieval-changes-which-evidence-is-available-at-inference" class="level3">
+<h3 class="anchored" data-anchor-id="retrieval-changes-which-evidence-is-available-at-inference">Retrieval changes which evidence is available at inference</h3>
+<p>A base model answers from its parameters and the prompt. RAG adds a selected subset of an external collection to the prompt. This can support answers about documents added after pretraining, organisation-specific records, or source-backed claims. It does not guarantee that the retrieved text is relevant, current, authoritative, or used faithfully in the output.</p>
+<p>The indexed collection is therefore part of the system’s knowledge boundary. A document outside it cannot be retrieved. A document inside it may still be unavailable because access control, filters, metadata, chunking, or index version exclude it. An answer should not imply that a collection was searched unless the trace shows the retrieval operation and corpus scope.</p>
+<div id="c76b057b" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>chunks<span class="op">=</span>[</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"id"</span>:<span class="st">"A"</span>, <span class="st">"text"</span>:<span class="st">"The programme began in 2022."</span>,<span class="st">"source"</span>:<span class="st">"report-v1"</span>},</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"id"</span>:<span class="st">"B"</span>, <span class="st">"text"</span>:<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"source"</span>:<span class="st">"rules-v2"</span>},</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"id"</span>:<span class="st">"C"</span>, <span class="st">"text"</span>:<span class="st">"Applications close on 30 June."</span>,<span class="st">"source"</span>:<span class="st">"rules-v2"</span>},</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chunk <span class="kw">in</span> chunks: <span class="bu">print</span>(chunk[<span class="st">"id"</span>],chunk[<span class="st">"text"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="a-chunk-is-a-retrieval-unit-not-necessarily-a-meaningful-document" class="level3">
+<h3 class="anchored" data-anchor-id="a-chunk-is-a-retrieval-unit-not-necessarily-a-meaningful-document">A chunk is a retrieval unit, not necessarily a meaningful document</h3>
+<p>Indexes usually retrieve chunks rather than whole documents so that prompts fit a finite context window and search can identify a local passage. Chunk boundaries can split a table from its heading, separate a definition from an exception, or duplicate text across overlapping windows. Chunking policy therefore affects retrieval recall and what the generator can infer from the supplied evidence.</p>
+<div id="fig-chunk-boundaries" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-chunk-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="fl">.4</span>,<span class="fl">8.6</span>],[<span class="fl">1.6</span>,<span class="fl">1.6</span>],color<span class="op">=</span>grey,lw<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,w,label,c <span class="kw">in</span> [(<span class="fl">.6</span>,<span class="fl">2.8</span>,<span class="st">"chunk 1"</span>,blue),(<span class="fl">2.7</span>,<span class="fl">2.8</span>,<span class="st">"chunk 2"</span>,teal),(<span class="fl">4.8</span>,<span class="fl">2.8</span>,<span class="st">"chunk 3"</span>,orange)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.7</span>,facecolor<span class="op">=</span>c,alpha<span class="op">=</span><span class="fl">.88</span>,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.6</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Overlap can preserve context across boundaries while increasing index size and repeated retrieval."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-chunk-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.2
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-2---retrieval-mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---retrieval-mechanics">Level 2 - Retrieval mechanics</h2>
+<section id="lexical-and-dense-retrieval-use-different-matching-signals" class="level3">
+<h3 class="anchored" data-anchor-id="lexical-and-dense-retrieval-use-different-matching-signals">Lexical and dense retrieval use different matching signals</h3>
+<p>Lexical retrieval scores overlap among query and document terms, often using weighted term statistics. It can be strong for exact names, identifiers, and rare terms. Dense retrieval maps queries and chunks to vectors and retrieves near neighbours under a similarity measure; it can retrieve semantically related wording even without exact overlap <span class="citation" data-cites="karpukhin2020dense">(<a href="#ref-karpukhin2020dense" role="doc-biblioref">Karpukhin et al. 2020</a>)</span>. Hybrid systems combine these signals, then may apply a reranker to a smaller candidate set.</p>
+<div id="6c1c49f9" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>query<span class="op">=</span>np.array([<span class="fl">.8</span>,<span class="fl">.2</span>])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>chunk_vectors<span class="op">=</span>np.array([[<span class="fl">.9</span>,<span class="fl">.1</span>],[<span class="fl">.3</span>,<span class="fl">.7</span>],[<span class="fl">.7</span>,<span class="fl">.25</span>]])</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>chunk_vectors<span class="op">@</span>query<span class="op">/</span>(np.linalg.norm(chunk_vectors,axis<span class="op">=</span><span class="dv">1</span>)<span class="op">*</span>np.linalg.norm(query))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"dense similarity scores:"</span>,np.<span class="bu">round</span>(scores,<span class="dv">3</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ranked chunks:"</span>,np.argsort(scores)[::<span class="op">-</span><span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Similarity is a retrieval score, not evidence that a chunk answers the query. A high-scoring passage can share topic words while missing the required fact. A reranker can improve ordering, but it adds another model, version, and failure point. Each score should be stored with the query and retrieved IDs to make the pipeline inspectable.</p>
+<div id="fig-retrieval-ranking" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-retrieval-ranking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>]<span class="op">;</span> scores<span class="op">=</span>np.array([<span class="fl">.91</span>,<span class="fl">.76</span>,<span class="fl">.68</span>])<span class="op">;</span> relevant<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,grey])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"retrieval score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Ranking and evidence relevance are distinct"</span>)<span class="op">;</span> ax.text(<span class="dv">1</span>,<span class="fl">.82</span>,<span class="st">"labelled evidence"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>teal)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-retrieval-ranking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="context-construction-is-a-budget-allocation" class="level3">
+<h3 class="anchored" data-anchor-id="context-construction-is-a-budget-allocation">Context construction is a budget allocation</h3>
+<p>Retrieved chunks compete with system instructions, the user query, conversation history, formatting, and output reserve for the context window. A top-k setting is not enough to describe what the model sees: chunks may be truncated, deduplicated, reordered, filtered by permissions, or omitted when their combined length exceeds the budget. The final rendered prompt and token IDs should be available for an evaluated request.</p>
+<div id="be87509b" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>budget<span class="op">=</span><span class="dv">1000</span><span class="op">;</span> system<span class="op">=</span><span class="dv">80</span><span class="op">;</span> query_tokens<span class="op">=</span><span class="dv">40</span><span class="op">;</span> output_reserve<span class="op">=</span><span class="dv">200</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>chunk_lengths<span class="op">=</span>np.array([<span class="dv">320</span>,<span class="dv">280</span>,<span class="dv">260</span>,<span class="dv">240</span>])</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>available<span class="op">=</span>budget<span class="op">-</span>system<span class="op">-</span>query_tokens<span class="op">-</span>output_reserve</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>selected<span class="op">=</span>[]<span class="op">;</span> used<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> length <span class="kw">in</span> chunk_lengths:</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> used<span class="op">+</span>length<span class="op">&lt;=</span>available: selected.append(length)<span class="op">;</span> used<span class="op">+=</span>length</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"chunk budget:"</span>,available,<span class="st">"selected lengths:"</span>,selected,<span class="st">"unused:"</span>,available<span class="op">-</span>used)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="level-3---grounded-generation" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---grounded-generation">Level 3 - Grounded generation</h2>
+<section id="retrieval-relevance-is-not-answer-grounding" class="level3">
+<h3 class="anchored" data-anchor-id="retrieval-relevance-is-not-answer-grounding">Retrieval relevance is not answer grounding</h3>
+<p>A response can be correct even when retrieval missed the evidence, because the base model already knew the fact. It can also be wrong after retrieving a relevant passage because the generator ignores, misreads, or combines it with unsupported content. A grounded-answer evaluation therefore separates at least four questions: was relevant evidence in the corpus; did retrieval return it; did the final prompt retain it; and is the claim supported by that retained evidence?</p>
+<div id="27f14c5a" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"evidence_in_corpus"</span>:<span class="va">True</span>,<span class="st">"retrieved"</span>:<span class="va">True</span>,<span class="st">"retained_in_prompt"</span>:<span class="va">True</span>,<span class="st">"claim_supported"</span>:<span class="va">False</span>}</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This separation prevents a final-answer score from being attributed automatically to one component. Retrieval recall can be low while generation remains plausible on familiar questions. High retrieval recall can coexist with poor answer faithfulness. The pipeline should report stage-specific metrics and a joined trace for the same labelled queries.</p>
+</section>
+<section id="citations-need-a-defined-link-to-evidence" class="level3">
+<h3 class="anchored" data-anchor-id="citations-need-a-defined-link-to-evidence">Citations need a defined link to evidence</h3>
+<p>Adding source labels to a prompt does not ensure that an answer’s citation supports its claim. A citation system needs a policy for attaching claim spans to retrieved chunks, resolving document versions and locations, and handling claims without sufficient support. It should distinguish a citation to a retrieved source from a verified entailment relation. The latter requires additional annotation, checking, or constrained generation.</p>
+<div id="575d971f" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>answer_claim<span class="op">=</span><span class="st">"Applications close on 30 June."</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>supporting_chunk<span class="op">=</span><span class="st">"C"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"claim"</span>:answer_claim,<span class="st">"citation"</span>:supporting_chunk,<span class="st">"source"</span>:<span class="st">"rules-v2"</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="query-rewriting-and-reranking-alter-the-evidence-path" class="level3">
+<h3 class="anchored" data-anchor-id="query-rewriting-and-reranking-alter-the-evidence-path">Query rewriting and reranking alter the evidence path</h3>
+<p>Some systems rewrite a user query before retrieval, expand it into several searches, or decompose a question into subquestions. These steps can improve retrieval when the original query is short or ambiguous, but they create another model-mediated transformation between the user request and the evidence. The audit should retain the original query, every rewritten query, retrieved candidates, reranker scores, and the policy that selected the final context.</p>
+<p>Reranking can promote passages that better match a query after a more expensive comparison. It can also remove a passage needed for a multi-document answer if the score is applied independently to each chunk. A pipeline should evaluate the final retained set, not only the first-stage retrieval list. The relevant evidence may require two chunks that each look incomplete alone.</p>
+<div id="fig-evidence-path" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-evidence-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"user</span><span class="ch">\n</span><span class="st">query"</span>,blue),(<span class="fl">2.0</span>,<span class="st">"rewritten</span><span class="ch">\n</span><span class="st">query"</span>,teal),(<span class="fl">3.85</span>,<span class="st">"four retrieved</span><span class="ch">\n</span><span class="st">candidates"</span>,orange),(<span class="fl">5.95</span>,<span class="st">"reranked</span><span class="ch">\n</span><span class="st">list"</span>,purple),(<span class="fl">7.8</span>,<span class="st">"two retained</span><span class="ch">\n</span><span class="st">chunks"</span>,teal)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.4</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.67</span>,<span class="fl">3.52</span>,<span class="fl">5.62</span>,<span class="fl">7.47</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.56</span>),(x<span class="op">+</span><span class="fl">.28</span>,<span class="fl">1.56</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"Record transformations and candidate IDs, not only the final answer."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-evidence-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="corpus-quality-and-permission-are-upstream-conditions" class="level3">
+<h3 class="anchored" data-anchor-id="corpus-quality-and-permission-are-upstream-conditions">Corpus quality and permission are upstream conditions</h3>
+<p>Retrieval cannot correct a source that is out of date, internally inconsistent, wrongly parsed, or unavailable to the relevant user. Metadata should include provenance, update time, document type, ownership, access policy, and where possible an authoritative status. A retrieval score has no authority dimension unless the index and ranking policy encode and evaluate one.</p>
+<p>Permissions should be applied before generation context is constructed. Filtering a citation after an unrestricted chunk has entered the prompt does not remove its influence on the generated answer. Access-control tests should include direct queries, paraphrases, metadata-only probes, and queries that combine permitted with restricted documents. The result should state the identity and policy condition used in the test.</p>
+<div id="2029ffb2" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>candidate_ids<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>permitted<span class="op">=</span>{<span class="st">"A"</span>:<span class="va">True</span>,<span class="st">"B"</span>:<span class="va">False</span>,<span class="st">"C"</span>:<span class="va">True</span>}</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>retained<span class="op">=</span>[chunk_id <span class="cf">for</span> chunk_id <span class="kw">in</span> candidate_ids <span class="cf">if</span> permitted[chunk_id]]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"permitted context chunks:"</span>,retained)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="retrieval-metrics-require-relevance-judgements" class="level3">
+<h3 class="anchored" data-anchor-id="retrieval-metrics-require-relevance-judgements">Retrieval metrics require relevance judgements</h3>
+<p>Recall@k depends on a judgement of which chunks are relevant for each query. Those judgements can be incomplete when several documents support an answer or when a passage is relevant only with another passage. Evaluation design should say whether relevance means answer-containing, sufficient evidence, useful context, or an authoritative source. The label definition determines what a retrieval score means.</p>
+<p>For multi-hop questions, report whether every required evidence item was retrieved, not only whether one related chunk appeared. For time-sensitive questions, check the source version and update date. For private corpora, use held-out documents and queries that were not used to tune chunking, retriever, or prompt templates. These boundaries limit accidental optimisation to an evaluation set.</p>
+</section>
+<section id="abstention-is-part-of-a-grounded-answer-policy" class="level3">
+<h3 class="anchored" data-anchor-id="abstention-is-part-of-a-grounded-answer-policy">Abstention is part of a grounded-answer policy</h3>
+<p>When retrieval finds no sufficient evidence, a system can abstain, ask for clarification, state that the corpus does not establish an answer, or generate an unsupported response. The desired behaviour depends on the application, but it must be defined and evaluated. A retrieval score alone cannot decide whether evidence is sufficient for a claim.</p>
+<p>An abstention evaluation should include queries whose answer is absent, outdated, contradictory, or inaccessible under the requester’s permissions. It should measure both unwarranted answers and unnecessary abstentions. This turns “do not hallucinate” into a measurable decision policy over known evidence conditions.</p>
+<div id="aaeeb630" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cases<span class="op">=</span>[{<span class="st">"evidence"</span>:<span class="st">"sufficient"</span>,<span class="st">"action"</span>:<span class="st">"answer"</span>},{<span class="st">"evidence"</span>:<span class="st">"absent"</span>,<span class="st">"action"</span>:<span class="st">"abstain"</span>},{<span class="st">"evidence"</span>:<span class="st">"restricted"</span>,<span class="st">"action"</span>:<span class="st">"refuse access"</span>}]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> case <span class="kw">in</span> cases: <span class="bu">print</span>(case)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="level-4---evaluation-and-operations" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---evaluation-and-operations">Level 4 - Evaluation and operations</h2>
+<section id="evaluate-the-pipeline-at-its-component-boundaries" class="level3">
+<h3 class="anchored" data-anchor-id="evaluate-the-pipeline-at-its-component-boundaries">Evaluate the pipeline at its component boundaries</h3>
+<p>For a labelled query set, retrieval recall at (k) asks whether at least one relevant chunk appears among the top (k). It does not measure whether the selected text was sufficient, whether it fitted in the context, or whether the answer used it correctly. Generation evaluation should add answer correctness, support or faithfulness, citation precision, abstention when evidence is missing, latency, and access-control compliance.</p>
+<div id="085b93a2" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>relevant<span class="op">=</span>{<span class="st">"q1"</span>:{<span class="st">"B"</span>},<span class="st">"q2"</span>:{<span class="st">"C"</span>},<span class="st">"q3"</span>:{<span class="st">"A"</span>}}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>retrieved<span class="op">=</span>{<span class="st">"q1"</span>:[<span class="st">"A"</span>,<span class="st">"B"</span>],<span class="st">"q2"</span>:[<span class="st">"B"</span>,<span class="st">"C"</span>],<span class="st">"q3"</span>:[<span class="st">"C"</span>,<span class="st">"B"</span>]}</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>hits<span class="op">=</span>[<span class="bu">bool</span>(relevant[q].intersection(retrieved[q])) <span class="cf">for</span> q <span class="kw">in</span> relevant]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"recall@2:"</span>,<span class="bu">sum</span>(hits)<span class="op">/</span><span class="bu">len</span>(hits))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-rag-evaluation" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rag-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>stages<span class="op">=</span>[(<span class="st">"corpus</span><span class="ch">\n</span><span class="st">coverage"</span>,blue),(<span class="st">"retrieval</span><span class="ch">\n</span><span class="st">recall"</span>,teal),(<span class="st">"context</span><span class="ch">\n</span><span class="st">retention"</span>,orange),(<span class="st">"claim</span><span class="ch">\n</span><span class="st">support"</span>,purple),(<span class="st">"latency and</span><span class="ch">\n</span><span class="st">access control"</span>,blue)]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>(stages):</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.95</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.45</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,<span class="fl">1.66</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Each stage needs a metric and trace; final answer accuracy alone cannot locate failures."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-rag-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="index-updates-and-access-policies-are-model-inputs" class="level3">
+<h3 class="anchored" data-anchor-id="index-updates-and-access-policies-are-model-inputs">Index updates and access policies are model inputs</h3>
+<p>An operational RAG system must version source documents, chunks, embeddings, index build, retriever, reranker, prompt template, generator checkpoint, and access policy. Index updates can change answers without a model-weight update. Permissions should be enforced before a chunk enters the constructed prompt, and evaluation must test that restricted material cannot be retrieved or inferred from metadata.</p>
+<div id="e387da6e" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"corpus_version"</span>:<span class="st">"2026-08-20"</span>,<span class="st">"chunker"</span>:<span class="st">"v4"</span>,<span class="st">"index"</span>:<span class="st">"v12"</span>,<span class="st">"retriever"</span>:<span class="st">"dense-v3"</span>,<span class="st">"template"</span>:<span class="st">"v5"</span>,<span class="st">"access_policy"</span>:<span class="st">"role-filter"</span>}</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"corpus_version"</span>,<span class="st">"index"</span>,<span class="st">"retriever"</span>,<span class="st">"access_policy"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"RAG run record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>RAG gives the model access to every indexed document.</strong> It supplies only the chunks retained in one constructed context.</li>
+<li><strong>A high retrieval score proves answer support.</strong> Ranking and claim-level evidence are different objects.</li>
+<li><strong>Chunking is only a performance detail.</strong> It determines what can be retrieved and read together.</li>
+<li><strong>A citation proves grounding.</strong> It must be linked to a specific supporting claim and source version.</li>
+<li><strong>Updating an index changes no model behaviour.</strong> It changes the evidence that can enter inference prompts.</li>
+<li><strong>Final answer accuracy diagnoses retrieval.</strong> The failure may occur in corpus, retrieval, prompt construction, or generation.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Distinguish documents, chunks, embeddings, and index entries.</li>
+<li>Explain one consequence of chunk overlap.</li>
+<li>Calculate cosine similarity for a supplied query and chunks.</li>
+<li>Calculate recall@k for a labelled retrieval set.</li>
+<li>Compare lexical and dense retrieval for an identifier-heavy query.</li>
+<li>Design a context budget including system text and output reserve.</li>
+<li>Identify a case where relevant evidence is retrieved but unused.</li>
+<li>Specify a claim-to-citation linking policy.</li>
+<li>List RAG components that require version identifiers.</li>
+<li>Design an access-control retrieval test.</li>
+<li>Explain why index updates require regression evaluation.</li>
+<li>Separate corpus coverage from retrieval recall.</li>
+<li>Design a failure trace for an unsupported answer.</li>
+<li>State why a source label is not an entailment test.</li>
+<li>Propose a latency measurement across retrieval and generation.</li>
+<li>Identify the chapter that evaluates LLM reliability more broadly.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>RAG constructs a bounded model context from retrieved external chunks. Corpus scope, chunking, indexing, retrieval, reranking, context construction, generation, citations, and access controls form one system. Evaluation must separate evidence coverage, retrieval, prompt retention, claim support, and operational behaviour.</p>
+<p><a href="./34-evaluating-llms.html">Chapter 34</a> brings these distinctions together in a broader treatment of capability measurement, reliability, contamination, and the limits of benchmark scores.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>Retrieval-augmented generation combines a model with a corpus, retriever, and context-construction policy. <a href="./34-evaluating-llms.html">Chapter 34</a> examines how to evaluate that complete system, alongside the model-only and adaptation systems introduced in this part.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>Retrieval-augmented generation is introduced by <span class="citation" data-cites="lewis2020retrieval">Lewis et al. (<a href="#ref-lewis2020retrieval" role="doc-biblioref">2020</a>)</span>. Dense passage retrieval is developed by <span class="citation" data-cites="karpukhin2020dense">Karpukhin et al. (<a href="#ref-karpukhin2020dense" role="doc-biblioref">2020</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-karpukhin2020dense" class="csl-entry" role="listitem">
+Karpukhin, Vladimir, Barlas Oguz, Sewon Min, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and Wen-tau Yih. 2020. <span>“Dense Passage Retrieval for Open-Domain Question Answering.”</span> In <em>Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing</em>, 6769–81. <a href="https://doi.org/10.18653/v1/2020.emnlp-main.550">https://doi.org/10.18653/v1/2020.emnlp-main.550</a>.
+</div>
+<div id="ref-lewis2020retrieval" class="csl-entry" role="listitem">
+Lewis, Patrick, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Kuttler, et al. 2020. <span>“Retrieval-Augmented Generation for Knowledge-Intensive <span>NLP</span> Tasks.”</span> <em>Advances in Neural Information Processing Systems</em> 33: 9459–74. <a href="https://arxiv.org/abs/2005.11401">https://arxiv.org/abs/2005.11401</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./32-quantisation-efficient-inference.html" class="pagination-link" aria-label="Quantisation and Efficient Inference">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Quantisation and Efficient Inference</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./34-evaluating-llms.html" class="pagination-link" aria-label="Evaluating LLMs">
+        <span class="nav-page-text"><span class="chapter-title">Evaluating LLMs</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Retrieval-augmented Generation"</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Indexing evidence, constructing context, and evaluating the full pipeline"</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>Retrieval-augmented generation (RAG) supplies a language model with selected external material at inference time. It can make current, private, or domain-specific information available without placing all of it in model weights. It also introduces a pipeline: documents are collected and versioned, split into chunks, indexed, retrieved for a query, placed in a prompt, and used by a generator.</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>An answer can fail at any stage. Relevant evidence may be absent from the corpus, split across chunks, missed by retrieval, removed by reranking or truncation, ignored by the model, or cited inaccurately. Evaluating only final answer quality cannot diagnose these causes. This chapter treats RAG as a system with explicit information boundaries.</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a corpus, document, chunk, embedding, index, retriever, reranker, and generator;</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain dense and lexical retrieval at a conceptual level;</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate simple retrieval recall for a labelled query set;</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify chunking, metadata, and context-budget choices as system decisions;</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish retrieval relevance, evidence use, citation accuracy, and final-answer correctness;</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>design a failure trace for a RAG answer; and</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify a versioned RAG evaluation record.</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running collection</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>The running collection has three short chunks. A query is embedded or represented for retrieval; selected chunks are placed into a context template before answer generation.</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-rag-pipeline</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A RAG system indexes versioned chunks, retrieves candidates for a query, constructs a bounded context, and generates an answer."</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A pipeline flows from source documents to chunks and index, then query retrieval, context construction, and answer generation."</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.2</span>,<span class="st">"versioned</span><span class="ch">\n</span><span class="st">documents"</span>,blue),(<span class="fl">2.15</span>,<span class="st">"chunks +</span><span class="ch">\n</span><span class="st">metadata"</span>,teal),(<span class="fl">4.1</span>,<span class="st">"index"</span>,purple),(<span class="fl">6.0</span>,<span class="st">"retrieve +</span><span class="ch">\n</span><span class="st">rerank"</span>,orange),(<span class="fl">7.95</span>,<span class="st">"bounded</span><span class="ch">\n</span><span class="st">context"</span>,teal),(<span class="fl">9.9</span>,<span class="st">"answer"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.35</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.675</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.58</span>,<span class="fl">3.53</span>,<span class="fl">5.43</span>,<span class="fl">7.33</span>,<span class="fl">9.28</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.56</span>),(x<span class="op">+</span><span class="fl">.52</span>,<span class="fl">1.56</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.5</span>,<span class="fl">.55</span>,<span class="st">"The generator sees constructed context, not the complete indexed collection."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">11.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a><span class="fu">### Retrieval changes which evidence is available at inference</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>A base model answers from its parameters and the prompt. RAG adds a selected subset of an external collection to the prompt. This can support answers about documents added after pretraining, organisation-specific records, or source-backed claims. It does not guarantee that the retrieved text is relevant, current, authoritative, or used faithfully in the output.</span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>The indexed collection is therefore part of the system's knowledge boundary. A document outside it cannot be retrieved. A document inside it may still be unavailable because access control, filters, metadata, chunking, or index version exclude it. An answer should not imply that a collection was searched unless the trace shows the retrieval operation and corpus scope.</span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>chunks<span class="op">=</span>[</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"id"</span>:<span class="st">"A"</span>, <span class="st">"text"</span>:<span class="st">"The programme began in 2022."</span>,<span class="st">"source"</span>:<span class="st">"report-v1"</span>},</span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"id"</span>:<span class="st">"B"</span>, <span class="st">"text"</span>:<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"source"</span>:<span class="st">"rules-v2"</span>},</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"id"</span>:<span class="st">"C"</span>, <span class="st">"text"</span>:<span class="st">"Applications close on 30 June."</span>,<span class="st">"source"</span>:<span class="st">"rules-v2"</span>},</span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chunk <span class="kw">in</span> chunks: <span class="bu">print</span>(chunk[<span class="st">"id"</span>],chunk[<span class="st">"text"</span>])</span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### A chunk is a retrieval unit, not necessarily a meaningful document</span></span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>Indexes usually retrieve chunks rather than whole documents so that prompts fit a finite context window and search can identify a local passage. Chunk boundaries can split a table from its heading, separate a definition from an exception, or duplicate text across overlapping windows. Chunking policy therefore affects retrieval recall and what the generator can infer from the supplied evidence.</span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-chunk-boundaries</span></span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Chunk boundaries and overlap determine which sentences are retrievable together and how much repeated text enters the index."</span></span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A document line is divided into three overlapping chunk windows, showing a sentence near a boundary appearing in two chunks."</span></span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a>ax.plot([<span class="fl">.4</span>,<span class="fl">8.6</span>],[<span class="fl">1.6</span>,<span class="fl">1.6</span>],color<span class="op">=</span>grey,lw<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,w,label,c <span class="kw">in</span> [(<span class="fl">.6</span>,<span class="fl">2.8</span>,<span class="st">"chunk 1"</span>,blue),(<span class="fl">2.7</span>,<span class="fl">2.8</span>,<span class="st">"chunk 2"</span>,teal),(<span class="fl">4.8</span>,<span class="fl">2.8</span>,<span class="st">"chunk 3"</span>,orange)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.7</span>,facecolor<span class="op">=</span>c,alpha<span class="op">=</span><span class="fl">.88</span>,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.6</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Overlap can preserve context across boundaries while increasing index size and repeated retrieval."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Retrieval mechanics</span></span>
+<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lexical and dense retrieval use different matching signals</span></span>
+<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>Lexical retrieval scores overlap among query and document terms, often using weighted term statistics. It can be strong for exact names, identifiers, and rare terms. Dense retrieval maps queries and chunks to vectors and retrieves near neighbours under a similarity measure; it can retrieve semantically related wording even without exact overlap <span class="co">[</span><span class="ot">@karpukhin2020dense</span><span class="co">]</span>. Hybrid systems combine these signals, then may apply a reranker to a smaller candidate set.</span>
+<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>query<span class="op">=</span>np.array([<span class="fl">.8</span>,<span class="fl">.2</span>])</span>
+<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>chunk_vectors<span class="op">=</span>np.array([[<span class="fl">.9</span>,<span class="fl">.1</span>],[<span class="fl">.3</span>,<span class="fl">.7</span>],[<span class="fl">.7</span>,<span class="fl">.25</span>]])</span>
+<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>chunk_vectors<span class="op">@</span>query<span class="op">/</span>(np.linalg.norm(chunk_vectors,axis<span class="op">=</span><span class="dv">1</span>)<span class="op">*</span>np.linalg.norm(query))</span>
+<span id="cb15-94"><a href="#cb15-94" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"dense similarity scores:"</span>,np.<span class="bu">round</span>(scores,<span class="dv">3</span>))</span>
+<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ranked chunks:"</span>,np.argsort(scores)[::<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a>Similarity is a retrieval score, not evidence that a chunk answers the query. A high-scoring passage can share topic words while missing the required fact. A reranker can improve ordering, but it adds another model, version, and failure point. Each score should be stored with the query and retrieved IDs to make the pipeline inspectable.</span>
+<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-retrieval-ranking</span></span>
+<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Retrieval ranks candidate chunks by a matching score, but high score does not itself establish that a chunk contains sufficient evidence for the answer."</span></span>
+<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three candidate chunks have descending dense similarity scores, with only one marked as containing the labelled evidence."</span></span>
+<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>]<span class="op">;</span> scores<span class="op">=</span>np.array([<span class="fl">.91</span>,<span class="fl">.76</span>,<span class="fl">.68</span>])<span class="op">;</span> relevant<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>])</span>
+<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,grey])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"retrieval score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Ranking and evidence relevance are distinct"</span>)<span class="op">;</span> ax.text(<span class="dv">1</span>,<span class="fl">.82</span>,<span class="st">"labelled evidence"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>teal)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a><span class="fu">### Context construction is a budget allocation</span></span>
+<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a>Retrieved chunks compete with system instructions, the user query, conversation history, formatting, and output reserve for the context window. A top-k setting is not enough to describe what the model sees: chunks may be truncated, deduplicated, reordered, filtered by permissions, or omitted when their combined length exceeds the budget. The final rendered prompt and token IDs should be available for an evaluated request.</span>
+<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a>budget<span class="op">=</span><span class="dv">1000</span><span class="op">;</span> system<span class="op">=</span><span class="dv">80</span><span class="op">;</span> query_tokens<span class="op">=</span><span class="dv">40</span><span class="op">;</span> output_reserve<span class="op">=</span><span class="dv">200</span></span>
+<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>chunk_lengths<span class="op">=</span>np.array([<span class="dv">320</span>,<span class="dv">280</span>,<span class="dv">260</span>,<span class="dv">240</span>])</span>
+<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a>available<span class="op">=</span>budget<span class="op">-</span>system<span class="op">-</span>query_tokens<span class="op">-</span>output_reserve</span>
+<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a>selected<span class="op">=</span>[]<span class="op">;</span> used<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> length <span class="kw">in</span> chunk_lengths:</span>
+<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> used<span class="op">+</span>length<span class="op">&lt;=</span>available: selected.append(length)<span class="op">;</span> used<span class="op">+=</span>length</span>
+<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"chunk budget:"</span>,available,<span class="st">"selected lengths:"</span>,selected,<span class="st">"unused:"</span>,available<span class="op">-</span>used)</span>
+<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Grounded generation</span></span>
+<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a><span class="fu">### Retrieval relevance is not answer grounding</span></span>
+<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-130"><a href="#cb15-130" aria-hidden="true" tabindex="-1"></a>A response can be correct even when retrieval missed the evidence, because the base model already knew the fact. It can also be wrong after retrieving a relevant passage because the generator ignores, misreads, or combines it with unsupported content. A grounded-answer evaluation therefore separates at least four questions: was relevant evidence in the corpus; did retrieval return it; did the final prompt retain it; and is the claim supported by that retained evidence?</span>
+<span id="cb15-131"><a href="#cb15-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-134"><a href="#cb15-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-135"><a href="#cb15-135" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"evidence_in_corpus"</span>:<span class="va">True</span>,<span class="st">"retrieved"</span>:<span class="va">True</span>,<span class="st">"retained_in_prompt"</span>:<span class="va">True</span>,<span class="st">"claim_supported"</span>:<span class="va">False</span>}</span>
+<span id="cb15-136"><a href="#cb15-136" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span>
+<span id="cb15-137"><a href="#cb15-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-138"><a href="#cb15-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-139"><a href="#cb15-139" aria-hidden="true" tabindex="-1"></a>This separation prevents a final-answer score from being attributed automatically to one component. Retrieval recall can be low while generation remains plausible on familiar questions. High retrieval recall can coexist with poor answer faithfulness. The pipeline should report stage-specific metrics and a joined trace for the same labelled queries.</span>
+<span id="cb15-140"><a href="#cb15-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-141"><a href="#cb15-141" aria-hidden="true" tabindex="-1"></a><span class="fu">### Citations need a defined link to evidence</span></span>
+<span id="cb15-142"><a href="#cb15-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-143"><a href="#cb15-143" aria-hidden="true" tabindex="-1"></a>Adding source labels to a prompt does not ensure that an answer's citation supports its claim. A citation system needs a policy for attaching claim spans to retrieved chunks, resolving document versions and locations, and handling claims without sufficient support. It should distinguish a citation to a retrieved source from a verified entailment relation. The latter requires additional annotation, checking, or constrained generation.</span>
+<span id="cb15-144"><a href="#cb15-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-147"><a href="#cb15-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-148"><a href="#cb15-148" aria-hidden="true" tabindex="-1"></a>answer_claim<span class="op">=</span><span class="st">"Applications close on 30 June."</span></span>
+<span id="cb15-149"><a href="#cb15-149" aria-hidden="true" tabindex="-1"></a>supporting_chunk<span class="op">=</span><span class="st">"C"</span></span>
+<span id="cb15-150"><a href="#cb15-150" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"claim"</span>:answer_claim,<span class="st">"citation"</span>:supporting_chunk,<span class="st">"source"</span>:<span class="st">"rules-v2"</span>})</span>
+<span id="cb15-151"><a href="#cb15-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-152"><a href="#cb15-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-153"><a href="#cb15-153" aria-hidden="true" tabindex="-1"></a><span class="fu">### Query rewriting and reranking alter the evidence path</span></span>
+<span id="cb15-154"><a href="#cb15-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-155"><a href="#cb15-155" aria-hidden="true" tabindex="-1"></a>Some systems rewrite a user query before retrieval, expand it into several searches, or decompose a question into subquestions. These steps can improve retrieval when the original query is short or ambiguous, but they create another model-mediated transformation between the user request and the evidence. The audit should retain the original query, every rewritten query, retrieved candidates, reranker scores, and the policy that selected the final context.</span>
+<span id="cb15-156"><a href="#cb15-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-157"><a href="#cb15-157" aria-hidden="true" tabindex="-1"></a>Reranking can promote passages that better match a query after a more expensive comparison. It can also remove a passage needed for a multi-document answer if the score is applied independently to each chunk. A pipeline should evaluate the final retained set, not only the first-stage retrieval list. The relevant evidence may require two chunks that each look incomplete alone.</span>
+<span id="cb15-158"><a href="#cb15-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-evidence-path</span></span>
+<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Query rewriting, first-stage retrieval, reranking, and context selection form an evidence path that should be retained for each answer."</span></span>
+<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A user query is rewritten, retrieves four candidates, reranks them, and selects two context chunks before generation."</span></span>
+<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"user</span><span class="ch">\n</span><span class="st">query"</span>,blue),(<span class="fl">2.0</span>,<span class="st">"rewritten</span><span class="ch">\n</span><span class="st">query"</span>,teal),(<span class="fl">3.85</span>,<span class="st">"four retrieved</span><span class="ch">\n</span><span class="st">candidates"</span>,orange),(<span class="fl">5.95</span>,<span class="st">"reranked</span><span class="ch">\n</span><span class="st">list"</span>,purple),(<span class="fl">7.8</span>,<span class="st">"two retained</span><span class="ch">\n</span><span class="st">chunks"</span>,teal)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.4</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.67</span>,<span class="fl">3.52</span>,<span class="fl">5.62</span>,<span class="fl">7.47</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.56</span>),(x<span class="op">+</span><span class="fl">.28</span>,<span class="fl">1.56</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb15-168"><a href="#cb15-168" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"Record transformations and candidate IDs, not only the final answer."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-170"><a href="#cb15-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-171"><a href="#cb15-171" aria-hidden="true" tabindex="-1"></a><span class="fu">### Corpus quality and permission are upstream conditions</span></span>
+<span id="cb15-172"><a href="#cb15-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-173"><a href="#cb15-173" aria-hidden="true" tabindex="-1"></a>Retrieval cannot correct a source that is out of date, internally inconsistent, wrongly parsed, or unavailable to the relevant user. Metadata should include provenance, update time, document type, ownership, access policy, and where possible an authoritative status. A retrieval score has no authority dimension unless the index and ranking policy encode and evaluate one.</span>
+<span id="cb15-174"><a href="#cb15-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-175"><a href="#cb15-175" aria-hidden="true" tabindex="-1"></a>Permissions should be applied before generation context is constructed. Filtering a citation after an unrestricted chunk has entered the prompt does not remove its influence on the generated answer. Access-control tests should include direct queries, paraphrases, metadata-only probes, and queries that combine permitted with restricted documents. The result should state the identity and policy condition used in the test.</span>
+<span id="cb15-176"><a href="#cb15-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-179"><a href="#cb15-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-180"><a href="#cb15-180" aria-hidden="true" tabindex="-1"></a>candidate_ids<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>]</span>
+<span id="cb15-181"><a href="#cb15-181" aria-hidden="true" tabindex="-1"></a>permitted<span class="op">=</span>{<span class="st">"A"</span>:<span class="va">True</span>,<span class="st">"B"</span>:<span class="va">False</span>,<span class="st">"C"</span>:<span class="va">True</span>}</span>
+<span id="cb15-182"><a href="#cb15-182" aria-hidden="true" tabindex="-1"></a>retained<span class="op">=</span>[chunk_id <span class="cf">for</span> chunk_id <span class="kw">in</span> candidate_ids <span class="cf">if</span> permitted[chunk_id]]</span>
+<span id="cb15-183"><a href="#cb15-183" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"permitted context chunks:"</span>,retained)</span>
+<span id="cb15-184"><a href="#cb15-184" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-185"><a href="#cb15-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-186"><a href="#cb15-186" aria-hidden="true" tabindex="-1"></a><span class="fu">### Retrieval metrics require relevance judgements</span></span>
+<span id="cb15-187"><a href="#cb15-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-188"><a href="#cb15-188" aria-hidden="true" tabindex="-1"></a>Recall@k depends on a judgement of which chunks are relevant for each query. Those judgements can be incomplete when several documents support an answer or when a passage is relevant only with another passage. Evaluation design should say whether relevance means answer-containing, sufficient evidence, useful context, or an authoritative source. The label definition determines what a retrieval score means.</span>
+<span id="cb15-189"><a href="#cb15-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-190"><a href="#cb15-190" aria-hidden="true" tabindex="-1"></a>For multi-hop questions, report whether every required evidence item was retrieved, not only whether one related chunk appeared. For time-sensitive questions, check the source version and update date. For private corpora, use held-out documents and queries that were not used to tune chunking, retriever, or prompt templates. These boundaries limit accidental optimisation to an evaluation set.</span>
+<span id="cb15-191"><a href="#cb15-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-192"><a href="#cb15-192" aria-hidden="true" tabindex="-1"></a><span class="fu">### Abstention is part of a grounded-answer policy</span></span>
+<span id="cb15-193"><a href="#cb15-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-194"><a href="#cb15-194" aria-hidden="true" tabindex="-1"></a>When retrieval finds no sufficient evidence, a system can abstain, ask for clarification, state that the corpus does not establish an answer, or generate an unsupported response. The desired behaviour depends on the application, but it must be defined and evaluated. A retrieval score alone cannot decide whether evidence is sufficient for a claim.</span>
+<span id="cb15-195"><a href="#cb15-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-196"><a href="#cb15-196" aria-hidden="true" tabindex="-1"></a>An abstention evaluation should include queries whose answer is absent, outdated, contradictory, or inaccessible under the requester's permissions. It should measure both unwarranted answers and unnecessary abstentions. This turns “do not hallucinate” into a measurable decision policy over known evidence conditions.</span>
+<span id="cb15-197"><a href="#cb15-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-200"><a href="#cb15-200" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-201"><a href="#cb15-201" aria-hidden="true" tabindex="-1"></a>cases<span class="op">=</span>[{<span class="st">"evidence"</span>:<span class="st">"sufficient"</span>,<span class="st">"action"</span>:<span class="st">"answer"</span>},{<span class="st">"evidence"</span>:<span class="st">"absent"</span>,<span class="st">"action"</span>:<span class="st">"abstain"</span>},{<span class="st">"evidence"</span>:<span class="st">"restricted"</span>,<span class="st">"action"</span>:<span class="st">"refuse access"</span>}]</span>
+<span id="cb15-202"><a href="#cb15-202" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> case <span class="kw">in</span> cases: <span class="bu">print</span>(case)</span>
+<span id="cb15-203"><a href="#cb15-203" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-204"><a href="#cb15-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-205"><a href="#cb15-205" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Evaluation and operations</span></span>
+<span id="cb15-206"><a href="#cb15-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-207"><a href="#cb15-207" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate the pipeline at its component boundaries</span></span>
+<span id="cb15-208"><a href="#cb15-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-209"><a href="#cb15-209" aria-hidden="true" tabindex="-1"></a>For a labelled query set, retrieval recall at <span class="sc">\(</span>k<span class="sc">\)</span> asks whether at least one relevant chunk appears among the top <span class="sc">\(</span>k<span class="sc">\)</span>. It does not measure whether the selected text was sufficient, whether it fitted in the context, or whether the answer used it correctly. Generation evaluation should add answer correctness, support or faithfulness, citation precision, abstention when evidence is missing, latency, and access-control compliance.</span>
+<span id="cb15-210"><a href="#cb15-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-213"><a href="#cb15-213" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-214"><a href="#cb15-214" aria-hidden="true" tabindex="-1"></a>relevant<span class="op">=</span>{<span class="st">"q1"</span>:{<span class="st">"B"</span>},<span class="st">"q2"</span>:{<span class="st">"C"</span>},<span class="st">"q3"</span>:{<span class="st">"A"</span>}}</span>
+<span id="cb15-215"><a href="#cb15-215" aria-hidden="true" tabindex="-1"></a>retrieved<span class="op">=</span>{<span class="st">"q1"</span>:[<span class="st">"A"</span>,<span class="st">"B"</span>],<span class="st">"q2"</span>:[<span class="st">"B"</span>,<span class="st">"C"</span>],<span class="st">"q3"</span>:[<span class="st">"C"</span>,<span class="st">"B"</span>]}</span>
+<span id="cb15-216"><a href="#cb15-216" aria-hidden="true" tabindex="-1"></a>hits<span class="op">=</span>[<span class="bu">bool</span>(relevant[q].intersection(retrieved[q])) <span class="cf">for</span> q <span class="kw">in</span> relevant]</span>
+<span id="cb15-217"><a href="#cb15-217" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"recall@2:"</span>,<span class="bu">sum</span>(hits)<span class="op">/</span><span class="bu">len</span>(hits))</span>
+<span id="cb15-218"><a href="#cb15-218" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-219"><a href="#cb15-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-222"><a href="#cb15-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-223"><a href="#cb15-223" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-rag-evaluation</span></span>
+<span id="cb15-224"><a href="#cb15-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "RAG evaluation separates corpus coverage, retrieval recall, context retention, grounded-answer support, and service behaviour."</span></span>
+<span id="cb15-225"><a href="#cb15-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A staged diagram lists corpus, retrieval, prompt construction, generation, and service evaluation with distinct metrics."</span></span>
+<span id="cb15-226"><a href="#cb15-226" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb15-227"><a href="#cb15-227" aria-hidden="true" tabindex="-1"></a>stages<span class="op">=</span>[(<span class="st">"corpus</span><span class="ch">\n</span><span class="st">coverage"</span>,blue),(<span class="st">"retrieval</span><span class="ch">\n</span><span class="st">recall"</span>,teal),(<span class="st">"context</span><span class="ch">\n</span><span class="st">retention"</span>,orange),(<span class="st">"claim</span><span class="ch">\n</span><span class="st">support"</span>,purple),(<span class="st">"latency and</span><span class="ch">\n</span><span class="st">access control"</span>,blue)]</span>
+<span id="cb15-228"><a href="#cb15-228" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>(stages):</span>
+<span id="cb15-229"><a href="#cb15-229" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.95</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.45</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,<span class="fl">1.66</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb15-230"><a href="#cb15-230" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Each stage needs a metric and trace; final answer accuracy alone cannot locate failures."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb15-231"><a href="#cb15-231" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-232"><a href="#cb15-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-233"><a href="#cb15-233" aria-hidden="true" tabindex="-1"></a><span class="fu">### Index updates and access policies are model inputs</span></span>
+<span id="cb15-234"><a href="#cb15-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-235"><a href="#cb15-235" aria-hidden="true" tabindex="-1"></a>An operational RAG system must version source documents, chunks, embeddings, index build, retriever, reranker, prompt template, generator checkpoint, and access policy. Index updates can change answers without a model-weight update. Permissions should be enforced before a chunk enters the constructed prompt, and evaluation must test that restricted material cannot be retrieved or inferred from metadata.</span>
+<span id="cb15-236"><a href="#cb15-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-239"><a href="#cb15-239" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb15-240"><a href="#cb15-240" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"corpus_version"</span>:<span class="st">"2026-08-20"</span>,<span class="st">"chunker"</span>:<span class="st">"v4"</span>,<span class="st">"index"</span>:<span class="st">"v12"</span>,<span class="st">"retriever"</span>:<span class="st">"dense-v3"</span>,<span class="st">"template"</span>:<span class="st">"v5"</span>,<span class="st">"access_policy"</span>:<span class="st">"role-filter"</span>}</span>
+<span id="cb15-241"><a href="#cb15-241" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"corpus_version"</span>,<span class="st">"index"</span>,<span class="st">"retriever"</span>,<span class="st">"access_policy"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb15-242"><a href="#cb15-242" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"RAG run record complete"</span>)</span>
+<span id="cb15-243"><a href="#cb15-243" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-244"><a href="#cb15-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-245"><a href="#cb15-245" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb15-246"><a href="#cb15-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-247"><a href="#cb15-247" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**RAG gives the model access to every indexed document.** It supplies only the chunks retained in one constructed context.</span>
+<span id="cb15-248"><a href="#cb15-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A high retrieval score proves answer support.** Ranking and claim-level evidence are different objects.</span>
+<span id="cb15-249"><a href="#cb15-249" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Chunking is only a performance detail.** It determines what can be retrieved and read together.</span>
+<span id="cb15-250"><a href="#cb15-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A citation proves grounding.** It must be linked to a specific supporting claim and source version.</span>
+<span id="cb15-251"><a href="#cb15-251" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Updating an index changes no model behaviour.** It changes the evidence that can enter inference prompts.</span>
+<span id="cb15-252"><a href="#cb15-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Final answer accuracy diagnoses retrieval.** The failure may occur in corpus, retrieval, prompt construction, or generation.</span>
+<span id="cb15-253"><a href="#cb15-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-254"><a href="#cb15-254" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb15-255"><a href="#cb15-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-256"><a href="#cb15-256" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish documents, chunks, embeddings, and index entries.</span>
+<span id="cb15-257"><a href="#cb15-257" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Explain one consequence of chunk overlap.</span>
+<span id="cb15-258"><a href="#cb15-258" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate cosine similarity for a supplied query and chunks.</span>
+<span id="cb15-259"><a href="#cb15-259" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Calculate recall@k for a labelled retrieval set.</span>
+<span id="cb15-260"><a href="#cb15-260" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Compare lexical and dense retrieval for an identifier-heavy query.</span>
+<span id="cb15-261"><a href="#cb15-261" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Design a context budget including system text and output reserve.</span>
+<span id="cb15-262"><a href="#cb15-262" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Identify a case where relevant evidence is retrieved but unused.</span>
+<span id="cb15-263"><a href="#cb15-263" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Specify a claim-to-citation linking policy.</span>
+<span id="cb15-264"><a href="#cb15-264" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>List RAG components that require version identifiers.</span>
+<span id="cb15-265"><a href="#cb15-265" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Design an access-control retrieval test.</span>
+<span id="cb15-266"><a href="#cb15-266" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Explain why index updates require regression evaluation.</span>
+<span id="cb15-267"><a href="#cb15-267" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Separate corpus coverage from retrieval recall.</span>
+<span id="cb15-268"><a href="#cb15-268" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Design a failure trace for an unsupported answer.</span>
+<span id="cb15-269"><a href="#cb15-269" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why a source label is not an entailment test.</span>
+<span id="cb15-270"><a href="#cb15-270" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Propose a latency measurement across retrieval and generation.</span>
+<span id="cb15-271"><a href="#cb15-271" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that evaluates LLM reliability more broadly.</span>
+<span id="cb15-272"><a href="#cb15-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-273"><a href="#cb15-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb15-274"><a href="#cb15-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-275"><a href="#cb15-275" aria-hidden="true" tabindex="-1"></a>RAG constructs a bounded model context from retrieved external chunks. Corpus scope, chunking, indexing, retrieval, reranking, context construction, generation, citations, and access controls form one system. Evaluation must separate evidence coverage, retrieval, prompt retention, claim support, and operational behaviour.</span>
+<span id="cb15-276"><a href="#cb15-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-277"><a href="#cb15-277" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 34</span><span class="co">](34-evaluating-llms.qmd)</span> brings these distinctions together in a broader treatment of capability measurement, reliability, contamination, and the limits of benchmark scores.</span>
+<span id="cb15-278"><a href="#cb15-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-279"><a href="#cb15-279" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb15-280"><a href="#cb15-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-281"><a href="#cb15-281" aria-hidden="true" tabindex="-1"></a>Retrieval-augmented generation combines a model with a corpus, retriever, and context-construction policy. <span class="co">[</span><span class="ot">Chapter 34</span><span class="co">](34-evaluating-llms.qmd)</span> examines how to evaluate that complete system, alongside the model-only and adaptation systems introduced in this part.</span>
+<span id="cb15-282"><a href="#cb15-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-283"><a href="#cb15-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb15-284"><a href="#cb15-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-285"><a href="#cb15-285" aria-hidden="true" tabindex="-1"></a>Retrieval-augmented generation is introduced by @lewis2020retrieval. Dense passage retrieval is developed by @karpukhin2020dense.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

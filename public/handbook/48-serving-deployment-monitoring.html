@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Serving, Deployment, and Monitoring – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./49-safety-security-responsible-use.html" rel="next">
+<link href="./47-scaling-laws-and-compute.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./48-serving-deployment-monitoring.html"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a></li>
+  <li><a href="#level-1---a-request-has-a-lifecycle" id="toc-level-1---a-request-has-a-lifecycle" class="nav-link" data-scroll-target="#level-1---a-request-has-a-lifecycle">Level 1 - A request has a lifecycle</a></li>
+  <li><a href="#level-2---batching-and-caching-change-the-cost-model" id="toc-level-2---batching-and-caching-change-the-cost-model" class="nav-link" data-scroll-target="#level-2---batching-and-caching-change-the-cost-model">Level 2 - Batching and caching change the cost model</a>
+  <ul class="collapse">
+  <li><a href="#queue-policy-distributes-a-scarce-resource" id="toc-queue-policy-distributes-a-scarce-resource" class="nav-link" data-scroll-target="#queue-policy-distributes-a-scarce-resource">Queue policy distributes a scarce resource</a></li>
+  </ul></li>
+  <li><a href="#level-3---deployment-is-an-experiment-with-safeguards" id="toc-level-3---deployment-is-an-experiment-with-safeguards" class="nav-link" data-scroll-target="#level-3---deployment-is-an-experiment-with-safeguards">Level 3 - Deployment is an experiment with safeguards</a></li>
+  <li><a href="#level-4---monitor-system-and-outcome-signals" id="toc-level-4---monitor-system-and-outcome-signals" class="nav-link" data-scroll-target="#level-4---monitor-system-and-outcome-signals">Level 4 - Monitor system and outcome signals</a>
+  <ul class="collapse">
+  <li><a href="#state-and-versioning-determine-reproducibility" id="toc-state-and-versioning-determine-reproducibility" class="nav-link" data-scroll-target="#state-and-versioning-determine-reproducibility">State and versioning determine reproducibility</a></li>
+  <li><a href="#measure-latency-as-a-distribution-not-one-number" id="toc-measure-latency-as-a-distribution-not-one-number" class="nav-link" data-scroll-target="#measure-latency-as-a-distribution-not-one-number">Measure latency as a distribution, not one number</a></li>
+  <li><a href="#throughput-depends-on-scheduling-and-fairness" id="toc-throughput-depends-on-scheduling-and-fairness" class="nav-link" data-scroll-target="#throughput-depends-on-scheduling-and-fairness">Throughput depends on scheduling and fairness</a></li>
+  <li><a href="#caches-require-both-a-performance-and-a-data-policy" id="toc-caches-require-both-a-performance-and-a-data-policy" class="nav-link" data-scroll-target="#caches-require-both-a-performance-and-a-data-policy">Caches require both a performance and a data policy</a></li>
+  <li><a href="#release-candidates-need-a-matched-comparison" id="toc-release-candidates-need-a-matched-comparison" class="nav-link" data-scroll-target="#release-candidates-need-a-matched-comparison">Release candidates need a matched comparison</a></li>
+  <li><a href="#observability-has-a-data-minimisation-boundary" id="toc-observability-has-a-data-minimisation-boundary" class="nav-link" data-scroll-target="#observability-has-a-data-minimisation-boundary">Observability has a data-minimisation boundary</a></li>
+  <li><a href="#drift-is-a-hypothesis-about-a-changed-system" id="toc-drift-is-a-hypothesis-about-a-changed-system" class="nav-link" data-scroll-target="#drift-is-a-hypothesis-about-a-changed-system">Drift is a hypothesis about a changed system</a></li>
+  <li><a href="#service-level-objectives-specify-an-acceptable-operating-region" id="toc-service-level-objectives-specify-an-acceptable-operating-region" class="nav-link" data-scroll-target="#service-level-objectives-specify-an-acceptable-operating-region">Service-level objectives specify an acceptable operating region</a></li>
+  <li><a href="#incidents-require-containment-and-learning" id="toc-incidents-require-containment-and-learning" class="nav-link" data-scroll-target="#incidents-require-containment-and-learning">Incidents require containment and learning</a></li>
+  <li><a href="#cost-accounting-must-follow-the-served-request" id="toc-cost-accounting-must-follow-the-served-request" class="nav-link" data-scroll-target="#cost-accounting-must-follow-the-served-request">Cost accounting must follow the served request</a></li>
+  <li><a href="#the-operational-record-connects-the-chapters-mechanisms" id="toc-the-operational-record-connects-the-chapters-mechanisms" class="nav-link" data-scroll-target="#the-operational-record-connects-the-chapters-mechanisms">The operational record connects the chapter’s mechanisms</a></li>
+  <li><a href="#test-the-service-before-and-after-deployment" id="toc-test-the-service-before-and-after-deployment" class="nav-link" data-scroll-target="#test-the-service-before-and-after-deployment">Test the service before and after deployment</a></li>
+  <li><a href="#bounded-claims-about-a-deployed-system" id="toc-bounded-claims-about-a-deployed-system" class="nav-link" data-scroll-target="#bounded-claims-about-a-deployed-system">Bounded claims about a deployed system</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Serving, Deployment, and Monitoring</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Latency, throughput, batching, caching, observability, and drift</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<p>A trained model becomes a service only when requests can be admitted, processed, observed, and recovered under a declared reliability and cost budget. Model quality measured offline is one component of that system. Prompt length, batching, queueing, decoding, cache policy, hardware, fallbacks, and user traffic determine what a deployment delivers. The dependence of model behaviour on surrounding technical systems is a central source of accumulated machine-learning technical debt <span class="citation" data-cites="sculley2015">(<a href="#ref-sculley2015" role="doc-biblioref">Sculley et al. 2015</a>)</span>.</p>
+</section>
+<section id="level-1---a-request-has-a-lifecycle" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---a-request-has-a-lifecycle">Level 1 - A request has a lifecycle</h2>
+<p>A request is validated, queued, prefixed through the model, decoded token by token, checked against policy or tool constraints where relevant, and returned with a record. Latency includes waiting as well as model execution. Throughput is the number of completed requests over time. Improving one can worsen the other: larger batches often raise throughput while delaying individual requests.</p>
+<div id="fig-request-lifecycle" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-request-lifecycle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(l,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"admit"</span>,<span class="st">"#24527a"</span>),(<span class="st">"queue"</span>,<span class="st">"#7655a6"</span>),(<span class="st">"prefill"</span>,<span class="st">"#3a9188"</span>),(<span class="st">"decode"</span>,<span class="st">"#d97745"</span>),(<span class="st">"checks"</span>,<span class="st">"#24527a"</span>),(<span class="st">"respond"</span>,<span class="st">"#3a9188"</span>)]):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a> x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.55</span><span class="op">;</span>ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="fl">1.1</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.55</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.6</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-request-lifecycle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;49.1
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="level-2---batching-and-caching-change-the-cost-model" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---batching-and-caching-change-the-cost-model">Level 2 - Batching and caching change the cost model</h2>
+<p>Prefill processes the prompt context; decoding produces later tokens sequentially. Continuous batching can combine requests at different stages, raising hardware utilisation while making queue policy part of latency. A key-value cache retains attention keys and values for prior tokens, avoiding repeated work during decoding. It consumes memory proportional to active sequences, layers, hidden dimensions, and context length. Cache eviction or truncation changes what the model can condition on.</p>
+<p>Admission control decides which requests enter the system when capacity is scarce. A service may limit prompt length, generated tokens, concurrent tool calls, or per-user rate; it may prioritise one workflow over another. These are policy decisions with quality consequences. A rejected request, a truncated context, and a degraded fallback response should be counted separately in service reporting.</p>
+<p>Caching also has correctness boundaries. Reusing a prefix cache is appropriate only when the model version, tokenizer, system prompt, and cached tokens match the current request. Reuse across users or security contexts can expose data. Record cache key design, isolation rules, hit rate, eviction cause, and the effect of cache pressure on latency.</p>
+<p>Token budgets are another admission decision. A system can truncate a long prompt, reserve space for output, summarise earlier context, reject the request, or route it to a larger-context model. These responses are not equivalent: truncation can remove evidence, summarisation can introduce an unverified representation, and a rejection can be the safest result. Log the selected policy and the fraction of requests affected so that an apparent quality or latency change is not attributed solely to the model.</p>
+<p>Capacity planning should use arrival patterns rather than average traffic alone. Short bursts can create a queue even when mean utilisation appears moderate. A production record needs concurrency, request-length distribution, batch policy, accelerator allocation, timeout rate, and tail latency. These fields identify whether a regression came from model decoding, long prompts, a traffic change, or insufficient capacity.</p>
+<section id="queue-policy-distributes-a-scarce-resource" class="level3">
+<h3 class="anchored" data-anchor-id="queue-policy-distributes-a-scarce-resource">Queue policy distributes a scarce resource</h3>
+<p>Requests may be processed in arrival order, grouped by length, prioritised by workflow, or limited by user and tenant quotas. Each policy changes who waits and whose context is truncated or rejected under load. A short-request preference can improve aggregate latency while delaying long-document work; a priority lane can protect a high-consequence workflow while reducing capacity for others. State these choices and measure their effects by request class.</p>
+<p>Retries require the same care. Retrying a failed generation can improve completion rates, but retries also increase load and can duplicate a consequential tool action. Use idempotency keys for actions, cap retry budgets, distinguish transient infrastructure failures from policy refusals, and record whether the retry changed prompt, model, tool state, or user-visible result.</p>
+<div id="50da0947" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>requests<span class="op">=</span>[{<span class="st">"class"</span>:<span class="st">"interactive"</span>,<span class="st">"queue_ms"</span>:<span class="dv">18</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"long-context"</span>,<span class="st">"queue_ms"</span>:<span class="dv">140</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"tool-action"</span>,<span class="st">"queue_ms"</span>:<span class="dv">31</span>,<span class="st">"completed"</span>:<span class="va">False</span>}]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> request <span class="kw">in</span> requests: <span class="bu">print</span>(request)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-batching-tradeoff" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-batching-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>b<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>])<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.plot(b,[<span class="dv">8</span>,<span class="dv">24</span>,<span class="dv">39</span>,<span class="dv">54</span>,<span class="dv">61</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"throughput"</span>)<span class="op">;</span>ax.plot(b,[<span class="dv">35</span>,<span class="dv">42</span>,<span class="dv">55</span>,<span class="dv">79</span>,<span class="dv">128</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"p95 latency"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_xlabel(<span class="st">"batch size"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-batching-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;49.2
+</figcaption>
+</figure>
+</div>
+<div id="010dc20f" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">900</span>,<span class="st">"generated_tokens"</span>:<span class="dv">120</span>,<span class="st">"prefill_ms"</span>:<span class="dv">180</span>,<span class="st">"decode_ms"</span>:<span class="dv">410</span>,<span class="st">"queue_ms"</span>:<span class="dv">35</span>}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end latency"</span>,<span class="bu">sum</span>(v <span class="cf">for</span> k,v <span class="kw">in</span> record.items() <span class="cf">if</span> k.endswith(<span class="st">"_ms"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div id="fig-kv-cache" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-kv-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">9</span>)<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.bar(steps,steps<span class="op">*</span><span class="dv">12</span>,color<span class="op">=</span><span class="st">"#7655a6"</span>)<span class="op">;</span>ax.set_xlabel(<span class="st">"generated token step"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative cache memory"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-kv-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;49.3
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-3---deployment-is-an-experiment-with-safeguards" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---deployment-is-an-experiment-with-safeguards">Level 3 - Deployment is an experiment with safeguards</h2>
+<p>Release policies should define model and prompt versions, traffic allocation, fallback model, timeout, rate limit, tool permissions, and rollback criteria. An offline evaluation set cannot represent every live request. Staged release can compare a candidate against a baseline under matched traffic, while protecting users from known failure modes. Logging requires a retention, access, and redaction policy; observability is not authorisation to retain raw user data.</p>
+<p>A comparison requires a denominator. Report the eligible traffic population, assignment rule, exclusions, sample size, time window, and whether users can retry into another arm. Compare quality, safety, cost, and latency jointly; a candidate that reduces average latency by refusing more requests or routing difficult inputs to a baseline has not established a general operational improvement. For consequential workflows, define a human-review route before exposure rather than after an incident.</p>
+<div id="fig-staged-release" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-staged-release-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,l,c <span class="kw">in</span> [(<span class="fl">.4</span>,<span class="st">"baseline"</span>,<span class="st">"#24527a"</span>),(<span class="fl">2.2</span>,<span class="st">"5%"</span>,<span class="st">"#3a9188"</span>),(<span class="fl">3.7</span>,<span class="st">"25%"</span>,<span class="st">"#3a9188"</span>),(<span class="fl">5.4</span>,<span class="st">"rollback"</span>,<span class="st">"#d97745"</span>)]:ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="fl">1.15</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.58</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-staged-release-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;49.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="level-4---monitor-system-and-outcome-signals" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---monitor-system-and-outcome-signals">Level 4 - Monitor system and outcome signals</h2>
+<p>Monitor availability, errors, queue time, prefill and decoding latency, token counts, cache pressure, cost, refusals, tool failures, and fallback rates. These describe service behaviour. Monitor outcome quality separately through sampled review, user feedback with known selection bias, task-specific checks, and recurring held-out tests. Drift can arise from a changed request population, new documents in retrieval, altered tool behaviour, policy changes, or a model update.</p>
+<p>An alert should name an owner and a response. A p95-latency increase may require capacity adjustment; a rise in tool failures may require disabling a connector; a measured quality regression may require rollback or a narrower eligibility rule. Monitoring without a threshold, decision authority, and incident record produces dashboards without operational control.</p>
+<p>Separate product metrics from validity evidence. A fall in abandonment may reflect faster answers, but it may also reflect a misleading interface or users who cannot identify an error. Retain independent checks for the task property the service is meant to support.</p>
+<p>Drift investigation should begin with a traceable change. Compare model and prompt versions, retrieval index and tool versions, request-length distribution, language and task slices, and any policy or interface change. The response may be to correct a data source, adjust an eligibility rule, disable a tool, retrain a component, or roll back. A dashboard cannot decide among these actions without the record that connects an alert to the deployment configuration.</p>
+<p>Incident exercises should test the recovery path. Simulate a dependency outage, runaway queue, cache exhaustion, malformed tool output, and a measured quality regression. Confirm who receives the alert, who can change traffic, what user communication is required, and how the regression test prevents recurrence. These are properties of the operated system, not of the model checkpoint alone.</p>
+<section id="state-and-versioning-determine-reproducibility" class="level3">
+<h3 class="anchored" data-anchor-id="state-and-versioning-determine-reproducibility">State and versioning determine reproducibility</h3>
+<p>A deployed answer depends on more than model weights. Preserve the model and tokenizer version, system and user prompt templates, retrieval index and corpus version, tool schemas, policy configuration, decoding settings, cache and batching policy, and deployment region or hardware class where it materially affects behaviour. When an incident occurs, this record permits replay or bounded reconstruction without retaining more user data than the retention policy allows.</p>
+<p>Recovery should also be tested for partial failure. A tool may finish after the model times out; a client may disconnect after an action was submitted; a new deployment may receive traffic while an old cache remains warm. Define the authoritative state, the reconciliation procedure, and the user-facing status in each case. These details prevent a service from turning an infrastructure fault into an untraceable model error.</p>
+</section>
+<section id="measure-latency-as-a-distribution-not-one-number" class="level3">
+<h3 class="anchored" data-anchor-id="measure-latency-as-a-distribution-not-one-number">Measure latency as a distribution, not one number</h3>
+<p>An average response time can be compatible with an unacceptable experience for a minority of requests. Long prompts may take longer to prefill; long outputs may occupy a decoder slot; tool calls may pause a response; and requests arriving during a burst may wait in a queue. Report median, p95, p99, timeout, and cancellation rates, together with the prompt-length, output-length, and request-class distributions. A service that looks fast on short prompts can be unusable for the document workflow it was intended to support.</p>
+<p>Break the end-to-end trace into admission, queueing, prefill, decoding, retrieval, tool execution, safety checks, network transfer, and client rendering where the boundary is observable. The purpose is diagnosis. A rising p95 may originate in a new model, cache pressure, an index rebuild, a connector, or traffic composition. Without component traces, a team can make a costly model change to solve a queueing problem.</p>
+<div id="9fba9bb6" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>latency_trace<span class="op">=</span>{<span class="st">"admission_ms"</span>:<span class="dv">2</span>,<span class="st">"queue_ms"</span>:<span class="dv">47</span>,<span class="st">"prefill_ms"</span>:<span class="dv">210</span>,<span class="st">"decode_ms"</span>:<span class="dv">380</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tool_ms"</span>:<span class="dv">0</span>,<span class="st">"checks_ms"</span>:<span class="dv">9</span>,<span class="st">"network_ms"</span>:<span class="dv">18</span>}</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end ms:"</span>,<span class="bu">sum</span>(latency_trace.values()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="throughput-depends-on-scheduling-and-fairness" class="level3">
+<h3 class="anchored" data-anchor-id="throughput-depends-on-scheduling-and-fairness">Throughput depends on scheduling and fairness</h3>
+<p>Throughput is not simply a property of the model. It depends on concurrent requests, batch construction, memory reservation, scheduler policy, hardware topology, cache state, and the output lengths requested by users. Continuous batching can improve utilisation by inserting new work while existing sequences decode, but it can also make the timing of one request depend on others. State the scheduler policy and test it under realistic arrival patterns rather than a uniform synthetic load alone.</p>
+<p>Fairness in serving is operational. A length-aware queue can protect short interactive requests while delaying long-context requests. A tenant quota can stop one client from exhausting capacity while making a high-volume legitimate workflow slower. A priority lane can protect an emergency task but requires an eligibility rule and audit record. Report latency, rejection, truncation, and fallback rates by request class so that efficiency improvements do not hide uneven service.</p>
+</section>
+<section id="caches-require-both-a-performance-and-a-data-policy" class="level3">
+<h3 class="anchored" data-anchor-id="caches-require-both-a-performance-and-a-data-policy">Caches require both a performance and a data policy</h3>
+<p>The key-value cache is a model-state optimisation during autoregressive decoding. A prefix cache can additionally reuse an identical initial context across requests. Both save work only under strict identity and isolation conditions. The key must bind the correct model and tokenizer versions, system prompt, retrieved context where applicable, and permission context. It must not permit one user’s context to become another user’s starting state.</p>
+<p>Cache policies should describe what is stored, where, for how long, who can access it, and what triggers eviction. Memory pressure can cause queueing, an out-of-memory error, truncation, or a lower-concurrency mode. Test these paths. A cache hit rate is not sufficient evidence of a correct design; evaluate cross-user isolation, stale-context risk, and the quality effect of any truncation or summarisation used to preserve capacity.</p>
+<div id="a3493281" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>cache_record<span class="op">=</span>{<span class="st">"key_fields"</span>:[<span class="st">"model"</span>,<span class="st">"tokenizer"</span>,<span class="st">"system prompt"</span>,<span class="st">"authorisation context"</span>],</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>              <span class="st">"ttl_minutes"</span>:<span class="dv">15</span>,<span class="st">"shared_across_users"</span>:<span class="va">False</span>,<span class="st">"eviction"</span>:<span class="st">"least recently used"</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>              <span class="st">"pressure_action"</span>:<span class="st">"admit fewer long contexts"</span>}</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cache_record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="release-candidates-need-a-matched-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="release-candidates-need-a-matched-comparison">Release candidates need a matched comparison</h3>
+<p>Before a release, define the baseline, candidate, eligible request population, allocation method, duration, outcomes, safety checks, and rollback rule. A candidate that receives only easy traffic cannot be compared with a baseline handling the full request distribution. A test in which users retry after a bad response may also contaminate the apparent completion or satisfaction rate. Preserve assignment and retry paths in the analysis.</p>
+<p>Compare release candidates on task outcome, refusal and fallback behaviour, latency distribution, token and tool cost, incident rate, and user burden. A lower cost is not a general improvement if it comes from truncating more contexts or sending hard cases to a human without reporting that route. For workflows with material consequences, stage the release under a defined human-review and recovery boundary before broad exposure.</p>
+</section>
+<section id="observability-has-a-data-minimisation-boundary" class="level3">
+<h3 class="anchored" data-anchor-id="observability-has-a-data-minimisation-boundary">Observability has a data-minimisation boundary</h3>
+<p>Logs help diagnose failures, evaluate drift, and investigate incidents. They can also retain sensitive prompts, documents, outputs, tool arguments, identifiers, and model-internal metadata. Decide which fields are necessary, which can be aggregated or redacted, how long raw traces are retained, who may query them, and how a user or organisation can request deletion where applicable. The retention policy should be tested against actual incident and debugging needs rather than assumed to be harmless.</p>
+<p>Observability records need version links. A quality regression cannot be investigated if the trace lacks model, prompt, retrieval index, tool schema, policy, and deployment identifiers. At the same time, logging every raw input indefinitely creates its own exposure. The design problem is to retain enough information to reconstruct a failure under authorised review while limiting data collection and access.</p>
+</section>
+<section id="drift-is-a-hypothesis-about-a-changed-system" class="level3">
+<h3 class="anchored" data-anchor-id="drift-is-a-hypothesis-about-a-changed-system">Drift is a hypothesis about a changed system</h3>
+<p>Dataset-shift evaluations show that predictive uncertainty can itself become unreliable when the data distribution changes <span class="citation" data-cites="ovadia2019">(<a href="#ref-ovadia2019" role="doc-biblioref">Ovadia et al. 2019</a>)</span>. A deployed AI system has several distributions and components that can change. Users may ask new questions, provide longer documents, switch languages, adopt a new interface, or retry differently. A retrieval corpus can be updated. A tool endpoint can alter its schema or availability. A safety policy can change what is refused. The model may remain fixed while the system outcome changes materially.</p>
+<p>Start a drift investigation with a baseline window and a defined comparison window. Compare request characteristics, routing, model and prompt versions, retrieval and tool versions, latency components, output or outcome samples, and failure categories. Slice by task, language, user role, context length, and consequence where those dimensions are relevant. An aggregate metric can remain stable while one important workflow deteriorates.</p>
+<p>When a change is observed, state competing explanations before selecting a remedy. A rise in hallucination reports may reflect a new knowledge domain, weaker retrieval, changed user expectations, or a reporting-interface change. A rise in latency may reflect traffic, cache pressure, model version, or an external service. The corrective action should follow the diagnosis: change a corpus, adjust routing, modify a prompt, add capacity, disable a tool, or roll back a release. Monitoring cannot decide this without a traceable configuration record.</p>
+<div id="afed1c28" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>drift_compare<span class="op">=</span>{<span class="st">"baseline"</span>:{<span class="st">"long_context_share"</span>:<span class="fl">.14</span>,<span class="st">"p95_ms"</span>:<span class="dv">820</span>,<span class="st">"grounding_score"</span>:<span class="fl">.76</span>},</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"current"</span>:{<span class="st">"long_context_share"</span>:<span class="fl">.31</span>,<span class="st">"p95_ms"</span>:<span class="dv">1260</span>,<span class="st">"grounding_score"</span>:<span class="fl">.68</span>},</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"first_checks"</span>:[<span class="st">"request length"</span>,<span class="st">"retrieval index version"</span>,<span class="st">"cache pressure"</span>,<span class="st">"prompt version"</span>]}</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(drift_compare)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="service-level-objectives-specify-an-acceptable-operating-region" class="level3">
+<h3 class="anchored" data-anchor-id="service-level-objectives-specify-an-acceptable-operating-region">Service-level objectives specify an acceptable operating region</h3>
+<p>A service-level objective (SLO) translates a user or organisational need into a measurable target. It may specify availability, p95 latency for an eligible request class, successful completion rate, tool-action correctness, or a rate of independently checked grounded answers. The target must name its denominator and exclusions. “99% available” is incomplete unless it states which requests, regions, dependencies, and time window count.</p>
+<p>SLOs involve trade-offs. A strict latency objective can require shorter contexts, lower output budgets, more hardware, a simpler model, or a fallback. A strict quality objective can reduce throughput or increase human review. Define an error budget and the action when it is exhausted: pause a feature release, add capacity, narrow eligibility, or roll back. This makes reliability a decision rule rather than a retrospective dashboard.</p>
+</section>
+<section id="incidents-require-containment-and-learning" class="level3">
+<h3 class="anchored" data-anchor-id="incidents-require-containment-and-learning">Incidents require containment and learning</h3>
+<p>An incident can involve availability, data exposure, harmful output, unauthorised tool action, severe quality regression, or a combination. The immediate priority is containment: stop traffic, disable a tool, revoke a credential, isolate a corpus, or route requests to a safe fallback. The response should preserve authorised evidence, identify affected users or assets, and communicate status according to the consequence and policy.</p>
+<p>Investigation then reconstructs the path. Which request or input class triggered the failure? Which model, prompt, policy, retrieval index, cache state, and tool version were active? Did a safeguard fail, or was the pathway outside its declared coverage? Corrective work should add a regression test that reproduces the failure under safe conditions. Closing an incident because a visible symptom disappeared does not demonstrate that the underlying pathway is controlled.</p>
+<div id="489d290c" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>incident<span class="op">=</span>{<span class="st">"signal"</span>:<span class="st">"unexpected tool calls"</span>,<span class="st">"containment"</span>:<span class="st">"disable write scope"</span>,<span class="st">"owner"</span>:<span class="st">"on-call lead"</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"evidence"</span>:<span class="st">"authorisation and request traces"</span>,<span class="st">"correction"</span>:<span class="st">"validate structured arguments"</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"regression"</span>:<span class="st">"hostile retrieved-content test"</span>}</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(incident)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="cost-accounting-must-follow-the-served-request" class="level3">
+<h3 class="anchored" data-anchor-id="cost-accounting-must-follow-the-served-request">Cost accounting must follow the served request</h3>
+<p>Cost is influenced by prompt and output length, batch utilisation, cache hits, model routing, hardware reservation, tool calls, retries, monitoring, human review, and incident work. Report a distribution or request-class table rather than one average. A cheap average can hide a small group of requests that consumes most compute or a fallback path that moves cost to staff.</p>
+<p>For a change proposal, estimate both marginal and total cost. Adding a larger model for difficult requests may have a modest marginal cost at low volume and a large capacity cost at high volume. Adding a cache can reduce compute while adding memory and data-governance obligations. The decision record should state the assumed traffic volume, quality requirement, and resource constraint so that another team can revisit it when the workload changes.</p>
+</section>
+<section id="the-operational-record-connects-the-chapters-mechanisms" class="level3">
+<h3 class="anchored" data-anchor-id="the-operational-record-connects-the-chapters-mechanisms">The operational record connects the chapter’s mechanisms</h3>
+<p>For each production version, retain a concise record of the model and tokenizer, prompt and policy configuration, routing and batching rules, cache policy, hardware and region, retrieval and tool versions, eligible traffic, SLOs, monitoring fields, incident contacts, rollback procedure, data-retention policy, and evaluation evidence. This extends the reporting discipline proposed for model documentation <span class="citation" data-cites="mitchell2019">(<a href="#ref-mitchell2019" role="doc-biblioref">Mitchell et al. 2019</a>)</span> to the configuration that actually serves users. It is the minimum information required to interpret a latency number, a quality metric, or an incident report.</p>
+<p>The record also establishes the boundary for Chapter 49. Safe and responsible use depends on service permissions, data handling, monitoring, and recovery as well as model behaviour. A model can be well evaluated offline and still be deployed through an unsafe operational configuration.</p>
+</section>
+<section id="test-the-service-before-and-after-deployment" class="level3">
+<h3 class="anchored" data-anchor-id="test-the-service-before-and-after-deployment">Test the service before and after deployment</h3>
+<p>Offline load tests should include the request-length and concurrency distributions expected in use, not only a batch of identical short prompts. Test cold starts, cache warm-up, long outputs, cancelled requests, dependency delays, retrieval failures, malformed tool responses, and traffic bursts. Confirm that metrics are emitted when the system degrades; an outage that also disables monitoring cannot be diagnosed from a normal dashboard.</p>
+<p>Before broad release, run a staged test with the defined eligible population and fallback. After release, retain a small independent quality sample and compare it with the pre-release baseline. The objective is to detect a regression early, not to declare success because the service remained available. If the system changes a user-facing decision or action, include the human review and remedy path in the exercise.</p>
+</section>
+<section id="bounded-claims-about-a-deployed-system" class="level3">
+<h3 class="anchored" data-anchor-id="bounded-claims-about-a-deployed-system">Bounded claims about a deployed system</h3>
+<p>A credible serving claim can state that a named configuration achieved a defined p95 latency, completion rate, and independently checked task outcome for an eligible traffic population during a specified period. It should list major exclusions, fallback routes, and the monitoring that would detect a changed condition. It does not establish the same result for a different prompt policy, data source, hardware region, traffic pattern, or consequence level without new evidence.</p>
+<p>This bounded account makes operational work cumulative. Later deployments can compare configuration records and investigate changes rather than rebuilding an explanation from anecdote. It also leaves a clear handoff to safety and governance: performance goals do not determine whether a system has appropriate permissions, user protections, or accountability.</p>
+<p>The final operational question is therefore practical: when a measured objective conflicts with another requirement, who is authorised to decide, what evidence will they use, and how will the resulting change be tested and communicated? A service that cannot answer those questions has not completed its deployment design.</p>
+<p>The answer should be recorded before a crisis, reviewed after each material change, and available to the people who operate, audit, and rely on the service.</p>
+<p>It should include the authority to pause traffic, notify affected users, preserve authorised evidence, and require a verified regression test before restoration.</p>
+<div id="fig-monitoring-layers" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-monitoring-layers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(l,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"infrastructure"</span>,<span class="st">"#24527a"</span>),(<span class="st">"requests"</span>,<span class="st">"#7655a6"</span>),(<span class="st">"outputs"</span>,<span class="st">"#3a9188"</span>),(<span class="st">"outcomes"</span>,<span class="st">"#d97745"</span>),(<span class="st">"governance"</span>,<span class="st">"#24527a"</span>)]):ax.add_patch(Rectangle((<span class="dv">1</span>,<span class="fl">2.9</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span>),<span class="dv">5</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(<span class="fl">3.5</span>,<span class="fl">3.11</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.6</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-monitoring-layers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;49.5
+</figcaption>
+</figure>
+</div>
+<div id="fig-drift-slices" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-drift-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.81</span>,<span class="fl">.80</span>,<span class="fl">.81</span>,<span class="fl">.80</span>],label<span class="op">=</span><span class="st">"reference"</span>)<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.80</span>,<span class="fl">.77</span>,<span class="fl">.69</span>,<span class="fl">.63</span>],label<span class="op">=</span><span class="st">"shifted slice"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_ylabel(<span class="st">"task score"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-drift-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;49.6
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Separate queue, prefill, decoding, and end-to-end latency.</li>
+<li>Define throughput for a declared time window.</li>
+<li>Explain one batching trade-off.</li>
+<li>State one KV-cache memory driver.</li>
+<li>Design a cache-eviction record.</li>
+<li>Specify a rollout eligibility rule.</li>
+<li>Define a rollback criterion.</li>
+<li>List infrastructure monitoring signals.</li>
+<li>List task-outcome monitoring signals.</li>
+<li>Identify a logging privacy decision.</li>
+<li>Construct a population-drift slice.</li>
+<li>Explain why average latency can conceal tail failures.</li>
+<li>Compare a fallback and retry policy.</li>
+<li>Design a tool-failure alert.</li>
+<li>Specify fields in a deployment record.</li>
+<li>Identify the next chapter’s safety question.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Serving turns a model into a queueing, caching, and monitoring system with explicit rollout and recovery policies. Performance must be assessed in both service and outcome terms.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>Operational controls can expose failures and limit their spread, but they do not define which threats a system must withstand or who is accountable when controls fail. <a href="./49-safety-security-responsible-use.html">Chapter 49</a> addresses those safety, security, data-handling, and governance decisions.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-mitchell2019" class="csl-entry" role="listitem">
+Mitchell, Margaret et al. 2019. <span>“Model Cards for Model Reporting.”</span> In <em>Proceedings of the Conference on Fairness, Accountability, and Transparency</em>, 220–29. <a href="https://doi.org/10.1145/3287560.3287596">https://doi.org/10.1145/3287560.3287596</a>.
+</div>
+<div id="ref-ovadia2019" class="csl-entry" role="listitem">
+Ovadia, Yaniv, Emily Fertig, Jie Ren, Zachary Nado, D. Sculley, Sebastian Nowozin, Joshua V. Dillon, Balaji Lakshminarayanan, and Jasper Snoek. 2019. <span>“Can You Trust Your Model’s Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 32. <a href="https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html">https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html</a>.
+</div>
+<div id="ref-sculley2015" class="csl-entry" role="listitem">
+Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Systems.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 28.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./47-scaling-laws-and-compute.html" class="pagination-link" aria-label="Scaling Laws and Compute">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Scaling Laws and Compute</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./49-safety-security-responsible-use.html" class="pagination-link" aria-label="Safety, Security, and Responsible Use">
+        <span class="nav-page-text"><span class="chapter-title">Safety, Security, and Responsible Use</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Serving, Deployment, and Monitoring"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Latency, throughput, batching, caching, observability, and drift"</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>A trained model becomes a service only when requests can be admitted, processed, observed, and recovered under a declared reliability and cost budget. Model quality measured offline is one component of that system. Prompt length, batching, queueing, decoding, cache policy, hardware, fallbacks, and user traffic determine what a deployment delivers. The dependence of model behaviour on surrounding technical systems is a central source of accumulated machine-learning technical debt <span class="co">[</span><span class="ot">@sculley2015</span><span class="co">]</span>.</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - A request has a lifecycle</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>A request is validated, queued, prefixed through the model, decoded token by token, checked against policy or tool constraints where relevant, and returned with a record. Latency includes waiting as well as model execution. Throughput is the number of completed requests over time. Improving one can worsen the other: larger batches often raise throughput while delaying individual requests.</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-request-lifecycle</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A deployed model request passes through admission, queueing, prefill, decoding, checks, response, and an observability record."</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A sequence of boxes shows the request lifecycle from admission to response, with monitoring attached to each stage."</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(l,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"admit"</span>,<span class="st">"#24527a"</span>),(<span class="st">"queue"</span>,<span class="st">"#7655a6"</span>),(<span class="st">"prefill"</span>,<span class="st">"#3a9188"</span>),(<span class="st">"decode"</span>,<span class="st">"#d97745"</span>),(<span class="st">"checks"</span>,<span class="st">"#24527a"</span>),(<span class="st">"respond"</span>,<span class="st">"#3a9188"</span>)]):</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a> x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.55</span><span class="op">;</span>ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="fl">1.1</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.55</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.6</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Batching and caching change the cost model</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>Prefill processes the prompt context; decoding produces later tokens sequentially. Continuous batching can combine requests at different stages, raising hardware utilisation while making queue policy part of latency. A key-value cache retains attention keys and values for prior tokens, avoiding repeated work during decoding. It consumes memory proportional to active sequences, layers, hidden dimensions, and context length. Cache eviction or truncation changes what the model can condition on.</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>Admission control decides which requests enter the system when capacity is scarce. A service may limit prompt length, generated tokens, concurrent tool calls, or per-user rate; it may prioritise one workflow over another. These are policy decisions with quality consequences. A rejected request, a truncated context, and a degraded fallback response should be counted separately in service reporting.</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>Caching also has correctness boundaries. Reusing a prefix cache is appropriate only when the model version, tokenizer, system prompt, and cached tokens match the current request. Reuse across users or security contexts can expose data. Record cache key design, isolation rules, hit rate, eviction cause, and the effect of cache pressure on latency.</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>Token budgets are another admission decision. A system can truncate a long prompt, reserve space for output, summarise earlier context, reject the request, or route it to a larger-context model. These responses are not equivalent: truncation can remove evidence, summarisation can introduce an unverified representation, and a rejection can be the safest result. Log the selected policy and the fraction of requests affected so that an apparent quality or latency change is not attributed solely to the model.</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>Capacity planning should use arrival patterns rather than average traffic alone. Short bursts can create a queue even when mean utilisation appears moderate. A production record needs concurrency, request-length distribution, batch policy, accelerator allocation, timeout rate, and tail latency. These fields identify whether a regression came from model decoding, long prompts, a traffic change, or insufficient capacity.</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="fu">### Queue policy distributes a scarce resource</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>Requests may be processed in arrival order, grouped by length, prioritised by workflow, or limited by user and tenant quotas. Each policy changes who waits and whose context is truncated or rejected under load. A short-request preference can improve aggregate latency while delaying long-document work; a priority lane can protect a high-consequence workflow while reducing capacity for others. State these choices and measure their effects by request class.</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>Retries require the same care. Retrying a failed generation can improve completion rates, but retries also increase load and can duplicate a consequential tool action. Use idempotency keys for actions, cap retry budgets, distinguish transient infrastructure failures from policy refusals, and record whether the retry changed prompt, model, tool state, or user-visible result.</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>requests<span class="op">=</span>[{<span class="st">"class"</span>:<span class="st">"interactive"</span>,<span class="st">"queue_ms"</span>:<span class="dv">18</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"long-context"</span>,<span class="st">"queue_ms"</span>:<span class="dv">140</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"tool-action"</span>,<span class="st">"queue_ms"</span>:<span class="dv">31</span>,<span class="st">"completed"</span>:<span class="va">False</span>}]</span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> request <span class="kw">in</span> requests: <span class="bu">print</span>(request)</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-batching-tradeoff</span></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Larger batches can raise throughput while queueing and tail latency increase; the selected policy should be evaluated against both measures."</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two lines show throughput increasing and p95 latency increasing as batch size grows."</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>b<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>])<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.plot(b,[<span class="dv">8</span>,<span class="dv">24</span>,<span class="dv">39</span>,<span class="dv">54</span>,<span class="dv">61</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"throughput"</span>)<span class="op">;</span>ax.plot(b,[<span class="dv">35</span>,<span class="dv">42</span>,<span class="dv">55</span>,<span class="dv">79</span>,<span class="dv">128</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"p95 latency"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_xlabel(<span class="st">"batch size"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">900</span>,<span class="st">"generated_tokens"</span>:<span class="dv">120</span>,<span class="st">"prefill_ms"</span>:<span class="dv">180</span>,<span class="st">"decode_ms"</span>:<span class="dv">410</span>,<span class="st">"queue_ms"</span>:<span class="dv">35</span>}</span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end latency"</span>,<span class="bu">sum</span>(v <span class="cf">for</span> k,v <span class="kw">in</span> record.items() <span class="cf">if</span> k.endswith(<span class="st">"_ms"</span>)))</span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-kv-cache</span></span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A key-value cache avoids recomputing prior attention states during decoding but grows with active sequence length and concurrency."</span></span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A growing token sequence points to an expanding cache memory bar during successive decoding steps."</span></span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">9</span>)<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.bar(steps,steps<span class="op">*</span><span class="dv">12</span>,color<span class="op">=</span><span class="st">"#7655a6"</span>)<span class="op">;</span>ax.set_xlabel(<span class="st">"generated token step"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative cache memory"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Deployment is an experiment with safeguards</span></span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>Release policies should define model and prompt versions, traffic allocation, fallback model, timeout, rate limit, tool permissions, and rollback criteria. An offline evaluation set cannot represent every live request. Staged release can compare a candidate against a baseline under matched traffic, while protecting users from known failure modes. Logging requires a retention, access, and redaction policy; observability is not authorisation to retain raw user data.</span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a>A comparison requires a denominator. Report the eligible traffic population, assignment rule, exclusions, sample size, time window, and whether users can retry into another arm. Compare quality, safety, cost, and latency jointly; a candidate that reduces average latency by refusing more requests or routing difficult inputs to a baseline has not established a general operational improvement. For consequential workflows, define a human-review route before exposure rather than after an incident.</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-staged-release</span></span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A staged release sends a measured share of eligible traffic to a candidate model while retaining a baseline, safeguards, and rollback decision."</span></span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Traffic flows first to a baseline and then in increasing small shares to a candidate, with a rollback arrow."</span></span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,l,c <span class="kw">in</span> [(<span class="fl">.4</span>,<span class="st">"baseline"</span>,<span class="st">"#24527a"</span>),(<span class="fl">2.2</span>,<span class="st">"5%"</span>,<span class="st">"#3a9188"</span>),(<span class="fl">3.7</span>,<span class="st">"25%"</span>,<span class="st">"#3a9188"</span>),(<span class="fl">5.4</span>,<span class="st">"rollback"</span>,<span class="st">"#d97745"</span>)]:ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="fl">1.15</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.58</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Monitor system and outcome signals</span></span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a>Monitor availability, errors, queue time, prefill and decoding latency, token counts, cache pressure, cost, refusals, tool failures, and fallback rates. These describe service behaviour. Monitor outcome quality separately through sampled review, user feedback with known selection bias, task-specific checks, and recurring held-out tests. Drift can arise from a changed request population, new documents in retrieval, altered tool behaviour, policy changes, or a model update.</span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>An alert should name an owner and a response. A p95-latency increase may require capacity adjustment; a rise in tool failures may require disabling a connector; a measured quality regression may require rollback or a narrower eligibility rule. Monitoring without a threshold, decision authority, and incident record produces dashboards without operational control.</span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>Separate product metrics from validity evidence. A fall in abandonment may reflect faster answers, but it may also reflect a misleading interface or users who cannot identify an error. Retain independent checks for the task property the service is meant to support.</span>
+<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a>Drift investigation should begin with a traceable change. Compare model and prompt versions, retrieval index and tool versions, request-length distribution, language and task slices, and any policy or interface change. The response may be to correct a data source, adjust an eligibility rule, disable a tool, retrain a component, or roll back. A dashboard cannot decide among these actions without the record that connects an alert to the deployment configuration.</span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a>Incident exercises should test the recovery path. Simulate a dependency outage, runaway queue, cache exhaustion, malformed tool output, and a measured quality regression. Confirm who receives the alert, who can change traffic, what user communication is required, and how the regression test prevents recurrence. These are properties of the operated system, not of the model checkpoint alone.</span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a><span class="fu">### State and versioning determine reproducibility</span></span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a>A deployed answer depends on more than model weights. Preserve the model and tokenizer version, system and user prompt templates, retrieval index and corpus version, tool schemas, policy configuration, decoding settings, cache and batching policy, and deployment region or hardware class where it materially affects behaviour. When an incident occurs, this record permits replay or bounded reconstruction without retaining more user data than the retention policy allows.</span>
+<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>Recovery should also be tested for partial failure. A tool may finish after the model times out; a client may disconnect after an action was submitted; a new deployment may receive traffic while an old cache remains warm. Define the authoritative state, the reconciliation procedure, and the user-facing status in each case. These details prevent a service from turning an infrastructure fault into an untraceable model error.</span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a><span class="fu">### Measure latency as a distribution, not one number</span></span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a>An average response time can be compatible with an unacceptable experience for a minority of requests. Long prompts may take longer to prefill; long outputs may occupy a decoder slot; tool calls may pause a response; and requests arriving during a burst may wait in a queue. Report median, p95, p99, timeout, and cancellation rates, together with the prompt-length, output-length, and request-class distributions. A service that looks fast on short prompts can be unusable for the document workflow it was intended to support.</span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>Break the end-to-end trace into admission, queueing, prefill, decoding, retrieval, tool execution, safety checks, network transfer, and client rendering where the boundary is observable. The purpose is diagnosis. A rising p95 may originate in a new model, cache pressure, an index rebuild, a connector, or traffic composition. Without component traces, a team can make a costly model change to solve a queueing problem.</span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>latency_trace<span class="op">=</span>{<span class="st">"admission_ms"</span>:<span class="dv">2</span>,<span class="st">"queue_ms"</span>:<span class="dv">47</span>,<span class="st">"prefill_ms"</span>:<span class="dv">210</span>,<span class="st">"decode_ms"</span>:<span class="dv">380</span>,</span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tool_ms"</span>:<span class="dv">0</span>,<span class="st">"checks_ms"</span>:<span class="dv">9</span>,<span class="st">"network_ms"</span>:<span class="dv">18</span>}</span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end ms:"</span>,<span class="bu">sum</span>(latency_trace.values()))</span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a><span class="fu">### Throughput depends on scheduling and fairness</span></span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a>Throughput is not simply a property of the model. It depends on concurrent requests, batch construction, memory reservation, scheduler policy, hardware topology, cache state, and the output lengths requested by users. Continuous batching can improve utilisation by inserting new work while existing sequences decode, but it can also make the timing of one request depend on others. State the scheduler policy and test it under realistic arrival patterns rather than a uniform synthetic load alone.</span>
+<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a>Fairness in serving is operational. A length-aware queue can protect short interactive requests while delaying long-context requests. A tenant quota can stop one client from exhausting capacity while making a high-volume legitimate workflow slower. A priority lane can protect an emergency task but requires an eligibility rule and audit record. Report latency, rejection, truncation, and fallback rates by request class so that efficiency improvements do not hide uneven service.</span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a><span class="fu">### Caches require both a performance and a data policy</span></span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a>The key-value cache is a model-state optimisation during autoregressive decoding. A prefix cache can additionally reuse an identical initial context across requests. Both save work only under strict identity and isolation conditions. The key must bind the correct model and tokenizer versions, system prompt, retrieved context where applicable, and permission context. It must not permit one user's context to become another user's starting state.</span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a>Cache policies should describe what is stored, where, for how long, who can access it, and what triggers eviction. Memory pressure can cause queueing, an out-of-memory error, truncation, or a lower-concurrency mode. Test these paths. A cache hit rate is not sufficient evidence of a correct design; evaluate cross-user isolation, stale-context risk, and the quality effect of any truncation or summarisation used to preserve capacity.</span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a>cache_record<span class="op">=</span>{<span class="st">"key_fields"</span>:[<span class="st">"model"</span>,<span class="st">"tokenizer"</span>,<span class="st">"system prompt"</span>,<span class="st">"authorisation context"</span>],</span>
+<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a>              <span class="st">"ttl_minutes"</span>:<span class="dv">15</span>,<span class="st">"shared_across_users"</span>:<span class="va">False</span>,<span class="st">"eviction"</span>:<span class="st">"least recently used"</span>,</span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a>              <span class="st">"pressure_action"</span>:<span class="st">"admit fewer long contexts"</span>}</span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cache_record)</span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### Release candidates need a matched comparison</span></span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a>Before a release, define the baseline, candidate, eligible request population, allocation method, duration, outcomes, safety checks, and rollback rule. A candidate that receives only easy traffic cannot be compared with a baseline handling the full request distribution. A test in which users retry after a bad response may also contaminate the apparent completion or satisfaction rate. Preserve assignment and retry paths in the analysis.</span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a>Compare release candidates on task outcome, refusal and fallback behaviour, latency distribution, token and tool cost, incident rate, and user burden. A lower cost is not a general improvement if it comes from truncating more contexts or sending hard cases to a human without reporting that route. For workflows with material consequences, stage the release under a defined human-review and recovery boundary before broad exposure.</span>
+<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a><span class="fu">### Observability has a data-minimisation boundary</span></span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a>Logs help diagnose failures, evaluate drift, and investigate incidents. They can also retain sensitive prompts, documents, outputs, tool arguments, identifiers, and model-internal metadata. Decide which fields are necessary, which can be aggregated or redacted, how long raw traces are retained, who may query them, and how a user or organisation can request deletion where applicable. The retention policy should be tested against actual incident and debugging needs rather than assumed to be harmless.</span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a>Observability records need version links. A quality regression cannot be investigated if the trace lacks model, prompt, retrieval index, tool schema, policy, and deployment identifiers. At the same time, logging every raw input indefinitely creates its own exposure. The design problem is to retain enough information to reconstruct a failure under authorised review while limiting data collection and access.</span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a><span class="fu">### Drift is a hypothesis about a changed system</span></span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a>Dataset-shift evaluations show that predictive uncertainty can itself become unreliable when the data distribution changes <span class="co">[</span><span class="ot">@ovadia2019</span><span class="co">]</span>. A deployed AI system has several distributions and components that can change. Users may ask new questions, provide longer documents, switch languages, adopt a new interface, or retry differently. A retrieval corpus can be updated. A tool endpoint can alter its schema or availability. A safety policy can change what is refused. The model may remain fixed while the system outcome changes materially.</span>
+<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a>Start a drift investigation with a baseline window and a defined comparison window. Compare request characteristics, routing, model and prompt versions, retrieval and tool versions, latency components, output or outcome samples, and failure categories. Slice by task, language, user role, context length, and consequence where those dimensions are relevant. An aggregate metric can remain stable while one important workflow deteriorates.</span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a>When a change is observed, state competing explanations before selecting a remedy. A rise in hallucination reports may reflect a new knowledge domain, weaker retrieval, changed user expectations, or a reporting-interface change. A rise in latency may reflect traffic, cache pressure, model version, or an external service. The corrective action should follow the diagnosis: change a corpus, adjust routing, modify a prompt, add capacity, disable a tool, or roll back a release. Monitoring cannot decide this without a traceable configuration record.</span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a>drift_compare<span class="op">=</span>{<span class="st">"baseline"</span>:{<span class="st">"long_context_share"</span>:<span class="fl">.14</span>,<span class="st">"p95_ms"</span>:<span class="dv">820</span>,<span class="st">"grounding_score"</span>:<span class="fl">.76</span>},</span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a>               <span class="st">"current"</span>:{<span class="st">"long_context_share"</span>:<span class="fl">.31</span>,<span class="st">"p95_ms"</span>:<span class="dv">1260</span>,<span class="st">"grounding_score"</span>:<span class="fl">.68</span>},</span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a>               <span class="st">"first_checks"</span>:[<span class="st">"request length"</span>,<span class="st">"retrieval index version"</span>,<span class="st">"cache pressure"</span>,<span class="st">"prompt version"</span>]}</span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(drift_compare)</span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a><span class="fu">### Service-level objectives specify an acceptable operating region</span></span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-181"><a href="#cb13-181" aria-hidden="true" tabindex="-1"></a>A service-level objective (SLO) translates a user or organisational need into a measurable target. It may specify availability, p95 latency for an eligible request class, successful completion rate, tool-action correctness, or a rate of independently checked grounded answers. The target must name its denominator and exclusions. “99% available” is incomplete unless it states which requests, regions, dependencies, and time window count.</span>
+<span id="cb13-182"><a href="#cb13-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a>SLOs involve trade-offs. A strict latency objective can require shorter contexts, lower output budgets, more hardware, a simpler model, or a fallback. A strict quality objective can reduce throughput or increase human review. Define an error budget and the action when it is exhausted: pause a feature release, add capacity, narrow eligibility, or roll back. This makes reliability a decision rule rather than a retrospective dashboard.</span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a><span class="fu">### Incidents require containment and learning</span></span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a>An incident can involve availability, data exposure, harmful output, unauthorised tool action, severe quality regression, or a combination. The immediate priority is containment: stop traffic, disable a tool, revoke a credential, isolate a corpus, or route requests to a safe fallback. The response should preserve authorised evidence, identify affected users or assets, and communicate status according to the consequence and policy.</span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a>Investigation then reconstructs the path. Which request or input class triggered the failure? Which model, prompt, policy, retrieval index, cache state, and tool version were active? Did a safeguard fail, or was the pathway outside its declared coverage? Corrective work should add a regression test that reproduces the failure under safe conditions. Closing an incident because a visible symptom disappeared does not demonstrate that the underlying pathway is controlled.</span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a>incident<span class="op">=</span>{<span class="st">"signal"</span>:<span class="st">"unexpected tool calls"</span>,<span class="st">"containment"</span>:<span class="st">"disable write scope"</span>,<span class="st">"owner"</span>:<span class="st">"on-call lead"</span>,</span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a>          <span class="st">"evidence"</span>:<span class="st">"authorisation and request traces"</span>,<span class="st">"correction"</span>:<span class="st">"validate structured arguments"</span>,</span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a>          <span class="st">"regression"</span>:<span class="st">"hostile retrieved-content test"</span>}</span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(incident)</span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cost accounting must follow the served request</span></span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a>Cost is influenced by prompt and output length, batch utilisation, cache hits, model routing, hardware reservation, tool calls, retries, monitoring, human review, and incident work. Report a distribution or request-class table rather than one average. A cheap average can hide a small group of requests that consumes most compute or a fallback path that moves cost to staff.</span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a>For a change proposal, estimate both marginal and total cost. Adding a larger model for difficult requests may have a modest marginal cost at low volume and a large capacity cost at high volume. Adding a cache can reduce compute while adding memory and data-governance obligations. The decision record should state the assumed traffic volume, quality requirement, and resource constraint so that another team can revisit it when the workload changes.</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a><span class="fu">### The operational record connects the chapter's mechanisms</span></span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a>For each production version, retain a concise record of the model and tokenizer, prompt and policy configuration, routing and batching rules, cache policy, hardware and region, retrieval and tool versions, eligible traffic, SLOs, monitoring fields, incident contacts, rollback procedure, data-retention policy, and evaluation evidence. This extends the reporting discipline proposed for model documentation <span class="co">[</span><span class="ot">@mitchell2019</span><span class="co">]</span> to the configuration that actually serves users. It is the minimum information required to interpret a latency number, a quality metric, or an incident report.</span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a>The record also establishes the boundary for Chapter 49. Safe and responsible use depends on service permissions, data handling, monitoring, and recovery as well as model behaviour. A model can be well evaluated offline and still be deployed through an unsafe operational configuration.</span>
+<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a><span class="fu">### Test the service before and after deployment</span></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a>Offline load tests should include the request-length and concurrency distributions expected in use, not only a batch of identical short prompts. Test cold starts, cache warm-up, long outputs, cancelled requests, dependency delays, retrieval failures, malformed tool responses, and traffic bursts. Confirm that metrics are emitted when the system degrades; an outage that also disables monitoring cannot be diagnosed from a normal dashboard.</span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a>Before broad release, run a staged test with the defined eligible population and fallback. After release, retain a small independent quality sample and compare it with the pre-release baseline. The objective is to detect a regression early, not to declare success because the service remained available. If the system changes a user-facing decision or action, include the human review and remedy path in the exercise.</span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a><span class="fu">### Bounded claims about a deployed system</span></span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>A credible serving claim can state that a named configuration achieved a defined p95 latency, completion rate, and independently checked task outcome for an eligible traffic population during a specified period. It should list major exclusions, fallback routes, and the monitoring that would detect a changed condition. It does not establish the same result for a different prompt policy, data source, hardware region, traffic pattern, or consequence level without new evidence.</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>This bounded account makes operational work cumulative. Later deployments can compare configuration records and investigate changes rather than rebuilding an explanation from anecdote. It also leaves a clear handoff to safety and governance: performance goals do not determine whether a system has appropriate permissions, user protections, or accountability.</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a>The final operational question is therefore practical: when a measured objective conflicts with another requirement, who is authorised to decide, what evidence will they use, and how will the resulting change be tested and communicated? A service that cannot answer those questions has not completed its deployment design.</span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>The answer should be recorded before a crisis, reviewed after each material change, and available to the people who operate, audit, and rely on the service.</span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a>It should include the authority to pause traffic, notify affected users, preserve authorised evidence, and require a verified regression test before restoration.</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-monitoring-layers</span></span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Monitoring separates infrastructure, request, model-output, task-outcome, and governance signals because one layer cannot diagnose all failures."</span></span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Five stacked bands label infrastructure, requests, outputs, outcomes, and governance records."</span></span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(l,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"infrastructure"</span>,<span class="st">"#24527a"</span>),(<span class="st">"requests"</span>,<span class="st">"#7655a6"</span>),(<span class="st">"outputs"</span>,<span class="st">"#3a9188"</span>),(<span class="st">"outcomes"</span>,<span class="st">"#d97745"</span>),(<span class="st">"governance"</span>,<span class="st">"#24527a"</span>)]):ax.add_patch(Rectangle((<span class="dv">1</span>,<span class="fl">2.9</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span>),<span class="dv">5</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(<span class="fl">3.5</span>,<span class="fl">3.11</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.6</span>)<span class="op">;</span>plt.show()</span>
+<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-drift-slices</span></span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Outcome monitoring should compare a stable reference slice with changed request populations rather than infer quality from aggregate traffic alone."</span></span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A line chart shows stable reference performance and declining performance on a shifted traffic slice."</span></span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.81</span>,<span class="fl">.80</span>,<span class="fl">.81</span>,<span class="fl">.80</span>],label<span class="op">=</span><span class="st">"reference"</span>)<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.80</span>,<span class="fl">.77</span>,<span class="fl">.69</span>,<span class="fl">.63</span>],label<span class="op">=</span><span class="st">"shifted slice"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_ylabel(<span class="st">"task score"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Separate queue, prefill, decoding, and end-to-end latency.</span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Define throughput for a declared time window.</span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain one batching trade-off.</span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>State one KV-cache memory driver.</span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Design a cache-eviction record.</span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Specify a rollout eligibility rule.</span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Define a rollback criterion.</span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>List infrastructure monitoring signals.</span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>List task-outcome monitoring signals.</span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Identify a logging privacy decision.</span>
+<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Construct a population-drift slice.</span>
+<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Explain why average latency can conceal tail failures.</span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Compare a fallback and retry policy.</span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Design a tool-failure alert.</span>
+<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Specify fields in a deployment record.</span>
+<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the next chapter's safety question.</span>
+<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb13-270"><a href="#cb13-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-271"><a href="#cb13-271" aria-hidden="true" tabindex="-1"></a>Serving turns a model into a queueing, caching, and monitoring system with explicit rollout and recovery policies. Performance must be assessed in both service and outcome terms.</span>
+<span id="cb13-272"><a href="#cb13-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-273"><a href="#cb13-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb13-274"><a href="#cb13-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-275"><a href="#cb13-275" aria-hidden="true" tabindex="-1"></a>Operational controls can expose failures and limit their spread, but they do not define which threats a system must withstand or who is accountable when controls fail. <span class="co">[</span><span class="ot">Chapter 49</span><span class="co">](49-safety-security-responsible-use.qmd)</span> addresses those safety, security, data-handling, and governance decisions.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

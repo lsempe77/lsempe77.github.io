@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>GRPO and Related Training Methods – Machine Learning Concepts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./41-distillation-and-efficient-reasoning.html" rel="next">
+<link href="./39-reinforcement-learning-for-reasoning.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./40-grpo-and-related-training-methods.html"><span class="chapter-title">GRPO and Related Training Methods</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Machine Learning Concepts</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-what-is-machine-learning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Is Machine Learning?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-models-predictions-loss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Models, Predictions, and Loss Functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-gradient-descent.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Gradient Descent</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-backpropagation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Backpropagation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-artificial-neuron.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Artificial Neuron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-neural-network-layers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Neural Network Layers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-activation-functions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Activation Functions and Non-linearity</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-small-neural-network.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Building a Small Neural Network</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-generalisation-overfitting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generalisation and Overfitting</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-regularisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regularisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-initialisation-gradient-flow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation and Gradient Flow</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-normalisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Normalisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-optimisers-learning-rate-schedules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Optimisers and Learning-rate Schedules</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-training-loops-batches-checkpoints.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Training Loops, Batches, and Checkpoints</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-efficient-training-systems.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Efficient Training Systems</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-vectors-tensors-representations.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vectors, Tensors, and Representations</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-embeddings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Embeddings</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-sequence-modelling-before-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sequence Modelling Before Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-attention.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-self-attention-multi-head.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-attention and Multi-head Attention</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-positional-information.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Positional Information</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-transformer-block.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The Transformer Block</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./23-encoder-decoder-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Encoders, Decoders, and Encoder-Decoder Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./24-tokens-tokenisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tokens and Tokenisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./25-next-token-prediction.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Next-token Prediction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./26-pretraining-data-objectives-scale.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Pretraining Data, Objectives, and Scale</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./27-context-windows-model-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Context Windows and Model Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./28-decoding-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Decoding and Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./29-instruction-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instruction Tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./30-preference-optimisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Preference Optimisation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-full-and-parameter-efficient-fine-tuning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full and Parameter-efficient Fine-tuning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-quantisation-efficient-inference.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quantisation and Efficient Inference</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-retrieval-augmented-generation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Retrieval-augmented Generation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./34-evaluating-llms.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating LLMs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./35-what-makes-a-reasoning-model.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">What Makes a Reasoning Model?</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./36-evaluating-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Evaluating Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./37-inference-time-scaling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Inference-time Scaling</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./38-self-refinement-and-search.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Self-refinement and Search</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./39-reinforcement-learning-for-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reinforcement Learning for Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./40-grpo-and-related-training-methods.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">GRPO and Related Training Methods</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-distillation-and-efficient-reasoning.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Distillation and Efficient Reasoning</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./42-limits-and-open-questions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Limits and Open Questions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./43-mixture-of-experts-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Mixture-of-experts Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./44-vision-transformers.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Vision Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./45-diffusion-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Diffusion Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./46-multimodal-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multimodal Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./47-scaling-laws-and-compute.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scaling Laws and Compute</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./48-serving-deployment-monitoring.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Serving, Deployment, and Monitoring</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./49-safety-security-responsible-use.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Safety, Security, and Responsible Use</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-concepts.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Concepts and Notation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <ul class="collapse">
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#running-group" id="toc-running-group" class="nav-link" data-scroll-target="#running-group">Running group</a></li>
+  </ul></li>
+  <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
+  <ul class="collapse">
+  <li><a href="#relative-rewards-provide-a-local-comparison" id="toc-relative-rewards-provide-a-local-comparison" class="nav-link" data-scroll-target="#relative-rewards-provide-a-local-comparison">Relative rewards provide a local comparison</a></li>
+  <li><a href="#a-group-is-a-prompt-level-experimental-unit" id="toc-a-group-is-a-prompt-level-experimental-unit" class="nav-link" data-scroll-target="#a-group-is-a-prompt-level-experimental-unit">A group is a prompt-level experimental unit</a></li>
+  </ul></li>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
+  <ul class="collapse">
+  <li><a href="#the-group-relative-advantage" id="toc-the-group-relative-advantage" class="nav-link" data-scroll-target="#the-group-relative-advantage">The group-relative advantage</a></li>
+  <li><a href="#group-size-changes-coverage-and-the-stability-of-the-local-baseline" id="toc-group-size-changes-coverage-and-the-stability-of-the-local-baseline" class="nav-link" data-scroll-target="#group-size-changes-coverage-and-the-stability-of-the-local-baseline">Group size changes coverage and the stability of the local baseline</a></li>
+  <li><a href="#reward-transformation-and-ties-need-an-explicit-policy" id="toc-reward-transformation-and-ties-need-an-explicit-policy" class="nav-link" data-scroll-target="#reward-transformation-and-ties-need-an-explicit-policy">Reward transformation and ties need an explicit policy</a></li>
+  </ul></li>
+  <li><a href="#level-3---policy-constraints" id="toc-level-3---policy-constraints" class="nav-link" data-scroll-target="#level-3---policy-constraints">Level 3 - Policy constraints</a>
+  <ul class="collapse">
+  <li><a href="#updates-are-constrained-relative-to-a-reference" id="toc-updates-are-constrained-relative-to-a-reference" class="nav-link" data-scroll-target="#updates-are-constrained-relative-to-a-reference">Updates are constrained relative to a reference</a></li>
+  <li><a href="#sampling-old-and-reference-policies-answer-different-questions" id="toc-sampling-old-and-reference-policies-answer-different-questions" class="nav-link" data-scroll-target="#sampling-old-and-reference-policies-answer-different-questions">Sampling, old, and reference policies answer different questions</a></li>
+  <li><a href="#a-small-calculation-exposes-the-update-direction" id="toc-a-small-calculation-exposes-the-update-direction" class="nav-link" data-scroll-target="#a-small-calculation-exposes-the-update-direction">A small calculation exposes the update direction</a></li>
+  <li><a href="#sequence-length-can-change-the-update-weight" id="toc-sequence-length-can-change-the-update-weight" class="nav-link" data-scroll-target="#sequence-length-can-change-the-update-weight">Sequence length can change the update weight</a></li>
+  <li><a href="#optimisation-settings-remain-part-of-the-method" id="toc-optimisation-settings-remain-part-of-the-method" class="nav-link" data-scroll-target="#optimisation-settings-remain-part-of-the-method">Optimisation settings remain part of the method</a></li>
+  </ul></li>
+  <li><a href="#level-4---audit-and-limits" id="toc-level-4---audit-and-limits" class="nav-link" data-scroll-target="#level-4---audit-and-limits">Level 4 - Audit and limits</a>
+  <ul class="collapse">
+  <li><a href="#group-quality-determines-the-learning-signal" id="toc-group-quality-determines-the-learning-signal" class="nav-link" data-scroll-target="#group-quality-determines-the-learning-signal">Group quality determines the learning signal</a></li>
+  <li><a href="#an-educational-implementation-is-not-a-frontier-reproduction" id="toc-an-educational-implementation-is-not-a-frontier-reproduction" class="nav-link" data-scroll-target="#an-educational-implementation-is-not-a-frontier-reproduction">An educational implementation is not a frontier reproduction</a></li>
+  </ul></li>
+  <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises">Exercises</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking ahead</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading">Further reading</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">GRPO and Related Training Methods</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Group-relative advantages for reasoning rollouts</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="chapter-orientation" class="level2">
+<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
+<section id="why-this-chapter-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
+<p>Reinforcement learning for reasoning requires a policy update signal for sampled rollouts. Group Relative Policy Optimisation (GRPO) samples several completions for the same prompt, compares their rewards within that group, and uses the relative results to increase or decrease policy probability. The group provides a local baseline, avoiding a separately learned value model in the basic formulation.</p>
+<p>This chapter gives the mechanism and its limits. It does not reproduce frontier training data, infrastructure, or confidential procedures. The educational implementation uses small arrays to make the group-relative calculation inspectable.</p>
+</section>
+<section id="learning-objectives" class="level3">
+<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
+<p>By the end of this chapter, you should be able to:</p>
+<ul>
+<li>define rollout group, reward, group mean, group standard deviation, and advantage;</li>
+<li>calculate normalised group-relative advantages;</li>
+<li>explain the role of a reference policy and clipping constraint;</li>
+<li>identify zero-variance groups and reward-hacking limits; and</li>
+<li>specify a small GRPO experiment and audit record.</li>
+</ul>
+</section>
+<section id="running-group" class="level3">
+<h3 class="anchored" data-anchor-id="running-group">Running group</h3>
+<p>One prompt produces four rollouts. An exact verifier assigns rewards. Each rollout is compared with others from the same prompt rather than against a global reward scale.</p>
+<div id="fig-grpo-group" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-grpo-group-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">9.5</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">.3</span>,<span class="fl">1.4</span>),<span class="fl">1.3</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.95</span>,<span class="fl">1.67</span>,<span class="st">"prompt"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,r <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">2.1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.15</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.4</span>),<span class="fl">.9</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>teal <span class="cf">if</span> r <span class="cf">else</span> orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">1.67</span>,<span class="ss">f"r=</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">6.85</span>,<span class="fl">1.67</span>),(<span class="fl">7.65</span>,<span class="fl">1.67</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">7.75</span>,<span class="fl">1.4</span>),<span class="fl">1.3</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">8.4</span>,<span class="fl">1.67</span>,<span class="st">"advantages"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.7</span>,<span class="fl">.55</span>,<span class="st">"Each rollout's reward is interpreted relative to its prompt-specific group."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.4</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-grpo-group-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;41.1
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="level-1---intuition" class="level2">
+<h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
+<section id="relative-rewards-provide-a-local-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="relative-rewards-provide-a-local-comparison">Relative rewards provide a local comparison</h3>
+<p>For a prompt with several rollouts, GRPO gives positive advantage to rewards above the group average and negative advantage to rewards below it. If one candidate is verifier-correct and others are not, the update favours the successful candidate. The signal is prompt-specific: a reward of one can be excellent in a difficult group and uninformative in a group where every rollout succeeds.</p>
+<div id="b301de0a" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rewards<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">1.</span>,<span class="fl">0.</span>])</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mean<span class="op">=</span>rewards.mean()<span class="op">;</span> std<span class="op">=</span>rewards.std()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>advantages<span class="op">=</span>(rewards<span class="op">-</span>mean)<span class="op">/</span>(std<span class="op">+</span><span class="fl">1e-8</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"mean"</span>,mean,<span class="st">"advantages"</span>,np.<span class="bu">round</span>(advantages,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="a-group-is-a-prompt-level-experimental-unit" class="level3">
+<h3 class="anchored" data-anchor-id="a-group-is-a-prompt-level-experimental-unit">A group is a prompt-level experimental unit</h3>
+<p>All rollouts in a GRPO group must answer the same task instance under a declared prompt and tool state. Grouping completions from different prompts would make the local baseline reflect task difficulty, answer format, or verifier coverage as well as policy variation. The prompt identifier, prompt template, retrieval context, tool versions, and sampling policy should therefore be fixed within the group and retained in the rollout record.</p>
+<p>The grouping decision also defines what counts as a comparison. A system may group independently sampled completions, completions with different random seeds, or completions produced from several permitted prompt variants. The latter can be useful for a defined robustness objective, but it no longer estimates variation under one fixed prompt. State the grouping unit before training and preserve it when reporting group statistics or comparing an update with another method.</p>
+</section>
+</section>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
+<section id="the-group-relative-advantage" class="level3">
+<h3 class="anchored" data-anchor-id="the-group-relative-advantage">The group-relative advantage</h3>
+<p>For rewards (r_1,,r_G), a common educational form is (A_i=(r_i-r)/(s_r+)). The normalisation reduces sensitivity to reward scale within a group. It does not make the reward correct, independent, or comparable across different prompt distributions.</p>
+<div id="fig-advantages" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-advantages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">-</span><span class="fl">.18</span>,rewards,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"reward"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">+</span><span class="fl">.18</span>,advantages,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"advantage"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"rollout 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Group-relative rewards"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-advantages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;41.2
+</figcaption>
+</figure>
+</div>
+<p>When every reward is identical, the standard deviation is zero and the group contains no relative learning signal. Adding a small epsilon prevents numerical failure but does not create information. The data pipeline should record such groups and the policy used for skipping or handling them.</p>
+<div id="01b1dbc1" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>flat<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"flat-group advantages:"</span>,(flat<span class="op">-</span>flat.mean())<span class="op">/</span>(flat.std()<span class="op">+</span><span class="fl">1e-8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="group-size-changes-coverage-and-the-stability-of-the-local-baseline" class="level3">
+<h3 class="anchored" data-anchor-id="group-size-changes-coverage-and-the-stability-of-the-local-baseline">Group size changes coverage and the stability of the local baseline</h3>
+<p>Larger groups can increase the chance of observing both successful and unsuccessful rollouts, which creates a relative signal on sparse-reward tasks. They also consume more generation and verifier budget per prompt. A large group of near-duplicate completions may still have little effective diversity, while a small group can produce a highly variable mean and standard deviation. Report group size together with duplicate rate, answer diversity, completion length, and the fraction of groups with mixed rewards.</p>
+<p>The appropriate group size depends on the reward and task. With an exact verifier and a difficult problem, a small group may be uniformly rejected; with an easy task, a large group may be uniformly accepted. Neither case identifies an update direction. Changing group size after inspecting training outcomes changes the learning signal and should be treated as an experimental change rather than a minor throughput adjustment.</p>
+<p>The comparison is deliberately within prompt. A raw reward can vary because one problem is easier than another, because a verifier is stricter for one answer form, or because a reward model has different scale across topics. Group-relative advantages remove part of that prompt-level variation. They do not establish that two prompts contribute equally useful training information. Inspect group means, standard deviations, acceptance rates, and repeated candidates before aggregating an update.</p>
+<div id="fig-group-signal" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-group-signal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>groups<span class="op">=</span>[np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]),np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>]),np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>titles<span class="op">=</span>[<span class="st">"mixed rewards"</span>,<span class="st">"all accepted"</span>,<span class="st">"all rejected"</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,g,title <span class="kw">in</span> <span class="bu">zip</span>(axes,groups,titles):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    ax.bar(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),g,color<span class="op">=</span>[teal <span class="cf">if</span> r <span class="cf">else</span> orange <span class="cf">for</span> r <span class="kw">in</span> g])<span class="op">;</span> ax.set_title(title)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>))<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">1.15</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"verifier reward"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-group-signal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;41.3
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="reward-transformation-and-ties-need-an-explicit-policy" class="level3">
+<h3 class="anchored" data-anchor-id="reward-transformation-and-ties-need-an-explicit-policy">Reward transformation and ties need an explicit policy</h3>
+<p>The raw reward may be binary, graded, clipped, length-adjusted, or combined with a penalty for an invalid tool call. GRPO normalisation acts on the value that enters the group calculation, so reward transformations determine the relative ordering that the policy learns from. A length penalty can discourage excessive traces but may also punish a valid longer solution; a format penalty can prevent parser failures but may dominate a weak outcome score. Report each component separately before presenting the transformed reward.</p>
+<p>Ties are common with binary rewards. A mixed group can contain several equally rewarded completions with different quality under an unmeasured property, while a flat group has no relative advantage at all. The training policy may skip flat groups, retain them for another objective, or collect additional rollouts up to a fixed limit. Whichever policy is used, it should be applied before outcome evaluation and not adjusted selectively for prompts that later appear difficult.</p>
+</section>
+</section>
+<section id="level-3---policy-constraints" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---policy-constraints">Level 3 - Policy constraints</h2>
+<section id="updates-are-constrained-relative-to-a-reference" class="level3">
+<h3 class="anchored" data-anchor-id="updates-are-constrained-relative-to-a-reference">Updates are constrained relative to a reference</h3>
+<p>The policy probability ratio compares the updated policy with the rollout or reference policy. Clipping or a KL-style penalty limits large changes that could exploit finite rewards or destabilise training. These controls do not validate the reward; they limit the size of a policy move under a chosen measure.</p>
+<div id="2e94f179" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>old_prob<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>])<span class="op">;</span> new_prob<span class="op">=</span>np.array([<span class="fl">.35</span>,<span class="fl">.15</span>,<span class="fl">.35</span>,<span class="fl">.15</span>])</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>ratio<span class="op">=</span>new_prob<span class="op">/</span>old_prob</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>clipped<span class="op">=</span>np.clip(ratio,<span class="fl">.8</span>,<span class="fl">1.2</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ratio"</span>,ratio,<span class="st">"clipped"</span>,clipped)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="sampling-old-and-reference-policies-answer-different-questions" class="level3">
+<h3 class="anchored" data-anchor-id="sampling-old-and-reference-policies-answer-different-questions">Sampling, old, and reference policies answer different questions</h3>
+<p>The sampling or old policy generated the rollout and supplies the probability in the importance ratio. A reference policy supplies a behavioural anchor through a KL-style term or related constraint. They may be the same at the start of an iteration, but they need not remain the same across updates. Confusing them makes it unclear whether a ratio measures change from the data-generating policy or distance from a fixed instruction-following reference.</p>
+<p>The log-probability record must use the exact generated tokens, including termination and any tool-call representation that the policy models. A mismatch between the stored rollout and the tokens scored by the updated policy changes the ratio without representing a learning effect. Clipping methods provide an example of why this bookkeeping matters: the constraint depends on the comparison policy and the likelihood of the observed action sequence <span class="citation" data-cites="schulman2017proximal">(<a href="#ref-schulman2017proximal" role="doc-biblioref">Schulman et al. 2017</a>)</span>.</p>
+<div id="fig-clipping" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-clipping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.linspace(<span class="fl">.4</span>,<span class="fl">1.8</span>,<span class="dv">100</span>)<span class="op">;</span> fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.plot(x,x,label<span class="op">=</span><span class="st">"raw ratio"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.plot(x,np.clip(x,<span class="fl">.8</span>,<span class="fl">1.2</span>),label<span class="op">=</span><span class="st">"clipped"</span>,color<span class="op">=</span>orange)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_xlabel(<span class="st">"raw probability ratio"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"update ratio"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative clipping constraint"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-clipping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;41.4
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="a-small-calculation-exposes-the-update-direction" class="level3">
+<h3 class="anchored" data-anchor-id="a-small-calculation-exposes-the-update-direction">A small calculation exposes the update direction</h3>
+<p>Suppose a group contains two accepted and two rejected rollouts. The accepted rollouts receive positive advantages and, within the clipping range, their token probabilities are increased; rejected rollouts receive negative advantages. This description remains conditional on the reward. If the verifier accepts a loophole, the same calculation strengthens the loophole. Reward design decides what counts as success; group normalisation supplies a relative signal; and the constrained update determines how far the policy moves.</p>
+<p>For one update, the operational order is straightforward. Fix a prompt batch and the policy used to sample from it. Generate a declared number of completions per prompt, preserving their token log probabilities. Apply the reward or verifier to every completion. Compute group-relative advantages only from the matching prompt group, record groups with no variation, and combine each completion’s advantage with its log-probability ratio. Apply the clipping or reference constraint, update the policy, then evaluate a saved checkpoint with an independent task scorer. The update must not use the held-out evaluation outcome as a reward. This order makes clear where a result can change: generation, reward calculation, normalisation, optimisation control, or evaluation.</p>
+<div id="fig-grpo-update-directions" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-grpo-update-directions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>advantages<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>,<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>])<span class="op">;</span> ratios<span class="op">=</span>np.array([<span class="fl">1.15</span>,<span class="fl">.88</span>,<span class="fl">1.12</span>,<span class="fl">.90</span>])</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.4</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axhspan(<span class="fl">.8</span>,<span class="fl">1.2</span>,color<span class="op">=</span><span class="st">"#e7edf1"</span>,label<span class="op">=</span><span class="st">"clipping region"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),ratios,s<span class="op">=</span><span class="dv">120</span>,c<span class="op">=</span>[teal <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> orange <span class="cf">for</span> a <span class="kw">in</span> advantages])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(a,r) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(advantages,ratios),<span class="dv">1</span>): ax.annotate(<span class="st">"increase"</span> <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">"decrease"</span>,(i,r),xytext<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">10</span> <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="op">-</span><span class="dv">15</span>),textcoords<span class="op">=</span><span class="st">"offset points"</span>,ha<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),[<span class="st">"rollout 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"new / old probability ratio"</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.7</span>,<span class="fl">1.3</span>)<span class="op">;</span> ax.legend(loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative constrained update directions"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-grpo-update-directions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;41.5
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="sequence-length-can-change-the-update-weight" class="level3">
+<h3 class="anchored" data-anchor-id="sequence-length-can-change-the-update-weight">Sequence length can change the update weight</h3>
+<p>A rollout probability is the product of token probabilities, usually handled as a sum of token log probabilities. Longer completions therefore contribute more token-level terms unless the objective uses a stated length normalisation or masking rule. This is not a purely numerical choice. It determines whether a positive advantage reinforces every token in a long trace more strongly than the same advantage in a short trace, and how padding, end tokens, or tool output are treated.</p>
+<p>Record the token span receiving the update, the handling of prompt tokens, and any maximum-length truncation. If an exact reward accepts short and long answers equally, a length-sensitive update can still shift the policy towards one form. Check outcome, completion length, and invalid-termination rates together before interpreting a reward gain as an improvement in reasoning quality.</p>
+</section>
+<section id="optimisation-settings-remain-part-of-the-method" class="level3">
+<h3 class="anchored" data-anchor-id="optimisation-settings-remain-part-of-the-method">Optimisation settings remain part of the method</h3>
+<p>GRPO specifies a relative advantage construction; it does not remove ordinary optimisation choices. Learning rate, batch composition, number of update epochs over a rollout batch, gradient clipping, precision, and checkpoint frequency affect how a group signal changes the policy. A large learning rate or repeated updates over the same small rollout pool can cause a policy move that the reference constraint does not fully contain. A very small update can leave a useful group signal with no measurable effect.</p>
+<p>Report these settings with the group construction and evaluate checkpoints over the same held-out task. If one experiment changes group size and learning rate together, it cannot attribute an outcome difference to the group-relative baseline. This is the same control principle used earlier in the book: hold the mechanism under test fixed while varying one declared component.</p>
+</section>
+</section>
+<section id="level-4---audit-and-limits" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---audit-and-limits">Level 4 - Audit and limits</h2>
+<section id="group-quality-determines-the-learning-signal" class="level3">
+<h3 class="anchored" data-anchor-id="group-quality-determines-the-learning-signal">Group quality determines the learning signal</h3>
+<p>Groups need candidate diversity, a valid reward, and a documented rollout policy. If all completions share one error, relative normalisation cannot recover a correct answer. If a verifier has a loophole, the policy can learn to exploit it. If groups differ greatly in difficulty, aggregate reward may conceal where updates are useful or harmful.</p>
+<p>An audit should retain prompt identifiers or reproducible generators, the complete group before filtering, completion lengths, sampling settings, raw and transformed rewards, flat-group handling, old-policy log probabilities, reference-policy choice, clipping or KL coefficient, and the checkpoint used for independent evaluation. Report group statistics by task slice. A mean reward across all rollouts is insufficient because it hides whether signal came from a small set of prompts or from a change in group composition.</p>
+<p>The evaluation should include component ablations. Hold prompts, rollout counts, reward, and independent task scorer fixed while removing group normalisation, changing group size, or varying the reference constraint one at a time. Compare the resulting policy checkpoints under the same inference budget. These comparisons do not prove that one method is universally preferable; they show which component explains the measured change in the declared training setting.</p>
+<p>Report the checkpoint-selection rule before comparing ablations. Selecting the highest result from each run on the same small development set can turn optimisation noise into a method claim.</p>
+<p>For any sample-efficiency claim, report total rollouts, accepted groups, discarded groups, update steps, and the complete evaluation budget alongside the final outcome.</p>
+<div id="9e383b15" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"group_size"</span>:<span class="dv">4</span>,<span class="st">"reward"</span>:<span class="st">"exact verifier"</span>,<span class="st">"epsilon"</span>:<span class="fl">1e-8</span>,<span class="st">"ratio_clip"</span>:<span class="fl">.2</span>,<span class="st">"reference"</span>:<span class="st">"policy-v1"</span>,<span class="st">"flat_groups"</span>:<span class="st">"skip"</span>}</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"group_size"</span>,<span class="st">"reward"</span>,<span class="st">"reference"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"GRPO record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="an-educational-implementation-is-not-a-frontier-reproduction" class="level3">
+<h3 class="anchored" data-anchor-id="an-educational-implementation-is-not-a-frontier-reproduction">An educational implementation is not a frontier reproduction</h3>
+<p>Small demonstrations can show group normalisation, clipped ratios, and verifier-dependent learning signals. They do not reproduce the data mixtures, distributed rollout systems, model scale, reward engineering, or training stability of large reasoning runs. Report this boundary directly and evaluate a toy method on held-out checkable tasks before interpreting a training curve.</p>
+</section>
+</section>
+<section id="common-misconceptions" class="level2">
+<h2 class="anchored" data-anchor-id="common-misconceptions">Common misconceptions</h2>
+<ul>
+<li><strong>GRPO makes rewards objective.</strong> It normalises rewards within a group; reward validity remains separate.</li>
+<li><strong>A group baseline guarantees learning.</strong> Flat or correlated groups can contain little useful signal.</li>
+<li><strong>Clipping prevents reward hacking.</strong> It limits update size but does not repair a flawed reward.</li>
+<li><strong>A toy implementation reproduces frontier reasoning training.</strong> It demonstrates the update logic only.</li>
+<li><strong>More rollouts always improve the update.</strong> They add cost and can repeat the same error.</li>
+</ul>
+</section>
+<section id="exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
+<ol type="1">
+<li>Calculate group mean, standard deviation, and advantages for four rewards.</li>
+<li>Explain how a flat reward group should be handled.</li>
+<li>Compute a clipped ratio for supplied old and new probabilities.</li>
+<li>Compare a group-relative advantage with a global reward threshold.</li>
+<li>Construct a verifier loophole that a policy could exploit.</li>
+<li>List rollout settings required in a GRPO record.</li>
+<li>Explain why group diversity matters.</li>
+<li>Design a held-out toy evaluation for a GRPO update.</li>
+<li>State what a reference constraint does not guarantee.</li>
+<li>Show why a group mean is a baseline rather than a verifier.</li>
+<li>Compare an all-accepted group with a mixed group for learning signal.</li>
+<li>State which records are needed to reproduce one rollout group.</li>
+<li>Explain why old-policy and reference-policy comparisons serve different roles.</li>
+<li>Design an evaluation that detects a verifier loophole after training.</li>
+<li>Describe how duplicated candidates affect group-relative advantages.</li>
+<li>Identify the next chapter’s distillation focus.</li>
+</ol>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>GRPO uses relative rewards among several rollouts from the same prompt to construct local advantages for a constrained policy update. Its behaviour depends on rollout diversity, reward validity, group handling, and reference-policy controls. Educational implementations clarify the calculation but do not reproduce frontier-scale systems.</p>
+<p><a href="./41-distillation-and-efficient-reasoning.html">Chapter 41</a> examines how slower reasoning systems can train or guide smaller and cheaper students.</p>
+</section>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking ahead</h2>
+<p>GRPO can produce a more capable but costly teacher policy. <a href="./41-distillation-and-efficient-reasoning.html">Chapter 41</a> examines what can be transferred from that policy to a smaller or cheaper student, and what evidence is lost in the transfer.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
+<p>GRPO is introduced in DeepSeekMath <span class="citation" data-cites="sha2024deepseekmath">(<a href="#ref-sha2024deepseekmath" role="doc-biblioref">Shao et al. 2024</a>)</span>. PPO provides a related clipped policy-update background <span class="citation" data-cites="schulman2017proximal">(<a href="#ref-schulman2017proximal" role="doc-biblioref">Schulman et al. 2017</a>)</span>.</p>
+
+
+<!-- -->
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-schulman2017proximal" class="csl-entry" role="listitem">
+Schulman, John, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. 2017. <span>“Proximal Policy Optimization Algorithms.”</span> <em>arXiv Preprint arXiv:1707.06347</em>. <a href="https://arxiv.org/abs/1707.06347">https://arxiv.org/abs/1707.06347</a>.
+</div>
+<div id="ref-sha2024deepseekmath" class="csl-entry" role="listitem">
+Shao, Zhihong, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, et al. 2024. <span>“DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models.”</span> <em>arXiv Preprint arXiv:2402.03300</em>. <a href="https://arxiv.org/abs/2402.03300">https://arxiv.org/abs/2402.03300</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./39-reinforcement-learning-for-reasoning.html" class="pagination-link" aria-label="Reinforcement Learning for Reasoning">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Reinforcement Learning for Reasoning</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./41-distillation-and-efficient-reasoning.html" class="pagination-link" aria-label="Distillation and Efficient Reasoning">
+        <span class="nav-page-text"><span class="chapter-title">Distillation and Efficient Reasoning</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "GRPO and Related Training Methods"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Group-relative advantages for reasoning rollouts"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>Reinforcement learning for reasoning requires a policy update signal for sampled rollouts. Group Relative Policy Optimisation (GRPO) samples several completions for the same prompt, compares their rewards within that group, and uses the relative results to increase or decrease policy probability. The group provides a local baseline, avoiding a separately learned value model in the basic formulation.</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>This chapter gives the mechanism and its limits. It does not reproduce frontier training data, infrastructure, or confidential procedures. The educational implementation uses small arrays to make the group-relative calculation inspectable.</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define rollout group, reward, group mean, group standard deviation, and advantage;</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate normalised group-relative advantages;</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain the role of a reference policy and clipping constraint;</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify zero-variance groups and reward-hacking limits; and</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify a small GRPO experiment and audit record.</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running group</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>One prompt produces four rollouts. An exact verifier assigns rewards. Each rollout is compared with others from the same prompt rather than against a global reward scale.</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-grpo-group</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "GRPO samples several rollouts for one prompt, evaluates their rewards, computes within-group advantages, and updates the policy relative to a reference."</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "One prompt branches to four rollouts with rewards, then a group-normalisation step and policy update."</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">9.5</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">.3</span>,<span class="fl">1.4</span>),<span class="fl">1.3</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.95</span>,<span class="fl">1.67</span>,<span class="st">"prompt"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,r <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]):</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">2.1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.15</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.4</span>),<span class="fl">.9</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>teal <span class="cf">if</span> r <span class="cf">else</span> orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">1.67</span>,<span class="ss">f"r=</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">6.85</span>,<span class="fl">1.67</span>),(<span class="fl">7.65</span>,<span class="fl">1.67</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">7.75</span>,<span class="fl">1.4</span>),<span class="fl">1.3</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">8.4</span>,<span class="fl">1.67</span>,<span class="st">"advantages"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.7</span>,<span class="fl">.55</span>,<span class="st">"Each rollout's reward is interpreted relative to its prompt-specific group."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.4</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="fu">### Relative rewards provide a local comparison</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>For a prompt with several rollouts, GRPO gives positive advantage to rewards above the group average and negative advantage to rewards below it. If one candidate is verifier-correct and others are not, the update favours the successful candidate. The signal is prompt-specific: a reward of one can be excellent in a difficult group and uninformative in a group where every rollout succeeds.</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>rewards<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">1.</span>,<span class="fl">0.</span>])</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>mean<span class="op">=</span>rewards.mean()<span class="op">;</span> std<span class="op">=</span>rewards.std()</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>advantages<span class="op">=</span>(rewards<span class="op">-</span>mean)<span class="op">/</span>(std<span class="op">+</span><span class="fl">1e-8</span>)</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"mean"</span>,mean,<span class="st">"advantages"</span>,np.<span class="bu">round</span>(advantages,<span class="dv">3</span>))</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a><span class="fu">### A group is a prompt-level experimental unit</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>All rollouts in a GRPO group must answer the same task instance under a declared prompt and tool state. Grouping completions from different prompts would make the local baseline reflect task difficulty, answer format, or verifier coverage as well as policy variation. The prompt identifier, prompt template, retrieval context, tool versions, and sampling policy should therefore be fixed within the group and retained in the rollout record.</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>The grouping decision also defines what counts as a comparison. A system may group independently sampled completions, completions with different random seeds, or completions produced from several permitted prompt variants. The latter can be useful for a defined robustness objective, but it no longer estimates variation under one fixed prompt. State the grouping unit before training and preserve it when reporting group statistics or comparing an update with another method.</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="fu">### The group-relative advantage</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>For rewards <span class="sc">\(</span>r_1,\ldots,r_G<span class="sc">\)</span>, a common educational form is <span class="sc">\(</span>A_i=(r_i-\bar r)/(s_r+\epsilon)<span class="sc">\)</span>. The normalisation reduces sensitivity to reward scale within a group. It does not make the reward correct, independent, or comparable across different prompt distributions.</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-advantages</span></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Within a rollout group, rewards above the group mean receive positive advantages and rewards below it receive negative advantages."</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart compares four rewards with their corresponding normalised advantages."</span></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">-</span><span class="fl">.18</span>,rewards,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"reward"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">+</span><span class="fl">.18</span>,advantages,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"advantage"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"rollout 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Group-relative rewards"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>When every reward is identical, the standard deviation is zero and the group contains no relative learning signal. Adding a small epsilon prevents numerical failure but does not create information. The data pipeline should record such groups and the policy used for skipping or handling them.</span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>flat<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>])</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"flat-group advantages:"</span>,(flat<span class="op">-</span>flat.mean())<span class="op">/</span>(flat.std()<span class="op">+</span><span class="fl">1e-8</span>))</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a><span class="fu">### Group size changes coverage and the stability of the local baseline</span></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>Larger groups can increase the chance of observing both successful and unsuccessful rollouts, which creates a relative signal on sparse-reward tasks. They also consume more generation and verifier budget per prompt. A large group of near-duplicate completions may still have little effective diversity, while a small group can produce a highly variable mean and standard deviation. Report group size together with duplicate rate, answer diversity, completion length, and the fraction of groups with mixed rewards.</span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>The appropriate group size depends on the reward and task. With an exact verifier and a difficult problem, a small group may be uniformly rejected; with an easy task, a large group may be uniformly accepted. Neither case identifies an update direction. Changing group size after inspecting training outcomes changes the learning signal and should be treated as an experimental change rather than a minor throughput adjustment.</span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a>The comparison is deliberately within prompt. A raw reward can vary because one problem is easier than another, because a verifier is stricter for one answer form, or because a reward model has different scale across topics. Group-relative advantages remove part of that prompt-level variation. They do not establish that two prompts contribute equally useful training information. Inspect group means, standard deviations, acceptance rates, and repeated candidates before aggregating an update.</span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-group-signal</span></span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Groups with mixed rewards provide relative learning signal, whereas uniformly accepted or rejected groups have near-zero group-relative advantages."</span></span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three small bar charts show mixed, all-correct, and all-incorrect reward groups, with only the mixed group displaying variation."</span></span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a>groups<span class="op">=</span>[np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]),np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>]),np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])]</span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a>titles<span class="op">=</span>[<span class="st">"mixed rewards"</span>,<span class="st">"all accepted"</span>,<span class="st">"all rejected"</span>]</span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,g,title <span class="kw">in</span> <span class="bu">zip</span>(axes,groups,titles):</span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>    ax.bar(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),g,color<span class="op">=</span>[teal <span class="cf">if</span> r <span class="cf">else</span> orange <span class="cf">for</span> r <span class="kw">in</span> g])<span class="op">;</span> ax.set_title(title)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>))<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">1.15</span>)</span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"verifier reward"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reward transformation and ties need an explicit policy</span></span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a>The raw reward may be binary, graded, clipped, length-adjusted, or combined with a penalty for an invalid tool call. GRPO normalisation acts on the value that enters the group calculation, so reward transformations determine the relative ordering that the policy learns from. A length penalty can discourage excessive traces but may also punish a valid longer solution; a format penalty can prevent parser failures but may dominate a weak outcome score. Report each component separately before presenting the transformed reward.</span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>Ties are common with binary rewards. A mixed group can contain several equally rewarded completions with different quality under an unmeasured property, while a flat group has no relative advantage at all. The training policy may skip flat groups, retain them for another objective, or collect additional rollouts up to a fixed limit. Whichever policy is used, it should be applied before outcome evaluation and not adjusted selectively for prompts that later appear difficult.</span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Policy constraints</span></span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a><span class="fu">### Updates are constrained relative to a reference</span></span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>The policy probability ratio compares the updated policy with the rollout or reference policy. Clipping or a KL-style penalty limits large changes that could exploit finite rewards or destabilise training. These controls do not validate the reward; they limit the size of a policy move under a chosen measure.</span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a>old_prob<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>])<span class="op">;</span> new_prob<span class="op">=</span>np.array([<span class="fl">.35</span>,<span class="fl">.15</span>,<span class="fl">.35</span>,<span class="fl">.15</span>])</span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>ratio<span class="op">=</span>new_prob<span class="op">/</span>old_prob</span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>clipped<span class="op">=</span>np.clip(ratio,<span class="fl">.8</span>,<span class="fl">1.2</span>)</span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ratio"</span>,ratio,<span class="st">"clipped"</span>,clipped)</span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sampling, old, and reference policies answer different questions</span></span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a>The sampling or old policy generated the rollout and supplies the probability in the importance ratio. A reference policy supplies a behavioural anchor through a KL-style term or related constraint. They may be the same at the start of an iteration, but they need not remain the same across updates. Confusing them makes it unclear whether a ratio measures change from the data-generating policy or distance from a fixed instruction-following reference.</span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a>The log-probability record must use the exact generated tokens, including termination and any tool-call representation that the policy models. A mismatch between the stored rollout and the tokens scored by the updated policy changes the ratio without representing a learning effect. Clipping methods provide an example of why this bookkeeping matters: the constraint depends on the comparison policy and the likelihood of the observed action sequence <span class="co">[</span><span class="ot">@schulman2017proximal</span><span class="co">]</span>.</span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-clipping</span></span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A clipped policy ratio limits the update contribution of a rollout whose probability changes too far from the reference behaviour."</span></span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A line plots raw probability ratio against a clipped ratio between 0.8 and 1.2."</span></span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.linspace(<span class="fl">.4</span>,<span class="fl">1.8</span>,<span class="dv">100</span>)<span class="op">;</span> fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.plot(x,x,label<span class="op">=</span><span class="st">"raw ratio"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.plot(x,np.clip(x,<span class="fl">.8</span>,<span class="fl">1.2</span>),label<span class="op">=</span><span class="st">"clipped"</span>,color<span class="op">=</span>orange)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_xlabel(<span class="st">"raw probability ratio"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"update ratio"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative clipping constraint"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### A small calculation exposes the update direction</span></span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a>Suppose a group contains two accepted and two rejected rollouts. The accepted rollouts receive positive advantages and, within the clipping range, their token probabilities are increased; rejected rollouts receive negative advantages. This description remains conditional on the reward. If the verifier accepts a loophole, the same calculation strengthens the loophole. Reward design decides what counts as success; group normalisation supplies a relative signal; and the constrained update determines how far the policy moves.</span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a>For one update, the operational order is straightforward. Fix a prompt batch and the policy used to sample from it. Generate a declared number of completions per prompt, preserving their token log probabilities. Apply the reward or verifier to every completion. Compute group-relative advantages only from the matching prompt group, record groups with no variation, and combine each completion's advantage with its log-probability ratio. Apply the clipping or reference constraint, update the policy, then evaluate a saved checkpoint with an independent task scorer. The update must not use the held-out evaluation outcome as a reward. This order makes clear where a result can change: generation, reward calculation, normalisation, optimisation control, or evaluation.</span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-grpo-update-directions</span></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Positive and negative group-relative advantages push rollout probabilities in opposite directions, subject to the policy-ratio constraint."</span></span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Four points show two accepted rollouts increasing in probability and two rejected rollouts decreasing, bounded by a clipping region."</span></span>
+<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a>advantages<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>,<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>])<span class="op">;</span> ratios<span class="op">=</span>np.array([<span class="fl">1.15</span>,<span class="fl">.88</span>,<span class="fl">1.12</span>,<span class="fl">.90</span>])</span>
+<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.4</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axhspan(<span class="fl">.8</span>,<span class="fl">1.2</span>,color<span class="op">=</span><span class="st">"#e7edf1"</span>,label<span class="op">=</span><span class="st">"clipping region"</span>)</span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),ratios,s<span class="op">=</span><span class="dv">120</span>,c<span class="op">=</span>[teal <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> orange <span class="cf">for</span> a <span class="kw">in</span> advantages])</span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(a,r) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(advantages,ratios),<span class="dv">1</span>): ax.annotate(<span class="st">"increase"</span> <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">"decrease"</span>,(i,r),xytext<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">10</span> <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="op">-</span><span class="dv">15</span>),textcoords<span class="op">=</span><span class="st">"offset points"</span>,ha<span class="op">=</span><span class="st">"center"</span>)</span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),[<span class="st">"rollout 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"new / old probability ratio"</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.7</span>,<span class="fl">1.3</span>)<span class="op">;</span> ax.legend(loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative constrained update directions"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sequence length can change the update weight</span></span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a>A rollout probability is the product of token probabilities, usually handled as a sum of token log probabilities. Longer completions therefore contribute more token-level terms unless the objective uses a stated length normalisation or masking rule. This is not a purely numerical choice. It determines whether a positive advantage reinforces every token in a long trace more strongly than the same advantage in a short trace, and how padding, end tokens, or tool output are treated.</span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a>Record the token span receiving the update, the handling of prompt tokens, and any maximum-length truncation. If an exact reward accepts short and long answers equally, a length-sensitive update can still shift the policy towards one form. Check outcome, completion length, and invalid-termination rates together before interpreting a reward gain as an improvement in reasoning quality.</span>
+<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a><span class="fu">### Optimisation settings remain part of the method</span></span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a>GRPO specifies a relative advantage construction; it does not remove ordinary optimisation choices. Learning rate, batch composition, number of update epochs over a rollout batch, gradient clipping, precision, and checkpoint frequency affect how a group signal changes the policy. A large learning rate or repeated updates over the same small rollout pool can cause a policy move that the reference constraint does not fully contain. A very small update can leave a useful group signal with no measurable effect.</span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a>Report these settings with the group construction and evaluate checkpoints over the same held-out task. If one experiment changes group size and learning rate together, it cannot attribute an outcome difference to the group-relative baseline. This is the same control principle used earlier in the book: hold the mechanism under test fixed while varying one declared component.</span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and limits</span></span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a><span class="fu">### Group quality determines the learning signal</span></span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>Groups need candidate diversity, a valid reward, and a documented rollout policy. If all completions share one error, relative normalisation cannot recover a correct answer. If a verifier has a loophole, the policy can learn to exploit it. If groups differ greatly in difficulty, aggregate reward may conceal where updates are useful or harmful.</span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>An audit should retain prompt identifiers or reproducible generators, the complete group before filtering, completion lengths, sampling settings, raw and transformed rewards, flat-group handling, old-policy log probabilities, reference-policy choice, clipping or KL coefficient, and the checkpoint used for independent evaluation. Report group statistics by task slice. A mean reward across all rollouts is insufficient because it hides whether signal came from a small set of prompts or from a change in group composition.</span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a>The evaluation should include component ablations. Hold prompts, rollout counts, reward, and independent task scorer fixed while removing group normalisation, changing group size, or varying the reference constraint one at a time. Compare the resulting policy checkpoints under the same inference budget. These comparisons do not prove that one method is universally preferable; they show which component explains the measured change in the declared training setting.</span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a>Report the checkpoint-selection rule before comparing ablations. Selecting the highest result from each run on the same small development set can turn optimisation noise into a method claim.</span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a>For any sample-efficiency claim, report total rollouts, accepted groups, discarded groups, update steps, and the complete evaluation budget alongside the final outcome.</span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"group_size"</span>:<span class="dv">4</span>,<span class="st">"reward"</span>:<span class="st">"exact verifier"</span>,<span class="st">"epsilon"</span>:<span class="fl">1e-8</span>,<span class="st">"ratio_clip"</span>:<span class="fl">.2</span>,<span class="st">"reference"</span>:<span class="st">"policy-v1"</span>,<span class="st">"flat_groups"</span>:<span class="st">"skip"</span>}</span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"group_size"</span>,<span class="st">"reward"</span>,<span class="st">"reference"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"GRPO record complete"</span>)</span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a><span class="fu">### An educational implementation is not a frontier reproduction</span></span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a>Small demonstrations can show group normalisation, clipped ratios, and verifier-dependent learning signals. They do not reproduce the data mixtures, distributed rollout systems, model scale, reward engineering, or training stability of large reasoning runs. Report this boundary directly and evaluate a toy method on held-out checkable tasks before interpreting a training curve.</span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**GRPO makes rewards objective.** It normalises rewards within a group; reward validity remains separate.</span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A group baseline guarantees learning.** Flat or correlated groups can contain little useful signal.</span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Clipping prevents reward hacking.** It limits update size but does not repair a flawed reward.</span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A toy implementation reproduces frontier reasoning training.** It demonstrates the update logic only.</span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More rollouts always improve the update.** They add cost and can repeat the same error.</span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate group mean, standard deviation, and advantages for four rewards.</span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Explain how a flat reward group should be handled.</span>
+<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Compute a clipped ratio for supplied old and new probabilities.</span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Compare a group-relative advantage with a global reward threshold.</span>
+<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Construct a verifier loophole that a policy could exploit.</span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>List rollout settings required in a GRPO record.</span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Explain why group diversity matters.</span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Design a held-out toy evaluation for a GRPO update.</span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>State what a reference constraint does not guarantee.</span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Show why a group mean is a baseline rather than a verifier.</span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Compare an all-accepted group with a mixed group for learning signal.</span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>State which records are needed to reproduce one rollout group.</span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Explain why old-policy and reference-policy comparisons serve different roles.</span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Design an evaluation that detects a verifier loophole after training.</span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Describe how duplicated candidates affect group-relative advantages.</span>
+<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the next chapter's distillation focus.</span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a>GRPO uses relative rewards among several rollouts from the same prompt to construct local advantages for a constrained policy update. Its behaviour depends on rollout diversity, reward validity, group handling, and reference-policy controls. Educational implementations clarify the calculation but do not reproduce frontier-scale systems.</span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 41</span><span class="co">](41-distillation-and-efficient-reasoning.qmd)</span> examines how slower reasoning systems can train or guide smaller and cheaper students.</span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>GRPO can produce a more capable but costly teacher policy. <span class="co">[</span><span class="ot">Chapter 41</span><span class="co">](41-distillation-and-efficient-reasoning.qmd)</span> examines what can be transferred from that policy to a smaller or cheaper student, and what evidence is lost in the transfer.</span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a>GRPO is introduced in DeepSeekMath <span class="co">[</span><span class="ot">@sha2024deepseekmath</span><span class="co">]</span>. PPO provides a related clipped policy-update background <span class="co">[</span><span class="ot">@schulman2017proximal</span><span class="co">]</span>.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
