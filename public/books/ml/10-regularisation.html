@@ -156,14 +156,15 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="book-navigation.css"></head>
+<link rel="stylesheet" href="book-navigation.css">
+</head>
 
 <body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+    <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
@@ -194,7 +195,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Machine Learning Concepts</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -468,11 +469,9 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <li><a href="#the-problem" id="toc-the-problem" class="nav-link active" data-scroll-target="#the-problem">The problem</a>
   <ul class="collapse">
-  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
-  <li><a href="#running-example" id="toc-running-example" class="nav-link" data-scroll-target="#running-example">Running example</a></li>
+  <li><a href="#a-controlled-example" id="toc-a-controlled-example" class="nav-link" data-scroll-target="#a-controlled-example">A controlled example</a></li>
   </ul></li>
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
@@ -532,38 +531,19 @@ window.Quarto = {
 </header>
 
 
-<section id="chapter-orientation" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
-<section id="why-this-chapter-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
-<p>Chapter 9 showed that a flexible model can reduce training error by following noise and sample-specific detail. Regularisation changes the learning procedure so that some fitting solutions are preferred over others. It may penalise parameter values, inject randomness, expand the training data through defensible transformations, or stop optimisation before the training objective reaches its minimum.</p>
-<p>Regularisation does not repair an invalid label, a leaking split, or a deployment distribution absent from evaluation. It exchanges one set of assumptions for another. The appropriate method and strength must therefore be selected on validation data and assessed against the intended transfer task.</p>
-</section>
-<section id="learning-objectives" class="level3">
-<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
-<p>By the end of this chapter, you should be able to:</p>
-<ul>
-<li>explain regularisation as a change to the learning procedure rather than a post-hoc repair;</li>
-<li>calculate an L2-penalised objective and its gradient;</li>
-<li>distinguish L1 and L2 penalties from optimiser-specific weight decay;</li>
-<li>explain dropout in training and evaluation modes;</li>
-<li>state the invariance assumption made by a data augmentation;</li>
-<li>implement ridge regression and inspect a coefficient path;</li>
-<li>implement weight decay, dropout, and early stopping in PyTorch;</li>
-<li>explain why validation data are required to select regularisation strength;</li>
-<li>connect regularisation choices to checkpointing, randomness, numerical precision, and distributed training.</li>
-</ul>
-</section>
-<section id="running-example" class="level3">
-<h3 class="anchored" data-anchor-id="running-example">Running example</h3>
+<section id="the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
+<p>Chapter 9 showed why a flexible fitted rule can follow sample-specific noise. Reducing the model’s nominal capacity is one response, but it is not the only one. Regularisation changes the learning procedure so that, among available fits, some are preferred: a penalty can make large parameters costly; dropout can train changing subnetworks; augmentation can add transformations judged label-preserving; and early stopping can select an earlier checkpoint.</p>
+<p>None of these operations repairs an invalid label, a leaking split, or a population absent from the evaluation design. Each adds an assumption about the fitted solution, the data, or the optimisation path. The method and its strength must consequently be chosen using validation evidence and assessed against the intended transfer task.</p>
+<section id="a-controlled-example" class="level3">
+<h3 class="anchored" data-anchor-id="a-controlled-example">A controlled example</h3>
 <p>The chapter continues the noisy function from Chapter 9,</p>
 <p><span class="math display">\[
 y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),
 \]</span></p>
 <p>using a degree-15 polynomial. Rather than lowering the degree, ridge regularisation retains all polynomial terms and penalises large coefficients. This isolates the effect of regularisation from a change in the model’s nominal feature set.</p>
-<div id="fig-regularisation-intuition" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-regularisation-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<p>The figure compares two rules with the same input features and polynomial degree. The coloured curve changes because the objective changes: the ridge fit is permitted to accept more error on the observed points when that avoids extreme coefficients. This is a preference about solutions, not a claim that smoothness is always correct.</p>
+<div id="cell-fig-regularisation-intuition" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -599,13 +579,23 @@ y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-regularisation-intuition" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels compare an oscillating unpenalised degree-15 polynomial with a smoother ridge-regularised degree-15 polynomial against the same noisy observations and true signal.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regularisation-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="10-regularisation_files/figure-html/fig-regularisation-intuition-output-1.png" class="img-fluid figure-img" alt="Two panels compare an oscillating unpenalised degree-15 polynomial with a smoother ridge-regularised degree-15 polynomial against the same noisy observations and true signal.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-regularisation-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11.1
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularisation-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.1: Ridge regularisation retains a degree-15 model but suppresses the extreme oscillations of its unpenalised fit.
 </figcaption>
 </figure>
 </div>
+</div>
+</div>
 <p>The penalty does not delete high-degree terms. It makes solutions with large coefficients more expensive. In this sample, the unpenalised model uses large coefficients to move sharply between observations; the penalised model accepts more training error to obtain a smoother function.</p>
+<div id="concept-regularisation" class="concept-box concept-core" data-term="Regularisation" data-domain="Training and evaluation">
+<p><strong>Regularisation.</strong> A change to the learning procedure that favours some fitted solutions over others. Penalties, dropout, augmentation, and early stopping act through different mechanisms; each requires a stated strength or selection rule.</p>
+</div>
 </section>
 </section>
 <section id="level-1---intuition" class="level2">
@@ -617,9 +607,7 @@ Figure&nbsp;11.1
 </section>
 <section id="different-methods-intervene-at-different-points" class="level3">
 <h3 class="anchored" data-anchor-id="different-methods-intervene-at-different-points">Different methods intervene at different points</h3>
-<div id="fig-regularisation-map" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-regularisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-regularisation-map" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.2</span>))</span>
@@ -635,18 +623,25 @@ Figure&nbsp;11.1
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">0.85</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-regularisation-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A four-column diagram maps data augmentation to training data, L1 and L2 penalties to the objective, dropout to the architecture, and early stopping to optimisation time.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regularisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="10-regularisation_files/figure-html/fig-regularisation-map-output-1.png" class="img-fluid figure-img" alt="A four-column diagram maps data augmentation to training data, L1 and L2 penalties to the objective, dropout to the architecture, and early stopping to optimisation time.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-regularisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11.2
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.2: Regularisation methods intervene in the data, objective, architecture, or optimisation path.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>The diagram prevents several category errors. Data augmentation changes the examples presented during training. A penalty changes the scalar objective. Dropout changes which units participate in a training pass. Early stopping selects a point along one optimisation trajectory. Their mechanisms are not interchangeable even when each reduces a validation error.</p>
 </section>
 <section id="regularisation-cannot-substitute-for-representative-data" class="level3">
 <h3 class="anchored" data-anchor-id="regularisation-cannot-substitute-for-representative-data">Regularisation cannot substitute for representative data</h3>
 <p>A smoother function may extrapolate less violently and still fail after a change in measurement or population. Augmentation can encode known transformations, but it cannot reliably invent an unobserved subgroup or outcome mechanism. Validation and test sets must retain the variation the model is expected to handle.</p>
-<p>Level 1 treats regularisation as a justified preference. Level 2 follows how four common methods alter the training procedure.</p>
+<p>The next step is to locate each preference in the training procedure: the data presented, the scalar objective, the active network, or the point chosen on an optimisation path. Level 2 follows those mechanisms separately because they require different checks.</p>
 </section>
 </section>
 <section id="level-2---mechanics" class="level2">
@@ -667,9 +662,7 @@ J(w)=\frac{1}{n}\sum_{i=1}^n(f_w(x_i)-y_i)^2+\lambda\sum_{j=1}^p w_j^2.
 \widetilde h_j=\frac{m_j}{q}h_j.
 \]</span></p>
 <p>The division preserves the expected activation because <span class="math inline">\(\mathbb E[\widetilde h_j]=h_j\)</span>. During evaluation, no mask is sampled and the full vector is used. Failing to call evaluation mode therefore makes predictions random and uses the wrong layer behaviour.</p>
-<div id="fig-dropout-mechanics" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-dropout-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-dropout-mechanics" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>activations<span class="op">=</span>np.array([<span class="fl">0.3</span>,<span class="fl">1.1</span>,<span class="fl">0.0</span>,<span class="fl">0.8</span>,<span class="fl">1.5</span>,<span class="fl">0.2</span>,<span class="fl">0.9</span>,<span class="fl">0.5</span>])<span class="op">;</span> q<span class="op">=</span><span class="fl">0.75</span></span>
@@ -685,11 +678,18 @@ J(w)=\frac{1}{n}\sum_{i=1}^n(f_w(x_i)-y_i)^2+\lambda\sum_{j=1}^p w_j^2.
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Dropout changes training activations, not evaluation activations"</span>)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-dropout-mechanics" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A heatmap shows six dropout masks applied to eight activations during training, beside an unmasked evaluation row.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dropout-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="10-regularisation_files/figure-html/fig-dropout-mechanics-output-1.png" class="img-fluid figure-img" alt="A heatmap shows six dropout masks applied to eight activations during training, beside an unmasked evaluation row.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-dropout-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11.3
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dropout-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.3: Inverted dropout randomly masks activations during training and uses the full vector during evaluation.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>The zero pattern differs across training rows. An already-zero activation remains zero regardless of the mask. Dropout does not identify irrelevant units and remove them permanently; it injects specified random masking during training <span class="citation" data-cites="srivastava2014">(<a href="#ref-srivastava2014" role="doc-biblioref">Srivastava et al. 2014</a>)</span>.</p>
 </section>
@@ -706,9 +706,7 @@ Figure&nbsp;11.3
 <section id="early-stopping-selects-a-checkpoint-using-validation-data" class="level3">
 <h3 class="anchored" data-anchor-id="early-stopping-selects-a-checkpoint-using-validation-data">Early stopping selects a checkpoint using validation data</h3>
 <p>Training loss often continues downward after validation loss reaches its minimum. Early stopping records validation performance and retains a checkpoint according to a pre-specified rule, commonly after no improvement for a fixed <em>patience</em> period.</p>
-<div id="fig-early-stopping" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-early-stopping" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">121</span>)</span>
@@ -723,14 +721,21 @@ Figure&nbsp;11.3
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Loss"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Checkpoint selection by validation loss"</span>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-early-stopping" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Training loss declines over 120 epochs while validation loss declines and then rises; a vertical line marks the best validation epoch.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="10-regularisation_files/figure-html/fig-early-stopping-output-1.png" class="img-fluid figure-img" alt="Training loss declines over 120 epochs while validation loss declines and then rises; a vertical line marks the best validation epoch.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11.4
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.4: Early stopping retains the checkpoint with the lowest validation loss rather than the final training checkpoint.
 </figcaption>
 </figure>
 </div>
+</div>
+</div>
 <p>The selected epoch is itself a hyperparameter outcome. Repeatedly changing patience, smoothing, or metric after viewing the same validation curve can overfit validation feedback. Early-stopping rules and maximum training budget should be recorded <span class="citation" data-cites="prechelt1998">(<a href="#ref-prechelt1998" role="doc-biblioref">Prechelt 1998</a>)</span>.</p>
-<p>This chapter treats early stopping as a regularisation and model-selection decision. Chapter 14 separates the operational roles of best, latest, and archival checkpoints and explains what each must preserve.</p>
+<p>These mechanisms can be stated precisely as objectives, stochastic transformations, and selection rules. Level 3 derives the ridge objective and shows the corresponding implementation contracts; Chapter 14 later separates the operational roles of best, latest, and archival checkpoints.</p>
 </section>
 </section>
 <section id="level-3---mathematics-code" class="level2">
@@ -742,9 +747,7 @@ Figure&nbsp;11.4
 \hat w_\lambda=(X^\top X+\lambda I_0)^{-1}X^\top y.
 \]</span></p>
 <p>The matrix form makes the mechanism visible: the added diagonal stabilises directions in which <span class="math inline">\(X^\top X\)</span> is poorly determined. Code should solve the system directly rather than calculate a matrix inverse.</p>
-<div id="fig-ridge-path" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-ridge-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-ridge-path" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x_validation<span class="op">=</span>rng.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">600</span>)</span>
@@ -774,11 +777,18 @@ Figure&nbsp;11.4
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Penalty selection"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-ridge-path" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two log-scale panels show absolute coefficient values falling with lambda and validation mean squared error reaching a minimum before rising.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ridge-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="10-regularisation_files/figure-html/fig-ridge-path-output-1.png" class="img-fluid figure-img" alt="Two log-scale panels show absolute coefficient values falling with lambda and validation mean squared error reaching a minimum before rising.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-ridge-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;11.5
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ridge-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.5: Increasing the ridge penalty shrinks high-order polynomial coefficients and produces a validation-error minimum at an intermediate value.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>Training error generally rises with the penalty because the optimiser is no longer minimising training error alone. Validation error first falls as unstable coefficients shrink, then rises when excessive shrinkage prevents the model from following the signal.</p>
 </section>
@@ -789,7 +799,7 @@ Figure&nbsp;11.5
 \nabla_wJ=\nabla_wL+2\lambda w.
 \]</span></p>
 <p>Each update therefore contains a data-loss term and a shrinkage term. Some libraries define the penalty with a factor of <span class="math inline">\(1/2\)</span>, removing the 2 from its gradient. Reported <span class="math inline">\(\lambda\)</span> values are not comparable without the convention.</p>
-<div id="26702fcc" class="cell">
+<div id="3208343f" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare one scalar update with and without an L2 penalty.</span></span>
@@ -799,44 +809,59 @@ Figure&nbsp;11.5
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Without penalty: </span><span class="sc">{</span>plain_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"With L2 penalty: </span><span class="sc">{</span>penalised_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Without penalty: 1.430
+With L2 penalty: 1.374</code></pre>
+</div>
 </div>
 <p>The data gradient alone increases the weight. The L2 term opposes that increase because the current weight is positive. A negative weight receives shrinkage toward zero from the opposite direction.</p>
 </section>
 <section id="pytorch-exposes-distinct-regularisation-mechanisms" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-exposes-distinct-regularisation-mechanisms">PyTorch exposes distinct regularisation mechanisms</h3>
-<div id="1c90b5f1" class="cell">
+<div id="1be9d965" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">20</span>, <span class="dv">64</span>),</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    nn.Dropout(p<span class="op">=</span><span class="fl">0.25</span>),</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">1</span>),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>optimiser <span class="op">=</span> torch.optim.AdamW(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>, weight_decay<span class="op">=</span><span class="fl">1e-2</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">20</span>, <span class="dv">64</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    nn.Dropout(p<span class="op">=</span><span class="fl">0.25</span>),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">1</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>optimiser <span class="op">=</span> torch.optim.AdamW(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>, weight_decay<span class="op">=</span><span class="fl">1e-2</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sequential(
+  (0): Linear(in_features=20, out_features=64, bias=True)
+  (1): ReLU()
+  (2): Dropout(p=0.25, inplace=False)
+  (3): Linear(in_features=64, out_features=1, bias=True)
+)</code></pre>
+</div>
 </div>
 <p><code>Dropout</code> changes forward passes in training mode. <code>AdamW</code> applies decoupled weight decay rather than adding the L2 term to Adam’s gradient calculation <span class="citation" data-cites="adamw2019">(<a href="#ref-adamw2019" role="doc-biblioref">Loshchilov and Hutter 2019</a>)</span>. For plain stochastic gradient descent, L2 regularisation and multiplicative weight decay can coincide under common conventions; with adaptive optimisers they are generally different operations.</p>
-<div id="1c543dff" class="cell">
+<div id="c02a7ed3" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A minimal early-stopping state machine.</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>best_validation<span class="op">=</span><span class="bu">float</span>(<span class="st">"inf"</span>)<span class="op">;</span> patience<span class="op">=</span><span class="dv">8</span><span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span><span class="op">;</span> best_state<span class="op">=</span><span class="va">None</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>validation_sequence<span class="op">=</span>[<span class="fl">0.52</span>,<span class="fl">0.44</span>,<span class="fl">0.39</span>,<span class="fl">0.36</span>,<span class="fl">0.35</span>,<span class="fl">0.351</span>,<span class="fl">0.354</span>,<span class="fl">0.356</span>,<span class="fl">0.359</span>,<span class="fl">0.361</span>,<span class="fl">0.364</span>,<span class="fl">0.366</span>,<span class="fl">0.369</span>]</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch,value <span class="kw">in</span> <span class="bu">enumerate</span>(validation_sequence,<span class="dv">1</span>):</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&lt;</span> best_validation:</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        best_validation<span class="op">=</span>value<span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        best_state<span class="op">=</span>{<span class="st">"epoch"</span>:epoch,<span class="st">"validation_loss"</span>:value}</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        epochs_without_improvement <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epochs_without_improvement <span class="op">&gt;=</span> patience:</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(best_state)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A minimal early-stopping state machine.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>best_validation<span class="op">=</span><span class="bu">float</span>(<span class="st">"inf"</span>)<span class="op">;</span> patience<span class="op">=</span><span class="dv">8</span><span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span><span class="op">;</span> best_state<span class="op">=</span><span class="va">None</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>validation_sequence<span class="op">=</span>[<span class="fl">0.52</span>,<span class="fl">0.44</span>,<span class="fl">0.39</span>,<span class="fl">0.36</span>,<span class="fl">0.35</span>,<span class="fl">0.351</span>,<span class="fl">0.354</span>,<span class="fl">0.356</span>,<span class="fl">0.359</span>,<span class="fl">0.361</span>,<span class="fl">0.364</span>,<span class="fl">0.366</span>,<span class="fl">0.369</span>]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch,value <span class="kw">in</span> <span class="bu">enumerate</span>(validation_sequence,<span class="dv">1</span>):</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&lt;</span> best_validation:</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        best_validation<span class="op">=</span>value<span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        best_state<span class="op">=</span>{<span class="st">"epoch"</span>:epoch,<span class="st">"validation_loss"</span>:value}</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        epochs_without_improvement <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epochs_without_improvement <span class="op">&gt;=</span> patience:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(best_state)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'epoch': 5, 'validation_loss': 0.35}</code></pre>
+</div>
 </div>
 <p>Production code should save the model, optimiser, scheduler, precision scaler, epoch, and preprocessing state needed for recovery. Stopping without restoring the best checkpoint leaves the model at a later, worse validation state.</p>
 </section>
@@ -1419,399 +1444,389 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Regularisation"</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Changing the learning problem to improve transfer"</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>Chapter 9 showed that a flexible model can reduce training error by following noise and sample-specific detail. Regularisation changes the learning procedure so that some fitting solutions are preferred over others. It may penalise parameter values, inject randomness, expand the training data through defensible transformations, or stop optimisation before the training objective reaches its minimum.</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>Regularisation does not repair an invalid label, a leaking split, or a deployment distribution absent from evaluation. It exchanges one set of assumptions for another. The appropriate method and strength must therefore be selected on validation data and assessed against the intended transfer task.</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain regularisation as a change to the learning procedure rather than a post-hoc repair;</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate an L2-penalised objective and its gradient;</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish L1 and L2 penalties from optimiser-specific weight decay;</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain dropout in training and evaluation modes;</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>state the invariance assumption made by a data augmentation;</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement ridge regression and inspect a coefficient path;</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement weight decay, dropout, and early stopping in PyTorch;</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why validation data are required to select regularisation strength;</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>connect regularisation choices to checkpointing, randomness, numerical precision, and distributed training.</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running example</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>The chapter continues the noisy function from Chapter 9,</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>using a degree-15 polynomial. Rather than lowering the degree, ridge regularisation retains all polynomial terms and penalises large coefficients. This isolates the effect of regularisation from a change in the model's nominal feature set.</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-regularisation-intuition</span></span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Ridge regularisation retains a degree-15 model but suppresses the extreme oscillations of its unpenalised fit."</span></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two panels compare an oscillating unpenalised degree-15 polynomial with a smoother ridge-regularised degree-15 polynomial against the same noisy observations and true signal."</span></span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7a5195"</span>, <span class="st">"#5f6b76"</span></span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">52</span>)</span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> true_function(x):</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sin(np.pi<span class="op">*</span>x)<span class="op">+</span><span class="fl">0.3</span><span class="op">*</span>x</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polynomial_design(x, degree<span class="op">=</span><span class="dv">15</span>):</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.column_stack([x<span class="op">**</span>power <span class="cf">for</span> power <span class="kw">in</span> <span class="bu">range</span>(degree<span class="op">+</span><span class="dv">1</span>)])</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ridge_fit(X, y, penalty):</span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>    penalty_matrix <span class="op">=</span> np.eye(X.shape[<span class="dv">1</span>])<span class="op">;</span> penalty_matrix[<span class="dv">0</span>,<span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.linalg.solve(X.T<span class="op">@</span>X <span class="op">+</span> penalty<span class="op">*</span>penalty_matrix, X.T<span class="op">@</span>y)</span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>x_train<span class="op">=</span>np.sort(rng.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">24</span>))</span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>y_train<span class="op">=</span>true_function(x_train)<span class="op">+</span>rng.normal(<span class="dv">0</span>,<span class="fl">0.25</span>,<span class="bu">len</span>(x_train))</span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>x_grid<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">600</span>)</span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>X_train<span class="op">=</span>polynomial_design(x_train)<span class="op">;</span> X_grid<span class="op">=</span>polynomial_design(x_grid)</span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>coef_none<span class="op">=</span>ridge_fit(X_train,y_train,<span class="dv">0</span>)<span class="op">;</span> coef_ridge<span class="op">=</span>ridge_fit(X_train,y_train,<span class="fl">0.1</span>)</span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.3</span>),sharex<span class="op">=</span><span class="va">True</span>,sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,coef,title,colour <span class="kw">in</span> <span class="bu">zip</span>(axes,[coef_none,coef_ridge],</span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"No penalty"</span>,<span class="st">"Ridge penalty: lambda = 0.1"</span>],[orange,teal]):</span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid,true_function(x_grid),color<span class="op">=</span>grey,linestyle<span class="op">=</span><span class="st">"--"</span>,linewidth<span class="op">=</span><span class="dv">2</span>,label<span class="op">=</span><span class="st">"true signal"</span>)</span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid,X_grid<span class="op">@</span>coef,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"fitted model"</span>)</span>
-<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x_train,y_train,color<span class="op">=</span>blue,s<span class="op">=</span><span class="dv">28</span>,label<span class="op">=</span><span class="st">"training data"</span>)</span>
-<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">2.2</span>,<span class="fl">2.2</span>)</span>
-<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>The penalty does not delete high-degree terms. It makes solutions with large coefficients more expensive. In this sample, the unpenalised model uses large coefficients to move sharply between observations; the penalised model accepts more training error to obtain a smoother function.</span>
-<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regularisation expresses a preference among fitting solutions</span></span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>Many models can fit a finite dataset similarly. Regularisation adds information about which fitted solutions should be preferred. Ridge expresses a preference for smaller squared coefficients. Dropout trains subnetworks produced by random masks. Augmentation says that selected transformations should preserve the target. Early stopping prefers the parameter state reached before later optimisation steps.</span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>These preferences can help when they match the problem. A penalty that shrinks a genuinely large effect, an augmentation that changes the label, or stopping before a pattern is learned can increase error. Regularisation strength therefore controls a trade-off, not a one-way improvement.</span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a><span class="fu">### Different methods intervene at different points</span></span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-regularisation-map</span></span>
-<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Regularisation methods intervene in the data, objective, architecture, or optimisation path."</span></span>
-<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A four-column diagram maps data augmentation to training data, L1 and L2 penalties to the objective, dropout to the architecture, and early stopping to optimisation time."</span></span>
-<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.2</span>))</span>
-<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"Data"</span>,<span class="st">"augmentation"</span>,blue),(<span class="st">"Objective"</span>,<span class="st">"L1 / L2 penalty"</span>,teal),</span>
-<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>       (<span class="st">"Architecture"</span>,<span class="st">"dropout mask"</span>,orange),(<span class="st">"Optimisation"</span>,<span class="st">"early stopping"</span>,purple)]</span>
-<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(heading,method,colour) <span class="kw">in</span> <span class="bu">enumerate</span>(items):</span>
-<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">0.13</span><span class="op">+</span>i<span class="op">*</span><span class="fl">0.245</span></span>
-<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a>    ax.text(x,<span class="fl">0.66</span>,heading,ha<span class="op">=</span><span class="st">"center"</span>,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>colour,fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a>    ax.text(x,<span class="fl">0.43</span>,method,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,weight<span class="op">=</span><span class="st">"bold"</span>,</span>
-<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>:<span class="st">"round,pad=0.65"</span>,<span class="st">"facecolor"</span>:colour,<span class="st">"edgecolor"</span>:<span class="st">"black"</span>})</span>
-<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">3</span>: ax.annotate(<span class="st">""</span>,xy<span class="op">=</span>(x<span class="op">+</span><span class="fl">0.17</span>,<span class="fl">0.43</span>),xytext<span class="op">=</span>(x<span class="op">+</span><span class="fl">0.09</span>,<span class="fl">0.43</span>),arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-&gt;"</span>,<span class="st">"color"</span>:grey})</span>
-<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.50</span>,<span class="fl">0.13</span>,<span class="st">"all choices are selected through validation evidence"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
-<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">0.85</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a>The diagram prevents several category errors. Data augmentation changes the examples presented during training. A penalty changes the scalar objective. Dropout changes which units participate in a training pass. Early stopping selects a point along one optimisation trajectory. Their mechanisms are not interchangeable even when each reduces a validation error.</span>
-<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regularisation cannot substitute for representative data</span></span>
-<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a>A smoother function may extrapolate less violently and still fail after a change in measurement or population. Augmentation can encode known transformations, but it cannot reliably invent an unobserved subgroup or outcome mechanism. Validation and test sets must retain the variation the model is expected to handle.</span>
-<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a>Level 1 treats regularisation as a justified preference. Level 2 follows how four common methods alter the training procedure.</span>
-<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
-<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a><span class="fu">### L2 penalties exchange fit for coefficient size</span></span>
-<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a>With mean squared error and parameters $w$, ridge minimises</span>
-<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a>J(w)=\frac{1}{n}\sum_{i=1}^n(f_w(x_i)-y_i)^2+\lambda\sum_{j=1}^p w_j^2.</span>
-<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>The intercept is commonly excluded. When $\lambda=0$, the objective is ordinary training loss. Increasing $\lambda$ gives coefficient size more influence. A validation set selects among candidate values; choosing the value on the test set would make the test result part of development.</span>
-<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a>L1 replaces $w_j^2$ with $|w_j|$ and can produce exact zeros. L2 usually shrinks coefficients continuously. Their effects depend on feature scaling: penalising coefficients attached to differently scaled inputs does not express an equal preference across features.</span>
-<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dropout changes the active network on each training pass</span></span>
-<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a>For activation vector $h$ and retention probability $q=1-p$, inverted dropout draws $m_j\sim\operatorname{Bernoulli}(q)$ and computes</span>
-<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a>\widetilde h_j=\frac{m_j}{q}h_j.</span>
-<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>The division preserves the expected activation because $\mathbb E<span class="co">[</span><span class="ot">\widetilde h_j</span><span class="co">]</span>=h_j$. During evaluation, no mask is sampled and the full vector is used. Failing to call evaluation mode therefore makes predictions random and uses the wrong layer behaviour.</span>
-<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-dropout-mechanics</span></span>
-<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Inverted dropout randomly masks activations during training and uses the full vector during evaluation."</span></span>
-<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A heatmap shows six dropout masks applied to eight activations during training, beside an unmasked evaluation row."</span></span>
-<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a>activations<span class="op">=</span>np.array([<span class="fl">0.3</span>,<span class="fl">1.1</span>,<span class="fl">0.0</span>,<span class="fl">0.8</span>,<span class="fl">1.5</span>,<span class="fl">0.2</span>,<span class="fl">0.9</span>,<span class="fl">0.5</span>])<span class="op">;</span> q<span class="op">=</span><span class="fl">0.75</span></span>
-<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a>masks<span class="op">=</span>rng.binomial(<span class="dv">1</span>,q,size<span class="op">=</span>(<span class="dv">6</span>,<span class="bu">len</span>(activations)))</span>
-<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a>training_outputs<span class="op">=</span>masks<span class="op">*</span>activations<span class="op">/</span>q</span>
-<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a>display<span class="op">=</span>np.vstack([training_outputs,activations])</span>
-<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.4</span>))</span>
-<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a>image<span class="op">=</span>ax.imshow(display,cmap<span class="op">=</span><span class="st">"YlGnBu"</span>,aspect<span class="op">=</span><span class="st">"auto"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">8</span>),[<span class="ss">f"h</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>)])</span>
-<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a>ax.set_yticks(<span class="bu">range</span>(<span class="dv">7</span>),[<span class="ss">f"train mask </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>)]<span class="op">+</span>[<span class="st">"evaluation"</span>])</span>
-<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="fl">5.5</span>,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>ax,label<span class="op">=</span><span class="st">"value passed forward"</span>)</span>
-<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Dropout changes training activations, not evaluation activations"</span>)</span>
-<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a>The zero pattern differs across training rows. An already-zero activation remains zero regardless of the mask. Dropout does not identify irrelevant units and remove them permanently; it injects specified random masking during training <span class="co">[</span><span class="ot">@srivastava2014</span><span class="co">]</span>.</span>
-<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data augmentation encodes an invariance assumption</span></span>
-<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a>An image label may remain valid after a small translation, while a text label may not survive arbitrary word replacement. Each transformation therefore asserts something about the task. Mixup constructs convex combinations</span>
-<span id="cb9-167"><a href="#cb9-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-168"><a href="#cb9-168" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-169"><a href="#cb9-169" aria-hidden="true" tabindex="-1"></a>\widetilde x=\alpha x_i+(1-\alpha)x_j,\qquad</span>
-<span id="cb9-170"><a href="#cb9-170" aria-hidden="true" tabindex="-1"></a>\widetilde y=\alpha y_i+(1-\alpha)y_j,</span>
-<span id="cb9-171"><a href="#cb9-171" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-172"><a href="#cb9-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-173"><a href="#cb9-173" aria-hidden="true" tabindex="-1"></a>and trains the model on interpolated examples and labels <span class="co">[</span><span class="ot">@zhang2018mixup</span><span class="co">]</span>. Whether this relation is meaningful depends on the input representation and target.</span>
-<span id="cb9-174"><a href="#cb9-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-175"><a href="#cb9-175" aria-hidden="true" tabindex="-1"></a>Augmented versions of one source observation must remain in the same split. Creating transformations before splitting can place near-duplicates in training and test data and produce optimistic evaluation.</span>
-<span id="cb9-176"><a href="#cb9-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a><span class="fu">### Early stopping selects a checkpoint using validation data</span></span>
-<span id="cb9-178"><a href="#cb9-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-179"><a href="#cb9-179" aria-hidden="true" tabindex="-1"></a>Training loss often continues downward after validation loss reaches its minimum. Early stopping records validation performance and retains a checkpoint according to a pre-specified rule, commonly after no improvement for a fixed *patience* period.</span>
-<span id="cb9-180"><a href="#cb9-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-183"><a href="#cb9-183" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-184"><a href="#cb9-184" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-early-stopping</span></span>
-<span id="cb9-185"><a href="#cb9-185" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Early stopping retains the checkpoint with the lowest validation loss rather than the final training checkpoint."</span></span>
-<span id="cb9-186"><a href="#cb9-186" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Training loss declines over 120 epochs while validation loss declines and then rises; a vertical line marks the best validation epoch."</span></span>
-<span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">121</span>)</span>
-<span id="cb9-188"><a href="#cb9-188" aria-hidden="true" tabindex="-1"></a>training_loss<span class="op">=</span><span class="fl">0.62</span><span class="op">*</span>np.exp(<span class="op">-</span>epochs<span class="op">/</span><span class="dv">36</span>)<span class="op">+</span><span class="fl">0.035</span></span>
-<span id="cb9-189"><a href="#cb9-189" aria-hidden="true" tabindex="-1"></a>validation_loss<span class="op">=</span><span class="fl">0.58</span><span class="op">*</span>np.exp(<span class="op">-</span>epochs<span class="op">/</span><span class="dv">30</span>)<span class="op">+</span><span class="fl">0.08</span><span class="op">+</span><span class="fl">0.000055</span><span class="op">*</span>np.maximum(epochs<span class="op">-</span><span class="dv">48</span>,<span class="dv">0</span>)<span class="op">**</span><span class="dv">2</span></span>
-<span id="cb9-190"><a href="#cb9-190" aria-hidden="true" tabindex="-1"></a>best_epoch<span class="op">=</span><span class="bu">int</span>(epochs[np.argmin(validation_loss)])</span>
-<span id="cb9-191"><a href="#cb9-191" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
-<span id="cb9-192"><a href="#cb9-192" aria-hidden="true" tabindex="-1"></a>ax.plot(epochs,training_loss,color<span class="op">=</span>blue,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"training loss"</span>)</span>
-<span id="cb9-193"><a href="#cb9-193" aria-hidden="true" tabindex="-1"></a>ax.plot(epochs,validation_loss,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"validation loss"</span>)</span>
-<span id="cb9-194"><a href="#cb9-194" aria-hidden="true" tabindex="-1"></a>ax.axvline(best_epoch,color<span class="op">=</span>teal,linestyle<span class="op">=</span><span class="st">"--"</span>,linewidth<span class="op">=</span><span class="dv">2</span>,label<span class="op">=</span><span class="ss">f"best epoch: </span><span class="sc">{</span>best_epoch<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb9-195"><a href="#cb9-195" aria-hidden="true" tabindex="-1"></a>ax.scatter([best_epoch],[validation_loss[best_epoch<span class="op">-</span><span class="dv">1</span>]],color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">70</span>,zorder<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb9-196"><a href="#cb9-196" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Loss"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Checkpoint selection by validation loss"</span>)</span>
-<span id="cb9-197"><a href="#cb9-197" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb9-198"><a href="#cb9-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-199"><a href="#cb9-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-200"><a href="#cb9-200" aria-hidden="true" tabindex="-1"></a>The selected epoch is itself a hyperparameter outcome. Repeatedly changing patience, smoothing, or metric after viewing the same validation curve can overfit validation feedback. Early-stopping rules and maximum training budget should be recorded <span class="co">[</span><span class="ot">@prechelt1998</span><span class="co">]</span>.</span>
-<span id="cb9-201"><a href="#cb9-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-202"><a href="#cb9-202" aria-hidden="true" tabindex="-1"></a>This chapter treats early stopping as a regularisation and model-selection decision. Chapter 14 separates the operational roles of best, latest, and archival checkpoints and explains what each must preserve.</span>
-<span id="cb9-203"><a href="#cb9-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-204"><a href="#cb9-204" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
-<span id="cb9-205"><a href="#cb9-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-206"><a href="#cb9-206" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ridge has a closed-form solution for linear features</span></span>
-<span id="cb9-207"><a href="#cb9-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-208"><a href="#cb9-208" aria-hidden="true" tabindex="-1"></a>For design matrix $X$, response $y$, and penalty matrix $I_0$ whose intercept entry is zero,</span>
-<span id="cb9-209"><a href="#cb9-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-210"><a href="#cb9-210" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-211"><a href="#cb9-211" aria-hidden="true" tabindex="-1"></a>\hat w_\lambda=(X^\top X+\lambda I_0)^{-1}X^\top y.</span>
-<span id="cb9-212"><a href="#cb9-212" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-213"><a href="#cb9-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-214"><a href="#cb9-214" aria-hidden="true" tabindex="-1"></a>The matrix form makes the mechanism visible: the added diagonal stabilises directions in which $X^\top X$ is poorly determined. Code should solve the system directly rather than calculate a matrix inverse.</span>
-<span id="cb9-215"><a href="#cb9-215" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-218"><a href="#cb9-218" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-219"><a href="#cb9-219" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-ridge-path</span></span>
-<span id="cb9-220"><a href="#cb9-220" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Increasing the ridge penalty shrinks high-order polynomial coefficients and produces a validation-error minimum at an intermediate value."</span></span>
-<span id="cb9-221"><a href="#cb9-221" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two log-scale panels show absolute coefficient values falling with lambda and validation mean squared error reaching a minimum before rising."</span></span>
-<span id="cb9-222"><a href="#cb9-222" aria-hidden="true" tabindex="-1"></a>x_validation<span class="op">=</span>rng.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">600</span>)</span>
-<span id="cb9-223"><a href="#cb9-223" aria-hidden="true" tabindex="-1"></a>y_validation<span class="op">=</span>true_function(x_validation)<span class="op">+</span>rng.normal(<span class="dv">0</span>,<span class="fl">0.25</span>,<span class="bu">len</span>(x_validation))</span>
-<span id="cb9-224"><a href="#cb9-224" aria-hidden="true" tabindex="-1"></a>X_validation<span class="op">=</span>polynomial_design(x_validation)</span>
-<span id="cb9-225"><a href="#cb9-225" aria-hidden="true" tabindex="-1"></a>lambdas<span class="op">=</span>np.logspace(<span class="op">-</span><span class="dv">8</span>,<span class="dv">3</span>,<span class="dv">80</span>)</span>
-<span id="cb9-226"><a href="#cb9-226" aria-hidden="true" tabindex="-1"></a>coefficient_paths<span class="op">=</span>[]<span class="op">;</span> validation_errors<span class="op">=</span>[]<span class="op">;</span> training_errors<span class="op">=</span>[]</span>
-<span id="cb9-227"><a href="#cb9-227" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> penalty <span class="kw">in</span> lambdas:</span>
-<span id="cb9-228"><a href="#cb9-228" aria-hidden="true" tabindex="-1"></a>    coef<span class="op">=</span>ridge_fit(X_train,y_train,penalty)</span>
-<span id="cb9-229"><a href="#cb9-229" aria-hidden="true" tabindex="-1"></a>    coefficient_paths.append(np.<span class="bu">abs</span>(coef[<span class="dv">1</span>:]))</span>
-<span id="cb9-230"><a href="#cb9-230" aria-hidden="true" tabindex="-1"></a>    training_errors.append(np.mean((X_train<span class="op">@</span>coef<span class="op">-</span>y_train)<span class="op">**</span><span class="dv">2</span>))</span>
-<span id="cb9-231"><a href="#cb9-231" aria-hidden="true" tabindex="-1"></a>    validation_errors.append(np.mean((X_validation<span class="op">@</span>coef<span class="op">-</span>y_validation)<span class="op">**</span><span class="dv">2</span>))</span>
-<span id="cb9-232"><a href="#cb9-232" aria-hidden="true" tabindex="-1"></a>coefficient_paths<span class="op">=</span>np.array(coefficient_paths)</span>
-<span id="cb9-233"><a href="#cb9-233" aria-hidden="true" tabindex="-1"></a>best_lambda<span class="op">=</span>lambdas[np.argmin(validation_errors)]</span>
-<span id="cb9-234"><a href="#cb9-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-235"><a href="#cb9-235" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.5</span>))</span>
-<span id="cb9-236"><a href="#cb9-236" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(coefficient_paths.shape[<span class="dv">1</span>]):</span>
-<span id="cb9-237"><a href="#cb9-237" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].plot(lambdas,coefficient_paths[:,j],alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
-<span id="cb9-238"><a href="#cb9-238" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xscale(<span class="st">"log"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_yscale(<span class="st">"log"</span>)</span>
-<span id="cb9-239"><a href="#cb9-239" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"lambda"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Absolute coefficient"</span>)</span>
-<span id="cb9-240"><a href="#cb9-240" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Coefficient path"</span>)</span>
-<span id="cb9-241"><a href="#cb9-241" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(lambdas,training_errors,color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"training MSE"</span>)</span>
-<span id="cb9-242"><a href="#cb9-242" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(lambdas,validation_errors,color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"validation MSE"</span>)</span>
-<span id="cb9-243"><a href="#cb9-243" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axvline(best_lambda,color<span class="op">=</span>teal,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="ss">f"selected lambda = </span><span class="sc">{</span>best_lambda<span class="sc">:.2g}</span><span class="ss">"</span>)</span>
-<span id="cb9-244"><a href="#cb9-244" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
-<span id="cb9-245"><a href="#cb9-245" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"lambda"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Mean squared error"</span>)</span>
-<span id="cb9-246"><a href="#cb9-246" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Penalty selection"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb9-247"><a href="#cb9-247" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb9-248"><a href="#cb9-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-249"><a href="#cb9-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-250"><a href="#cb9-250" aria-hidden="true" tabindex="-1"></a>Training error generally rises with the penalty because the optimiser is no longer minimising training error alone. Validation error first falls as unstable coefficients shrink, then rises when excessive shrinkage prevents the model from following the signal.</span>
-<span id="cb9-251"><a href="#cb9-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-252"><a href="#cb9-252" aria-hidden="true" tabindex="-1"></a><span class="fu">### The penalty contributes its own gradient</span></span>
-<span id="cb9-253"><a href="#cb9-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-254"><a href="#cb9-254" aria-hidden="true" tabindex="-1"></a>For L2-regularised loss $J(w)=L(w)+\lambda\lVert w\rVert_2^2$,</span>
-<span id="cb9-255"><a href="#cb9-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-256"><a href="#cb9-256" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-257"><a href="#cb9-257" aria-hidden="true" tabindex="-1"></a>\nabla_wJ=\nabla_wL+2\lambda w.</span>
-<span id="cb9-258"><a href="#cb9-258" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb9-259"><a href="#cb9-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-260"><a href="#cb9-260" aria-hidden="true" tabindex="-1"></a>Each update therefore contains a data-loss term and a shrinkage term. Some libraries define the penalty with a factor of $1/2$, removing the 2 from its gradient. Reported $\lambda$ values are not comparable without the convention.</span>
-<span id="cb9-261"><a href="#cb9-261" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-264"><a href="#cb9-264" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-265"><a href="#cb9-265" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare one scalar update with and without an L2 penalty.</span></span>
-<span id="cb9-266"><a href="#cb9-266" aria-hidden="true" tabindex="-1"></a>weight<span class="op">=</span><span class="fl">1.4</span><span class="op">;</span> data_gradient<span class="op">=-</span><span class="fl">0.3</span><span class="op">;</span> learning_rate<span class="op">=</span><span class="fl">0.1</span><span class="op">;</span> penalty<span class="op">=</span><span class="fl">0.2</span></span>
-<span id="cb9-267"><a href="#cb9-267" aria-hidden="true" tabindex="-1"></a>plain_update<span class="op">=</span>weight<span class="op">-</span>learning_rate<span class="op">*</span>data_gradient</span>
-<span id="cb9-268"><a href="#cb9-268" aria-hidden="true" tabindex="-1"></a>penalised_update<span class="op">=</span>weight<span class="op">-</span>learning_rate<span class="op">*</span>(data_gradient<span class="op">+</span><span class="dv">2</span><span class="op">*</span>penalty<span class="op">*</span>weight)</span>
-<span id="cb9-269"><a href="#cb9-269" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Without penalty: </span><span class="sc">{</span>plain_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb9-270"><a href="#cb9-270" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"With L2 penalty: </span><span class="sc">{</span>penalised_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb9-271"><a href="#cb9-271" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-272"><a href="#cb9-272" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-273"><a href="#cb9-273" aria-hidden="true" tabindex="-1"></a>The data gradient alone increases the weight. The L2 term opposes that increase because the current weight is positive. A negative weight receives shrinkage toward zero from the opposite direction.</span>
-<span id="cb9-274"><a href="#cb9-274" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-275"><a href="#cb9-275" aria-hidden="true" tabindex="-1"></a><span class="fu">### PyTorch exposes distinct regularisation mechanisms</span></span>
-<span id="cb9-276"><a href="#cb9-276" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-279"><a href="#cb9-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-280"><a href="#cb9-280" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb9-281"><a href="#cb9-281" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
-<span id="cb9-282"><a href="#cb9-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-283"><a href="#cb9-283" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
-<span id="cb9-284"><a href="#cb9-284" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">20</span>, <span class="dv">64</span>),</span>
-<span id="cb9-285"><a href="#cb9-285" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
-<span id="cb9-286"><a href="#cb9-286" aria-hidden="true" tabindex="-1"></a>    nn.Dropout(p<span class="op">=</span><span class="fl">0.25</span>),</span>
-<span id="cb9-287"><a href="#cb9-287" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">1</span>),</span>
-<span id="cb9-288"><a href="#cb9-288" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-289"><a href="#cb9-289" aria-hidden="true" tabindex="-1"></a>optimiser <span class="op">=</span> torch.optim.AdamW(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>, weight_decay<span class="op">=</span><span class="fl">1e-2</span>)</span>
-<span id="cb9-290"><a href="#cb9-290" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
-<span id="cb9-291"><a href="#cb9-291" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-292"><a href="#cb9-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-293"><a href="#cb9-293" aria-hidden="true" tabindex="-1"></a><span class="in">`Dropout`</span> changes forward passes in training mode. <span class="in">`AdamW`</span> applies decoupled weight decay rather than adding the L2 term to Adam's gradient calculation <span class="co">[</span><span class="ot">@adamw2019</span><span class="co">]</span>. For plain stochastic gradient descent, L2 regularisation and multiplicative weight decay can coincide under common conventions; with adaptive optimisers they are generally different operations.</span>
-<span id="cb9-294"><a href="#cb9-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-297"><a href="#cb9-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb9-298"><a href="#cb9-298" aria-hidden="true" tabindex="-1"></a><span class="co"># A minimal early-stopping state machine.</span></span>
-<span id="cb9-299"><a href="#cb9-299" aria-hidden="true" tabindex="-1"></a>best_validation<span class="op">=</span><span class="bu">float</span>(<span class="st">"inf"</span>)<span class="op">;</span> patience<span class="op">=</span><span class="dv">8</span><span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span><span class="op">;</span> best_state<span class="op">=</span><span class="va">None</span></span>
-<span id="cb9-300"><a href="#cb9-300" aria-hidden="true" tabindex="-1"></a>validation_sequence<span class="op">=</span>[<span class="fl">0.52</span>,<span class="fl">0.44</span>,<span class="fl">0.39</span>,<span class="fl">0.36</span>,<span class="fl">0.35</span>,<span class="fl">0.351</span>,<span class="fl">0.354</span>,<span class="fl">0.356</span>,<span class="fl">0.359</span>,<span class="fl">0.361</span>,<span class="fl">0.364</span>,<span class="fl">0.366</span>,<span class="fl">0.369</span>]</span>
-<span id="cb9-301"><a href="#cb9-301" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch,value <span class="kw">in</span> <span class="bu">enumerate</span>(validation_sequence,<span class="dv">1</span>):</span>
-<span id="cb9-302"><a href="#cb9-302" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&lt;</span> best_validation:</span>
-<span id="cb9-303"><a href="#cb9-303" aria-hidden="true" tabindex="-1"></a>        best_validation<span class="op">=</span>value<span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb9-304"><a href="#cb9-304" aria-hidden="true" tabindex="-1"></a>        best_state<span class="op">=</span>{<span class="st">"epoch"</span>:epoch,<span class="st">"validation_loss"</span>:value}</span>
-<span id="cb9-305"><a href="#cb9-305" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb9-306"><a href="#cb9-306" aria-hidden="true" tabindex="-1"></a>        epochs_without_improvement <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb9-307"><a href="#cb9-307" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epochs_without_improvement <span class="op">&gt;=</span> patience:</span>
-<span id="cb9-308"><a href="#cb9-308" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb9-309"><a href="#cb9-309" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(best_state)</span>
-<span id="cb9-310"><a href="#cb9-310" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-311"><a href="#cb9-311" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-312"><a href="#cb9-312" aria-hidden="true" tabindex="-1"></a>Production code should save the model, optimiser, scheduler, precision scaler, epoch, and preprocessing state needed for recovery. Stopping without restoring the best checkpoint leaves the model at a later, worse validation state.</span>
-<span id="cb9-313"><a href="#cb9-313" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-314"><a href="#cb9-314" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
-<span id="cb9-315"><a href="#cb9-315" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-316"><a href="#cb9-316" aria-hidden="true" tabindex="-1"></a><span class="fu">### Weight decay depends on the optimiser and parameter group</span></span>
-<span id="cb9-317"><a href="#cb9-317" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-318"><a href="#cb9-318" aria-hidden="true" tabindex="-1"></a>Decoupled weight decay separates shrinkage from the gradient-based Adam update <span class="co">[</span><span class="ot">@adamw2019</span><span class="co">]</span>. Implementations commonly exclude biases and normalisation scale or offset parameters from decay. That is an architectural choice, not a universal rule. A reproducible configuration records parameter groups and their penalties rather than reporting one global number.</span>
-<span id="cb9-319"><a href="#cb9-319" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-320"><a href="#cb9-320" aria-hidden="true" tabindex="-1"></a>At scale, weight decay adds little arithmetic but interacts with fused optimiser kernels, sharded optimiser state, and checkpoint formats. Changing the optimiser implementation can change numerical order and defaults even when the headline hyperparameters match.</span>
-<span id="cb9-321"><a href="#cb9-321" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-322"><a href="#cb9-322" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dropout changes randomness and execution</span></span>
-<span id="cb9-323"><a href="#cb9-323" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-324"><a href="#cb9-324" aria-hidden="true" tabindex="-1"></a>Dropout was introduced as stochastic training of many thinned networks with a scaled full network at evaluation <span class="co">[</span><span class="ot">@srivastava2014</span><span class="co">]</span>. Its effect depends on placement and rate. Attention dropout, residual dropout, and feed-forward dropout mask different tensors. Modern architectures with large datasets, normalisation, augmentation, or other stochastic components may use little or no dropout; the original empirical result is not a mandate for every network.</span>
-<span id="cb9-325"><a href="#cb9-325" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-326"><a href="#cb9-326" aria-hidden="true" tabindex="-1"></a>Distributed workers need independent but reproducible random streams. Accidentally sharing masks can reduce intended variation, while restoring a checkpoint without random-number state changes the continuation. Evaluation must disable dropout unless stochastic inference is deliberately used and reported.</span>
-<span id="cb9-327"><a href="#cb9-327" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-328"><a href="#cb9-328" aria-hidden="true" tabindex="-1"></a><span class="fu">### Augmentation quality is a substantive property</span></span>
-<span id="cb9-329"><a href="#cb9-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-330"><a href="#cb9-330" aria-hidden="true" tabindex="-1"></a>Mixup and image transformations are often implemented cheaply on accelerators, but other augmentations can become data-pipeline bottlenecks. More importantly, throughput does not establish label preservation. Cropping may remove the object that defines an image label; temporal warping may change an event; language substitutions may alter meaning. Augmentation policies need domain evidence and error analysis, not only validation gains.</span>
-<span id="cb9-331"><a href="#cb9-331" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-332"><a href="#cb9-332" aria-hidden="true" tabindex="-1"></a>Synthetic data from another model add further dependencies: generator coverage, inherited bias, privacy, provenance, and duplication. Calling generated examples augmentation does not remove these evaluation requirements.</span>
-<span id="cb9-333"><a href="#cb9-333" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-334"><a href="#cb9-334" aria-hidden="true" tabindex="-1"></a><span class="fu">### Early stopping consumes validation information</span></span>
-<span id="cb9-335"><a href="#cb9-335" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-336"><a href="#cb9-336" aria-hidden="true" tabindex="-1"></a>Early stopping saves computation when later epochs do not improve the selected metric, but asynchronous evaluation and distributed checkpoints complicate the definition of the best step. Validation results may arrive after training has advanced. Systems must retain candidate checkpoints until selection is resolved and record whether patience is measured in epochs, optimiser steps, tokens, or evaluation events.</span>
-<span id="cb9-337"><a href="#cb9-337" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-338"><a href="#cb9-338" aria-hidden="true" tabindex="-1"></a>The chosen checkpoint can vary across seeds. Reporting only the best run combines regularisation selection with run selection. Comparisons should use matched budgets and a declared aggregation across runs.</span>
-<span id="cb9-339"><a href="#cb9-339" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-340"><a href="#cb9-340" aria-hidden="true" tabindex="-1"></a><span class="fu">### A regularisation audit links mechanism to evidence</span></span>
-<span id="cb9-341"><a href="#cb9-341" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-342"><a href="#cb9-342" aria-hidden="true" tabindex="-1"></a>An audit should record:</span>
-<span id="cb9-343"><a href="#cb9-343" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-344"><a href="#cb9-344" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the observed overfitting pattern and metric used to diagnose it;</span>
-<span id="cb9-345"><a href="#cb9-345" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>each regularisation mechanism, location, strength, and schedule;</span>
-<span id="cb9-346"><a href="#cb9-346" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>feature scaling and parameters excluded from penalties;</span>
-<span id="cb9-347"><a href="#cb9-347" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>augmentation transformations and the evidence that labels remain valid;</span>
-<span id="cb9-348"><a href="#cb9-348" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>training/evaluation mode and random-state handling for dropout;</span>
-<span id="cb9-349"><a href="#cb9-349" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>validation frequency, patience, minimum improvement, and restored checkpoint;</span>
-<span id="cb9-350"><a href="#cb9-350" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the number of settings and runs compared;</span>
-<span id="cb9-351"><a href="#cb9-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>task performance, calibration, subgroup errors, compute, memory, and latency;</span>
-<span id="cb9-352"><a href="#cb9-352" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>final assessment on data untouched by regularisation selection.</span>
-<span id="cb9-353"><a href="#cb9-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-354"><a href="#cb9-354" aria-hidden="true" tabindex="-1"></a>Regularisation is supported when this comparison improves the intended transfer criterion under a fixed evaluation design. A smaller training–validation gap caused by making both errors worse is not an improvement.</span>
-<span id="cb9-355"><a href="#cb9-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-356"><a href="#cb9-356" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb9-357"><a href="#cb9-357" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-358"><a href="#cb9-358" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Regularisation is applied after a model overfits.** It changes fitting, architecture, data, or checkpoint selection during development.</span>
-<span id="cb9-359"><a href="#cb9-359" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More regularisation always improves generalisation.** Excessive strength causes underfitting.</span>
-<span id="cb9-360"><a href="#cb9-360" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**L2 regularisation deletes unneeded features.** It usually shrinks coefficients without making them exactly zero.</span>
-<span id="cb9-361"><a href="#cb9-361" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**L1 selects the true variables.** Exact zeros do not establish causal relevance or selection stability.</span>
-<span id="cb9-362"><a href="#cb9-362" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Weight decay and L2 are identical for every optimiser.** They differ for adaptive updates unless implemented equivalently.</span>
-<span id="cb9-363"><a href="#cb9-363" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Dropout finds irrelevant neurons.** It samples random masks during training.</span>
-<span id="cb9-364"><a href="#cb9-364" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Dropout should remain active for ordinary evaluation.** Standard inference uses evaluation mode and the full scaled network.</span>
-<span id="cb9-365"><a href="#cb9-365" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Augmented observations are new independent data.** They remain transformations of source observations.</span>
-<span id="cb9-366"><a href="#cb9-366" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Any label-preserving-looking transformation is valid.** Validity depends on the task and data-generating process.</span>
-<span id="cb9-367"><a href="#cb9-367" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Early stopping uses training loss.** It normally selects a checkpoint using validation performance.</span>
-<span id="cb9-368"><a href="#cb9-368" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**The final epoch is the early-stopped model.** The best earlier checkpoint must be restored.</span>
-<span id="cb9-369"><a href="#cb9-369" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A smaller generalisation gap is always better.** Both training and validation performance can deteriorate together.</span>
-<span id="cb9-370"><a href="#cb9-370" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Regularisation repairs distribution shift.** It may help under tested shifts but cannot establish transfer to unobserved conditions.</span>
-<span id="cb9-371"><a href="#cb9-371" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-372"><a href="#cb9-372" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb9-373"><a href="#cb9-373" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-374"><a href="#cb9-374" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate the L2-penalised objective for a supplied loss, weights, and $\lambda$.</span>
-<span id="cb9-375"><a href="#cb9-375" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Derive the L2 gradient when the penalty is $\lambda\lVert w\rVert^2/2$.</span>
-<span id="cb9-376"><a href="#cb9-376" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why feature standardisation affects L1 and L2 penalties.</span>
-<span id="cb9-377"><a href="#cb9-377" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Compare L1 and L2 coefficient behaviour.</span>
-<span id="cb9-378"><a href="#cb9-378" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Reproduce the ridge path with another training sample.</span>
-<span id="cb9-379"><a href="#cb9-379" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Select $\lambda$ using validation data and report final test error.</span>
-<span id="cb9-380"><a href="#cb9-380" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Show what happens when the intercept is penalised.</span>
-<span id="cb9-381"><a href="#cb9-381" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Calculate the expected output of inverted dropout.</span>
-<span id="cb9-382"><a href="#cb9-382" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Apply three dropout masks by hand to a four-element activation vector.</span>
-<span id="cb9-383"><a href="#cb9-383" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Compare model predictions in <span class="in">`train()`</span> and <span class="in">`eval()`</span> modes.</span>
-<span id="cb9-384"><a href="#cb9-384" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Design one defensible and one invalid augmentation for a chosen task.</span>
-<span id="cb9-385"><a href="#cb9-385" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Explain why augmented variants must remain in the same data split.</span>
-<span id="cb9-386"><a href="#cb9-386" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Implement mixup for a mini-batch and inspect mixed labels.</span>
-<span id="cb9-387"><a href="#cb9-387" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Implement patience-based early stopping and restore the best checkpoint.</span>
-<span id="cb9-388"><a href="#cb9-388" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Compare early stopping across five random seeds.</span>
-<span id="cb9-389"><a href="#cb9-389" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Explain decoupled weight decay in AdamW.</span>
-<span id="cb9-390"><a href="#cb9-390" aria-hidden="true" tabindex="-1"></a><span class="ss">17. </span>Create optimiser parameter groups that exclude biases from decay.</span>
-<span id="cb9-391"><a href="#cb9-391" aria-hidden="true" tabindex="-1"></a><span class="ss">18. </span>Design a controlled comparison of dropout rates.</span>
-<span id="cb9-392"><a href="#cb9-392" aria-hidden="true" tabindex="-1"></a><span class="ss">19. </span>Identify which random states a distributed dropout run should checkpoint.</span>
-<span id="cb9-393"><a href="#cb9-393" aria-hidden="true" tabindex="-1"></a><span class="ss">20. </span>Write a regularisation audit for the Chapter 8 classifier.</span>
-<span id="cb9-394"><a href="#cb9-394" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-395"><a href="#cb9-395" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
-<span id="cb9-396"><a href="#cb9-396" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-397"><a href="#cb9-397" aria-hidden="true" tabindex="-1"></a>Regularisation changes the learning problem so that some fitting solutions are preferred. L1 and L2 add parameter penalties, dropout changes the active network during training, augmentation changes the examples presented to the model, and early stopping selects a checkpoint along the optimisation path. Each method introduces assumptions and a strength or policy that must be selected.</span>
-<span id="cb9-398"><a href="#cb9-398" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-399"><a href="#cb9-399" aria-hidden="true" tabindex="-1"></a>Ridge regression shows the trade-off directly: larger penalties shrink coefficients and raise training error, while validation error can improve before excessive shrinkage causes underfitting. In neural networks, weight decay must be interpreted with the optimiser, dropout with training and evaluation modes, augmentation with label validity, and early stopping with checkpoint restoration.</span>
-<span id="cb9-400"><a href="#cb9-400" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-401"><a href="#cb9-401" aria-hidden="true" tabindex="-1"></a>At system scale, regularisation affects random streams, parameter groups, data throughput, evaluation cadence, and recovery state. The final evidence must come from data that did not determine those choices.</span>
-<span id="cb9-402"><a href="#cb9-402" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-403"><a href="#cb9-403" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
-<span id="cb9-404"><a href="#cb9-404" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-405"><a href="#cb9-405" aria-hidden="true" tabindex="-1"></a>Chapter 11 examines initialisation and gradient flow. Regularisation governs which fitted solutions are preferred; initialisation governs where optimisation starts and how signals and gradients propagate before useful parameters have been learned.</span>
-<span id="cb9-406"><a href="#cb9-406" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-407"><a href="#cb9-407" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb9-408"><a href="#cb9-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-409"><a href="#cb9-409" aria-hidden="true" tabindex="-1"></a>Dropout is developed by @srivastava2014. Early-stopping criteria are compared by @prechelt1998. Mixup is introduced by @zhang2018mixup. Decoupled weight decay for adaptive optimisation is developed by @adamw2019.</span>
+<div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Regularisation"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Changing the learning problem to improve transfer"</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>Chapter 9 showed why a flexible fitted rule can follow sample-specific noise. Reducing the model's nominal capacity is one response, but it is not the only one. Regularisation changes the learning procedure so that, among available fits, some are preferred: a penalty can make large parameters costly; dropout can train changing subnetworks; augmentation can add transformations judged label-preserving; and early stopping can select an earlier checkpoint.</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>None of these operations repairs an invalid label, a leaking split, or a population absent from the evaluation design. Each adds an assumption about the fitted solution, the data, or the optimisation path. The method and its strength must consequently be chosen using validation evidence and assessed against the intended transfer task.</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A controlled example</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>The chapter continues the noisy function from Chapter 9,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>using a degree-15 polynomial. Rather than lowering the degree, ridge regularisation retains all polynomial terms and penalises large coefficients. This isolates the effect of regularisation from a change in the model's nominal feature set.</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>The figure compares two rules with the same input features and polynomial degree. The coloured curve changes because the objective changes: the ridge fit is permitted to accept more error on the observed points when that avoids extreme coefficients. This is a preference about solutions, not a claim that smoothness is always correct.</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-regularisation-intuition</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Ridge regularisation retains a degree-15 model but suppresses the extreme oscillations of its unpenalised fit."</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two panels compare an oscillating unpenalised degree-15 polynomial with a smoother ridge-regularised degree-15 polynomial against the same noisy observations and true signal."</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7a5195"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">52</span>)</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> true_function(x):</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sin(np.pi<span class="op">*</span>x)<span class="op">+</span><span class="fl">0.3</span><span class="op">*</span>x</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> polynomial_design(x, degree<span class="op">=</span><span class="dv">15</span>):</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.column_stack([x<span class="op">**</span>power <span class="cf">for</span> power <span class="kw">in</span> <span class="bu">range</span>(degree<span class="op">+</span><span class="dv">1</span>)])</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ridge_fit(X, y, penalty):</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    penalty_matrix <span class="op">=</span> np.eye(X.shape[<span class="dv">1</span>])<span class="op">;</span> penalty_matrix[<span class="dv">0</span>,<span class="dv">0</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.linalg.solve(X.T<span class="op">@</span>X <span class="op">+</span> penalty<span class="op">*</span>penalty_matrix, X.T<span class="op">@</span>y)</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>x_train<span class="op">=</span>np.sort(rng.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">24</span>))</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>y_train<span class="op">=</span>true_function(x_train)<span class="op">+</span>rng.normal(<span class="dv">0</span>,<span class="fl">0.25</span>,<span class="bu">len</span>(x_train))</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>x_grid<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">600</span>)</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>X_train<span class="op">=</span>polynomial_design(x_train)<span class="op">;</span> X_grid<span class="op">=</span>polynomial_design(x_grid)</span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>coef_none<span class="op">=</span>ridge_fit(X_train,y_train,<span class="dv">0</span>)<span class="op">;</span> coef_ridge<span class="op">=</span>ridge_fit(X_train,y_train,<span class="fl">0.1</span>)</span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.3</span>),sharex<span class="op">=</span><span class="va">True</span>,sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,coef,title,colour <span class="kw">in</span> <span class="bu">zip</span>(axes,[coef_none,coef_ridge],</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"No penalty"</span>,<span class="st">"Ridge penalty: lambda = 0.1"</span>],[orange,teal]):</span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid,true_function(x_grid),color<span class="op">=</span>grey,linestyle<span class="op">=</span><span class="st">"--"</span>,linewidth<span class="op">=</span><span class="dv">2</span>,label<span class="op">=</span><span class="st">"true signal"</span>)</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>    ax.plot(x_grid,X_grid<span class="op">@</span>coef,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"fitted model"</span>)</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x_train,y_train,color<span class="op">=</span>blue,s<span class="op">=</span><span class="dv">28</span>,label<span class="op">=</span><span class="st">"training data"</span>)</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">2.2</span>,<span class="fl">2.2</span>)</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>The penalty does not delete high-degree terms. It makes solutions with large coefficients more expensive. In this sample, the unpenalised model uses large coefficients to move sharply between observations; the penalised model accepts more training error to obtain a smoother function.</span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-regularisation data-term="Regularisation" data-domain="Training and evaluation"}</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>**Regularisation.** A change to the learning procedure that favours some fitted solutions over others. Penalties, dropout, augmentation, and early stopping act through different mechanisms; each requires a stated strength or selection rule.</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regularisation expresses a preference among fitting solutions</span></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>Many models can fit a finite dataset similarly. Regularisation adds information about which fitted solutions should be preferred. Ridge expresses a preference for smaller squared coefficients. Dropout trains subnetworks produced by random masks. Augmentation says that selected transformations should preserve the target. Early stopping prefers the parameter state reached before later optimisation steps.</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>These preferences can help when they match the problem. A penalty that shrinks a genuinely large effect, an augmentation that changes the label, or stopping before a pattern is learned can increase error. Regularisation strength therefore controls a trade-off, not a one-way improvement.</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="fu">### Different methods intervene at different points</span></span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-regularisation-map</span></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Regularisation methods intervene in the data, objective, architecture, or optimisation path."</span></span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A four-column diagram maps data augmentation to training data, L1 and L2 penalties to the objective, dropout to the architecture, and early stopping to optimisation time."</span></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.2</span>))</span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"Data"</span>,<span class="st">"augmentation"</span>,blue),(<span class="st">"Objective"</span>,<span class="st">"L1 / L2 penalty"</span>,teal),</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>       (<span class="st">"Architecture"</span>,<span class="st">"dropout mask"</span>,orange),(<span class="st">"Optimisation"</span>,<span class="st">"early stopping"</span>,purple)]</span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(heading,method,colour) <span class="kw">in</span> <span class="bu">enumerate</span>(items):</span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">0.13</span><span class="op">+</span>i<span class="op">*</span><span class="fl">0.245</span></span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>    ax.text(x,<span class="fl">0.66</span>,heading,ha<span class="op">=</span><span class="st">"center"</span>,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>colour,fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>    ax.text(x,<span class="fl">0.43</span>,method,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,weight<span class="op">=</span><span class="st">"bold"</span>,</span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>:<span class="st">"round,pad=0.65"</span>,<span class="st">"facecolor"</span>:colour,<span class="st">"edgecolor"</span>:<span class="st">"black"</span>})</span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">3</span>: ax.annotate(<span class="st">""</span>,xy<span class="op">=</span>(x<span class="op">+</span><span class="fl">0.17</span>,<span class="fl">0.43</span>),xytext<span class="op">=</span>(x<span class="op">+</span><span class="fl">0.09</span>,<span class="fl">0.43</span>),arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-&gt;"</span>,<span class="st">"color"</span>:grey})</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.50</span>,<span class="fl">0.13</span>,<span class="st">"all choices are selected through validation evidence"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">0.85</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>The diagram prevents several category errors. Data augmentation changes the examples presented during training. A penalty changes the scalar objective. Dropout changes which units participate in a training pass. Early stopping selects a point along one optimisation trajectory. Their mechanisms are not interchangeable even when each reduces a validation error.</span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regularisation cannot substitute for representative data</span></span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>A smoother function may extrapolate less violently and still fail after a change in measurement or population. Augmentation can encode known transformations, but it cannot reliably invent an unobserved subgroup or outcome mechanism. Validation and test sets must retain the variation the model is expected to handle.</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>The next step is to locate each preference in the training procedure: the data presented, the scalar objective, the active network, or the point chosen on an optimisation path. Level 2 follows those mechanisms separately because they require different checks.</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a><span class="fu">### L2 penalties exchange fit for coefficient size</span></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a>With mean squared error and parameters $w$, ridge minimises</span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a>J(w)=\frac{1}{n}\sum_{i=1}^n(f_w(x_i)-y_i)^2+\lambda\sum_{j=1}^p w_j^2.</span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a>The intercept is commonly excluded. When $\lambda=0$, the objective is ordinary training loss. Increasing $\lambda$ gives coefficient size more influence. A validation set selects among candidate values; choosing the value on the test set would make the test result part of development.</span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>L1 replaces $w_j^2$ with $|w_j|$ and can produce exact zeros. L2 usually shrinks coefficients continuously. Their effects depend on feature scaling: penalising coefficients attached to differently scaled inputs does not express an equal preference across features.</span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dropout changes the active network on each training pass</span></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a>For activation vector $h$ and retention probability $q=1-p$, inverted dropout draws $m_j\sim\operatorname{Bernoulli}(q)$ and computes</span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a>\widetilde h_j=\frac{m_j}{q}h_j.</span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a>The division preserves the expected activation because $\mathbb E<span class="co">[</span><span class="ot">\widetilde h_j</span><span class="co">]</span>=h_j$. During evaluation, no mask is sampled and the full vector is used. Failing to call evaluation mode therefore makes predictions random and uses the wrong layer behaviour.</span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-dropout-mechanics</span></span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Inverted dropout randomly masks activations during training and uses the full vector during evaluation."</span></span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A heatmap shows six dropout masks applied to eight activations during training, beside an unmasked evaluation row."</span></span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a>activations<span class="op">=</span>np.array([<span class="fl">0.3</span>,<span class="fl">1.1</span>,<span class="fl">0.0</span>,<span class="fl">0.8</span>,<span class="fl">1.5</span>,<span class="fl">0.2</span>,<span class="fl">0.9</span>,<span class="fl">0.5</span>])<span class="op">;</span> q<span class="op">=</span><span class="fl">0.75</span></span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>masks<span class="op">=</span>rng.binomial(<span class="dv">1</span>,q,size<span class="op">=</span>(<span class="dv">6</span>,<span class="bu">len</span>(activations)))</span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a>training_outputs<span class="op">=</span>masks<span class="op">*</span>activations<span class="op">/</span>q</span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a>display<span class="op">=</span>np.vstack([training_outputs,activations])</span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.4</span>))</span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a>image<span class="op">=</span>ax.imshow(display,cmap<span class="op">=</span><span class="st">"YlGnBu"</span>,aspect<span class="op">=</span><span class="st">"auto"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">8</span>),[<span class="ss">f"h</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>)])</span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a>ax.set_yticks(<span class="bu">range</span>(<span class="dv">7</span>),[<span class="ss">f"train mask </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">6</span>)]<span class="op">+</span>[<span class="st">"evaluation"</span>])</span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="fl">5.5</span>,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>ax,label<span class="op">=</span><span class="st">"value passed forward"</span>)</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Dropout changes training activations, not evaluation activations"</span>)</span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a>The zero pattern differs across training rows. An already-zero activation remains zero regardless of the mask. Dropout does not identify irrelevant units and remove them permanently; it injects specified random masking during training <span class="co">[</span><span class="ot">@srivastava2014</span><span class="co">]</span>.</span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data augmentation encodes an invariance assumption</span></span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a>An image label may remain valid after a small translation, while a text label may not survive arbitrary word replacement. Each transformation therefore asserts something about the task. Mixup constructs convex combinations</span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>\widetilde x=\alpha x_i+(1-\alpha)x_j,\qquad</span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a>\widetilde y=\alpha y_i+(1-\alpha)y_j,</span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>and trains the model on interpolated examples and labels <span class="co">[</span><span class="ot">@zhang2018mixup</span><span class="co">]</span>. Whether this relation is meaningful depends on the input representation and target.</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a>Augmented versions of one source observation must remain in the same split. Creating transformations before splitting can place near-duplicates in training and test data and produce optimistic evaluation.</span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Early stopping selects a checkpoint using validation data</span></span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a>Training loss often continues downward after validation loss reaches its minimum. Early stopping records validation performance and retains a checkpoint according to a pre-specified rule, commonly after no improvement for a fixed *patience* period.</span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-early-stopping</span></span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Early stopping retains the checkpoint with the lowest validation loss rather than the final training checkpoint."</span></span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Training loss declines over 120 epochs while validation loss declines and then rises; a vertical line marks the best validation epoch."</span></span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">121</span>)</span>
+<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a>training_loss<span class="op">=</span><span class="fl">0.62</span><span class="op">*</span>np.exp(<span class="op">-</span>epochs<span class="op">/</span><span class="dv">36</span>)<span class="op">+</span><span class="fl">0.035</span></span>
+<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a>validation_loss<span class="op">=</span><span class="fl">0.58</span><span class="op">*</span>np.exp(<span class="op">-</span>epochs<span class="op">/</span><span class="dv">30</span>)<span class="op">+</span><span class="fl">0.08</span><span class="op">+</span><span class="fl">0.000055</span><span class="op">*</span>np.maximum(epochs<span class="op">-</span><span class="dv">48</span>,<span class="dv">0</span>)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a>best_epoch<span class="op">=</span><span class="bu">int</span>(epochs[np.argmin(validation_loss)])</span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a>ax.plot(epochs,training_loss,color<span class="op">=</span>blue,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"training loss"</span>)</span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a>ax.plot(epochs,validation_loss,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="fl">2.5</span>,label<span class="op">=</span><span class="st">"validation loss"</span>)</span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a>ax.axvline(best_epoch,color<span class="op">=</span>teal,linestyle<span class="op">=</span><span class="st">"--"</span>,linewidth<span class="op">=</span><span class="dv">2</span>,label<span class="op">=</span><span class="ss">f"best epoch: </span><span class="sc">{</span>best_epoch<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a>ax.scatter([best_epoch],[validation_loss[best_epoch<span class="op">-</span><span class="dv">1</span>]],color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">70</span>,zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Loss"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Checkpoint selection by validation loss"</span>)</span>
+<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a>The selected epoch is itself a hyperparameter outcome. Repeatedly changing patience, smoothing, or metric after viewing the same validation curve can overfit validation feedback. Early-stopping rules and maximum training budget should be recorded <span class="co">[</span><span class="ot">@prechelt1998</span><span class="co">]</span>.</span>
+<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a>These mechanisms can be stated precisely as objectives, stochastic transformations, and selection rules. Level 3 derives the ridge objective and shows the corresponding implementation contracts; Chapter 14 later separates the operational roles of best, latest, and archival checkpoints.</span>
+<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb12-195"><a href="#cb12-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-196"><a href="#cb12-196" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ridge has a closed-form solution for linear features</span></span>
+<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a>For design matrix $X$, response $y$, and penalty matrix $I_0$ whose intercept entry is zero,</span>
+<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-201"><a href="#cb12-201" aria-hidden="true" tabindex="-1"></a>\hat w_\lambda=(X^\top X+\lambda I_0)^{-1}X^\top y.</span>
+<span id="cb12-202"><a href="#cb12-202" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-203"><a href="#cb12-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-204"><a href="#cb12-204" aria-hidden="true" tabindex="-1"></a>The matrix form makes the mechanism visible: the added diagonal stabilises directions in which $X^\top X$ is poorly determined. Code should solve the system directly rather than calculate a matrix inverse.</span>
+<span id="cb12-205"><a href="#cb12-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-208"><a href="#cb12-208" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-209"><a href="#cb12-209" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-ridge-path</span></span>
+<span id="cb12-210"><a href="#cb12-210" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Increasing the ridge penalty shrinks high-order polynomial coefficients and produces a validation-error minimum at an intermediate value."</span></span>
+<span id="cb12-211"><a href="#cb12-211" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two log-scale panels show absolute coefficient values falling with lambda and validation mean squared error reaching a minimum before rising."</span></span>
+<span id="cb12-212"><a href="#cb12-212" aria-hidden="true" tabindex="-1"></a>x_validation<span class="op">=</span>rng.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">600</span>)</span>
+<span id="cb12-213"><a href="#cb12-213" aria-hidden="true" tabindex="-1"></a>y_validation<span class="op">=</span>true_function(x_validation)<span class="op">+</span>rng.normal(<span class="dv">0</span>,<span class="fl">0.25</span>,<span class="bu">len</span>(x_validation))</span>
+<span id="cb12-214"><a href="#cb12-214" aria-hidden="true" tabindex="-1"></a>X_validation<span class="op">=</span>polynomial_design(x_validation)</span>
+<span id="cb12-215"><a href="#cb12-215" aria-hidden="true" tabindex="-1"></a>lambdas<span class="op">=</span>np.logspace(<span class="op">-</span><span class="dv">8</span>,<span class="dv">3</span>,<span class="dv">80</span>)</span>
+<span id="cb12-216"><a href="#cb12-216" aria-hidden="true" tabindex="-1"></a>coefficient_paths<span class="op">=</span>[]<span class="op">;</span> validation_errors<span class="op">=</span>[]<span class="op">;</span> training_errors<span class="op">=</span>[]</span>
+<span id="cb12-217"><a href="#cb12-217" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> penalty <span class="kw">in</span> lambdas:</span>
+<span id="cb12-218"><a href="#cb12-218" aria-hidden="true" tabindex="-1"></a>    coef<span class="op">=</span>ridge_fit(X_train,y_train,penalty)</span>
+<span id="cb12-219"><a href="#cb12-219" aria-hidden="true" tabindex="-1"></a>    coefficient_paths.append(np.<span class="bu">abs</span>(coef[<span class="dv">1</span>:]))</span>
+<span id="cb12-220"><a href="#cb12-220" aria-hidden="true" tabindex="-1"></a>    training_errors.append(np.mean((X_train<span class="op">@</span>coef<span class="op">-</span>y_train)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb12-221"><a href="#cb12-221" aria-hidden="true" tabindex="-1"></a>    validation_errors.append(np.mean((X_validation<span class="op">@</span>coef<span class="op">-</span>y_validation)<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a>coefficient_paths<span class="op">=</span>np.array(coefficient_paths)</span>
+<span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a>best_lambda<span class="op">=</span>lambdas[np.argmin(validation_errors)]</span>
+<span id="cb12-224"><a href="#cb12-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.5</span>))</span>
+<span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(coefficient_paths.shape[<span class="dv">1</span>]):</span>
+<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">0</span>].plot(lambdas,coefficient_paths[:,j],alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xscale(<span class="st">"log"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"lambda"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Absolute coefficient"</span>)</span>
+<span id="cb12-230"><a href="#cb12-230" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Coefficient path"</span>)</span>
+<span id="cb12-231"><a href="#cb12-231" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(lambdas,training_errors,color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"training MSE"</span>)</span>
+<span id="cb12-232"><a href="#cb12-232" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(lambdas,validation_errors,color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"validation MSE"</span>)</span>
+<span id="cb12-233"><a href="#cb12-233" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axvline(best_lambda,color<span class="op">=</span>teal,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="ss">f"selected lambda = </span><span class="sc">{</span>best_lambda<span class="sc">:.2g}</span><span class="ss">"</span>)</span>
+<span id="cb12-234"><a href="#cb12-234" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
+<span id="cb12-235"><a href="#cb12-235" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"lambda"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Mean squared error"</span>)</span>
+<span id="cb12-236"><a href="#cb12-236" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Penalty selection"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb12-237"><a href="#cb12-237" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb12-238"><a href="#cb12-238" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-239"><a href="#cb12-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-240"><a href="#cb12-240" aria-hidden="true" tabindex="-1"></a>Training error generally rises with the penalty because the optimiser is no longer minimising training error alone. Validation error first falls as unstable coefficients shrink, then rises when excessive shrinkage prevents the model from following the signal.</span>
+<span id="cb12-241"><a href="#cb12-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-242"><a href="#cb12-242" aria-hidden="true" tabindex="-1"></a><span class="fu">### The penalty contributes its own gradient</span></span>
+<span id="cb12-243"><a href="#cb12-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-244"><a href="#cb12-244" aria-hidden="true" tabindex="-1"></a>For L2-regularised loss $J(w)=L(w)+\lambda\lVert w\rVert_2^2$,</span>
+<span id="cb12-245"><a href="#cb12-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-246"><a href="#cb12-246" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-247"><a href="#cb12-247" aria-hidden="true" tabindex="-1"></a>\nabla_wJ=\nabla_wL+2\lambda w.</span>
+<span id="cb12-248"><a href="#cb12-248" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb12-249"><a href="#cb12-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-250"><a href="#cb12-250" aria-hidden="true" tabindex="-1"></a>Each update therefore contains a data-loss term and a shrinkage term. Some libraries define the penalty with a factor of $1/2$, removing the 2 from its gradient. Reported $\lambda$ values are not comparable without the convention.</span>
+<span id="cb12-251"><a href="#cb12-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-254"><a href="#cb12-254" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-255"><a href="#cb12-255" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare one scalar update with and without an L2 penalty.</span></span>
+<span id="cb12-256"><a href="#cb12-256" aria-hidden="true" tabindex="-1"></a>weight<span class="op">=</span><span class="fl">1.4</span><span class="op">;</span> data_gradient<span class="op">=-</span><span class="fl">0.3</span><span class="op">;</span> learning_rate<span class="op">=</span><span class="fl">0.1</span><span class="op">;</span> penalty<span class="op">=</span><span class="fl">0.2</span></span>
+<span id="cb12-257"><a href="#cb12-257" aria-hidden="true" tabindex="-1"></a>plain_update<span class="op">=</span>weight<span class="op">-</span>learning_rate<span class="op">*</span>data_gradient</span>
+<span id="cb12-258"><a href="#cb12-258" aria-hidden="true" tabindex="-1"></a>penalised_update<span class="op">=</span>weight<span class="op">-</span>learning_rate<span class="op">*</span>(data_gradient<span class="op">+</span><span class="dv">2</span><span class="op">*</span>penalty<span class="op">*</span>weight)</span>
+<span id="cb12-259"><a href="#cb12-259" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Without penalty: </span><span class="sc">{</span>plain_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb12-260"><a href="#cb12-260" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"With L2 penalty: </span><span class="sc">{</span>penalised_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb12-261"><a href="#cb12-261" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-262"><a href="#cb12-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-263"><a href="#cb12-263" aria-hidden="true" tabindex="-1"></a>The data gradient alone increases the weight. The L2 term opposes that increase because the current weight is positive. A negative weight receives shrinkage toward zero from the opposite direction.</span>
+<span id="cb12-264"><a href="#cb12-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-265"><a href="#cb12-265" aria-hidden="true" tabindex="-1"></a><span class="fu">### PyTorch exposes distinct regularisation mechanisms</span></span>
+<span id="cb12-266"><a href="#cb12-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-269"><a href="#cb12-269" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-270"><a href="#cb12-270" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb12-271"><a href="#cb12-271" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb12-272"><a href="#cb12-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-273"><a href="#cb12-273" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
+<span id="cb12-274"><a href="#cb12-274" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">20</span>, <span class="dv">64</span>),</span>
+<span id="cb12-275"><a href="#cb12-275" aria-hidden="true" tabindex="-1"></a>    nn.ReLU(),</span>
+<span id="cb12-276"><a href="#cb12-276" aria-hidden="true" tabindex="-1"></a>    nn.Dropout(p<span class="op">=</span><span class="fl">0.25</span>),</span>
+<span id="cb12-277"><a href="#cb12-277" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">1</span>),</span>
+<span id="cb12-278"><a href="#cb12-278" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-279"><a href="#cb12-279" aria-hidden="true" tabindex="-1"></a>optimiser <span class="op">=</span> torch.optim.AdamW(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>, weight_decay<span class="op">=</span><span class="fl">1e-2</span>)</span>
+<span id="cb12-280"><a href="#cb12-280" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span>
+<span id="cb12-281"><a href="#cb12-281" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-282"><a href="#cb12-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a><span class="in">`Dropout`</span> changes forward passes in training mode. <span class="in">`AdamW`</span> applies decoupled weight decay rather than adding the L2 term to Adam's gradient calculation <span class="co">[</span><span class="ot">@adamw2019</span><span class="co">]</span>. For plain stochastic gradient descent, L2 regularisation and multiplicative weight decay can coincide under common conventions; with adaptive optimisers they are generally different operations.</span>
+<span id="cb12-284"><a href="#cb12-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-287"><a href="#cb12-287" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb12-288"><a href="#cb12-288" aria-hidden="true" tabindex="-1"></a><span class="co"># A minimal early-stopping state machine.</span></span>
+<span id="cb12-289"><a href="#cb12-289" aria-hidden="true" tabindex="-1"></a>best_validation<span class="op">=</span><span class="bu">float</span>(<span class="st">"inf"</span>)<span class="op">;</span> patience<span class="op">=</span><span class="dv">8</span><span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span><span class="op">;</span> best_state<span class="op">=</span><span class="va">None</span></span>
+<span id="cb12-290"><a href="#cb12-290" aria-hidden="true" tabindex="-1"></a>validation_sequence<span class="op">=</span>[<span class="fl">0.52</span>,<span class="fl">0.44</span>,<span class="fl">0.39</span>,<span class="fl">0.36</span>,<span class="fl">0.35</span>,<span class="fl">0.351</span>,<span class="fl">0.354</span>,<span class="fl">0.356</span>,<span class="fl">0.359</span>,<span class="fl">0.361</span>,<span class="fl">0.364</span>,<span class="fl">0.366</span>,<span class="fl">0.369</span>]</span>
+<span id="cb12-291"><a href="#cb12-291" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch,value <span class="kw">in</span> <span class="bu">enumerate</span>(validation_sequence,<span class="dv">1</span>):</span>
+<span id="cb12-292"><a href="#cb12-292" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> value <span class="op">&lt;</span> best_validation:</span>
+<span id="cb12-293"><a href="#cb12-293" aria-hidden="true" tabindex="-1"></a>        best_validation<span class="op">=</span>value<span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb12-294"><a href="#cb12-294" aria-hidden="true" tabindex="-1"></a>        best_state<span class="op">=</span>{<span class="st">"epoch"</span>:epoch,<span class="st">"validation_loss"</span>:value}</span>
+<span id="cb12-295"><a href="#cb12-295" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb12-296"><a href="#cb12-296" aria-hidden="true" tabindex="-1"></a>        epochs_without_improvement <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb12-297"><a href="#cb12-297" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epochs_without_improvement <span class="op">&gt;=</span> patience:</span>
+<span id="cb12-298"><a href="#cb12-298" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb12-299"><a href="#cb12-299" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(best_state)</span>
+<span id="cb12-300"><a href="#cb12-300" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-301"><a href="#cb12-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-302"><a href="#cb12-302" aria-hidden="true" tabindex="-1"></a>Production code should save the model, optimiser, scheduler, precision scaler, epoch, and preprocessing state needed for recovery. Stopping without restoring the best checkpoint leaves the model at a later, worse validation state.</span>
+<span id="cb12-303"><a href="#cb12-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-304"><a href="#cb12-304" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb12-305"><a href="#cb12-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-306"><a href="#cb12-306" aria-hidden="true" tabindex="-1"></a><span class="fu">### Weight decay depends on the optimiser and parameter group</span></span>
+<span id="cb12-307"><a href="#cb12-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-308"><a href="#cb12-308" aria-hidden="true" tabindex="-1"></a>Decoupled weight decay separates shrinkage from the gradient-based Adam update <span class="co">[</span><span class="ot">@adamw2019</span><span class="co">]</span>. Implementations commonly exclude biases and normalisation scale or offset parameters from decay. That is an architectural choice, not a universal rule. A reproducible configuration records parameter groups and their penalties rather than reporting one global number.</span>
+<span id="cb12-309"><a href="#cb12-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-310"><a href="#cb12-310" aria-hidden="true" tabindex="-1"></a>At scale, weight decay adds little arithmetic but interacts with fused optimiser kernels, sharded optimiser state, and checkpoint formats. Changing the optimiser implementation can change numerical order and defaults even when the headline hyperparameters match.</span>
+<span id="cb12-311"><a href="#cb12-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-312"><a href="#cb12-312" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dropout changes randomness and execution</span></span>
+<span id="cb12-313"><a href="#cb12-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-314"><a href="#cb12-314" aria-hidden="true" tabindex="-1"></a>Dropout was introduced as stochastic training of many thinned networks with a scaled full network at evaluation <span class="co">[</span><span class="ot">@srivastava2014</span><span class="co">]</span>. Its effect depends on placement and rate. Attention dropout, residual dropout, and feed-forward dropout mask different tensors. Modern architectures with large datasets, normalisation, augmentation, or other stochastic components may use little or no dropout; the original empirical result is not a mandate for every network.</span>
+<span id="cb12-315"><a href="#cb12-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-316"><a href="#cb12-316" aria-hidden="true" tabindex="-1"></a>Distributed workers need independent but reproducible random streams. Accidentally sharing masks can reduce intended variation, while restoring a checkpoint without random-number state changes the continuation. Evaluation must disable dropout unless stochastic inference is deliberately used and reported.</span>
+<span id="cb12-317"><a href="#cb12-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-318"><a href="#cb12-318" aria-hidden="true" tabindex="-1"></a><span class="fu">### Augmentation quality is a substantive property</span></span>
+<span id="cb12-319"><a href="#cb12-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-320"><a href="#cb12-320" aria-hidden="true" tabindex="-1"></a>Mixup and image transformations are often implemented cheaply on accelerators, but other augmentations can become data-pipeline bottlenecks. More importantly, throughput does not establish label preservation. Cropping may remove the object that defines an image label; temporal warping may change an event; language substitutions may alter meaning. Augmentation policies need domain evidence and error analysis, not only validation gains.</span>
+<span id="cb12-321"><a href="#cb12-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-322"><a href="#cb12-322" aria-hidden="true" tabindex="-1"></a>Synthetic data from another model add further dependencies: generator coverage, inherited bias, privacy, provenance, and duplication. Calling generated examples augmentation does not remove these evaluation requirements.</span>
+<span id="cb12-323"><a href="#cb12-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-324"><a href="#cb12-324" aria-hidden="true" tabindex="-1"></a><span class="fu">### Early stopping consumes validation information</span></span>
+<span id="cb12-325"><a href="#cb12-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-326"><a href="#cb12-326" aria-hidden="true" tabindex="-1"></a>Early stopping saves computation when later epochs do not improve the selected metric, but asynchronous evaluation and distributed checkpoints complicate the definition of the best step. Validation results may arrive after training has advanced. Systems must retain candidate checkpoints until selection is resolved and record whether patience is measured in epochs, optimiser steps, tokens, or evaluation events.</span>
+<span id="cb12-327"><a href="#cb12-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-328"><a href="#cb12-328" aria-hidden="true" tabindex="-1"></a>The chosen checkpoint can vary across seeds. Reporting only the best run combines regularisation selection with run selection. Comparisons should use matched budgets and a declared aggregation across runs.</span>
+<span id="cb12-329"><a href="#cb12-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-330"><a href="#cb12-330" aria-hidden="true" tabindex="-1"></a><span class="fu">### A regularisation audit links mechanism to evidence</span></span>
+<span id="cb12-331"><a href="#cb12-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-332"><a href="#cb12-332" aria-hidden="true" tabindex="-1"></a>An audit should record:</span>
+<span id="cb12-333"><a href="#cb12-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-334"><a href="#cb12-334" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the observed overfitting pattern and metric used to diagnose it;</span>
+<span id="cb12-335"><a href="#cb12-335" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>each regularisation mechanism, location, strength, and schedule;</span>
+<span id="cb12-336"><a href="#cb12-336" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>feature scaling and parameters excluded from penalties;</span>
+<span id="cb12-337"><a href="#cb12-337" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>augmentation transformations and the evidence that labels remain valid;</span>
+<span id="cb12-338"><a href="#cb12-338" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>training/evaluation mode and random-state handling for dropout;</span>
+<span id="cb12-339"><a href="#cb12-339" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>validation frequency, patience, minimum improvement, and restored checkpoint;</span>
+<span id="cb12-340"><a href="#cb12-340" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>the number of settings and runs compared;</span>
+<span id="cb12-341"><a href="#cb12-341" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>task performance, calibration, subgroup errors, compute, memory, and latency;</span>
+<span id="cb12-342"><a href="#cb12-342" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>final assessment on data untouched by regularisation selection.</span>
+<span id="cb12-343"><a href="#cb12-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-344"><a href="#cb12-344" aria-hidden="true" tabindex="-1"></a>Regularisation is supported when this comparison improves the intended transfer criterion under a fixed evaluation design. A smaller training–validation gap caused by making both errors worse is not an improvement.</span>
+<span id="cb12-345"><a href="#cb12-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-346"><a href="#cb12-346" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb12-347"><a href="#cb12-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-348"><a href="#cb12-348" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Regularisation is applied after a model overfits.** It changes fitting, architecture, data, or checkpoint selection during development.</span>
+<span id="cb12-349"><a href="#cb12-349" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More regularisation always improves generalisation.** Excessive strength causes underfitting.</span>
+<span id="cb12-350"><a href="#cb12-350" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**L2 regularisation deletes unneeded features.** It usually shrinks coefficients without making them exactly zero.</span>
+<span id="cb12-351"><a href="#cb12-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**L1 selects the true variables.** Exact zeros do not establish causal relevance or selection stability.</span>
+<span id="cb12-352"><a href="#cb12-352" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Weight decay and L2 are identical for every optimiser.** They differ for adaptive updates unless implemented equivalently.</span>
+<span id="cb12-353"><a href="#cb12-353" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Dropout finds irrelevant neurons.** It samples random masks during training.</span>
+<span id="cb12-354"><a href="#cb12-354" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Dropout should remain active for ordinary evaluation.** Standard inference uses evaluation mode and the full scaled network.</span>
+<span id="cb12-355"><a href="#cb12-355" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Augmented observations are new independent data.** They remain transformations of source observations.</span>
+<span id="cb12-356"><a href="#cb12-356" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Any label-preserving-looking transformation is valid.** Validity depends on the task and data-generating process.</span>
+<span id="cb12-357"><a href="#cb12-357" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Early stopping uses training loss.** It normally selects a checkpoint using validation performance.</span>
+<span id="cb12-358"><a href="#cb12-358" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**The final epoch is the early-stopped model.** The best earlier checkpoint must be restored.</span>
+<span id="cb12-359"><a href="#cb12-359" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A smaller generalisation gap is always better.** Both training and validation performance can deteriorate together.</span>
+<span id="cb12-360"><a href="#cb12-360" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Regularisation repairs distribution shift.** It may help under tested shifts but cannot establish transfer to unobserved conditions.</span>
+<span id="cb12-361"><a href="#cb12-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-362"><a href="#cb12-362" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb12-363"><a href="#cb12-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-364"><a href="#cb12-364" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate the L2-penalised objective for a supplied loss, weights, and $\lambda$.</span>
+<span id="cb12-365"><a href="#cb12-365" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Derive the L2 gradient when the penalty is $\lambda\lVert w\rVert^2/2$.</span>
+<span id="cb12-366"><a href="#cb12-366" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why feature standardisation affects L1 and L2 penalties.</span>
+<span id="cb12-367"><a href="#cb12-367" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Compare L1 and L2 coefficient behaviour.</span>
+<span id="cb12-368"><a href="#cb12-368" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Reproduce the ridge path with another training sample.</span>
+<span id="cb12-369"><a href="#cb12-369" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Select $\lambda$ using validation data and report final test error.</span>
+<span id="cb12-370"><a href="#cb12-370" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Show what happens when the intercept is penalised.</span>
+<span id="cb12-371"><a href="#cb12-371" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Calculate the expected output of inverted dropout.</span>
+<span id="cb12-372"><a href="#cb12-372" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Apply three dropout masks by hand to a four-element activation vector.</span>
+<span id="cb12-373"><a href="#cb12-373" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Compare model predictions in <span class="in">`train()`</span> and <span class="in">`eval()`</span> modes.</span>
+<span id="cb12-374"><a href="#cb12-374" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Design one defensible and one invalid augmentation for a chosen task.</span>
+<span id="cb12-375"><a href="#cb12-375" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Explain why augmented variants must remain in the same data split.</span>
+<span id="cb12-376"><a href="#cb12-376" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Implement mixup for a mini-batch and inspect mixed labels.</span>
+<span id="cb12-377"><a href="#cb12-377" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Implement patience-based early stopping and restore the best checkpoint.</span>
+<span id="cb12-378"><a href="#cb12-378" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Compare early stopping across five random seeds.</span>
+<span id="cb12-379"><a href="#cb12-379" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Explain decoupled weight decay in AdamW.</span>
+<span id="cb12-380"><a href="#cb12-380" aria-hidden="true" tabindex="-1"></a><span class="ss">17. </span>Create optimiser parameter groups that exclude biases from decay.</span>
+<span id="cb12-381"><a href="#cb12-381" aria-hidden="true" tabindex="-1"></a><span class="ss">18. </span>Design a controlled comparison of dropout rates.</span>
+<span id="cb12-382"><a href="#cb12-382" aria-hidden="true" tabindex="-1"></a><span class="ss">19. </span>Identify which random states a distributed dropout run should checkpoint.</span>
+<span id="cb12-383"><a href="#cb12-383" aria-hidden="true" tabindex="-1"></a><span class="ss">20. </span>Write a regularisation audit for the Chapter 8 classifier.</span>
+<span id="cb12-384"><a href="#cb12-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-385"><a href="#cb12-385" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb12-386"><a href="#cb12-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-387"><a href="#cb12-387" aria-hidden="true" tabindex="-1"></a>Regularisation changes the learning problem so that some fitting solutions are preferred. L1 and L2 add parameter penalties, dropout changes the active network during training, augmentation changes the examples presented to the model, and early stopping selects a checkpoint along the optimisation path. Each method introduces assumptions and a strength or policy that must be selected.</span>
+<span id="cb12-388"><a href="#cb12-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-389"><a href="#cb12-389" aria-hidden="true" tabindex="-1"></a>Ridge regression shows the trade-off directly: larger penalties shrink coefficients and raise training error, while validation error can improve before excessive shrinkage causes underfitting. In neural networks, weight decay must be interpreted with the optimiser, dropout with training and evaluation modes, augmentation with label validity, and early stopping with checkpoint restoration.</span>
+<span id="cb12-390"><a href="#cb12-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-391"><a href="#cb12-391" aria-hidden="true" tabindex="-1"></a>At system scale, regularisation affects random streams, parameter groups, data throughput, evaluation cadence, and recovery state. The final evidence must come from data that did not determine those choices.</span>
+<span id="cb12-392"><a href="#cb12-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-393"><a href="#cb12-393" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb12-394"><a href="#cb12-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-395"><a href="#cb12-395" aria-hidden="true" tabindex="-1"></a>Chapter 11 examines initialisation and gradient flow. Regularisation governs which fitted solutions are preferred; initialisation governs where optimisation starts and how signals and gradients propagate before useful parameters have been learned.</span>
+<span id="cb12-396"><a href="#cb12-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-397"><a href="#cb12-397" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb12-398"><a href="#cb12-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-399"><a href="#cb12-399" aria-hidden="true" tabindex="-1"></a>Dropout is developed by @srivastava2014. Early-stopping criteria are compared by @prechelt1998. Mixup is introduced by @zhang2018mixup. Decoupled weight decay for adaptive optimisation is developed by @adamw2019.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

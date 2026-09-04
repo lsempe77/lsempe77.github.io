@@ -156,14 +156,15 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="book-navigation.css"></head>
+<link rel="stylesheet" href="book-navigation.css">
+</head>
 
 <body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+    <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
@@ -194,7 +195,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Machine Learning Concepts</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -468,11 +469,9 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <li><a href="#the-problem" id="toc-the-problem" class="nav-link active" data-scroll-target="#the-problem">The problem</a>
   <ul class="collapse">
-  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
-  <li><a href="#running-experiment" id="toc-running-experiment" class="nav-link" data-scroll-target="#running-experiment">Running experiment</a></li>
+  <li><a href="#a-diagnostic-experiment" id="toc-a-diagnostic-experiment" class="nav-link" data-scroll-target="#a-diagnostic-experiment">A diagnostic experiment</a></li>
   </ul></li>
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
@@ -531,34 +530,15 @@ window.Quarto = {
 </header>
 
 
-<section id="chapter-orientation" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
-<section id="why-this-chapter-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
-<p>Training begins before the first parameter update. Initial weights determine the scale and diversity of the signals produced by the untrained network. If those signals shrink across layers, later layers receive little information. If they grow, activations may saturate or overflow. Backpropagation traverses the same chain in reverse, so the initial scale also affects whether early layers receive usable gradients.</p>
-<p>Initialisation does not determine the final model by itself. It sets the starting conditions for an interaction among architecture, activation, normalisation, residual connections, optimiser, precision, and data. This chapter isolates that starting point and shows how to diagnose it.</p>
-</section>
-<section id="learning-objectives" class="level3">
-<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
-<p>By the end of this chapter, you should be able to:</p>
-<ul>
-<li>explain why identical initial values prevent hidden units from learning different features;</li>
-<li>trace activation scale across a deep network before training;</li>
-<li>explain vanishing and exploding gradients as products of local transformations;</li>
-<li>derive Xavier and He variance rules under their stated assumptions;</li>
-<li>distinguish fan-in, fan-out, and activation-specific gain;</li>
-<li>implement and inspect initialisation in NumPy and PyTorch;</li>
-<li>measure activation, saturation, and gradient statistics by layer;</li>
-<li>explain why residual paths, normalisation, and numerical precision change the initialisation problem;</li>
-<li>record sufficient evidence to diagnose an unstable start.</li>
-</ul>
-</section>
-<section id="running-experiment" class="level3">
-<h3 class="anchored" data-anchor-id="running-experiment">Running experiment</h3>
+<section id="the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
+<p>Regularisation affects which solutions are preferred once optimisation is under way. Before the first update, the network must still transmit different signals to different hidden units and return usable gradients to early layers. Identical initial values leave hidden units indistinguishable. A poor initial scale can make signals vanish across depth, or make activations and derivatives grow until learning is numerically unstable.</p>
+<p>Initialisation is not a shortcut to the final model. It establishes the conditions under which architecture, activation, normalisation, residual paths, optimiser, precision, and data begin to interact. The appropriate question is therefore empirical as well as algebraic: what signals and gradients does this implemented network actually produce at step zero?</p>
+<section id="a-diagnostic-experiment" class="level3">
+<h3 class="anchored" data-anchor-id="a-diagnostic-experiment">A diagnostic experiment</h3>
 <p>The chapter repeatedly propagates a batch of independent, standard-normal inputs through 30 width-128 layers. The network is deliberately deeper than needed for a practical toy prediction task because changes in scale become visible. Biases start at zero and ReLU is applied after each matrix multiplication.</p>
-<div id="fig-initial-scale" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-initial-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<p>The first chart tracks the standard deviation of the activation leaving each layer on a log scale. A roughly horizontal trajectory means that distinct inputs remain distinguishable at this diagnostic stage; a steep decline or rise signals an avoidable problem before any training data or optimiser setting has been blamed.</p>
+<div id="cell-fig-initial-scale" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -587,13 +567,23 @@ window.Quarto = {
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Forward signal scale before training"</span>)<span class="op">;</span> ax.legend()</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-initial-scale" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A log-scale line chart compares activation standard deviation across thirty layers for small, Xavier, He, and large random initialisation scales.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-initial-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="11-initialisation-gradient-flow_files/figure-html/fig-initial-scale-output-1.png" class="img-fluid figure-img" alt="A log-scale line chart compares activation standard deviation across thirty layers for small, Xavier, He, and large random initialisation scales.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-initial-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.1
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-initial-scale-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.1: Weight scale determines whether activation variation vanishes, remains usable, or explodes across an untrained ReLU network.
 </figcaption>
 </figure>
 </div>
+</div>
+</div>
 <p>The small initialisation progressively removes variation. The large initialisation amplifies it. Xavier preserves variance for linear or approximately symmetric activations but loses scale under repeated ReLU gating. He initialisation compensates for that gating in this idealised setting and keeps the signal closer to its starting scale.</p>
+<div id="concept-initialisation" class="concept-box concept-core" data-term="Initialisation and gradient flow" data-domain="Training and evaluation">
+<p><strong>Initialisation and gradient flow.</strong> Initialisation sets the parameter values before training. Gradient flow describes how derivative signals propagate through the resulting computation. Both depend on architecture, activation, normalisation, precision, and the optimiser.</p>
+</div>
 </section>
 </section>
 <section id="level-1---intuition" class="level2">
@@ -602,9 +592,7 @@ Figure&nbsp;12.1
 <h3 class="anchored" data-anchor-id="hidden-units-need-different-starting-points">Hidden units need different starting points</h3>
 <p>If every hidden unit starts with identical incoming weights and bias, it produces the same value for every observation. Backpropagation then gives those units identical gradients. They remain copies after the update. A layer with 128 nominal units can behave like one repeated unit.</p>
 <p>Random initialisation breaks this symmetry. The randomness does not encode useful features; it gives units different starting directions so training can specialise them. The distribution still needs an appropriate scale. Symmetry breaking and scale preservation are separate requirements.</p>
-<div id="fig-symmetry-breaking" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-symmetry-breaking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-symmetry-breaking" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>small_inputs<span class="op">=</span>rng.normal(size<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
@@ -617,11 +605,18 @@ Figure&nbsp;12.1
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>axes.ravel().tolist(),label<span class="op">=</span><span class="st">"pre-activation"</span>,shrink<span class="op">=</span><span class="fl">0.8</span>)</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-symmetry-breaking" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two heatmaps compare outputs from six hidden units under identical zero weights and under small random weights for eight observations.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-symmetry-breaking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="11-initialisation-gradient-flow_files/figure-html/fig-symmetry-breaking-output-1.png" class="img-fluid figure-img" alt="Two heatmaps compare outputs from six hidden units under identical zero weights and under small random weights for eight observations.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-symmetry-breaking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.2
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-symmetry-breaking-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.2: Identical initial weights produce identical hidden units, while random initial weights create distinct starting responses.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>The zero-weight panel contains no distinction among units or observations. Random weights create different responses. Setting the final layer to zero can be useful in specific residual constructions, but setting every weight in an ordinary multilayer network to zero prevents hidden-unit differentiation.</p>
 </section>
@@ -632,7 +627,7 @@ Figure&nbsp;12.2
 <section id="gradient-flow-is-the-reverse-view-of-the-same-chain" class="level3">
 <h3 class="anchored" data-anchor-id="gradient-flow-is-the-reverse-view-of-the-same-chain">Gradient flow is the reverse view of the same chain</h3>
 <p>Backpropagation multiplies an arriving gradient by activation derivatives and weight matrices. ReLU blocks coordinates whose pre-activations are negative. Sigmoid and tanh transmit small derivatives when saturated. Weight scale then shrinks or amplifies what remains. A usable forward signal does not guarantee a usable backward signal, so both must be measured.</p>
-<p>Level 1 identifies diversity and scale as the starting requirements. Level 2 follows the mechanics across layers.</p>
+<p>The immediate checks are whether units begin differently and whether forward and backward quantities remain in a workable range. Level 2 traces the operations that change those quantities and turns them into a short dry-run diagnostic.</p>
 </section>
 </section>
 <section id="level-2---mechanics" class="level2">
@@ -641,9 +636,7 @@ Figure&nbsp;12.2
 <h3 class="anchored" data-anchor-id="each-layer-performs-three-scale-changing-operations">Each layer performs three scale-changing operations</h3>
 <p>For <span class="math inline">\(z^{(l)}=W^{(l)}h^{(l-1)}+b^{(l)}\)</span> and <span class="math inline">\(h^{(l)}=\phi(z^{(l)})\)</span>, scale is affected by the incoming activation distribution, the number and variance of the weights, and the activation. ReLU sets roughly half of symmetric pre-activations to zero at initialisation. Tanh compresses large magnitudes towards <span class="math inline">\(-1\)</span> and <span class="math inline">\(1\)</span>.</p>
 <p>The following experiment applies tanh after one matrix multiplication and measures the fraction of pre-activations with <span class="math inline">\(|z|&gt;2\)</span>, where tanh is already relatively flat.</p>
-<div id="fig-saturation" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-saturation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-saturation" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="fl">3.8</span>),sharex<span class="op">=</span><span class="va">True</span>,sharey<span class="op">=</span><span class="va">True</span>)</span>
@@ -654,19 +647,24 @@ Figure&nbsp;12.2
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"scale </span><span class="sc">{</span>scale<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>fraction<span class="sc">:.0%}</span><span class="ss"> beyond |z| &gt; 2"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"pre-activation"</span>)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"density"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-saturation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Histograms compare pre-activation distributions for three weight scales, with shaded regions beyond minus two and plus two and saturation percentages in the titles.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-saturation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="11-initialisation-gradient-flow_files/figure-html/fig-saturation-output-1.png" class="img-fluid figure-img" alt="Histograms compare pre-activation distributions for three weight scales, with shaded regions beyond minus two and plus two and saturation percentages in the titles.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-saturation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.3
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-saturation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.3: Increasing initial weight scale pushes more tanh pre-activations into low-slope saturated regions.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>Large initial weights can place many tanh units where local derivatives are small. ReLU does not saturate on its positive side, but large positive values can still create exploding activations and gradients.</p>
 </section>
 <section id="backward-gradients-can-be-inspected-layer-by-layer" class="level3">
 <h3 class="anchored" data-anchor-id="backward-gradients-can-be-inspected-layer-by-layer">Backward gradients can be inspected layer by layer</h3>
-<div id="fig-gradient-flow" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-gradient-flow" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
@@ -680,17 +678,25 @@ Figure&nbsp;12.3
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Backward gradient scale before training"</span>)<span class="op">;</span> ax.legend()</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-gradient-flow" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A log-scale line chart shows gradient standard deviation from the output towards the input for small, Xavier, He, and large initialisation scales.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="11-initialisation-gradient-flow_files/figure-html/fig-gradient-flow-output-1.png" class="img-fluid figure-img" alt="A log-scale line chart shows gradient standard deviation from the output towards the input for small, Xavier, He, and large initialisation scales.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.4
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.4: The same initialisation scales that alter forward signals also alter gradient magnitudes across depth.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>The horizontal direction follows backpropagation from layer 30 towards layer 1. Small scales leave early layers with negligible gradients; large scales amplify them. He scaling is designed to preserve variance for ReLU under simplifying assumptions, not to guarantee identical gradients in every realised network.</p>
 </section>
 <section id="diagnostics-should-precede-expensive-training" class="level3">
 <h3 class="anchored" data-anchor-id="diagnostics-should-precede-expensive-training">Diagnostics should precede expensive training</h3>
 <p>A dry forward and backward pass can record per-layer activation mean and standard deviation, zero or saturation fraction, gradient norm, and non-finite values. These checks distinguish a network that cannot transmit information at step zero from one that becomes unstable only after optimiser updates.</p>
+<p>The observed trajectories need a reference calculation: otherwise a named initialiser can be mistaken for a guarantee. Level 3 derives the variance rules and then connects their assumptions to the tensor operations used in code.</p>
 </section>
 </section>
 <section id="level-3---mathematics-code" class="level2">
@@ -714,7 +720,7 @@ Figure&nbsp;12.4
 \operatorname{Var}(W)\approx\frac{2}{n_{\mathrm{in}}},
 \]</span></p>
 <p>the He rule developed for rectifier networks <span class="citation" data-cites="he2015">(<a href="#ref-he2015" role="doc-biblioref">He et al. 2015</a>)</span>. The derivation assumes independence and idealised distributions. Convolutional sharing, residual additions, attention, gating, and normalisation alter the calculation.</p>
-<div id="818bf147" class="cell">
+<div id="9cef47c3" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fan_in,fan_out<span class="op">=</span><span class="dv">128</span>,<span class="dv">256</span></span>
@@ -722,21 +728,28 @@ Figure&nbsp;12.4
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Xavier standard deviation: </span><span class="sc">{</span>xavier_std<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"He standard deviation: </span><span class="sc">{</span>he_std<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Xavier standard deviation: 0.0722
+He standard deviation: 0.1250</code></pre>
+</div>
 </div>
 </section>
 <section id="pytorch-makes-the-chosen-convention-explicit" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-makes-the-chosen-convention-explicit">PyTorch makes the chosen convention explicit</h3>
-<div id="e10d26b3" class="cell">
+<div id="e5f4ffe6" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>layer<span class="op">=</span>nn.Linear(<span class="dv">128</span>,<span class="dv">256</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>nn.init.kaiming_normal_(layer.weight,mode<span class="op">=</span><span class="st">"fan_in"</span>,nonlinearity<span class="op">=</span><span class="st">"relu"</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>nn.init.zeros_(layer.bias)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(layer.weight.std().item(), layer.bias.<span class="bu">abs</span>().<span class="bu">max</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>layer<span class="op">=</span>nn.Linear(<span class="dv">128</span>,<span class="dv">256</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>nn.init.kaiming_normal_(layer.weight,mode<span class="op">=</span><span class="st">"fan_in"</span>,nonlinearity<span class="op">=</span><span class="st">"relu"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>nn.init.zeros_(layer.bias)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(layer.weight.std().item(), layer.bias.<span class="bu">abs</span>().<span class="bu">max</span>().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.12448849529027939 0.0</code></pre>
+</div>
 </div>
 <p>The observed standard deviation is close to the He target but not exact because the matrix is a finite random sample. <code>fan_in</code> prioritises forward variance; <code>fan_out</code> prioritises backward variance. The activation argument determines the gain and should match the operation that follows.</p>
 </section>
@@ -749,37 +762,45 @@ n_{\mathrm{in}}=C_{\mathrm{in}}k_hk_w,
 n_{\mathrm{out}}=C_{\mathrm{out}}k_hk_w.
 \]</span></p>
 <p>A grouped convolution uses fewer input channels per group. A transposed convolution stores and applies its tensor differently. The correct fan therefore follows the operation, not a guess based on which tensor dimension appears first.</p>
-<div id="de50ac6a" class="cell">
+<div id="b1dab05a" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>[</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Linear 128 -&gt; 256"</span>,<span class="dv">128</span>,<span class="dv">256</span>),</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Conv 3 -&gt; 64, kernel 3x3"</span>,<span class="dv">3</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,<span class="dv">64</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Grouped conv 64 -&gt; 64, 8 groups, 3x3"</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,fan_in_value,fan_out_value <span class="kw">in</span> examples:</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    xavier<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>(fan_in_value<span class="op">+</span>fan_out_value))</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    he<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>fan_in_value)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:43s}</span><span class="ss"> fan_in=</span><span class="sc">{</span>fan_in_value<span class="sc">:4d}</span><span class="ss"> fan_out=</span><span class="sc">{</span>fan_out_value<span class="sc">:4d}</span><span class="ss"> "</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"Xavier std=</span><span class="sc">{</span>xavier<span class="sc">:.4f}</span><span class="ss"> He std=</span><span class="sc">{</span>he<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>[</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Linear 128 -&gt; 256"</span>,<span class="dv">128</span>,<span class="dv">256</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Conv 3 -&gt; 64, kernel 3x3"</span>,<span class="dv">3</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,<span class="dv">64</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Grouped conv 64 -&gt; 64, 8 groups, 3x3"</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,fan_in_value,fan_out_value <span class="kw">in</span> examples:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    xavier<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>(fan_in_value<span class="op">+</span>fan_out_value))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    he<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>fan_in_value)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:43s}</span><span class="ss"> fan_in=</span><span class="sc">{</span>fan_in_value<span class="sc">:4d}</span><span class="ss"> fan_out=</span><span class="sc">{</span>fan_out_value<span class="sc">:4d}</span><span class="ss"> "</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"Xavier std=</span><span class="sc">{</span>xavier<span class="sc">:.4f}</span><span class="ss"> He std=</span><span class="sc">{</span>he<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear 128 -&gt; 256                           fan_in= 128 fan_out= 256 Xavier std=0.0722 He std=0.1250
+Conv 3 -&gt; 64, kernel 3x3                    fan_in=  27 fan_out= 576 Xavier std=0.0576 He std=0.2722
+Grouped conv 64 -&gt; 64, 8 groups, 3x3        fan_in=  72 fan_out=  72 Xavier std=0.1179 He std=0.1667</code></pre>
+</div>
 </div>
 <p>This calculation is part of the model specification. Two implementations can both claim to use He initialisation while using different effective fans because their kernels, groups, or tensor conventions differ.</p>
-<div id="a1192406" class="cell">
+<div id="9229586c" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Hooks can collect per-layer statistics in a dry run.</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>network<span class="op">=</span>nn.Sequential(<span class="op">*</span><span class="bu">sum</span>(([nn.Linear(<span class="dv">64</span>,<span class="dv">64</span>),nn.ReLU()] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>)),[]))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>records<span class="op">=</span>[]</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>hooks<span class="op">=</span>[]</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,module <span class="kw">in</span> network.named_modules():</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(module,(nn.Linear,nn.ReLU)):</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        hooks.append(module.register_forward_hook(</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> mod,inp,out,n<span class="op">=</span>name: records.append((n,out.mean().item(),out.std().item()))))</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> network(torch.randn(<span class="dv">32</span>,<span class="dv">64</span>))</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hook <span class="kw">in</span> hooks: hook.remove()</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(records[:<span class="dv">4</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Hooks can collect per-layer statistics in a dry run.</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>network<span class="op">=</span>nn.Sequential(<span class="op">*</span><span class="bu">sum</span>(([nn.Linear(<span class="dv">64</span>,<span class="dv">64</span>),nn.ReLU()] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>)),[]))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>records<span class="op">=</span>[]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>hooks<span class="op">=</span>[]</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,module <span class="kw">in</span> network.named_modules():</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(module,(nn.Linear,nn.ReLU)):</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        hooks.append(module.register_forward_hook(</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> mod,inp,out,n<span class="op">=</span>name: records.append((n,out.mean().item(),out.std().item()))))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> network(torch.randn(<span class="dv">32</span>,<span class="dv">64</span>))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hook <span class="kw">in</span> hooks: hook.remove()</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(records[:<span class="dv">4</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[('0', 0.01671302504837513, 0.5847127437591553), ('1', 0.24458101391792297, 0.34582310914993286), ('2', -0.010198483243584633, 0.26433607935905457), ('3', 0.099906325340271, 0.1539628505706787)]</code></pre>
+</div>
 </div>
 <p>Hooks observe actual tensors rather than relying on the intended formula. Similar backward hooks or explicit parameter-gradient summaries can locate the first layer at which gradients vanish, explode, or become non-finite.</p>
 </section>
@@ -789,31 +810,36 @@ n_{\mathrm{out}}=C_{\mathrm{out}}k_hk_w.
 <section id="variance-preservation-is-not-the-complete-objective" class="level3">
 <h3 class="anchored" data-anchor-id="variance-preservation-is-not-the-complete-objective">Variance preservation is not the complete objective</h3>
 <p>Two initialisations can preserve marginal variance while transforming directions differently. Singular values of layer Jacobians describe how perturbations are stretched or contracted. Work on deep linear networks shows that orthogonal starting conditions can produce different learning dynamics from generic random matrices <span class="citation" data-cites="saxe2014">(<a href="#ref-saxe2014" role="doc-biblioref">Saxe, McClelland, and Ganguli 2014</a>)</span>. These results are informative but do not transfer unchanged to nonlinear residual architectures.</p>
-<div id="fig-singular-spectrum" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-singular-spectrum-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-singular-spectrum" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dimension<span class="op">=</span><span class="dv">12</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>balanced<span class="op">=</span>np.ones(dimension)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>concentrated<span class="op">=</span>np.array([np.sqrt(dimension<span class="op">-</span><span class="dv">11</span><span class="op">*</span><span class="fl">0.02</span><span class="op">**</span><span class="dv">2</span>)]<span class="op">+</span>[<span class="fl">0.02</span>]<span class="op">*</span><span class="dv">11</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,values,title,colour <span class="kw">in</span> <span class="bu">zip</span>(</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    axes,[balanced,concentrated],</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Directional gain is balanced"</span>,<span class="st">"Gain is concentrated in one direction"</span>],</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    [teal,orange]):</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ax.bar(np.arange(<span class="dv">1</span>,dimension<span class="op">+</span><span class="dv">1</span>),values,color<span class="op">=</span>colour)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">1</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="dv">1</span>,linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"Singular-value index"</span>)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.04</span>,<span class="fl">.92</span>,<span class="ss">f"sum of squares = </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">sum</span>(values<span class="op">**</span><span class="dv">2</span>)<span class="sc">:.1f}</span><span class="ss">"</span>,transform<span class="op">=</span>ax.transAxes)</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Singular value"</span>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dimension<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>balanced<span class="op">=</span>np.ones(dimension)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>concentrated<span class="op">=</span>np.array([np.sqrt(dimension<span class="op">-</span><span class="dv">11</span><span class="op">*</span><span class="fl">0.02</span><span class="op">**</span><span class="dv">2</span>)]<span class="op">+</span>[<span class="fl">0.02</span>]<span class="op">*</span><span class="dv">11</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,values,title,colour <span class="kw">in</span> <span class="bu">zip</span>(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    axes,[balanced,concentrated],</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Directional gain is balanced"</span>,<span class="st">"Gain is concentrated in one direction"</span>],</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    [teal,orange]):</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    ax.bar(np.arange(<span class="dv">1</span>,dimension<span class="op">+</span><span class="dv">1</span>),values,color<span class="op">=</span>colour)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">1</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="dv">1</span>,linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"Singular-value index"</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.04</span>,<span class="fl">.92</span>,<span class="ss">f"sum of squares = </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">sum</span>(values<span class="op">**</span><span class="dv">2</span>)<span class="sc">:.1f}</span><span class="ss">"</span>,transform<span class="op">=</span>ax.transAxes)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Singular value"</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-singular-spectrum" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two bar charts compare a flat singular-value spectrum with a concentrated spectrum. Both have the same sum of squared singular values, but the concentrated transformation nearly removes most directions.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-singular-spectrum-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="11-initialisation-gradient-flow_files/figure-html/fig-singular-spectrum-output-1.png" class="img-fluid figure-img" alt="Two bar charts compare a flat singular-value spectrum with a concentrated spectrum. Both have the same sum of squared singular values, but the concentrated transformation nearly removes most directions.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-singular-spectrum-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;12.5
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-singular-spectrum-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.5: Two transformations can have the same total squared gain while preserving directions very differently.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>Both panels have the same sum of squared singular values and therefore the same Frobenius norm. Yet the right-hand transformation amplifies one direction and almost removes eleven others. A single activation standard deviation or gradient norm can miss this directional collapse. Singular-value summaries add evidence about whether many directions remain usable, although computing full spectra is usually too expensive for every layer of a large model.</p>
 </section>
@@ -1363,336 +1389,328 @@ Saxe, Andrew M., James L. McClelland, and Surya Ganguli. 2014. <span>“Exact So
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Initialisation and Gradient Flow"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Setting the scale before learning begins"</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>Training begins before the first parameter update. Initial weights determine the scale and diversity of the signals produced by the untrained network. If those signals shrink across layers, later layers receive little information. If they grow, activations may saturate or overflow. Backpropagation traverses the same chain in reverse, so the initial scale also affects whether early layers receive usable gradients.</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>Initialisation does not determine the final model by itself. It sets the starting conditions for an interaction among architecture, activation, normalisation, residual connections, optimiser, precision, and data. This chapter isolates that starting point and shows how to diagnose it.</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why identical initial values prevent hidden units from learning different features;</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>trace activation scale across a deep network before training;</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain vanishing and exploding gradients as products of local transformations;</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>derive Xavier and He variance rules under their stated assumptions;</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish fan-in, fan-out, and activation-specific gain;</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement and inspect initialisation in NumPy and PyTorch;</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>measure activation, saturation, and gradient statistics by layer;</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why residual paths, normalisation, and numerical precision change the initialisation problem;</span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>record sufficient evidence to diagnose an unstable start.</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running experiment</span></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>The chapter repeatedly propagates a batch of independent, standard-normal inputs through 30 width-128 layers. The network is deliberately deeper than needed for a practical toy prediction task because changes in scale become visible. Biases start at zero and ReLU is applied after each matrix multiplication.</span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-initial-scale</span></span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Weight scale determines whether activation variation vanishes, remains usable, or explodes across an untrained ReLU network."</span></span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A log-scale line chart compares activation standard deviation across thirty layers for small, Xavier, He, and large random initialisation scales."</span></span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7a5195"</span>, <span class="st">"#5f6b76"</span></span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">71</span>)</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>width, depth, batch <span class="op">=</span> <span class="dv">128</span>, <span class="dv">30</span>, <span class="dv">256</span></span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> rng.normal(size<span class="op">=</span>(batch, width))</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> forward_statistics(scale):</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    h<span class="op">=</span>inputs.copy()<span class="op">;</span> standard_deviations<span class="op">=</span>[]<span class="op">;</span> active_fractions<span class="op">=</span>[]<span class="op">;</span> weights<span class="op">=</span>[]<span class="op">;</span> masks<span class="op">=</span>[]</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(depth):</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>        W<span class="op">=</span>rng.normal(<span class="dv">0</span>,scale,size<span class="op">=</span>(width,width))<span class="op">;</span> z<span class="op">=</span>h<span class="op">@</span>W.T<span class="op">;</span> h<span class="op">=</span>np.maximum(<span class="dv">0</span>,z)</span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>        standard_deviations.append(h.std())<span class="op">;</span> active_fractions.append((z<span class="op">&gt;</span><span class="dv">0</span>).mean())</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>        weights.append(W)<span class="op">;</span> masks.append(z<span class="op">&gt;</span><span class="dv">0</span>)</span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(standard_deviations),np.array(active_fractions),weights,masks</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>scales<span class="op">=</span>{<span class="st">"small: 0.02"</span>:<span class="fl">0.02</span>,<span class="st">"Xavier"</span>:np.sqrt(<span class="dv">1</span><span class="op">/</span>width),<span class="st">"He"</span>:np.sqrt(<span class="dv">2</span><span class="op">/</span>width),<span class="st">"large: 0.20"</span>:<span class="fl">0.20</span>}</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>scale_results<span class="op">=</span>{name:forward_statistics(scale) <span class="cf">for</span> name,scale <span class="kw">in</span> scales.items()}</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (name,result),colour <span class="kw">in</span> <span class="bu">zip</span>(scale_results.items(),[blue,grey,teal,orange]):</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="bu">range</span>(<span class="dv">1</span>,depth<span class="op">+</span><span class="dv">1</span>),result[<span class="dv">0</span>],label<span class="op">=</span>name,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.4</span>)</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Layer"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Activation standard deviation"</span>)</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Forward signal scale before training"</span>)<span class="op">;</span> ax.legend()</span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>The small initialisation progressively removes variation. The large initialisation amplifies it. Xavier preserves variance for linear or approximately symmetric activations but loses scale under repeated ReLU gating. He initialisation compensates for that gating in this idealised setting and keeps the signal closer to its starting scale.</span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a><span class="fu">### Hidden units need different starting points</span></span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>If every hidden unit starts with identical incoming weights and bias, it produces the same value for every observation. Backpropagation then gives those units identical gradients. They remain copies after the update. A layer with 128 nominal units can behave like one repeated unit.</span>
-<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>Random initialisation breaks this symmetry. The randomness does not encode useful features; it gives units different starting directions so training can specialise them. The distribution still needs an appropriate scale. Symmetry breaking and scale preservation are separate requirements.</span>
-<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-symmetry-breaking</span></span>
-<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Identical initial weights produce identical hidden units, while random initial weights create distinct starting responses."</span></span>
-<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two heatmaps compare outputs from six hidden units under identical zero weights and under small random weights for eight observations."</span></span>
-<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>small_inputs<span class="op">=</span>rng.normal(size<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
-<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>zero_outputs<span class="op">=</span>small_inputs<span class="op">@</span>np.zeros((<span class="dv">6</span>,<span class="dv">4</span>)).T</span>
-<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>random_outputs<span class="op">=</span>small_inputs<span class="op">@</span>rng.normal(<span class="dv">0</span>,<span class="fl">0.35</span>,size<span class="op">=</span>(<span class="dv">6</span>,<span class="dv">4</span>)).T</span>
-<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>))</span>
-<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,data,title <span class="kw">in</span> <span class="bu">zip</span>(axes,[zero_outputs,random_outputs],[<span class="st">"Identical initial weights"</span>,<span class="st">"Random initial weights"</span>]):</span>
-<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>    image<span class="op">=</span>ax.imshow(data,cmap<span class="op">=</span><span class="st">"RdBu_r"</span>,aspect<span class="op">=</span><span class="st">"auto"</span>,vmin<span class="op">=-</span><span class="dv">2</span>,vmax<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"Hidden unit"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Observation"</span>)</span>
-<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>axes.ravel().tolist(),label<span class="op">=</span><span class="st">"pre-activation"</span>,shrink<span class="op">=</span><span class="fl">0.8</span>)</span>
-<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>The zero-weight panel contains no distinction among units or observations. Random weights create different responses. Setting the final layer to zero can be useful in specific residual constructions, but setting every weight in an ordinary multilayer network to zero prevents hidden-unit differentiation.</span>
-<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a><span class="fu">### Deep networks repeatedly rescale information</span></span>
-<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>One layer can shrink a signal without destroying it. Thirty layers can multiply that shrinkage until values become numerically negligible. The same compounding applies to growth. Initialisation aims to keep useful differences within a workable range long enough for learning to begin.</span>
-<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gradient flow is the reverse view of the same chain</span></span>
-<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>Backpropagation multiplies an arriving gradient by activation derivatives and weight matrices. ReLU blocks coordinates whose pre-activations are negative. Sigmoid and tanh transmit small derivatives when saturated. Weight scale then shrinks or amplifies what remains. A usable forward signal does not guarantee a usable backward signal, so both must be measured.</span>
-<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a>Level 1 identifies diversity and scale as the starting requirements. Level 2 follows the mechanics across layers.</span>
-<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
-<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a><span class="fu">### Each layer performs three scale-changing operations</span></span>
-<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>For $z^{(l)}=W^{(l)}h^{(l-1)}+b^{(l)}$ and $h^{(l)}=\phi(z^{(l)})$, scale is affected by the incoming activation distribution, the number and variance of the weights, and the activation. ReLU sets roughly half of symmetric pre-activations to zero at initialisation. Tanh compresses large magnitudes towards $-1$ and $1$.</span>
-<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>The following experiment applies tanh after one matrix multiplication and measures the fraction of pre-activations with $|z|&gt;2$, where tanh is already relatively flat.</span>
-<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-saturation</span></span>
-<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Increasing initial weight scale pushes more tanh pre-activations into low-slope saturated regions."</span></span>
-<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Histograms compare pre-activation distributions for three weight scales, with shaded regions beyond minus two and plus two and saturation percentages in the titles."</span></span>
-<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="fl">3.8</span>),sharex<span class="op">=</span><span class="va">True</span>,sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,scale,colour <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="fl">0.03</span>,<span class="fl">0.09</span>,<span class="fl">0.25</span>],[blue,teal,orange]):</span>
-<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a>    W<span class="op">=</span>rng.normal(<span class="dv">0</span>,scale,size<span class="op">=</span>(width,width))<span class="op">;</span> z<span class="op">=</span>(inputs<span class="op">@</span>W.T).ravel()<span class="op">;</span> fraction<span class="op">=</span>(np.<span class="bu">abs</span>(z)<span class="op">&gt;</span><span class="dv">2</span>).mean()</span>
-<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a>    ax.hist(z,bins<span class="op">=</span><span class="dv">60</span>,color<span class="op">=</span>colour,alpha<span class="op">=</span><span class="fl">0.8</span>,density<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>    ax.axvspan(<span class="op">-</span><span class="dv">8</span>,<span class="op">-</span><span class="dv">2</span>,color<span class="op">=</span>grey,alpha<span class="op">=</span><span class="fl">0.12</span>)<span class="op">;</span> ax.axvspan(<span class="dv">2</span>,<span class="dv">8</span>,color<span class="op">=</span>grey,alpha<span class="op">=</span><span class="fl">0.12</span>)</span>
-<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"scale </span><span class="sc">{</span>scale<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>fraction<span class="sc">:.0%}</span><span class="ss"> beyond |z| &gt; 2"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"pre-activation"</span>)</span>
-<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"density"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>Large initial weights can place many tanh units where local derivatives are small. ReLU does not saturate on its positive side, but large positive values can still create exploding activations and gradients.</span>
-<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a><span class="fu">### Backward gradients can be inspected layer by layer</span></span>
-<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-gradient-flow</span></span>
-<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The same initialisation scales that alter forward signals also alter gradient magnitudes across depth."</span></span>
-<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A log-scale line chart shows gradient standard deviation from the output towards the input for small, Xavier, He, and large initialisation scales."</span></span>
-<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
-<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (name,result),colour <span class="kw">in</span> <span class="bu">zip</span>(scale_results.items(),[blue,grey,teal,orange]):</span>
-<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a>    _,_,weights,masks<span class="op">=</span>result<span class="op">;</span> gradient<span class="op">=</span>rng.normal(size<span class="op">=</span>(batch,width))<span class="op">;</span> values<span class="op">=</span>[]</span>
-<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> W,mask <span class="kw">in</span> <span class="bu">zip</span>(weights[::<span class="op">-</span><span class="dv">1</span>],masks[::<span class="op">-</span><span class="dv">1</span>]):</span>
-<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a>        gradient<span class="op">=</span>(gradient<span class="op">*</span>mask)<span class="op">@</span>W</span>
-<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a>        values.append(gradient.std())</span>
-<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="bu">range</span>(depth,<span class="dv">0</span>,<span class="op">-</span><span class="dv">1</span>),values,label<span class="op">=</span>name,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.4</span>)</span>
-<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Layer receiving gradient"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Gradient standard deviation"</span>)</span>
-<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Backward gradient scale before training"</span>)<span class="op">;</span> ax.legend()</span>
-<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a>The horizontal direction follows backpropagation from layer 30 towards layer 1. Small scales leave early layers with negligible gradients; large scales amplify them. He scaling is designed to preserve variance for ReLU under simplifying assumptions, not to guarantee identical gradients in every realised network.</span>
-<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a><span class="fu">### Diagnostics should precede expensive training</span></span>
-<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a>A dry forward and backward pass can record per-layer activation mean and standard deviation, zero or saturation fraction, gradient norm, and non-finite values. These checks distinguish a network that cannot transmit information at step zero from one that becomes unstable only after optimiser updates.</span>
-<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
-<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a><span class="fu">### Variance propagation gives the Xavier rule</span></span>
-<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a>Assume independent, zero-mean inputs and weights, $n_{\mathrm{in}}$ incoming connections, and no activation. Then</span>
-<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(z_j)\approx n_{\mathrm{in}}\operatorname{Var}(W_{ji})\operatorname{Var}(h_i).</span>
-<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a>Preserving forward variance suggests $\operatorname{Var}(W)=1/n_{\mathrm{in}}$. Balancing forward and backward considerations yields the Xavier compromise</span>
-<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(W)=\frac{2}{n_{\mathrm{in}}+n_{\mathrm{out}}}.</span>
-<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>@glorot2010 connect activation saturation and initialisation scale to training difficulty in deep feed-forward networks.</span>
-<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a><span class="fu">### ReLU changes the variance calculation</span></span>
-<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a>For a symmetric pre-activation distribution, ReLU discards approximately half the values. Compensating gives</span>
-<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(W)\approx\frac{2}{n_{\mathrm{in}}},</span>
-<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>the He rule developed for rectifier networks <span class="co">[</span><span class="ot">@he2015</span><span class="co">]</span>. The derivation assumes independence and idealised distributions. Convolutional sharing, residual additions, attention, gating, and normalisation alter the calculation.</span>
-<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>fan_in,fan_out<span class="op">=</span><span class="dv">128</span>,<span class="dv">256</span></span>
-<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a>xavier_std<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>(fan_in<span class="op">+</span>fan_out))<span class="op">;</span> he_std<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>fan_in)</span>
-<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Xavier standard deviation: </span><span class="sc">{</span>xavier_std<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"He standard deviation: </span><span class="sc">{</span>he_std<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a><span class="fu">### PyTorch makes the chosen convention explicit</span></span>
-<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
-<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
-<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a>layer<span class="op">=</span>nn.Linear(<span class="dv">128</span>,<span class="dv">256</span>)</span>
-<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>nn.init.kaiming_normal_(layer.weight,mode<span class="op">=</span><span class="st">"fan_in"</span>,nonlinearity<span class="op">=</span><span class="st">"relu"</span>)</span>
-<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>nn.init.zeros_(layer.bias)</span>
-<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(layer.weight.std().item(), layer.bias.<span class="bu">abs</span>().<span class="bu">max</span>().item())</span>
-<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a>The observed standard deviation is close to the He target but not exact because the matrix is a finite random sample. <span class="in">`fan_in`</span> prioritises forward variance; <span class="in">`fan_out`</span> prioritises backward variance. The activation argument determines the gain and should match the operation that follows.</span>
-<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fan counts follow the implemented tensor operation</span></span>
-<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a>The symbols $n_{\mathrm{in}}$ and $n_{\mathrm{out}}$ count the independent inputs contributing to an output and the outputs receiving an input. For a dense layer with a weight tensor shaped <span class="in">`out_features`</span> by <span class="in">`in_features`</span>, these counts are the two dimensions. For a two-dimensional convolution, each output combines <span class="in">`in_channels`</span> inputs across every kernel position, so</span>
-<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a>n_{\mathrm{in}}=C_{\mathrm{in}}k_hk_w,</span>
-<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a>\qquad</span>
-<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>n_{\mathrm{out}}=C_{\mathrm{out}}k_hk_w.</span>
-<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a>A grouped convolution uses fewer input channels per group. A transposed convolution stores and applies its tensor differently. The correct fan therefore follows the operation, not a guess based on which tensor dimension appears first.</span>
-<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>[</span>
-<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Linear 128 -&gt; 256"</span>,<span class="dv">128</span>,<span class="dv">256</span>),</span>
-<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Conv 3 -&gt; 64, kernel 3x3"</span>,<span class="dv">3</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,<span class="dv">64</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
-<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Grouped conv 64 -&gt; 64, 8 groups, 3x3"</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
-<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,fan_in_value,fan_out_value <span class="kw">in</span> examples:</span>
-<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>    xavier<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>(fan_in_value<span class="op">+</span>fan_out_value))</span>
-<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a>    he<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>fan_in_value)</span>
-<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:43s}</span><span class="ss"> fan_in=</span><span class="sc">{</span>fan_in_value<span class="sc">:4d}</span><span class="ss"> fan_out=</span><span class="sc">{</span>fan_out_value<span class="sc">:4d}</span><span class="ss"> "</span></span>
-<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"Xavier std=</span><span class="sc">{</span>xavier<span class="sc">:.4f}</span><span class="ss"> He std=</span><span class="sc">{</span>he<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a>This calculation is part of the model specification. Two implementations can both claim to use He initialisation while using different effective fans because their kernels, groups, or tensor conventions differ.</span>
-<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a><span class="co"># Hooks can collect per-layer statistics in a dry run.</span></span>
-<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a>network<span class="op">=</span>nn.Sequential(<span class="op">*</span><span class="bu">sum</span>(([nn.Linear(<span class="dv">64</span>,<span class="dv">64</span>),nn.ReLU()] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>)),[]))</span>
-<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a>records<span class="op">=</span>[]</span>
-<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>hooks<span class="op">=</span>[]</span>
-<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,module <span class="kw">in</span> network.named_modules():</span>
-<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(module,(nn.Linear,nn.ReLU)):</span>
-<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a>        hooks.append(module.register_forward_hook(</span>
-<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> mod,inp,out,n<span class="op">=</span>name: records.append((n,out.mean().item(),out.std().item()))))</span>
-<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> network(torch.randn(<span class="dv">32</span>,<span class="dv">64</span>))</span>
-<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hook <span class="kw">in</span> hooks: hook.remove()</span>
-<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(records[:<span class="dv">4</span>])</span>
-<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a>Hooks observe actual tensors rather than relying on the intended formula. Similar backward hooks or explicit parameter-gradient summaries can locate the first layer at which gradients vanish, explode, or become non-finite.</span>
-<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
-<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a><span class="fu">### Variance preservation is not the complete objective</span></span>
-<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a>Two initialisations can preserve marginal variance while transforming directions differently. Singular values of layer Jacobians describe how perturbations are stretched or contracted. Work on deep linear networks shows that orthogonal starting conditions can produce different learning dynamics from generic random matrices <span class="co">[</span><span class="ot">@saxe2014</span><span class="co">]</span>. These results are informative but do not transfer unchanged to nonlinear residual architectures.</span>
-<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-singular-spectrum</span></span>
-<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Two transformations can have the same total squared gain while preserving directions very differently."</span></span>
-<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two bar charts compare a flat singular-value spectrum with a concentrated spectrum. Both have the same sum of squared singular values, but the concentrated transformation nearly removes most directions."</span></span>
-<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a>dimension<span class="op">=</span><span class="dv">12</span></span>
-<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a>balanced<span class="op">=</span>np.ones(dimension)</span>
-<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a>concentrated<span class="op">=</span>np.array([np.sqrt(dimension<span class="op">-</span><span class="dv">11</span><span class="op">*</span><span class="fl">0.02</span><span class="op">**</span><span class="dv">2</span>)]<span class="op">+</span>[<span class="fl">0.02</span>]<span class="op">*</span><span class="dv">11</span>)</span>
-<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,values,title,colour <span class="kw">in</span> <span class="bu">zip</span>(</span>
-<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a>    axes,[balanced,concentrated],</span>
-<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Directional gain is balanced"</span>,<span class="st">"Gain is concentrated in one direction"</span>],</span>
-<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a>    [teal,orange]):</span>
-<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a>    ax.bar(np.arange(<span class="dv">1</span>,dimension<span class="op">+</span><span class="dv">1</span>),values,color<span class="op">=</span>colour)</span>
-<span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">1</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="dv">1</span>,linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
-<span id="cb10-277"><a href="#cb10-277" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"Singular-value index"</span>)</span>
-<span id="cb10-278"><a href="#cb10-278" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.04</span>,<span class="fl">.92</span>,<span class="ss">f"sum of squares = </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">sum</span>(values<span class="op">**</span><span class="dv">2</span>)<span class="sc">:.1f}</span><span class="ss">"</span>,transform<span class="op">=</span>ax.transAxes)</span>
-<span id="cb10-279"><a href="#cb10-279" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Singular value"</span>)</span>
-<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a>Both panels have the same sum of squared singular values and therefore the same Frobenius norm. Yet the right-hand transformation amplifies one direction and almost removes eleven others. A single activation standard deviation or gradient norm can miss this directional collapse. Singular-value summaries add evidence about whether many directions remain usable, although computing full spectra is usually too expensive for every layer of a large model.</span>
-<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a><span class="fu">### Residual and normalised architectures alter the path</span></span>
-<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a>Residual connections provide an identity route alongside learned transformations. Normalisation rescales intermediate tensors. Both reduce dependence on the simple plain-network calculation, but neither makes initialisation irrelevant. Residual branches may require depth-dependent scaling, and normalisation parameters themselves need initial values. Chapter 12 treats normalisation directly.</span>
-<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a>Transformer stability depends on the placement of normalisation, residual scaling, attention-logit scale, feed-forward width, and precision. Copying a He rule from a ReLU multilayer perceptron is therefore insufficient documentation for a Transformer initialisation scheme.</span>
-<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-291"><a href="#cb10-291" aria-hidden="true" tabindex="-1"></a><span class="fu">### Numerical precision sets practical limits</span></span>
-<span id="cb10-292"><a href="#cb10-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a>Exploding activations can overflow low-precision formats, while tiny gradients can underflow. Mixed-precision loss scaling helps with small backward values but does not repair a forward pass that has already produced infinities. Distributed reductions can expose non-finite gradients only after communication, wasting a full step unless local checks occur earlier.</span>
-<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a><span class="fu">### An initialisation audit records realised statistics</span></span>
-<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a>An audit should record the distribution, scale, fan convention, activation gain, bias rule, residual scaling, normalisation parameters, random seed, and parameters receiving special treatment. It should also report realised activation and gradient statistics by depth across representative batches, including saturation, zero fractions, singular-value summaries where relevant, and non-finite counts.</span>
-<span id="cb10-298"><a href="#cb10-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-299"><a href="#cb10-299" aria-hidden="true" tabindex="-1"></a>The formula is a starting hypothesis. The dry-run measurements show whether that hypothesis holds for the implemented architecture.</span>
-<span id="cb10-300"><a href="#cb10-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-301"><a href="#cb10-301" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb10-302"><a href="#cb10-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-303"><a href="#cb10-303" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Initial weights should all be zero so training starts neutrally.** Identical hidden units receive identical gradients and remain symmetric.</span>
-<span id="cb10-304"><a href="#cb10-304" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Randomness alone is sufficient.** Its scale and distribution affect signal propagation.</span>
-<span id="cb10-305"><a href="#cb10-305" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Xavier and He initialisation are interchangeable.** They encode different activation assumptions.</span>
-<span id="cb10-306"><a href="#cb10-306" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**He initialisation guarantees stable training.** It preserves variance approximately under simplifying assumptions.</span>
-<span id="cb10-307"><a href="#cb10-307" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Biases must always be random.** Zero biases commonly preserve weight-driven symmetry breaking.</span>
-<span id="cb10-308"><a href="#cb10-308" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A stable forward pass proves gradients are stable.** Forward and backward Jacobians must both be inspected.</span>
-<span id="cb10-309"><a href="#cb10-309" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Vanishing gradients mean every gradient is exactly zero.** They may be non-zero but too small to produce useful updates.</span>
-<span id="cb10-310"><a href="#cb10-310" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ReLU eliminates vanishing gradients.** Negative ReLUs block gradients and small weights can still shrink them.</span>
-<span id="cb10-311"><a href="#cb10-311" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Normalisation removes the need for initialisation.** It changes but does not remove the starting-scale problem.</span>
-<span id="cb10-312"><a href="#cb10-312" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Loss scaling fixes exploding activations.** It addresses small backward values, not invalid forward tensors.</span>
-<span id="cb10-313"><a href="#cb10-313" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**One seed is enough to validate an initialisation.** Realised matrices and training outcomes vary across seeds.</span>
-<span id="cb10-314"><a href="#cb10-314" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-315"><a href="#cb10-315" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb10-316"><a href="#cb10-316" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-317"><a href="#cb10-317" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Explain why zero initialisation preserves hidden-unit symmetry.</span>
-<span id="cb10-318"><a href="#cb10-318" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate Xavier and He standard deviations for fan-in 256 and fan-out 512.</span>
-<span id="cb10-319"><a href="#cb10-319" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Derive the forward variance approximation for an affine layer.</span>
-<span id="cb10-320"><a href="#cb10-320" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Explain the factor of two in He initialisation.</span>
-<span id="cb10-321"><a href="#cb10-321" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Reproduce the 30-layer experiment with tanh.</span>
-<span id="cb10-322"><a href="#cb10-322" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Compare normal and uniform Xavier initialisation.</span>
-<span id="cb10-323"><a href="#cb10-323" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Change width and test whether the variance rule still holds empirically.</span>
-<span id="cb10-324"><a href="#cb10-324" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Plot the fraction of inactive ReLUs by layer.</span>
-<span id="cb10-325"><a href="#cb10-325" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Record activation and gradient statistics for the Chapter 8 network.</span>
-<span id="cb10-326"><a href="#cb10-326" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Deliberately create exploding gradients and locate the first unstable layer.</span>
-<span id="cb10-327"><a href="#cb10-327" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Compare fan-in and fan-out modes in PyTorch.</span>
-<span id="cb10-328"><a href="#cb10-328" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Initialise an output layer to zero and explain when this differs from zeroing every layer.</span>
-<span id="cb10-329"><a href="#cb10-329" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Test orthogonal initialisation against He normal across several seeds.</span>
-<span id="cb10-330"><a href="#cb10-330" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Explain how a residual path changes gradient propagation.</span>
-<span id="cb10-331"><a href="#cb10-331" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Design an initialisation audit for a mixed-precision Transformer.</span>
-<span id="cb10-332"><a href="#cb10-332" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Calculate fan-in and fan-out for a convolution with 32 input channels, 96 output channels, and a $5\times5$ kernel.</span>
-<span id="cb10-333"><a href="#cb10-333" aria-hidden="true" tabindex="-1"></a><span class="ss">17. </span>Explain why two Jacobians with equal Frobenius norms can have different gradient-flow behaviour.</span>
-<span id="cb10-334"><a href="#cb10-334" aria-hidden="true" tabindex="-1"></a><span class="ss">18. </span>Extend the singular-spectrum example to three layers and compare the products of the balanced and concentrated spectra.</span>
-<span id="cb10-335"><a href="#cb10-335" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-336"><a href="#cb10-336" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
-<span id="cb10-337"><a href="#cb10-337" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-338"><a href="#cb10-338" aria-hidden="true" tabindex="-1"></a>Initialisation must break hidden-unit symmetry and set a workable signal scale. Products of weights and activation derivatives can make activations and gradients vanish or explode across depth. Xavier scaling balances fan-in and fan-out for approximately linear or symmetric activations; He scaling compensates for ReLU gating.</span>
-<span id="cb10-339"><a href="#cb10-339" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-340"><a href="#cb10-340" aria-hidden="true" tabindex="-1"></a>These rules are approximations. Residual paths, normalisation, gating, convolution, attention, precision, and optimiser dynamics change the realised behaviour. Per-layer activation and gradient measurements on a dry pass provide stronger evidence than the initialisation name alone.</span>
-<span id="cb10-341"><a href="#cb10-341" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-342"><a href="#cb10-342" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
-<span id="cb10-343"><a href="#cb10-343" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-344"><a href="#cb10-344" aria-hidden="true" tabindex="-1"></a>Chapter 12 examines normalisation. Initialisation controls the starting distribution; normalisation repeatedly transforms intermediate distributions during training and inference.</span>
-<span id="cb10-345"><a href="#cb10-345" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-346"><a href="#cb10-346" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb10-347"><a href="#cb10-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-348"><a href="#cb10-348" aria-hidden="true" tabindex="-1"></a>Xavier initialisation and saturation are analysed by @glorot2010. Rectifier-aware initialisation is developed by @he2015. Orthogonal starting conditions and learning dynamics in deep linear networks are analysed by @saxe2014.</span>
+<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Initialisation and Gradient Flow"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Setting the scale before learning begins"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Regularisation affects which solutions are preferred once optimisation is under way. Before the first update, the network must still transmit different signals to different hidden units and return usable gradients to early layers. Identical initial values leave hidden units indistinguishable. A poor initial scale can make signals vanish across depth, or make activations and derivatives grow until learning is numerically unstable.</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>Initialisation is not a shortcut to the final model. It establishes the conditions under which architecture, activation, normalisation, residual paths, optimiser, precision, and data begin to interact. The appropriate question is therefore empirical as well as algebraic: what signals and gradients does this implemented network actually produce at step zero?</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A diagnostic experiment</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>The chapter repeatedly propagates a batch of independent, standard-normal inputs through 30 width-128 layers. The network is deliberately deeper than needed for a practical toy prediction task because changes in scale become visible. Biases start at zero and ReLU is applied after each matrix multiplication.</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>The first chart tracks the standard deviation of the activation leaving each layer on a log scale. A roughly horizontal trajectory means that distinct inputs remain distinguishable at this diagnostic stage; a steep decline or rise signals an avoidable problem before any training data or optimiser setting has been blamed.</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-initial-scale</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Weight scale determines whether activation variation vanishes, remains usable, or explodes across an untrained ReLU network."</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A log-scale line chart compares activation standard deviation across thirty layers for small, Xavier, He, and large random initialisation scales."</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>blue, teal, orange, purple, grey <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span>, <span class="st">"#7a5195"</span>, <span class="st">"#5f6b76"</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">71</span>)</span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>width, depth, batch <span class="op">=</span> <span class="dv">128</span>, <span class="dv">30</span>, <span class="dv">256</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> rng.normal(size<span class="op">=</span>(batch, width))</span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> forward_statistics(scale):</span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    h<span class="op">=</span>inputs.copy()<span class="op">;</span> standard_deviations<span class="op">=</span>[]<span class="op">;</span> active_fractions<span class="op">=</span>[]<span class="op">;</span> weights<span class="op">=</span>[]<span class="op">;</span> masks<span class="op">=</span>[]</span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(depth):</span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>        W<span class="op">=</span>rng.normal(<span class="dv">0</span>,scale,size<span class="op">=</span>(width,width))<span class="op">;</span> z<span class="op">=</span>h<span class="op">@</span>W.T<span class="op">;</span> h<span class="op">=</span>np.maximum(<span class="dv">0</span>,z)</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>        standard_deviations.append(h.std())<span class="op">;</span> active_fractions.append((z<span class="op">&gt;</span><span class="dv">0</span>).mean())</span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>        weights.append(W)<span class="op">;</span> masks.append(z<span class="op">&gt;</span><span class="dv">0</span>)</span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(standard_deviations),np.array(active_fractions),weights,masks</span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>scales<span class="op">=</span>{<span class="st">"small: 0.02"</span>:<span class="fl">0.02</span>,<span class="st">"Xavier"</span>:np.sqrt(<span class="dv">1</span><span class="op">/</span>width),<span class="st">"He"</span>:np.sqrt(<span class="dv">2</span><span class="op">/</span>width),<span class="st">"large: 0.20"</span>:<span class="fl">0.20</span>}</span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>scale_results<span class="op">=</span>{name:forward_statistics(scale) <span class="cf">for</span> name,scale <span class="kw">in</span> scales.items()}</span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (name,result),colour <span class="kw">in</span> <span class="bu">zip</span>(scale_results.items(),[blue,grey,teal,orange]):</span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="bu">range</span>(<span class="dv">1</span>,depth<span class="op">+</span><span class="dv">1</span>),result[<span class="dv">0</span>],label<span class="op">=</span>name,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.4</span>)</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Layer"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Activation standard deviation"</span>)</span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Forward signal scale before training"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>The small initialisation progressively removes variation. The large initialisation amplifies it. Xavier preserves variance for linear or approximately symmetric activations but loses scale under repeated ReLU gating. He initialisation compensates for that gating in this idealised setting and keeps the signal closer to its starting scale.</span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-initialisation data-term="Initialisation and gradient flow" data-domain="Training and evaluation"}</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>**Initialisation and gradient flow.** Initialisation sets the parameter values before training. Gradient flow describes how derivative signals propagate through the resulting computation. Both depend on architecture, activation, normalisation, precision, and the optimiser.</span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a><span class="fu">### Hidden units need different starting points</span></span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>If every hidden unit starts with identical incoming weights and bias, it produces the same value for every observation. Backpropagation then gives those units identical gradients. They remain copies after the update. A layer with 128 nominal units can behave like one repeated unit.</span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>Random initialisation breaks this symmetry. The randomness does not encode useful features; it gives units different starting directions so training can specialise them. The distribution still needs an appropriate scale. Symmetry breaking and scale preservation are separate requirements.</span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-symmetry-breaking</span></span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Identical initial weights produce identical hidden units, while random initial weights create distinct starting responses."</span></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two heatmaps compare outputs from six hidden units under identical zero weights and under small random weights for eight observations."</span></span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a>small_inputs<span class="op">=</span>rng.normal(size<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a>zero_outputs<span class="op">=</span>small_inputs<span class="op">@</span>np.zeros((<span class="dv">6</span>,<span class="dv">4</span>)).T</span>
+<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>random_outputs<span class="op">=</span>small_inputs<span class="op">@</span>rng.normal(<span class="dv">0</span>,<span class="fl">0.35</span>,size<span class="op">=</span>(<span class="dv">6</span>,<span class="dv">4</span>)).T</span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>))</span>
+<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,data,title <span class="kw">in</span> <span class="bu">zip</span>(axes,[zero_outputs,random_outputs],[<span class="st">"Identical initial weights"</span>,<span class="st">"Random initial weights"</span>]):</span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>    image<span class="op">=</span>ax.imshow(data,cmap<span class="op">=</span><span class="st">"RdBu_r"</span>,aspect<span class="op">=</span><span class="st">"auto"</span>,vmin<span class="op">=-</span><span class="dv">2</span>,vmax<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"Hidden unit"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Observation"</span>)</span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>axes.ravel().tolist(),label<span class="op">=</span><span class="st">"pre-activation"</span>,shrink<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>The zero-weight panel contains no distinction among units or observations. Random weights create different responses. Setting the final layer to zero can be useful in specific residual constructions, but setting every weight in an ordinary multilayer network to zero prevents hidden-unit differentiation.</span>
+<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### Deep networks repeatedly rescale information</span></span>
+<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a>One layer can shrink a signal without destroying it. Thirty layers can multiply that shrinkage until values become numerically negligible. The same compounding applies to growth. Initialisation aims to keep useful differences within a workable range long enough for learning to begin.</span>
+<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gradient flow is the reverse view of the same chain</span></span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>Backpropagation multiplies an arriving gradient by activation derivatives and weight matrices. ReLU blocks coordinates whose pre-activations are negative. Sigmoid and tanh transmit small derivatives when saturated. Weight scale then shrinks or amplifies what remains. A usable forward signal does not guarantee a usable backward signal, so both must be measured.</span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>The immediate checks are whether units begin differently and whether forward and backward quantities remain in a workable range. Level 2 traces the operations that change those quantities and turns them into a short dry-run diagnostic.</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a><span class="fu">### Each layer performs three scale-changing operations</span></span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a>For $z^{(l)}=W^{(l)}h^{(l-1)}+b^{(l)}$ and $h^{(l)}=\phi(z^{(l)})$, scale is affected by the incoming activation distribution, the number and variance of the weights, and the activation. ReLU sets roughly half of symmetric pre-activations to zero at initialisation. Tanh compresses large magnitudes towards $-1$ and $1$.</span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>The following experiment applies tanh after one matrix multiplication and measures the fraction of pre-activations with $|z|&gt;2$, where tanh is already relatively flat.</span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-saturation</span></span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Increasing initial weight scale pushes more tanh pre-activations into low-slope saturated regions."</span></span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Histograms compare pre-activation distributions for three weight scales, with shaded regions beyond minus two and plus two and saturation percentages in the titles."</span></span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="fl">3.8</span>),sharex<span class="op">=</span><span class="va">True</span>,sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,scale,colour <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="fl">0.03</span>,<span class="fl">0.09</span>,<span class="fl">0.25</span>],[blue,teal,orange]):</span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>    W<span class="op">=</span>rng.normal(<span class="dv">0</span>,scale,size<span class="op">=</span>(width,width))<span class="op">;</span> z<span class="op">=</span>(inputs<span class="op">@</span>W.T).ravel()<span class="op">;</span> fraction<span class="op">=</span>(np.<span class="bu">abs</span>(z)<span class="op">&gt;</span><span class="dv">2</span>).mean()</span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>    ax.hist(z,bins<span class="op">=</span><span class="dv">60</span>,color<span class="op">=</span>colour,alpha<span class="op">=</span><span class="fl">0.8</span>,density<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>    ax.axvspan(<span class="op">-</span><span class="dv">8</span>,<span class="op">-</span><span class="dv">2</span>,color<span class="op">=</span>grey,alpha<span class="op">=</span><span class="fl">0.12</span>)<span class="op">;</span> ax.axvspan(<span class="dv">2</span>,<span class="dv">8</span>,color<span class="op">=</span>grey,alpha<span class="op">=</span><span class="fl">0.12</span>)</span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"scale </span><span class="sc">{</span>scale<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>fraction<span class="sc">:.0%}</span><span class="ss"> beyond |z| &gt; 2"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"pre-activation"</span>)</span>
+<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"density"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a>Large initial weights can place many tanh units where local derivatives are small. ReLU does not saturate on its positive side, but large positive values can still create exploding activations and gradients.</span>
+<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a><span class="fu">### Backward gradients can be inspected layer by layer</span></span>
+<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-gradient-flow</span></span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The same initialisation scales that alter forward signals also alter gradient magnitudes across depth."</span></span>
+<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A log-scale line chart shows gradient standard deviation from the output towards the input for small, Xavier, He, and large initialisation scales."</span></span>
+<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
+<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (name,result),colour <span class="kw">in</span> <span class="bu">zip</span>(scale_results.items(),[blue,grey,teal,orange]):</span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a>    _,_,weights,masks<span class="op">=</span>result<span class="op">;</span> gradient<span class="op">=</span>rng.normal(size<span class="op">=</span>(batch,width))<span class="op">;</span> values<span class="op">=</span>[]</span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> W,mask <span class="kw">in</span> <span class="bu">zip</span>(weights[::<span class="op">-</span><span class="dv">1</span>],masks[::<span class="op">-</span><span class="dv">1</span>]):</span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a>        gradient<span class="op">=</span>(gradient<span class="op">*</span>mask)<span class="op">@</span>W</span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a>        values.append(gradient.std())</span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="bu">range</span>(depth,<span class="dv">0</span>,<span class="op">-</span><span class="dv">1</span>),values,label<span class="op">=</span>name,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.4</span>)</span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Layer receiving gradient"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Gradient standard deviation"</span>)</span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Backward gradient scale before training"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a>The horizontal direction follows backpropagation from layer 30 towards layer 1. Small scales leave early layers with negligible gradients; large scales amplify them. He scaling is designed to preserve variance for ReLU under simplifying assumptions, not to guarantee identical gradients in every realised network.</span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a><span class="fu">### Diagnostics should precede expensive training</span></span>
+<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a>A dry forward and backward pass can record per-layer activation mean and standard deviation, zero or saturation fraction, gradient norm, and non-finite values. These checks distinguish a network that cannot transmit information at step zero from one that becomes unstable only after optimiser updates.</span>
+<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a>The observed trajectories need a reference calculation: otherwise a named initialiser can be mistaken for a guarantee. Level 3 derives the variance rules and then connects their assumptions to the tensor operations used in code.</span>
+<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a><span class="fu">### Variance propagation gives the Xavier rule</span></span>
+<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>Assume independent, zero-mean inputs and weights, $n_{\mathrm{in}}$ incoming connections, and no activation. Then</span>
+<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(z_j)\approx n_{\mathrm{in}}\operatorname{Var}(W_{ji})\operatorname{Var}(h_i).</span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a>Preserving forward variance suggests $\operatorname{Var}(W)=1/n_{\mathrm{in}}$. Balancing forward and backward considerations yields the Xavier compromise</span>
+<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(W)=\frac{2}{n_{\mathrm{in}}+n_{\mathrm{out}}}.</span>
+<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a>@glorot2010 connect activation saturation and initialisation scale to training difficulty in deep feed-forward networks.</span>
+<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a><span class="fu">### ReLU changes the variance calculation</span></span>
+<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a>For a symmetric pre-activation distribution, ReLU discards approximately half the values. Compensating gives</span>
+<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a>\operatorname{Var}(W)\approx\frac{2}{n_{\mathrm{in}}},</span>
+<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a>the He rule developed for rectifier networks <span class="co">[</span><span class="ot">@he2015</span><span class="co">]</span>. The derivation assumes independence and idealised distributions. Convolutional sharing, residual additions, attention, gating, and normalisation alter the calculation.</span>
+<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a>fan_in,fan_out<span class="op">=</span><span class="dv">128</span>,<span class="dv">256</span></span>
+<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a>xavier_std<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>(fan_in<span class="op">+</span>fan_out))<span class="op">;</span> he_std<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>fan_in)</span>
+<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Xavier standard deviation: </span><span class="sc">{</span>xavier_std<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"He standard deviation: </span><span class="sc">{</span>he_std<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a><span class="fu">### PyTorch makes the chosen convention explicit</span></span>
+<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb14-190"><a href="#cb14-190" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a>layer<span class="op">=</span>nn.Linear(<span class="dv">128</span>,<span class="dv">256</span>)</span>
+<span id="cb14-193"><a href="#cb14-193" aria-hidden="true" tabindex="-1"></a>nn.init.kaiming_normal_(layer.weight,mode<span class="op">=</span><span class="st">"fan_in"</span>,nonlinearity<span class="op">=</span><span class="st">"relu"</span>)</span>
+<span id="cb14-194"><a href="#cb14-194" aria-hidden="true" tabindex="-1"></a>nn.init.zeros_(layer.bias)</span>
+<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(layer.weight.std().item(), layer.bias.<span class="bu">abs</span>().<span class="bu">max</span>().item())</span>
+<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a>The observed standard deviation is close to the He target but not exact because the matrix is a finite random sample. <span class="in">`fan_in`</span> prioritises forward variance; <span class="in">`fan_out`</span> prioritises backward variance. The activation argument determines the gain and should match the operation that follows.</span>
+<span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-200"><a href="#cb14-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fan counts follow the implemented tensor operation</span></span>
+<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a>The symbols $n_{\mathrm{in}}$ and $n_{\mathrm{out}}$ count the independent inputs contributing to an output and the outputs receiving an input. For a dense layer with a weight tensor shaped <span class="in">`out_features`</span> by <span class="in">`in_features`</span>, these counts are the two dimensions. For a two-dimensional convolution, each output combines <span class="in">`in_channels`</span> inputs across every kernel position, so</span>
+<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-204"><a href="#cb14-204" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-205"><a href="#cb14-205" aria-hidden="true" tabindex="-1"></a>n_{\mathrm{in}}=C_{\mathrm{in}}k_hk_w,</span>
+<span id="cb14-206"><a href="#cb14-206" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a>n_{\mathrm{out}}=C_{\mathrm{out}}k_hk_w.</span>
+<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a>A grouped convolution uses fewer input channels per group. A transposed convolution stores and applies its tensor differently. The correct fan therefore follows the operation, not a guess based on which tensor dimension appears first.</span>
+<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>[</span>
+<span id="cb14-216"><a href="#cb14-216" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Linear 128 -&gt; 256"</span>,<span class="dv">128</span>,<span class="dv">256</span>),</span>
+<span id="cb14-217"><a href="#cb14-217" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Conv 3 -&gt; 64, kernel 3x3"</span>,<span class="dv">3</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,<span class="dv">64</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
+<span id="cb14-218"><a href="#cb14-218" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Grouped conv 64 -&gt; 64, 8 groups, 3x3"</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>,(<span class="dv">64</span><span class="op">//</span><span class="dv">8</span>)<span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">3</span>),</span>
+<span id="cb14-219"><a href="#cb14-219" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb14-220"><a href="#cb14-220" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,fan_in_value,fan_out_value <span class="kw">in</span> examples:</span>
+<span id="cb14-221"><a href="#cb14-221" aria-hidden="true" tabindex="-1"></a>    xavier<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>(fan_in_value<span class="op">+</span>fan_out_value))</span>
+<span id="cb14-222"><a href="#cb14-222" aria-hidden="true" tabindex="-1"></a>    he<span class="op">=</span>np.sqrt(<span class="dv">2</span><span class="op">/</span>fan_in_value)</span>
+<span id="cb14-223"><a href="#cb14-223" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">:43s}</span><span class="ss"> fan_in=</span><span class="sc">{</span>fan_in_value<span class="sc">:4d}</span><span class="ss"> fan_out=</span><span class="sc">{</span>fan_out_value<span class="sc">:4d}</span><span class="ss"> "</span></span>
+<span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"Xavier std=</span><span class="sc">{</span>xavier<span class="sc">:.4f}</span><span class="ss"> He std=</span><span class="sc">{</span>he<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>This calculation is part of the model specification. Two implementations can both claim to use He initialisation while using different effective fans because their kernels, groups, or tensor conventions differ.</span>
+<span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-231"><a href="#cb14-231" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-232"><a href="#cb14-232" aria-hidden="true" tabindex="-1"></a><span class="co"># Hooks can collect per-layer statistics in a dry run.</span></span>
+<span id="cb14-233"><a href="#cb14-233" aria-hidden="true" tabindex="-1"></a>network<span class="op">=</span>nn.Sequential(<span class="op">*</span><span class="bu">sum</span>(([nn.Linear(<span class="dv">64</span>,<span class="dv">64</span>),nn.ReLU()] <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">8</span>)),[]))</span>
+<span id="cb14-234"><a href="#cb14-234" aria-hidden="true" tabindex="-1"></a>records<span class="op">=</span>[]</span>
+<span id="cb14-235"><a href="#cb14-235" aria-hidden="true" tabindex="-1"></a>hooks<span class="op">=</span>[]</span>
+<span id="cb14-236"><a href="#cb14-236" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,module <span class="kw">in</span> network.named_modules():</span>
+<span id="cb14-237"><a href="#cb14-237" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">isinstance</span>(module,(nn.Linear,nn.ReLU)):</span>
+<span id="cb14-238"><a href="#cb14-238" aria-hidden="true" tabindex="-1"></a>        hooks.append(module.register_forward_hook(</span>
+<span id="cb14-239"><a href="#cb14-239" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> mod,inp,out,n<span class="op">=</span>name: records.append((n,out.mean().item(),out.std().item()))))</span>
+<span id="cb14-240"><a href="#cb14-240" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> network(torch.randn(<span class="dv">32</span>,<span class="dv">64</span>))</span>
+<span id="cb14-241"><a href="#cb14-241" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hook <span class="kw">in</span> hooks: hook.remove()</span>
+<span id="cb14-242"><a href="#cb14-242" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(records[:<span class="dv">4</span>])</span>
+<span id="cb14-243"><a href="#cb14-243" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-244"><a href="#cb14-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-245"><a href="#cb14-245" aria-hidden="true" tabindex="-1"></a>Hooks observe actual tensors rather than relying on the intended formula. Similar backward hooks or explicit parameter-gradient summaries can locate the first layer at which gradients vanish, explode, or become non-finite.</span>
+<span id="cb14-246"><a href="#cb14-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb14-248"><a href="#cb14-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a><span class="fu">### Variance preservation is not the complete objective</span></span>
+<span id="cb14-250"><a href="#cb14-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-251"><a href="#cb14-251" aria-hidden="true" tabindex="-1"></a>Two initialisations can preserve marginal variance while transforming directions differently. Singular values of layer Jacobians describe how perturbations are stretched or contracted. Work on deep linear networks shows that orthogonal starting conditions can produce different learning dynamics from generic random matrices <span class="co">[</span><span class="ot">@saxe2014</span><span class="co">]</span>. These results are informative but do not transfer unchanged to nonlinear residual architectures.</span>
+<span id="cb14-252"><a href="#cb14-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-255"><a href="#cb14-255" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-256"><a href="#cb14-256" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-singular-spectrum</span></span>
+<span id="cb14-257"><a href="#cb14-257" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Two transformations can have the same total squared gain while preserving directions very differently."</span></span>
+<span id="cb14-258"><a href="#cb14-258" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two bar charts compare a flat singular-value spectrum with a concentrated spectrum. Both have the same sum of squared singular values, but the concentrated transformation nearly removes most directions."</span></span>
+<span id="cb14-259"><a href="#cb14-259" aria-hidden="true" tabindex="-1"></a>dimension<span class="op">=</span><span class="dv">12</span></span>
+<span id="cb14-260"><a href="#cb14-260" aria-hidden="true" tabindex="-1"></a>balanced<span class="op">=</span>np.ones(dimension)</span>
+<span id="cb14-261"><a href="#cb14-261" aria-hidden="true" tabindex="-1"></a>concentrated<span class="op">=</span>np.array([np.sqrt(dimension<span class="op">-</span><span class="dv">11</span><span class="op">*</span><span class="fl">0.02</span><span class="op">**</span><span class="dv">2</span>)]<span class="op">+</span>[<span class="fl">0.02</span>]<span class="op">*</span><span class="dv">11</span>)</span>
+<span id="cb14-262"><a href="#cb14-262" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">4</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-263"><a href="#cb14-263" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,values,title,colour <span class="kw">in</span> <span class="bu">zip</span>(</span>
+<span id="cb14-264"><a href="#cb14-264" aria-hidden="true" tabindex="-1"></a>    axes,[balanced,concentrated],</span>
+<span id="cb14-265"><a href="#cb14-265" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Directional gain is balanced"</span>,<span class="st">"Gain is concentrated in one direction"</span>],</span>
+<span id="cb14-266"><a href="#cb14-266" aria-hidden="true" tabindex="-1"></a>    [teal,orange]):</span>
+<span id="cb14-267"><a href="#cb14-267" aria-hidden="true" tabindex="-1"></a>    ax.bar(np.arange(<span class="dv">1</span>,dimension<span class="op">+</span><span class="dv">1</span>),values,color<span class="op">=</span>colour)</span>
+<span id="cb14-268"><a href="#cb14-268" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">1</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="dv">1</span>,linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
+<span id="cb14-269"><a href="#cb14-269" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"Singular-value index"</span>)</span>
+<span id="cb14-270"><a href="#cb14-270" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.04</span>,<span class="fl">.92</span>,<span class="ss">f"sum of squares = </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">sum</span>(values<span class="op">**</span><span class="dv">2</span>)<span class="sc">:.1f}</span><span class="ss">"</span>,transform<span class="op">=</span>ax.transAxes)</span>
+<span id="cb14-271"><a href="#cb14-271" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Singular value"</span>)</span>
+<span id="cb14-272"><a href="#cb14-272" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-273"><a href="#cb14-273" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-274"><a href="#cb14-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-275"><a href="#cb14-275" aria-hidden="true" tabindex="-1"></a>Both panels have the same sum of squared singular values and therefore the same Frobenius norm. Yet the right-hand transformation amplifies one direction and almost removes eleven others. A single activation standard deviation or gradient norm can miss this directional collapse. Singular-value summaries add evidence about whether many directions remain usable, although computing full spectra is usually too expensive for every layer of a large model.</span>
+<span id="cb14-276"><a href="#cb14-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-277"><a href="#cb14-277" aria-hidden="true" tabindex="-1"></a><span class="fu">### Residual and normalised architectures alter the path</span></span>
+<span id="cb14-278"><a href="#cb14-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-279"><a href="#cb14-279" aria-hidden="true" tabindex="-1"></a>Residual connections provide an identity route alongside learned transformations. Normalisation rescales intermediate tensors. Both reduce dependence on the simple plain-network calculation, but neither makes initialisation irrelevant. Residual branches may require depth-dependent scaling, and normalisation parameters themselves need initial values. Chapter 12 treats normalisation directly.</span>
+<span id="cb14-280"><a href="#cb14-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-281"><a href="#cb14-281" aria-hidden="true" tabindex="-1"></a>Transformer stability depends on the placement of normalisation, residual scaling, attention-logit scale, feed-forward width, and precision. Copying a He rule from a ReLU multilayer perceptron is therefore insufficient documentation for a Transformer initialisation scheme.</span>
+<span id="cb14-282"><a href="#cb14-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-283"><a href="#cb14-283" aria-hidden="true" tabindex="-1"></a><span class="fu">### Numerical precision sets practical limits</span></span>
+<span id="cb14-284"><a href="#cb14-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-285"><a href="#cb14-285" aria-hidden="true" tabindex="-1"></a>Exploding activations can overflow low-precision formats, while tiny gradients can underflow. Mixed-precision loss scaling helps with small backward values but does not repair a forward pass that has already produced infinities. Distributed reductions can expose non-finite gradients only after communication, wasting a full step unless local checks occur earlier.</span>
+<span id="cb14-286"><a href="#cb14-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-287"><a href="#cb14-287" aria-hidden="true" tabindex="-1"></a><span class="fu">### An initialisation audit records realised statistics</span></span>
+<span id="cb14-288"><a href="#cb14-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-289"><a href="#cb14-289" aria-hidden="true" tabindex="-1"></a>An audit should record the distribution, scale, fan convention, activation gain, bias rule, residual scaling, normalisation parameters, random seed, and parameters receiving special treatment. It should also report realised activation and gradient statistics by depth across representative batches, including saturation, zero fractions, singular-value summaries where relevant, and non-finite counts.</span>
+<span id="cb14-290"><a href="#cb14-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-291"><a href="#cb14-291" aria-hidden="true" tabindex="-1"></a>The formula is a starting hypothesis. The dry-run measurements show whether that hypothesis holds for the implemented architecture.</span>
+<span id="cb14-292"><a href="#cb14-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-293"><a href="#cb14-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb14-294"><a href="#cb14-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-295"><a href="#cb14-295" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Initial weights should all be zero so training starts neutrally.** Identical hidden units receive identical gradients and remain symmetric.</span>
+<span id="cb14-296"><a href="#cb14-296" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Randomness alone is sufficient.** Its scale and distribution affect signal propagation.</span>
+<span id="cb14-297"><a href="#cb14-297" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Xavier and He initialisation are interchangeable.** They encode different activation assumptions.</span>
+<span id="cb14-298"><a href="#cb14-298" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**He initialisation guarantees stable training.** It preserves variance approximately under simplifying assumptions.</span>
+<span id="cb14-299"><a href="#cb14-299" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Biases must always be random.** Zero biases commonly preserve weight-driven symmetry breaking.</span>
+<span id="cb14-300"><a href="#cb14-300" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A stable forward pass proves gradients are stable.** Forward and backward Jacobians must both be inspected.</span>
+<span id="cb14-301"><a href="#cb14-301" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Vanishing gradients mean every gradient is exactly zero.** They may be non-zero but too small to produce useful updates.</span>
+<span id="cb14-302"><a href="#cb14-302" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ReLU eliminates vanishing gradients.** Negative ReLUs block gradients and small weights can still shrink them.</span>
+<span id="cb14-303"><a href="#cb14-303" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Normalisation removes the need for initialisation.** It changes but does not remove the starting-scale problem.</span>
+<span id="cb14-304"><a href="#cb14-304" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Loss scaling fixes exploding activations.** It addresses small backward values, not invalid forward tensors.</span>
+<span id="cb14-305"><a href="#cb14-305" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**One seed is enough to validate an initialisation.** Realised matrices and training outcomes vary across seeds.</span>
+<span id="cb14-306"><a href="#cb14-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-307"><a href="#cb14-307" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb14-308"><a href="#cb14-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-309"><a href="#cb14-309" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Explain why zero initialisation preserves hidden-unit symmetry.</span>
+<span id="cb14-310"><a href="#cb14-310" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate Xavier and He standard deviations for fan-in 256 and fan-out 512.</span>
+<span id="cb14-311"><a href="#cb14-311" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Derive the forward variance approximation for an affine layer.</span>
+<span id="cb14-312"><a href="#cb14-312" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Explain the factor of two in He initialisation.</span>
+<span id="cb14-313"><a href="#cb14-313" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Reproduce the 30-layer experiment with tanh.</span>
+<span id="cb14-314"><a href="#cb14-314" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Compare normal and uniform Xavier initialisation.</span>
+<span id="cb14-315"><a href="#cb14-315" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Change width and test whether the variance rule still holds empirically.</span>
+<span id="cb14-316"><a href="#cb14-316" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Plot the fraction of inactive ReLUs by layer.</span>
+<span id="cb14-317"><a href="#cb14-317" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Record activation and gradient statistics for the Chapter 8 network.</span>
+<span id="cb14-318"><a href="#cb14-318" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Deliberately create exploding gradients and locate the first unstable layer.</span>
+<span id="cb14-319"><a href="#cb14-319" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Compare fan-in and fan-out modes in PyTorch.</span>
+<span id="cb14-320"><a href="#cb14-320" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Initialise an output layer to zero and explain when this differs from zeroing every layer.</span>
+<span id="cb14-321"><a href="#cb14-321" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Test orthogonal initialisation against He normal across several seeds.</span>
+<span id="cb14-322"><a href="#cb14-322" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Explain how a residual path changes gradient propagation.</span>
+<span id="cb14-323"><a href="#cb14-323" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Design an initialisation audit for a mixed-precision Transformer.</span>
+<span id="cb14-324"><a href="#cb14-324" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Calculate fan-in and fan-out for a convolution with 32 input channels, 96 output channels, and a $5\times5$ kernel.</span>
+<span id="cb14-325"><a href="#cb14-325" aria-hidden="true" tabindex="-1"></a><span class="ss">17. </span>Explain why two Jacobians with equal Frobenius norms can have different gradient-flow behaviour.</span>
+<span id="cb14-326"><a href="#cb14-326" aria-hidden="true" tabindex="-1"></a><span class="ss">18. </span>Extend the singular-spectrum example to three layers and compare the products of the balanced and concentrated spectra.</span>
+<span id="cb14-327"><a href="#cb14-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-328"><a href="#cb14-328" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb14-329"><a href="#cb14-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-330"><a href="#cb14-330" aria-hidden="true" tabindex="-1"></a>Initialisation must break hidden-unit symmetry and set a workable signal scale. Products of weights and activation derivatives can make activations and gradients vanish or explode across depth. Xavier scaling balances fan-in and fan-out for approximately linear or symmetric activations; He scaling compensates for ReLU gating.</span>
+<span id="cb14-331"><a href="#cb14-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-332"><a href="#cb14-332" aria-hidden="true" tabindex="-1"></a>These rules are approximations. Residual paths, normalisation, gating, convolution, attention, precision, and optimiser dynamics change the realised behaviour. Per-layer activation and gradient measurements on a dry pass provide stronger evidence than the initialisation name alone.</span>
+<span id="cb14-333"><a href="#cb14-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-334"><a href="#cb14-334" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb14-335"><a href="#cb14-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-336"><a href="#cb14-336" aria-hidden="true" tabindex="-1"></a>Chapter 12 examines normalisation. Initialisation controls the starting distribution; normalisation repeatedly transforms intermediate distributions during training and inference.</span>
+<span id="cb14-337"><a href="#cb14-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-338"><a href="#cb14-338" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb14-339"><a href="#cb14-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-340"><a href="#cb14-340" aria-hidden="true" tabindex="-1"></a>Xavier initialisation and saturation are analysed by @glorot2010. Rectifier-aware initialisation is developed by @he2015. Orthogonal starting conditions and learning dynamics in deep linear networks are analysed by @saxe2014.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
