@@ -537,11 +537,11 @@ window.Quarto = {
 
 <section id="the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
-<p>Parts I and II defined models, gradients, updates, and the systems that execute them. Every one of those operations acts on numerical arrays. The values alone do not identify what an axis means, which entries belong to one observation, or whether two coordinates can be compared. Those meanings come from the representation and the operations that produce it.</p>
-<p>This chapter begins Part III by making those array contracts explicit before the book turns to embeddings and sequences. It separates rank from vector dimension, attaches a meaning to each axis, and follows how transformations preserve or discard distinctions. A tensor can have a valid shape while carrying the wrong semantics for the operation applied to it.</p>
+<p>Start with a small batch: two sequences, four positions in each sequence, and three measured values at every position. A program can store those 24 numbers in an array of shape <span class="math inline">\(2\times4\times3\)</span>. It cannot infer from that shape whether its first axis identifies documents, households, or images; whether its second axis is time, token position, or a spatial location; or what the final three values describe.</p>
+<p>The models, gradients, updates, and systems in Parts I and II all operate on arrays of this kind. This chapter begins Part III by making their contracts explicit before the book turns to embeddings and sequences. It separates rank from vector dimension, attaches a meaning to each axis, and follows how transformations preserve or discard distinctions. An array can have a valid shape while carrying the wrong meaning for the operation applied to it.</p>
 <section id="a-tensor-with-named-axes" class="level3">
 <h3 class="anchored" data-anchor-id="a-tensor-with-named-axes">A tensor with named axes</h3>
-<p>The chapter uses a constructed batch containing two sequences, four positions per sequence, and three measured features per position. Its shape is therefore <span class="math inline">\(2\times4\times3\)</span>, written more generally as <span class="math inline">\(B\times S\times D\)</span> for batch, sequence position, and feature dimension.</p>
+<p>The running example uses the batch just described. Its shape is <span class="math inline">\(2\times4\times3\)</span>, written more generally as <span class="math inline">\(B\times S\times D\)</span> for batch, sequence position, and feature dimension.</p>
 <p>The first diagram only counts axes. It does not establish the meaning of any axis, which is why the next examples name them. Keep that distinction in view throughout the chapter: shape provides a computational interface; the representation contract tells the operation what the stored positions stand for.</p>
 <div id="cell-fig-tensor-ranks" class="cell" data-execution_count="1">
 <details class="code-fold">
@@ -591,7 +591,7 @@ Figure&nbsp;17.1: Scalar, vector, matrix, and rank-three tensor describe differe
 <h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
 <section id="a-tensor-is-an-array-with-a-shape" class="level3">
 <h3 class="anchored" data-anchor-id="a-tensor-is-an-array-with-a-shape">A tensor is an array with a shape</h3>
-<p>A scalar contains one numerical value. A vector arranges values along one axis. A matrix uses two axes. In machine-learning software, <em>tensor</em> is the general name for an array with any number of axes, including these simpler cases.</p>
+<p>A scalar contains one numerical value. A vector arranges values along one axis. A matrix uses two axes. In machine-learning software, <em>tensor</em> is the general name for an array with any number of axes, including these simpler cases. The term names the container; it does not tell the reader what the entries represent.</p>
 <p>The shape states how many positions exist along each axis. A tensor with shape <code>(2, 4, 3)</code> contains <span class="math inline">\(2\times4\times3=24\)</span> values. Shape does not say whether the first axis contains patients, images, documents, or independent simulation runs. It also does not say whether the final three values are colour channels, sensor measurements, or coordinates learned by a network.</p>
 </section>
 <section id="axis-labels-supply-the-missing-meaning" class="level3">
@@ -678,7 +678,7 @@ Figure&nbsp;17.3: A model receives an encoded input and produces successive nume
 <section id="indexing-selects-positions-along-named-axes" class="level3">
 <h3 class="anchored" data-anchor-id="indexing-selects-positions-along-named-axes">Indexing selects positions along named axes</h3>
 <p>Let <code>H</code> have shape <code>(B, S, D)</code>. Then <code>H[1, 2, 0]</code> selects one number: feature 0 at position 2 of sequence 1. <code>H[1, 2, :]</code> selects the complete feature vector at that position. <code>H[1, :, :]</code> selects one sequence, and <code>H[:, 2, :]</code> selects the third position from every sequence.</p>
-<div id="b22134ab" class="cell" data-execution_count="4">
+<div id="2d590930" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>B,S,D<span class="op">=</span><span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span></span>
@@ -734,7 +734,7 @@ Figure&nbsp;17.4: Indexing, permutation, and reshaping preserve different parts 
 <section id="broadcasting-aligns-compatible-axes" class="level3">
 <h3 class="anchored" data-anchor-id="broadcasting-aligns-compatible-axes">Broadcasting aligns compatible axes</h3>
 <p>Broadcasting applies an operation between arrays of different shapes by treating selected length-one or absent axes as repeated. Adding a bias vector of shape <code>(D,)</code> to <code>H</code> adds the same feature-specific bias at every batch item and sequence position. Adding a position offset of shape <code>(S, 1)</code> changes every feature at a position by the same amount.</p>
-<div id="e05cb550" class="cell" data-execution_count="6">
+<div id="92cd85b2" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>feature_bias<span class="op">=</span>np.array([<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>])             <span class="co"># (D,)</span></span>
@@ -818,7 +818,7 @@ W\in\mathbb{R}^{D_{\mathrm{out}}\times D_{\mathrm{in}}},
 Z_{bsd}=\sum_{k=1}^{D_{\mathrm{in}}}H_{bsk}W_{dk}+b_d.
 \]</span></p>
 <p>The indices <span class="math inline">\(b\)</span> and <span class="math inline">\(s\)</span> remain in the output. The input-feature index <span class="math inline">\(k\)</span> is summed out, and the output-feature index <span class="math inline">\(d\)</span> is introduced by the rows of <span class="math inline">\(W\)</span>. The equation therefore states both the numerical calculation and the axis transformation.</p>
-<div id="768ad198" class="cell" data-execution_count="8">
+<div id="812bc878" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rng<span class="op">=</span>np.random.default_rng(<span class="dv">16</span>)</span>
@@ -891,7 +891,7 @@ Figure&nbsp;17.6: An invertible change of basis alters coordinates, distances al
 </section>
 <section id="pytorch-separates-logical-shape-from-physical-layout" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-separates-logical-shape-from-physical-layout">PyTorch separates logical shape from physical layout</h3>
-<div id="dfc78b65" class="cell" data-execution_count="10">
+<div id="1a461d24" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -1538,13 +1538,13 @@ Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How T
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>Parts I and II defined models, gradients, updates, and the systems that execute them. Every one of those operations acts on numerical arrays. The values alone do not identify what an axis means, which entries belong to one observation, or whether two coordinates can be compared. Those meanings come from the representation and the operations that produce it.</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>Start with a small batch: two sequences, four positions in each sequence, and three measured values at every position. A program can store those 24 numbers in an array of shape $2\times4\times3$. It cannot infer from that shape whether its first axis identifies documents, households, or images; whether its second axis is time, token position, or a spatial location; or what the final three values describe.</span>
 <span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>This chapter begins Part III by making those array contracts explicit before the book turns to embeddings and sequences. It separates rank from vector dimension, attaches a meaning to each axis, and follows how transformations preserve or discard distinctions. A tensor can have a valid shape while carrying the wrong semantics for the operation applied to it.</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>The models, gradients, updates, and systems in Parts I and II all operate on arrays of this kind. This chapter begins Part III by making their contracts explicit before the book turns to embeddings and sequences. It separates rank from vector dimension, attaches a meaning to each axis, and follows how transformations preserve or discard distinctions. An array can have a valid shape while carrying the wrong meaning for the operation applied to it.</span>
 <span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A tensor with named axes</span></span>
 <span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>The chapter uses a constructed batch containing two sequences, four positions per sequence, and three measured features per position. Its shape is therefore $2\times4\times3$, written more generally as $B\times S\times D$ for batch, sequence position, and feature dimension.</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>The running example uses the batch just described. Its shape is $2\times4\times3$, written more generally as $B\times S\times D$ for batch, sequence position, and feature dimension.</span>
 <span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>The first diagram only counts axes. It does not establish the meaning of any axis, which is why the next examples name them. Keep that distinction in view throughout the chapter: shape provides a computational interface; the representation contract tells the operation what the stored positions stand for.</span>
 <span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a></span>
@@ -1585,7 +1585,7 @@ Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How T
 <span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a><span class="fu">### A tensor is an array with a shape</span></span>
 <span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>A scalar contains one numerical value. A vector arranges values along one axis. A matrix uses two axes. In machine-learning software, *tensor* is the general name for an array with any number of axes, including these simpler cases.</span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>A scalar contains one numerical value. A vector arranges values along one axis. A matrix uses two axes. In machine-learning software, *tensor* is the general name for an array with any number of axes, including these simpler cases. The term names the container; it does not tell the reader what the entries represent.</span>
 <span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a>The shape states how many positions exist along each axis. A tensor with shape <span class="in">`(2, 4, 3)`</span> contains $2\times4\times3=24$ values. Shape does not say whether the first axis contains patients, images, documents, or independent simulation runs. It also does not say whether the final three values are colour channels, sensor measurements, or coordinates learned by a network.</span>
 <span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a></span>

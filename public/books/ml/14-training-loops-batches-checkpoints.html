@@ -538,11 +538,11 @@ window.Quarto = {
 
 <section id="the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
-<p>Chapter 13 defined the state transition inside an optimiser update. That transition only has a clear meaning if the surrounding loop specifies which observations contribute to it, when parameters change, when the model is evaluated, and what state survives an interruption. Two scripts can use the same architecture, loss, and optimiser but implement different learning procedures through their batch denominators, accumulation boundaries, mode changes, or checkpoint policy.</p>
-<p>This chapter follows that surrounding state machine: loading data, batching, accumulation, validation, logging, checkpoint selection, and restart. The purpose is to state the dependencies that make a reported result reproducible, not to add a longer training-script template.</p>
+<p>Chapter 13 described one optimiser update: a gradient and the optimiser’s current state produce a new set of parameters. Training requires that update to be repeated over data. The surrounding loop determines which observations contribute before the update, when the parameters are changed, when their current performance is measured, and what can be recovered after an interruption.</p>
+<p>Two scripts can share an architecture, loss, and optimiser while still fitting different procedures. One may update after every micro-batch; another may accumulate gradients across several. One may select a checkpoint from validation results; another may save only the most recent weights. This chapter follows those choices through data loading, batching, evaluation, logging, checkpoint selection, and restart.</p>
 <section id="one-update-inside-its-lifecycle" class="level3">
 <h3 class="anchored" data-anchor-id="one-update-inside-its-lifecycle">One update inside its lifecycle</h3>
-<p>Read the diagram from left to right as a dependency order. Backward passes add to an accumulation window, whereas an optimiser update occurs only at its declared boundary. Validation and checkpointing run less often, but they refer to the parameter state produced by that boundary; treating them as independent side tasks loses the state that selected the reported model.</p>
+<p>Read the diagram from left to right. A backward pass can add gradients to an accumulation window, but an optimiser update happens only at its declared boundary. Validation and checkpointing run less often, yet each refers to the parameter state produced at one of those boundaries. The timing therefore determines which state was measured, selected, or saved.</p>
 <div id="cell-fig-update-lifecycle" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
@@ -600,7 +600,7 @@ Figure&nbsp;15.1: One optimiser update sits inside a larger cycle of data loadin
 <section id="a-loop-coordinates-several-clocks" class="level3">
 <h3 class="anchored" data-anchor-id="a-loop-coordinates-several-clocks">A loop coordinates several clocks</h3>
 <p>An observation is one training case. A mini-batch is the set of observations whose combined gradient defines an optimiser update. A micro-batch is the subset processed in memory at one time. If the entire mini-batch fits, mini-batch and micro-batch are the same. Gradient accumulation allows several micro-batches to contribute to one update.</p>
-<p>An epoch is one traversal of the training dataset under a specified sampler. An update is one parameter change. These clocks are related but not interchangeable. With 10,000 observations, an effective batch of 100 gives approximately 100 updates per epoch. Processing micro-batches of 25 with four-way accumulation still gives approximately 100 updates, not 400.</p>
+<p>An epoch is one traversal of the training dataset under a specified sampler. An update is one parameter change. These clocks are related but not interchangeable. With 10,000 observations, an effective batch of 100 gives approximately 100 updates per epoch. Processing micro-batches of 25 with four-way accumulation still gives approximately 100 updates, because four passes contribute to each parameter change.</p>
 <div id="cell-fig-batch-hierarchy" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
@@ -816,7 +816,7 @@ Figure&nbsp;15.6: Best, latest, and archival checkpoints serve different operati
 <section id="a-sample-weighted-training-epoch" class="level3">
 <h3 class="anchored" data-anchor-id="a-sample-weighted-training-epoch">A sample-weighted training epoch</h3>
 <p>The following function accumulates summed losses and counts observations. Its update boundary occurs after <code>accumulation_steps</code> micro-batches or at the end of the loader. Before the optimiser step, every accumulated gradient is divided by the actual number of observations in that window. This handles an incomplete final window correctly for a loss whose unreduced values add across observations.</p>
-<div id="d639b566" class="cell" data-execution_count="7">
+<div id="c51ea0fb" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> train_epoch(model, loader, loss_sum, optimizer, accumulation_steps<span class="op">=</span><span class="dv">4</span>,</span>
@@ -852,7 +852,7 @@ Figure&nbsp;15.6: Best, latest, and archival checkpoints serve different operati
 </section>
 <section id="evaluation-separates-state-change-from-measurement" class="level3">
 <h3 class="anchored" data-anchor-id="evaluation-separates-state-change-from-measurement">Evaluation separates state change from measurement</h3>
-<div id="2fe8b981" class="cell" data-execution_count="8">
+<div id="2314911b" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> evaluate(model, loader, loss_sum):</span>
@@ -871,7 +871,7 @@ Figure&nbsp;15.6: Best, latest, and archival checkpoints serve different operati
 </section>
 <section id="a-complete-outer-loop-assigns-distinct-responsibilities" class="level3">
 <h3 class="anchored" data-anchor-id="a-complete-outer-loop-assigns-distinct-responsibilities">A complete outer loop assigns distinct responsibilities</h3>
-<div id="fb774b0c" class="cell" data-execution_count="9">
+<div id="01035ba2" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(start_epoch, total_epochs):</span>
@@ -893,7 +893,7 @@ Figure&nbsp;15.6: Best, latest, and archival checkpoints serve different operati
 </section>
 <section id="checkpoint-contents-follow-the-promised-restart" class="level3">
 <h3 class="anchored" data-anchor-id="checkpoint-contents-follow-the-promised-restart">Checkpoint contents follow the promised restart</h3>
-<div id="8aaf7756" class="cell" data-execution_count="10">
+<div id="0757638f" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> checkpoint_state(model, optimizer, scheduler, epoch, update, best_metric):</span>
@@ -1562,13 +1562,13 @@ Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, Vincent Larivière, Ali
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Chapter 13 defined the state transition inside an optimiser update. That transition only has a clear meaning if the surrounding loop specifies which observations contribute to it, when parameters change, when the model is evaluated, and what state survives an interruption. Two scripts can use the same architecture, loss, and optimiser but implement different learning procedures through their batch denominators, accumulation boundaries, mode changes, or checkpoint policy.</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Chapter 13 described one optimiser update: a gradient and the optimiser's current state produce a new set of parameters. Training requires that update to be repeated over data. The surrounding loop determines which observations contribute before the update, when the parameters are changed, when their current performance is measured, and what can be recovered after an interruption.</span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>This chapter follows that surrounding state machine: loading data, batching, accumulation, validation, logging, checkpoint selection, and restart. The purpose is to state the dependencies that make a reported result reproducible, not to add a longer training-script template.</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>Two scripts can share an architecture, loss, and optimiser while still fitting different procedures. One may update after every micro-batch; another may accumulate gradients across several. One may select a checkpoint from validation results; another may save only the most recent weights. This chapter follows those choices through data loading, batching, evaluation, logging, checkpoint selection, and restart.</span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### One update inside its lifecycle</span></span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>Read the diagram from left to right as a dependency order. Backward passes add to an accumulation window, whereas an optimiser update occurs only at its declared boundary. Validation and checkpointing run less often, but they refer to the parameter state produced by that boundary; treating them as independent side tasks loses the state that selected the reported model.</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>Read the diagram from left to right. A backward pass can add gradients to an accumulation window, but an optimiser update happens only at its declared boundary. Validation and checkpointing run less often, yet each refers to the parameter state produced at one of those boundaries. The timing therefore determines which state was measured, selected, or saved.</span>
 <span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-update-lifecycle</span></span>
@@ -1617,7 +1617,7 @@ Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, Vincent Larivière, Ali
 <span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>An observation is one training case. A mini-batch is the set of observations whose combined gradient defines an optimiser update. A micro-batch is the subset processed in memory at one time. If the entire mini-batch fits, mini-batch and micro-batch are the same. Gradient accumulation allows several micro-batches to contribute to one update.</span>
 <span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>An epoch is one traversal of the training dataset under a specified sampler. An update is one parameter change. These clocks are related but not interchangeable. With 10,000 observations, an effective batch of 100 gives approximately 100 updates per epoch. Processing micro-batches of 25 with four-way accumulation still gives approximately 100 updates, not 400.</span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>An epoch is one traversal of the training dataset under a specified sampler. An update is one parameter change. These clocks are related but not interchangeable. With 10,000 observations, an effective batch of 100 gives approximately 100 updates per epoch. Processing micro-batches of 25 with four-way accumulation still gives approximately 100 updates, because four passes contribute to each parameter change.</span>
 <span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-batch-hierarchy</span></span>

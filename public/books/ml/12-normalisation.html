@@ -475,7 +475,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
-  <li><a href="#normalisation-changes-the-coordinate-system" id="toc-normalisation-changes-the-coordinate-system" class="nav-link" data-scroll-target="#normalisation-changes-the-coordinate-system">Normalisation changes the coordinate system</a></li>
+  <li><a href="#a-value-needs-a-reference" id="toc-a-value-needs-a-reference" class="nav-link" data-scroll-target="#a-value-needs-a-reference">A value needs a reference</a></li>
   <li><a href="#the-reference-set-determines-the-meaning" id="toc-the-reference-set-determines-the-meaning" class="nav-link" data-scroll-target="#the-reference-set-determines-the-meaning">The reference set determines the meaning</a></li>
   <li><a href="#centring-and-scaling-do-different-jobs" id="toc-centring-and-scaling-do-different-jobs" class="nav-link" data-scroll-target="#centring-and-scaling-do-different-jobs">Centring and scaling do different jobs</a></li>
   </ul></li>
@@ -535,8 +535,8 @@ window.Quarto = {
 
 <section id="the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
-<p>Chapter 11 used initialisation to make the first forward and backward pass workable. During training, earlier parameter updates can still change the scale and offset reaching later layers. Those changes may be meaningful, but they can also make optimisation sensitive to parameter scale, numerical precision, or the composition of a mini-batch.</p>
-<p>Normalisation constructs a reference from selected values and expresses activations relative to it. Subtracting and dividing are straightforward. The substantive decision is which values may contribute to the reference. Batch normalisation shares statistics across observations; layer normalisation uses values within one observation or token; group normalisation uses channel groups; RMS normalisation rescales a vector without subtracting its mean. These choices create distinct information dependencies and distinct training–inference behaviour.</p>
+<p>Chapter 11 chose initial weights so that the first forward and backward pass could work. After training begins, updates change the values reaching later layers. A layer may then receive values with a different offset or spread from one batch to the next, even though its own parameters have not changed.</p>
+<p>Normalisation gives those values a reference scale. The arithmetic is simple: compare a value with a selected set of values, then recalculate it relative to that set. The consequential choice is which values belong in the reference. That choice determines whether one observation can affect another and whether the same rule can be used during training and evaluation.</p>
 <section id="a-visible-reference-choice" class="level3">
 <h3 class="anchored" data-anchor-id="a-visible-reference-choice">A visible reference choice</h3>
 <p>The chapter begins with a matrix containing five observations and four features. Its rows have different overall levels, while its columns have different scales. This makes the choice of normalisation axis visible.</p>
@@ -598,16 +598,13 @@ Figure&nbsp;13.1: Batch and layer normalisation use different reference sets, ev
 <div id="concept-normalisation" class="concept-box concept-core" data-term="Normalisation" data-domain="Training and evaluation">
 <p><strong>Normalisation.</strong> A transformation that expresses values relative to a selected reference set. The reference can be a batch, one observation, a channel group, or a vector; that choice determines which values influence one another and how training differs from inference.</p>
 </div>
-<div id="concept-normalisation-variants" class="concept-box concept-distinction" data-term="Batch, layer, group, and RMS normalisation" data-domain="Training and evaluation">
-<p><strong>Batch, layer, group, and RMS normalisation.</strong> Batch normalisation uses statistics across observations. Layer normalisation uses features within one observation or token. Group normalisation uses channel groups, while RMS normalisation rescales a vector without subtracting its mean. These are different reference choices, not interchangeable rescaling labels.</p>
-</div>
 </section>
 </section>
 <section id="level-1---intuition" class="level2">
 <h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
-<section id="normalisation-changes-the-coordinate-system" class="level3">
-<h3 class="anchored" data-anchor-id="normalisation-changes-the-coordinate-system">Normalisation changes the coordinate system</h3>
-<p>Suppose a temperature is reported as <span class="math inline">\(30\)</span>. The number is difficult to interpret without knowing the unit and a relevant range. Saying that it is two standard deviations above the seasonal mean supplies a reference. Normalisation performs a related operation on model activations: it describes a value relative to a set of other values.</p>
+<section id="a-value-needs-a-reference" class="level3">
+<h3 class="anchored" data-anchor-id="a-value-needs-a-reference">A value needs a reference</h3>
+<p>A value of <span class="math inline">\(30\)</span> has little meaning without its unit and a comparison range. A value two standard deviations above a relevant mean tells us more because it supplies a reference. Normalisation does the same for model activations: it describes a value relative to selected other values.</p>
 <p>This transformation does not make every activation uninformative or identical. It removes selected location and scale information, then retains the pattern of relative deviations. A value above its reference mean remains positive; a value below it remains negative. Learned scale and shift parameters can subsequently restore a useful magnitude and offset.</p>
 </section>
 <section id="the-reference-set-determines-the-meaning" class="level3">
@@ -695,7 +692,7 @@ Figure&nbsp;13.3: Small mini-batches produce noisier estimates of the same popul
 </div>
 </div>
 </div>
-<p>The noise can have a regularising effect, but it also makes behaviour depend on batch construction. When memory constraints force very small batches, batch normalisation can become unreliable. Synchronized batch normalisation enlarges the reference set across devices at the cost of communication.</p>
+<p>The noise can have a regularising effect, but it also makes behaviour depend on batch construction. When memory constraints force very small batches, batch normalisation can become unreliable.</p>
 </section>
 <section id="evaluation-uses-the-training-reference-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="evaluation-uses-the-training-reference-distribution">Evaluation uses the training reference distribution</h3>
@@ -737,6 +734,9 @@ Figure&nbsp;13.4: Batch statistics centre each current batch, while stored train
 <section id="layer-group-and-rms-normalisation-avoid-batch-dependence" class="level3">
 <h3 class="anchored" data-anchor-id="layer-group-and-rms-normalisation-avoid-batch-dependence">Layer, group, and RMS normalisation avoid batch dependence</h3>
 <p>Layer normalisation calculates statistics across the feature dimensions of one observation or token <span class="citation" data-cites="ba2016layernorm">(<a href="#ref-ba2016layernorm" role="doc-biblioref">Ba, Kiros, and Hinton 2016</a>)</span>. Group normalisation divides channels within one observation into groups and normalises each group <span class="citation" data-cites="wu2018groupnorm">(<a href="#ref-wu2018groupnorm" role="doc-biblioref">Wu and He 2018</a>)</span>. RMS normalisation divides by the root mean square within a vector but does not subtract its mean <span class="citation" data-cites="zhang2019rmsnorm">(<a href="#ref-zhang2019rmsnorm" role="doc-biblioref">Zhang and Sennrich 2019</a>)</span>. None requires running batch statistics.</p>
+<div id="concept-normalisation-variants" class="concept-box concept-distinction" data-term="Batch, layer, group, and RMS normalisation" data-domain="Training and evaluation">
+<p><strong>Batch, layer, group, and RMS normalisation.</strong> Batch normalisation uses statistics across observations. Layer normalisation uses features within one observation or token. Group normalisation uses channel groups, while RMS normalisation rescales a vector without subtracting its mean. These are different reference choices, not interchangeable rescaling labels.</p>
+</div>
 <div id="cell-fig-method-comparison" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
@@ -795,7 +795,7 @@ Y_{ij}=\gamma_j\frac{X_{ij}-\mu_j}{\sqrt{\sigma_j^2+\varepsilon}}+\beta_j.
 \sigma_i^2=\frac{1}{D}\sum_{j=1}^{D}(X_{ij}-\mu_i)^2.
 \]</span></p>
 <p>Now the feature index <span class="math inline">\(j\)</span> is reduced. For sequence data with shape batch <span class="math inline">\(\times\)</span> tokens <span class="math inline">\(\times\)</span> features, layer normalisation is ordinarily applied across features for each token separately. The token does not borrow statistics from other tokens or other sequences.</p>
-<div id="1fdf53a0" class="cell" data-execution_count="6">
+<div id="96039949" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> batch_norm_manual(x, gamma, beta, eps<span class="op">=</span><span class="fl">1e-5</span>):</span>
@@ -832,7 +832,7 @@ r_i=\sqrt{\frac{1}{D}\sum_{j=1}^{D}x_{ij}^{2}+\varepsilon},\qquad
 y_{ij}=\gamma_j\frac{x_{ij}}{r_i}.
 \]</span></p>
 <p>There is no <span class="math inline">\(μ_i\)</span> and commonly no learned beta. RMS normalisation therefore provides re-scaling invariance but not re-centring invariance. The distinction matters when a vector’s mean carries information or when reducing arithmetic and memory movement is valuable.</p>
-<div id="d4dbbea0" class="cell" data-execution_count="7">
+<div id="96415ce9" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rms_norm_manual(x, weight, eps<span class="op">=</span><span class="fl">1e-5</span>):</span>
@@ -854,7 +854,7 @@ RMS output mean:  0.953</code></pre>
 </section>
 <section id="pytorch-encodes-axes-in-the-module-configuration" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-encodes-axes-in-the-module-configuration">PyTorch encodes axes in the module configuration</h3>
-<div id="685e18e1" class="cell" data-execution_count="8">
+<div id="7be53283" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -882,7 +882,7 @@ BN train/eval outputs equal: False</code></pre>
 </div>
 </div>
 <p>The final result is false because the evaluation calculation uses running estimates accumulated by the module, while the training calculation uses the current batch. With real training, running estimates aggregate information over many batches. A freshly created layer has seen only the single batch used here.</p>
-<div id="835c0570" class="cell" data-execution_count="9">
+<div id="66ec268a" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ManualRMSNorm(nn.Module):</span>
@@ -1486,9 +1486,9 @@ Zhang, Biao, and Rico Sennrich. 2019. <span>“Root Mean Square Layer Normalizat
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Chapter 11 used initialisation to make the first forward and backward pass workable. During training, earlier parameter updates can still change the scale and offset reaching later layers. Those changes may be meaningful, but they can also make optimisation sensitive to parameter scale, numerical precision, or the composition of a mini-batch.</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>Chapter 11 chose initial weights so that the first forward and backward pass could work. After training begins, updates change the values reaching later layers. A layer may then receive values with a different offset or spread from one batch to the next, even though its own parameters have not changed.</span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>Normalisation constructs a reference from selected values and expresses activations relative to it. Subtracting and dividing are straightforward. The substantive decision is which values may contribute to the reference. Batch normalisation shares statistics across observations; layer normalisation uses values within one observation or token; group normalisation uses channel groups; RMS normalisation rescales a vector without subtracting its mean. These choices create distinct information dependencies and distinct training--inference behaviour.</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>Normalisation gives those values a reference scale. The arithmetic is simple: compare a value with a selected set of values, then recalculate it relative to that set. The consequential choice is which values belong in the reference. That choice determines whether one observation can affect another and whether the same rule can be used during training and evaluation.</span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A visible reference choice</span></span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
@@ -1544,117 +1544,117 @@ Zhang, Biao, and Rico Sennrich. 2019. <span>“Root Mean Square Layer Normalizat
 <span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>**Normalisation.** A transformation that expresses values relative to a selected reference set. The reference can be a batch, one observation, a channel group, or a vector; that choice determines which values influence one another and how training differs from inference.</span>
 <span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-normalisation-variants data-term="Batch, layer, group, and RMS normalisation" data-domain="Training and evaluation"}</span>
-<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a>**Batch, layer, group, and RMS normalisation.** Batch normalisation uses statistics across observations. Layer normalisation uses features within one observation or token. Group normalisation uses channel groups, while RMS normalisation rescales a vector without subtracting its mean. These are different reference choices, not interchangeable rescaling labels.</span>
-<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="fu">### A value needs a reference</span></span>
 <span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a>A value of $30$ has little meaning without its unit and a comparison range. A value two standard deviations above a relevant mean tells us more because it supplies a reference. Normalisation does the same for model activations: it describes a value relative to selected other values.</span>
 <span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a><span class="fu">### Normalisation changes the coordinate system</span></span>
+<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>This transformation does not make every activation uninformative or identical. It removes selected location and scale information, then retains the pattern of relative deviations. A value above its reference mean remains positive; a value below it remains negative. Learned scale and shift parameters can subsequently restore a useful magnitude and offset.</span>
 <span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a>Suppose a temperature is reported as $30$. The number is difficult to interpret without knowing the unit and a relevant range. Saying that it is two standard deviations above the seasonal mean supplies a reference. Normalisation performs a related operation on model activations: it describes a value relative to a set of other values.</span>
+<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="fu">### The reference set determines the meaning</span></span>
 <span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>This transformation does not make every activation uninformative or identical. It removes selected location and scale information, then retains the pattern of relative deviations. A value above its reference mean remains positive; a value below it remains negative. Learned scale and shift parameters can subsequently restore a useful magnitude and offset.</span>
+<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>In the running matrix, batch normalisation treats each column as a feature. The value $23$ in the final row is compared with the other values in its column: $7$, $11$, $13$, and $17$. Layer normalisation instead compares $23$ with $11$, $15$, and $14$ in the same row. Its normalised value therefore answers a different question.</span>
 <span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### The reference set determines the meaning</span></span>
+<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>This distinction also identifies a dependency. Under batch normalisation, changing one observation can alter the normalised outputs of other observations in the mini-batch. Under layer normalisation, changing one observation does not change another observation's result. That independence is important for variable batch sizes and sequence models.</span>
 <span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>In the running matrix, batch normalisation treats each column as a feature. The value $23$ in the final row is compared with the other values in its column: $7$, $11$, $13$, and $17$. Layer normalisation instead compares $23$ with $11$, $15$, and $14$ in the same row. Its normalised value therefore answers a different question.</span>
+<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a><span class="fu">### Centring and scaling do different jobs</span></span>
 <span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>This distinction also identifies a dependency. Under batch normalisation, changing one observation can alter the normalised outputs of other observations in the mini-batch. Under layer normalisation, changing one observation does not change another observation's result. That independence is important for variable batch sizes and sequence models.</span>
+<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>Subtracting a mean recentres values around zero. Dividing by a standard deviation expresses them in units of spread. RMS normalisation performs the second operation without the first: it controls vector magnitude while retaining information in the mean. Normalisation is therefore not one indivisible recipe.</span>
 <span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a><span class="fu">### Centring and scaling do different jobs</span></span>
-<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a>Subtracting a mean recentres values around zero. Dividing by a standard deviation expresses them in units of spread. RMS normalisation performs the second operation without the first: it controls vector magnitude while retaining information in the mean. Normalisation is therefore not one indivisible recipe.</span>
-<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-normalisation-vector</span></span>
-<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Centring changes the offset, scaling changes the spread, and a learned affine transformation sets a new working range."</span></span>
-<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Four aligned dot plots show an original vector, its centred values, its standardised values, and values after a learned scale and shift."</span></span>
-<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>vector <span class="op">=</span> np.array([<span class="fl">2.0</span>, <span class="fl">4.0</span>, <span class="fl">7.0</span>, <span class="fl">11.0</span>, <span class="fl">16.0</span>])</span>
-<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a>centred <span class="op">=</span> vector <span class="op">-</span> vector.mean()</span>
-<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a>normalised <span class="op">=</span> centred <span class="op">/</span> vector.std()</span>
-<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a>gamma, beta <span class="op">=</span> <span class="fl">1.5</span>, <span class="fl">0.8</span></span>
-<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>affine <span class="op">=</span> gamma <span class="op">*</span> normalised <span class="op">+</span> beta</span>
-<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">4</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">6</span>), sharex<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, values, title, colour <span class="kw">in</span> <span class="bu">zip</span>(</span>
-<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>    axes, [vector, centred, normalised, affine],</span>
-<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Original"</span>, <span class="st">"Subtract mean"</span>, <span class="st">"Divide by spread"</span>, <span class="st">"Learned scale and shift"</span>],</span>
-<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>    [grey, orange, teal, purple]):</span>
-<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a>    ax.scatter(values, np.zeros_like(values), s<span class="op">=</span><span class="dv">75</span>, color<span class="op">=</span>colour, zorder<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a>    ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"#9aa5ad"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_title(title, loc<span class="op">=</span><span class="st">"left"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(values.<span class="bu">min</span>()<span class="op">-</span><span class="dv">2</span>, values.<span class="bu">max</span>()<span class="op">+</span><span class="dv">2</span>)</span>
-<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-normalisation-vector</span></span>
+<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Centring changes the offset, scaling changes the spread, and a learned affine transformation sets a new working range."</span></span>
+<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Four aligned dot plots show an original vector, its centred values, its standardised values, and values after a learned scale and shift."</span></span>
+<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>vector <span class="op">=</span> np.array([<span class="fl">2.0</span>, <span class="fl">4.0</span>, <span class="fl">7.0</span>, <span class="fl">11.0</span>, <span class="fl">16.0</span>])</span>
+<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>centred <span class="op">=</span> vector <span class="op">-</span> vector.mean()</span>
+<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>normalised <span class="op">=</span> centred <span class="op">/</span> vector.std()</span>
+<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a>gamma, beta <span class="op">=</span> <span class="fl">1.5</span>, <span class="fl">0.8</span></span>
+<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a>affine <span class="op">=</span> gamma <span class="op">*</span> normalised <span class="op">+</span> beta</span>
+<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">4</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">6</span>), sharex<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, values, title, colour <span class="kw">in</span> <span class="bu">zip</span>(</span>
+<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>    axes, [vector, centred, normalised, affine],</span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"Original"</span>, <span class="st">"Subtract mean"</span>, <span class="st">"Divide by spread"</span>, <span class="st">"Learned scale and shift"</span>],</span>
+<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a>    [grey, orange, teal, purple]):</span>
+<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a>    ax.scatter(values, np.zeros_like(values), s<span class="op">=</span><span class="dv">75</span>, color<span class="op">=</span>colour, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>    ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"#9aa5ad"</span>, linewidth<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_title(title, loc<span class="op">=</span><span class="st">"left"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(values.<span class="bu">min</span>()<span class="op">-</span><span class="dv">2</span>, values.<span class="bu">max</span>()<span class="op">+</span><span class="dv">2</span>)</span>
+<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a>The standardised vector has mean zero and variance close to one. The final transformation no longer has those exact statistics because $γ=1.5$ and $β=0.8$. This is intentional. Normalisation provides a controlled reference frame; it does not force every layer to remain permanently standard normal.</span>
+<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>Once the reference is specified, the implementation must calculate its statistics, decide when they are reused, and preserve the dependencies that choice implies. Level 2 follows these operations for batch, layer, group, and RMS normalisation.</span>
 <span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>The standardised vector has mean zero and variance close to one. The final transformation no longer has those exact statistics because $γ=1.5$ and $β=0.8$. This is intentional. Normalisation provides a controlled reference frame; it does not force every layer to remain permanently standard normal.</span>
+<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
 <span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a>Once the reference is specified, the implementation must calculate its statistics, decide when they are reused, and preserve the dependencies that choice implies. Level 2 follows these operations for batch, layer, group, and RMS normalisation.</span>
+<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a><span class="fu">### A normalisation layer performs three operations</span></span>
 <span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a>First, the layer selects a set of values and calculates a statistic from them. For standard batch or layer normalisation, these statistics are a mean and variance. Second, it subtracts the mean and divides by the square root of the variance plus a small constant. Third, it applies learned scale and shift parameters, conventionally called gamma ($γ$) and beta ($β$).</span>
 <span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a><span class="fu">### A normalisation layer performs three operations</span></span>
+<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>The small constant epsilon prevents division by zero when a reference set has little or no variation. Gamma and beta give the model control over the resulting coordinate system. Without them, every normalised channel would be constrained to a fixed location and scale even when the task benefits from another range.</span>
 <span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>First, the layer selects a set of values and calculates a statistic from them. For standard batch or layer normalisation, these statistics are a mean and variance. Second, it subtracts the mean and divides by the square root of the variance plus a small constant. Third, it applies learned scale and shift parameters, conventionally called gamma ($γ$) and beta ($β$).</span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### Batch normalisation has separate training and evaluation mechanics</span></span>
 <span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a>The small constant epsilon prevents division by zero when a reference set has little or no variation. Gamma and beta give the model control over the resulting coordinate system. Without them, every normalised channel would be constrained to a fixed location and scale even when the task benefits from another range.</span>
+<span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a>During training, batch normalisation calculates statistics from the current mini-batch. It also updates running estimates of the feature means and variances. During evaluation, it uses those stored estimates rather than allowing the composition of a test batch to change a prediction. Calling the model's training or evaluation mode is therefore part of the mathematical behaviour, not an administrative detail.</span>
 <span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a><span class="fu">### Batch normalisation has separate training and evaluation mechanics</span></span>
+<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a>Small batches estimate population statistics noisily. The following simulation draws repeated mini-batches from the same population. Every dot is a valid batch mean, yet the range is much wider for two observations than for 128.</span>
 <span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>During training, batch normalisation calculates statistics from the current mini-batch. It also updates running estimates of the feature means and variances. During evaluation, it uses those stored estimates rather than allowing the composition of a test batch to change a prediction. Calling the model's training or evaluation mode is therefore part of the mathematical behaviour, not an administrative detail.</span>
-<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a>Small batches estimate population statistics noisily. The following simulation draws repeated mini-batches from the same population. Every dot is a valid batch mean, yet the range is much wider for two observations than for 128.</span>
-<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-batch-size-noise</span></span>
-<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Small mini-batches produce noisier estimates of the same population mean."</span></span>
-<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Box plots show wide distributions of estimated means at batch sizes two and four, narrowing progressively through batch size 128 around the true mean of three."</span></span>
-<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">124</span>)</span>
-<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a>batch_sizes <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>]</span>
-<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a>estimates <span class="op">=</span> [rng.normal(<span class="dv">3</span>, <span class="dv">2</span>, size<span class="op">=</span>(<span class="dv">600</span>, size)).mean(axis<span class="op">=</span><span class="dv">1</span>) <span class="cf">for</span> size <span class="kw">in</span> batch_sizes]</span>
-<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">4.8</span>))</span>
-<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a>parts <span class="op">=</span> ax.boxplot(estimates, positions<span class="op">=</span>np.arange(<span class="bu">len</span>(batch_sizes)), widths<span class="op">=</span><span class="fl">0.58</span>,</span>
-<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a>                   patch_artist<span class="op">=</span><span class="va">True</span>, showfliers<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> box <span class="kw">in</span> parts[<span class="st">"boxes"</span>]: box.<span class="bu">set</span>(facecolor<span class="op">=</span><span class="st">"#b9ddd8"</span>, edgecolor<span class="op">=</span>teal)</span>
-<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> median <span class="kw">in</span> parts[<span class="st">"medians"</span>]: median.<span class="bu">set</span>(color<span class="op">=</span>orange, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">3</span>, color<span class="op">=</span>blue, linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"Population mean"</span>)</span>
-<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(np.arange(<span class="bu">len</span>(batch_sizes)), batch_sizes)</span>
-<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Mini-batch size"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Estimated batch mean"</span>)</span>
-<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Sampling noise in batch statistics"</span>)<span class="op">;</span> ax.legend()</span>
-<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-batch-size-noise</span></span>
+<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Small mini-batches produce noisier estimates of the same population mean."</span></span>
+<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Box plots show wide distributions of estimated means at batch sizes two and four, narrowing progressively through batch size 128 around the true mean of three."</span></span>
+<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">124</span>)</span>
+<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a>batch_sizes <span class="op">=</span> [<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">128</span>]</span>
+<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a>estimates <span class="op">=</span> [rng.normal(<span class="dv">3</span>, <span class="dv">2</span>, size<span class="op">=</span>(<span class="dv">600</span>, size)).mean(axis<span class="op">=</span><span class="dv">1</span>) <span class="cf">for</span> size <span class="kw">in</span> batch_sizes]</span>
+<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">4.8</span>))</span>
+<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a>parts <span class="op">=</span> ax.boxplot(estimates, positions<span class="op">=</span>np.arange(<span class="bu">len</span>(batch_sizes)), widths<span class="op">=</span><span class="fl">0.58</span>,</span>
+<span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a>                   patch_artist<span class="op">=</span><span class="va">True</span>, showfliers<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> box <span class="kw">in</span> parts[<span class="st">"boxes"</span>]: box.<span class="bu">set</span>(facecolor<span class="op">=</span><span class="st">"#b9ddd8"</span>, edgecolor<span class="op">=</span>teal)</span>
+<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> median <span class="kw">in</span> parts[<span class="st">"medians"</span>]: median.<span class="bu">set</span>(color<span class="op">=</span>orange, linewidth<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">3</span>, color<span class="op">=</span>blue, linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"Population mean"</span>)</span>
+<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(np.arange(<span class="bu">len</span>(batch_sizes)), batch_sizes)</span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Mini-batch size"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Estimated batch mean"</span>)</span>
+<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Sampling noise in batch statistics"</span>)<span class="op">;</span> ax.legend()</span>
+<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a>The noise can have a regularising effect, but it also makes behaviour depend on batch construction. When memory constraints force very small batches, batch normalisation can become unreliable.</span>
+<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluation uses the training reference distribution</span></span>
 <span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a>The noise can have a regularising effect, but it also makes behaviour depend on batch construction. When memory constraints force very small batches, batch normalisation can become unreliable. Synchronized batch normalisation enlarges the reference set across devices at the cost of communication.</span>
-<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluation uses the training reference distribution</span></span>
-<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-batchnorm-train-eval</span></span>
-<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Batch statistics centre each current batch, while stored training statistics expose a shifted evaluation distribution."</span></span>
-<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A two-panel figure shows training and shifted evaluation value distributions, followed by bars comparing their output means under current-batch and stored-statistic normalisation."</span></span>
-<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">90</span>)</span>
-<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a>train <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1000</span>)</span>
-<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a>evaluation <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">300</span>)</span>
-<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a>train_mean, train_var <span class="op">=</span> train.mean(), train.var()</span>
-<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a>current_batch_output <span class="op">=</span> (evaluation <span class="op">-</span> evaluation.mean()) <span class="op">/</span> np.sqrt(evaluation.var() <span class="op">+</span> <span class="fl">1e-5</span>)</span>
-<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a>stored_output <span class="op">=</span> (evaluation <span class="op">-</span> train_mean) <span class="op">/</span> np.sqrt(train_var <span class="op">+</span> <span class="fl">1e-5</span>)</span>
-<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="dv">4</span>))</span>
-<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].hist(train, bins<span class="op">=</span><span class="dv">35</span>, density<span class="op">=</span><span class="va">True</span>, alpha<span class="op">=</span><span class="fl">.65</span>, color<span class="op">=</span>blue, label<span class="op">=</span><span class="st">"training"</span>)</span>
-<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].hist(evaluation, bins<span class="op">=</span><span class="dv">25</span>, density<span class="op">=</span><span class="va">True</span>, alpha<span class="op">=</span><span class="fl">.65</span>, color<span class="op">=</span>orange, label<span class="op">=</span><span class="st">"evaluation"</span>)</span>
-<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Input distributions"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_xlabel(<span class="st">"Activation"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend()</span>
-<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar([<span class="st">"Current batch</span><span class="ch">\n</span><span class="st">statistics"</span>, <span class="st">"Stored training</span><span class="ch">\n</span><span class="st">statistics"</span>],</span>
-<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a>            [current_batch_output.mean(), stored_output.mean()], color<span class="op">=</span>[teal, purple])</span>
-<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span>grey, linewidth<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Mean normalised output"</span>)</span>
-<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"The reference changes the interpretation"</span>)</span>
-<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-batchnorm-train-eval</span></span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Batch statistics centre each current batch, while stored training statistics expose a shifted evaluation distribution."</span></span>
+<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A two-panel figure shows training and shifted evaluation value distributions, followed by bars comparing their output means under current-batch and stored-statistic normalisation."</span></span>
+<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">90</span>)</span>
+<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a>train <span class="op">=</span> rng.normal(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1000</span>)</span>
+<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a>evaluation <span class="op">=</span> rng.normal(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">300</span>)</span>
+<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a>train_mean, train_var <span class="op">=</span> train.mean(), train.var()</span>
+<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a>current_batch_output <span class="op">=</span> (evaluation <span class="op">-</span> evaluation.mean()) <span class="op">/</span> np.sqrt(evaluation.var() <span class="op">+</span> <span class="fl">1e-5</span>)</span>
+<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a>stored_output <span class="op">=</span> (evaluation <span class="op">-</span> train_mean) <span class="op">/</span> np.sqrt(train_var <span class="op">+</span> <span class="fl">1e-5</span>)</span>
+<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="dv">4</span>))</span>
+<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].hist(train, bins<span class="op">=</span><span class="dv">35</span>, density<span class="op">=</span><span class="va">True</span>, alpha<span class="op">=</span><span class="fl">.65</span>, color<span class="op">=</span>blue, label<span class="op">=</span><span class="st">"training"</span>)</span>
+<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].hist(evaluation, bins<span class="op">=</span><span class="dv">25</span>, density<span class="op">=</span><span class="va">True</span>, alpha<span class="op">=</span><span class="fl">.65</span>, color<span class="op">=</span>orange, label<span class="op">=</span><span class="st">"evaluation"</span>)</span>
+<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Input distributions"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_xlabel(<span class="st">"Activation"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend()</span>
+<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar([<span class="st">"Current batch</span><span class="ch">\n</span><span class="st">statistics"</span>, <span class="st">"Stored training</span><span class="ch">\n</span><span class="st">statistics"</span>],</span>
+<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a>            [current_batch_output.mean(), stored_output.mean()], color<span class="op">=</span>[teal, purple])</span>
+<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span>grey, linewidth<span class="op">=</span><span class="dv">1</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Mean normalised output"</span>)</span>
+<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"The reference changes the interpretation"</span>)</span>
+<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a>Using current evaluation-batch statistics would hide the mean shift and make one prediction depend on whichever other cases happen to be evaluated with it. Stored training statistics preserve a stable function. The non-zero output under stored statistics is not a bug: it signals that evaluation activations differ from the training reference.</span>
+<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a><span class="fu">### Layer, group, and RMS normalisation avoid batch dependence</span></span>
 <span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a>Using current evaluation-batch statistics would hide the mean shift and make one prediction depend on whichever other cases happen to be evaluated with it. Stored training statistics preserve a stable function. The non-zero output under stored statistics is not a bug: it signals that evaluation activations differ from the training reference.</span>
+<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a>Layer normalisation calculates statistics across the feature dimensions of one observation or token <span class="co">[</span><span class="ot">@ba2016layernorm</span><span class="co">]</span>. Group normalisation divides channels within one observation into groups and normalises each group <span class="co">[</span><span class="ot">@wu2018groupnorm</span><span class="co">]</span>. RMS normalisation divides by the root mean square within a vector but does not subtract its mean <span class="co">[</span><span class="ot">@zhang2019rmsnorm</span><span class="co">]</span>. None requires running batch statistics.</span>
 <span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="fu">### Layer, group, and RMS normalisation avoid batch dependence</span></span>
-<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a>Layer normalisation calculates statistics across the feature dimensions of one observation or token <span class="co">[</span><span class="ot">@ba2016layernorm</span><span class="co">]</span>. Group normalisation divides channels within one observation into groups and normalises each group <span class="co">[</span><span class="ot">@wu2018groupnorm</span><span class="co">]</span>. RMS normalisation divides by the root mean square within a vector but does not subtract its mean <span class="co">[</span><span class="ot">@zhang2019rmsnorm</span><span class="co">]</span>. None requires running batch statistics.</span>
+<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-normalisation-variants data-term="Batch, layer, group, and RMS normalisation" data-domain="Training and evaluation"}</span>
+<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a>**Batch, layer, group, and RMS normalisation.** Batch normalisation uses statistics across observations. Layer normalisation uses features within one observation or token. Group normalisation uses channel groups, while RMS normalisation rescales a vector without subtracting its mean. These are different reference choices, not interchangeable rescaling labels.</span>
+<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-method-comparison</span></span>

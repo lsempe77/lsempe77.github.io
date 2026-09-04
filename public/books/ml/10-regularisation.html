@@ -477,7 +477,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#regularisation-expresses-a-preference-among-fitting-solutions" id="toc-regularisation-expresses-a-preference-among-fitting-solutions" class="nav-link" data-scroll-target="#regularisation-expresses-a-preference-among-fitting-solutions">Regularisation expresses a preference among fitting solutions</a></li>
   <li><a href="#different-methods-intervene-at-different-points" id="toc-different-methods-intervene-at-different-points" class="nav-link" data-scroll-target="#different-methods-intervene-at-different-points">Different methods intervene at different points</a></li>
-  <li><a href="#regularisation-cannot-substitute-for-representative-data" id="toc-regularisation-cannot-substitute-for-representative-data" class="nav-link" data-scroll-target="#regularisation-cannot-substitute-for-representative-data">Regularisation cannot substitute for representative data</a></li>
+  <li><a href="#regularisation-remains-part-of-model-development" id="toc-regularisation-remains-part-of-model-development" class="nav-link" data-scroll-target="#regularisation-remains-part-of-model-development">Regularisation remains part of model development</a></li>
   </ul></li>
   <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
   <ul class="collapse">
@@ -533,16 +533,16 @@ window.Quarto = {
 
 <section id="the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
-<p>Chapter 9 showed why a flexible fitted rule can follow sample-specific noise. Reducing the model’s nominal capacity is one response, but it is not the only one. Regularisation changes the learning procedure so that, among available fits, some are preferred: a penalty can make large parameters costly; dropout can train changing subnetworks; augmentation can add transformations judged label-preserving; and early stopping can select an earlier checkpoint.</p>
-<p>None of these operations repairs an invalid label, a leaking split, or a population absent from the evaluation design. Each adds an assumption about the fitted solution, the data, or the optimisation path. The method and its strength must consequently be chosen using validation evidence and assessed against the intended transfer task.</p>
+<p>In Chapter 9, the degree-15 polynomial followed the 24 training observations closely but oscillated between them. Reducing its degree would remove some of that flexibility. Another option is to retain the same polynomial and change which of its possible fits the learning procedure prefers.</p>
+<p>Ridge regularisation does this by making large coefficients costly. Neural networks use related but distinct choices: penalties on parameters, dropout during training, transformations of the input data, or a rule for retaining an earlier checkpoint. They all alter how the model is fitted, rather than merely changing the score reported at the end.</p>
 <section id="a-controlled-example" class="level3">
 <h3 class="anchored" data-anchor-id="a-controlled-example">A controlled example</h3>
 <p>The chapter continues the noisy function from Chapter 9,</p>
 <p><span class="math display">\[
 y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),
 \]</span></p>
-<p>using a degree-15 polynomial. Rather than lowering the degree, ridge regularisation retains all polynomial terms and penalises large coefficients. This isolates the effect of regularisation from a change in the model’s nominal feature set.</p>
-<p>The figure compares two rules with the same input features and polynomial degree. The coloured curve changes because the objective changes: the ridge fit is permitted to accept more error on the observed points when that avoids extreme coefficients. This is a preference about solutions, not a claim that smoothness is always correct.</p>
+<p>using a degree-15 polynomial. Rather than lowering the degree, ridge retains all polynomial terms and penalises large coefficients. This lets us see the effect of the preference without changing the model’s set of input terms.</p>
+<p>The figure compares two rules with the same input features and polynomial degree. The coloured curve changes because the objective changes: the ridge fit is allowed to accept more error on the observed points when that avoids extreme coefficients.</p>
 <div id="cell-fig-regularisation-intuition" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
@@ -602,8 +602,8 @@ Figure&nbsp;11.1: Ridge regularisation retains a degree-15 model but suppresses 
 <h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
 <section id="regularisation-expresses-a-preference-among-fitting-solutions" class="level3">
 <h3 class="anchored" data-anchor-id="regularisation-expresses-a-preference-among-fitting-solutions">Regularisation expresses a preference among fitting solutions</h3>
-<p>Many models can fit a finite dataset similarly. Regularisation adds information about which fitted solutions should be preferred. Ridge expresses a preference for smaller squared coefficients. Dropout trains subnetworks produced by random masks. Augmentation says that selected transformations should preserve the target. Early stopping prefers the parameter state reached before later optimisation steps.</p>
-<p>These preferences can help when they match the problem. A penalty that shrinks a genuinely large effect, an augmentation that changes the label, or stopping before a pattern is learned can increase error. Regularisation strength therefore controls a trade-off, not a one-way improvement.</p>
+<p>Many procedures can fit a finite dataset similarly. Regularisation adds a preference among those fitting solutions. Ridge prefers smaller squared coefficients. Dropout trains changing subnetworks created by random masks. Augmentation treats selected transformations as preserving the target. Early stopping retains a parameter state reached before later optimisation steps.</p>
+<p>These preferences can help when they match the problem. A penalty can be too strong, an augmentation can change the target, and early stopping can select a model before it has learned a useful pattern. Their strength is therefore selected with validation data, not assumed to be an improvement.</p>
 </section>
 <section id="different-methods-intervene-at-different-points" class="level3">
 <h3 class="anchored" data-anchor-id="different-methods-intervene-at-different-points">Different methods intervene at different points</h3>
@@ -638,9 +638,9 @@ Figure&nbsp;11.2: Regularisation methods intervene in the data, objective, archi
 </div>
 <p>The diagram prevents several category errors. Data augmentation changes the examples presented during training. A penalty changes the scalar objective. Dropout changes which units participate in a training pass. Early stopping selects a point along one optimisation trajectory. Their mechanisms are not interchangeable even when each reduces a validation error.</p>
 </section>
-<section id="regularisation-cannot-substitute-for-representative-data" class="level3">
-<h3 class="anchored" data-anchor-id="regularisation-cannot-substitute-for-representative-data">Regularisation cannot substitute for representative data</h3>
-<p>A smoother function may extrapolate less violently and still fail after a change in measurement or population. Augmentation can encode known transformations, but it cannot reliably invent an unobserved subgroup or outcome mechanism. Validation and test sets must retain the variation the model is expected to handle.</p>
+<section id="regularisation-remains-part-of-model-development" class="level3">
+<h3 class="anchored" data-anchor-id="regularisation-remains-part-of-model-development">Regularisation remains part of model development</h3>
+<p>Regularisation changes the fitting procedure, so its type and strength are choices made during development. The validation and test roles from Chapter 9 still apply: a method that improves one development split has not yet established performance for every setting in which the model might be used.</p>
 <p>The next step is to locate each preference in the training procedure: the data presented, the scalar objective, the active network, or the point chosen on an optimisation path. Level 2 follows those mechanisms separately because they require different checks.</p>
 </section>
 </section>
@@ -799,7 +799,7 @@ Figure&nbsp;11.5: Increasing the ridge penalty shrinks high-order polynomial coe
 \nabla_wJ=\nabla_wL+2\lambda w.
 \]</span></p>
 <p>Each update therefore contains a data-loss term and a shrinkage term. Some libraries define the penalty with a factor of <span class="math inline">\(1/2\)</span>, removing the 2 from its gradient. Reported <span class="math inline">\(\lambda\)</span> values are not comparable without the convention.</p>
-<div id="3208343f" class="cell" data-execution_count="6">
+<div id="665b88e7" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare one scalar update with and without an L2 penalty.</span></span>
@@ -818,7 +818,7 @@ With L2 penalty: 1.374</code></pre>
 </section>
 <section id="pytorch-exposes-distinct-regularisation-mechanisms" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-exposes-distinct-regularisation-mechanisms">PyTorch exposes distinct regularisation mechanisms</h3>
-<div id="1be9d965" class="cell" data-execution_count="7">
+<div id="d89d1f8e" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -843,7 +843,7 @@ With L2 penalty: 1.374</code></pre>
 </div>
 </div>
 <p><code>Dropout</code> changes forward passes in training mode. <code>AdamW</code> applies decoupled weight decay rather than adding the L2 term to Adam’s gradient calculation <span class="citation" data-cites="adamw2019">(<a href="#ref-adamw2019" role="doc-biblioref">Loshchilov and Hutter 2019</a>)</span>. For plain stochastic gradient descent, L2 regularisation and multiplicative weight decay can coincide under common conventions; with adaptive optimisers they are generally different operations.</p>
-<div id="c02a7ed3" class="cell" data-execution_count="8">
+<div id="b40f2357" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A minimal early-stopping state machine.</span></span>
@@ -1451,9 +1451,9 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>Chapter 9 showed why a flexible fitted rule can follow sample-specific noise. Reducing the model's nominal capacity is one response, but it is not the only one. Regularisation changes the learning procedure so that, among available fits, some are preferred: a penalty can make large parameters costly; dropout can train changing subnetworks; augmentation can add transformations judged label-preserving; and early stopping can select an earlier checkpoint.</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>In Chapter 9, the degree-15 polynomial followed the 24 training observations closely but oscillated between them. Reducing its degree would remove some of that flexibility. Another option is to retain the same polynomial and change which of its possible fits the learning procedure prefers.</span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>None of these operations repairs an invalid label, a leaking split, or a population absent from the evaluation design. Each adds an assumption about the fitted solution, the data, or the optimisation path. The method and its strength must consequently be chosen using validation evidence and assessed against the intended transfer task.</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>Ridge regularisation does this by making large coefficients costly. Neural networks use related but distinct choices: penalties on parameters, dropout during training, transformations of the input data, or a rule for retaining an earlier checkpoint. They all alter how the model is fitted, rather than merely changing the score reported at the end.</span>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A controlled example</span></span>
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
@@ -1463,9 +1463,9 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),</span>
 <span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>using a degree-15 polynomial. Rather than lowering the degree, ridge regularisation retains all polynomial terms and penalises large coefficients. This isolates the effect of regularisation from a change in the model's nominal feature set.</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>using a degree-15 polynomial. Rather than lowering the degree, ridge retains all polynomial terms and penalises large coefficients. This lets us see the effect of the preference without changing the model's set of input terms.</span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>The figure compares two rules with the same input features and polynomial degree. The coloured curve changes because the objective changes: the ridge fit is permitted to accept more error on the observed points when that avoids extreme coefficients. This is a preference about solutions, not a claim that smoothness is always correct.</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>The figure compares two rules with the same input features and polynomial degree. The coloured curve changes because the objective changes: the ridge fit is allowed to accept more error on the observed points when that avoids extreme coefficients.</span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-regularisation-intuition</span></span>
@@ -1515,9 +1515,9 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
 <span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regularisation expresses a preference among fitting solutions</span></span>
 <span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>Many models can fit a finite dataset similarly. Regularisation adds information about which fitted solutions should be preferred. Ridge expresses a preference for smaller squared coefficients. Dropout trains subnetworks produced by random masks. Augmentation says that selected transformations should preserve the target. Early stopping prefers the parameter state reached before later optimisation steps.</span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>Many procedures can fit a finite dataset similarly. Regularisation adds a preference among those fitting solutions. Ridge prefers smaller squared coefficients. Dropout trains changing subnetworks created by random masks. Augmentation treats selected transformations as preserving the target. Early stopping retains a parameter state reached before later optimisation steps.</span>
 <span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>These preferences can help when they match the problem. A penalty that shrinks a genuinely large effect, an augmentation that changes the label, or stopping before a pattern is learned can increase error. Regularisation strength therefore controls a trade-off, not a one-way improvement.</span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>These preferences can help when they match the problem. A penalty can be too strong, an augmentation can change the target, and early stopping can select a model before it has learned a useful pattern. Their strength is therefore selected with validation data, not assumed to be an improvement.</span>
 <span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="fu">### Different methods intervene at different points</span></span>
 <span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a></span>
@@ -1541,9 +1541,9 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
 <span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>The diagram prevents several category errors. Data augmentation changes the examples presented during training. A penalty changes the scalar objective. Dropout changes which units participate in a training pass. Early stopping selects a point along one optimisation trajectory. Their mechanisms are not interchangeable even when each reduces a validation error.</span>
 <span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regularisation cannot substitute for representative data</span></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regularisation remains part of model development</span></span>
 <span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>A smoother function may extrapolate less violently and still fail after a change in measurement or population. Augmentation can encode known transformations, but it cannot reliably invent an unobserved subgroup or outcome mechanism. Validation and test sets must retain the variation the model is expected to handle.</span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>Regularisation changes the fitting procedure, so its type and strength are choices made during development. The validation and test roles from Chapter 9 still apply: a method that improves one development split has not yet established performance for every setting in which the model might be used.</span>
 <span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>The next step is to locate each preference in the training procedure: the data presented, the scalar objective, the active network, or the point chosen on an optimisation path. Level 2 follows those mechanisms separately because they require different checks.</span>
 <span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a></span>

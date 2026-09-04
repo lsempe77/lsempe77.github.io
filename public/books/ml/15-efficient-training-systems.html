@@ -536,8 +536,8 @@ window.Quarto = {
 
 <section id="the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
-<p>A loop can be correct and still be impossible to run at the required scale. The model or its activations may not fit in memory; arithmetic units may wait for data; workers may wait for collective communication; or a pipeline stage may be idle. These are different measured limits. Adding devices does not repair a memory-bound operation, and lower precision does not eliminate an unsuitable interconnect.</p>
-<p>This final chapter of Part II treats one update as a systems workload: parameters, gradients, optimiser state, activations, temporary buffers, arithmetic, memory traffic, and communication all contribute. Mixed precision, fusion, activation recomputation, parallelism, and sharding each change a particular cost and introduce a particular dependency. Measurement determines which intervention has a plausible mechanism.</p>
+<p>The loop in Chapter 14 can produce a valid update on paper and still fail on the machine that must run it. The model or its activations may not fit in memory. Arithmetic units may wait for data, workers may wait for a collective operation, or one pipeline stage may sit idle while another finishes. These failures have different causes, so they require different measurements and different changes.</p>
+<p>One update is also a systems workload. It holds parameters, gradients, optimiser state, activations, and temporary buffers; it reads and writes memory; it performs arithmetic; and, with several workers, it communicates. Mixed precision, fusion, activation recomputation, parallelism, and sharding each alter some of those costs while introducing a different dependency. A useful intervention follows from the resource that is actually limiting the measured step.</p>
 <section id="diagnose-the-limiting-resource" class="level3">
 <h3 class="anchored" data-anchor-id="diagnose-the-limiting-resource">Diagnose the limiting resource</h3>
 <p>The opening diagram is a diagnostic map, not a menu of interchangeable optimisations. Start with the observed symptom, identify the resource that can produce it, then examine the intervention’s cost elsewhere. For example, recomputation can release activation memory while adding arithmetic; data parallelism raises throughput while replicating model state.</p>
@@ -589,8 +589,8 @@ Figure&nbsp;16.1: Training efficiency depends on which resource constrains the m
 <h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
 <section id="training-moves-and-stores-more-than-model-weights" class="level3">
 <h3 class="anchored" data-anchor-id="training-moves-and-stores-more-than-model-weights">Training moves and stores more than model weights</h3>
-<p>Inference can load weights and produce activations one layer at a time. Training must also retain or reconstruct information needed for backpropagation, store gradients, and maintain optimiser state. Adam commonly keeps first and second moments for every trainable parameter. Mixed-precision implementations may retain higher-precision optimiser state even when forward and backward arithmetic use lower precision.</p>
-<p>For one billion parameters, a two-byte parameter representation occupies about 2 GB before gradients, optimiser moments, master weights, activations, temporary workspaces, or allocator overhead. A statement that a “2 GB model” fits on a 24 GB device therefore does not establish that it can be trained there.</p>
+<p>The parameter file is not a training-memory estimate. Training must retain or reconstruct information needed for backpropagation, store gradients, and maintain optimiser state. Adam commonly keeps first and second moments for every trainable parameter. Mixed-precision implementations may retain higher-precision optimiser state even when forward and backward arithmetic use lower precision.</p>
+<p>For one billion parameters, a two-byte parameter representation occupies about 2 GB. That number excludes gradients, optimiser moments, master weights, activations, temporary workspaces, and allocator overhead. A “2 GB model” can therefore exceed a 24 GB device once the training loop is included.</p>
 <div id="cell-fig-memory-accounting" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
@@ -810,7 +810,7 @@ M_{\text{state}}=P(q_p+q_g+q_o).
 M_{\text{stage 3}}\approx\frac{P(q_p+q_g+q_o)}{W}.
 \]</span></p>
 <p>This excludes activations, temporary gathered parameters, communication buffers, fragmentation, and implementation metadata. It is a lower-level component of a peak-memory model, not a capacity guarantee.</p>
-<div id="995effbe" class="cell" data-execution_count="7">
+<div id="5f5939d7" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> persistent_state_gb(parameters, workers<span class="op">=</span><span class="dv">1</span>, stage<span class="op">=</span><span class="dv">0</span>,</span>
@@ -843,7 +843,7 @@ stage 3: 2.00 GB per worker</code></pre>
 T_{\text{step}}=T_{\text{compute}}+T_{\text{memory stalls}}+T_{\text{communication exposed}}+T_{\text{input exposed}}+T_{\text{other}}.
 \]</span></p>
 <p>“Exposed” means time that is not hidden behind other work. Communication can overlap backpropagation; data loading can overlap the previous step. Adding raw component durations can exceed wall-clock time when overlap exists.</p>
-<div id="8db06662" class="cell" data-execution_count="8">
+<div id="3a4ff543" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -877,7 +877,7 @@ T_{\text{collective}}\approx\alpha f(W)+\frac{n}{b}g(W),
 U\approx\frac{m}{m+p-1}.
 \]</span></p>
 <p>For four stages, utilisation rises from <span class="math inline">\(25\%\)</span> with one micro-batch to about <span class="math inline">\(84\%\)</span> with sixteen. Training schedules include backward passes and can interleave them differently, so the exact bubble fraction depends on the schedule.</p>
-<div id="5f58079b" class="cell" data-execution_count="9">
+<div id="956583b7" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>stages<span class="op">=</span><span class="dv">4</span></span>
@@ -1493,9 +1493,9 @@ Williams, Samuel, Andrew Waterman, and David Patterson. 2009. <span>“Roofline:
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>A loop can be correct and still be impossible to run at the required scale. The model or its activations may not fit in memory; arithmetic units may wait for data; workers may wait for collective communication; or a pipeline stage may be idle. These are different measured limits. Adding devices does not repair a memory-bound operation, and lower precision does not eliminate an unsuitable interconnect.</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>The loop in Chapter 14 can produce a valid update on paper and still fail on the machine that must run it. The model or its activations may not fit in memory. Arithmetic units may wait for data, workers may wait for a collective operation, or one pipeline stage may sit idle while another finishes. These failures have different causes, so they require different measurements and different changes.</span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>This final chapter of Part II treats one update as a systems workload: parameters, gradients, optimiser state, activations, temporary buffers, arithmetic, memory traffic, and communication all contribute. Mixed precision, fusion, activation recomputation, parallelism, and sharding each change a particular cost and introduce a particular dependency. Measurement determines which intervention has a plausible mechanism.</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>One update is also a systems workload. It holds parameters, gradients, optimiser state, activations, and temporary buffers; it reads and writes memory; it performs arithmetic; and, with several workers, it communicates. Mixed precision, fusion, activation recomputation, parallelism, and sharding each alter some of those costs while introducing a different dependency. A useful intervention follows from the resource that is actually limiting the measured step.</span>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### Diagnose the limiting resource</span></span>
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
@@ -1538,9 +1538,9 @@ Williams, Samuel, Andrew Waterman, and David Patterson. 2009. <span>“Roofline:
 <span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training moves and stores more than model weights</span></span>
 <span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>Inference can load weights and produce activations one layer at a time. Training must also retain or reconstruct information needed for backpropagation, store gradients, and maintain optimiser state. Adam commonly keeps first and second moments for every trainable parameter. Mixed-precision implementations may retain higher-precision optimiser state even when forward and backward arithmetic use lower precision.</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>The parameter file is not a training-memory estimate. Training must retain or reconstruct information needed for backpropagation, store gradients, and maintain optimiser state. Adam commonly keeps first and second moments for every trainable parameter. Mixed-precision implementations may retain higher-precision optimiser state even when forward and backward arithmetic use lower precision.</span>
 <span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>For one billion parameters, a two-byte parameter representation occupies about 2 GB before gradients, optimiser moments, master weights, activations, temporary workspaces, or allocator overhead. A statement that a “2 GB model” fits on a 24 GB device therefore does not establish that it can be trained there.</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>For one billion parameters, a two-byte parameter representation occupies about 2 GB. That number excludes gradients, optimiser moments, master weights, activations, temporary workspaces, and allocator overhead. A “2 GB model” can therefore exceed a 24 GB device once the training loop is included.</span>
 <span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-memory-accounting</span></span>

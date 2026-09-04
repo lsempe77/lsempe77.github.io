@@ -476,7 +476,7 @@ window.Quarto = {
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
   <li><a href="#learning-the-sample-is-not-the-same-as-learning-the-pattern" id="toc-learning-the-sample-is-not-the-same-as-learning-the-pattern" class="nav-link" data-scroll-target="#learning-the-sample-is-not-the-same-as-learning-the-pattern">Learning the sample is not the same as learning the pattern</a></li>
-  <li><a href="#held-out-data-create-a-partial-test-of-transfer" id="toc-held-out-data-create-a-partial-test-of-transfer" class="nav-link" data-scroll-target="#held-out-data-create-a-partial-test-of-transfer">Held-out data create a partial test of transfer</a></li>
+  <li><a href="#new-observations-test-whether-the-pattern-carries-over" id="toc-new-observations-test-whether-the-pattern-carries-over" class="nav-link" data-scroll-target="#new-observations-test-whether-the-pattern-carries-over">New observations test whether the pattern carries over</a></li>
   <li><a href="#capacity-describes-options-not-inevitable-behaviour" id="toc-capacity-describes-options-not-inevitable-behaviour" class="nav-link" data-scroll-target="#capacity-describes-options-not-inevitable-behaviour">Capacity describes options, not inevitable behaviour</a></li>
   </ul></li>
   <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
@@ -533,8 +533,8 @@ window.Quarto = {
 
 <section id="the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
-<p>Chapter 8 established that a network can reduce loss on the records used to update its parameters. That result does not answer the next practical question: whether the same procedure will work on records it has not seen. The held-out result inspected while training Chapter 8 is development evidence, because it influenced the judgement that training was successful; it is not an untouched final test.</p>
-<p>Generalisation is performance on observations outside fitting and model selection, for a stated target population and operating condition. Overfitting is a training improvement that depends on details of the sample that do not recur. Training loss therefore establishes what the optimisation procedure achieved on observed data, not what it will achieve later, elsewhere, or under a changed measurement process.</p>
+<p>The network in Chapter 8 learned a boundary that followed the training curves. It also looked promising on the observations set aside from those updates. The natural next question is whether that result would persist for other observations, rather than being a fortunate feature of this particular sample.</p>
+<p>This is the problem of generalisation. A fitted rule can improve its training loss by learning a pattern that recurs, or by following details that arose only in the observations it happened to receive. The second outcome is overfitting. Training loss records what happened on the data used for updates; it cannot on its own tell us which kind of improvement occurred.</p>
 <section id="a-controlled-example" class="level3">
 <h3 class="anchored" data-anchor-id="a-controlled-example">A controlled example</h3>
 <p>The chapter uses a one-dimensional synthetic regression problem with known signal</p>
@@ -593,10 +593,7 @@ Figure&nbsp;10.1: Polynomial capacity changes what the model follows: degree 1 m
 </div>
 <p>All three models see the same observations. The degree-1 model cannot represent the curved signal. The degree-5 model follows the broad pattern while leaving some noise unexplained. The degree-17 model can pass close to every training point, but it oscillates between them. Its greater training fit has produced a worse estimate of the known signal.</p>
 <div id="concept-generalisation" class="concept-box concept-core" data-term="Generalisation and overfitting" data-domain="Training and evaluation">
-<p><strong>Generalisation and overfitting.</strong> Generalisation is performance on observations not used to fit or select the procedure, within a stated target population. Overfitting occurs when an apparent training improvement relies on details that do not transfer. Neither label can be inferred from training loss alone.</p>
-</div>
-<div id="concept-training-validation-test" class="concept-box concept-distinction" data-term="Training, validation, and test sets" data-domain="Training and evaluation">
-<p><strong>Training, validation, and test sets.</strong> Training data estimate parameters. Validation data support choices among procedures or checkpoints and therefore belong to development. A test set is reserved for the final assessment after those choices are fixed. A <strong>held-out</strong> set is excluded from the particular fitting or selection stage under discussion; it is not automatically an untouched final test set.</p>
+<p><strong>Generalisation and overfitting.</strong> Generalisation is performance on new observations from a stated target setting. Overfitting occurs when a training improvement depends on details that do not recur. Training loss alone cannot distinguish them.</p>
 </div>
 </section>
 </section>
@@ -607,15 +604,15 @@ Figure&nbsp;10.1: Polynomial capacity changes what the model follows: degree 1 m
 <p>Training data contain regularities that can recur and details that arose from sampling or measurement noise. A model cannot label one component as signal and the other as noise before fitting. Its architecture, training procedure, and data determine which patterns it can capture.</p>
 <p>Underfitting occurs when the model or training procedure fails to capture a transferable pattern that is present. Overfitting occurs when improvements on the training sample depend on details that do not transfer. Both are defined relative to a target: a model may generalise to new observations from the same source and fail after the population, measurement process, or deployment conditions change.</p>
 </section>
-<section id="held-out-data-create-a-partial-test-of-transfer" class="level3">
-<h3 class="anchored" data-anchor-id="held-out-data-create-a-partial-test-of-transfer">Held-out data create a partial test of transfer</h3>
-<p>An observation cannot provide an independent assessment after its label has influenced parameter estimates or model choices. Holding out data preserves observations for later evaluation. Performance on those observations estimates transfer from the training sample to the process that generated the held-out sample.</p>
-<p>The estimate remains uncertain. A small test set can be unusually easy or hard. A random split can place near-duplicates on both sides. A test set drawn at the same time and place may say little about later deployment. Held-out performance is evidence whose scope is set by the sampling and splitting procedure.</p>
+<section id="new-observations-test-whether-the-pattern-carries-over" class="level3">
+<h3 class="anchored" data-anchor-id="new-observations-test-whether-the-pattern-carries-over">New observations test whether the pattern carries over</h3>
+<p>To learn whether the fitted rule carries over, we need observations whose outcomes did not help to choose it. Holding out observations provides that first check. If the model performs similarly on them, the result is evidence that the pattern extends beyond the training sample.</p>
+<p>That evidence has limits. A small holdout can be unusually easy or hard, and a random split can place near-duplicates on both sides. The next level separates the roles of training, validation, and final test observations.</p>
 </section>
 <section id="capacity-describes-options-not-inevitable-behaviour" class="level3">
 <h3 class="anchored" data-anchor-id="capacity-describes-options-not-inevitable-behaviour">Capacity describes options, not inevitable behaviour</h3>
 <p>A higher-capacity model can represent more functions. The degree-17 polynomial can represent the smoother degree-5 relationship as well as many oscillating alternatives. Capacity creates the possibility of fitting noise; it does not establish that a particular training algorithm will select the worst alternative. Data quantity, optimisation, architecture, and regularisation influence which fitted function is obtained.</p>
-<p>The immediate task is therefore to preserve observations for different jobs and to compare errors without confusing model development with final assessment. Level 2 makes that workflow explicit, then uses capacity and sample-size curves to diagnose the gap.</p>
+<p>The immediate task is to compare performance on observations used for fitting with performance on observations saved for evaluation. Level 2 makes the different roles explicit, then uses capacity and sample-size curves to diagnose the gap.</p>
 </section>
 </section>
 <section id="level-2---mechanics" class="level2">
@@ -623,6 +620,9 @@ Figure&nbsp;10.1: Polynomial capacity changes what the model follows: degree 1 m
 <section id="training-validation-and-test-data-answer-different-questions" class="level3">
 <h3 class="anchored" data-anchor-id="training-validation-and-test-data-answer-different-questions">Training, validation, and test data answer different questions</h3>
 <p>The training set estimates parameters. The validation set supports choices such as polynomial degree, hidden width, or stopping point. The test set is reserved for a final assessment after those choices are fixed. If the test result changes the model, the test set has become part of model development and a further untouched set is needed for an independent assessment.</p>
+<div id="concept-training-validation-test" class="concept-box concept-distinction" data-term="Training, validation, and test sets" data-domain="Training and evaluation">
+<p><strong>Training, validation, and test sets.</strong> Training data estimate parameters. Validation data support choices among procedures or checkpoints and therefore belong to development. A test set is reserved for final assessment after those choices are fixed. A <strong>held-out</strong> set is excluded from one fitting or selection stage; it is not automatically an untouched final test set.</p>
+</div>
 <div id="cell-fig-data-split-roles" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
@@ -836,7 +836,7 @@ Figure&nbsp;10.5: At one input value, low degree produces bias while high degree
 \operatorname{SE}(\bar L)=\frac{s_L}{\sqrt m}.
 \]</span></p>
 <p>The independence assumption fails for clustered observations or repeated measurements from the same entity. Confidence intervals must then respect the sampling structure. Comparing many models on the same test observations also creates paired losses; analysing their differences is usually more informative than treating model estimates as independent.</p>
-<div id="9233c8b8" class="cell" data-execution_count="6">
+<div id="a3cad3d2" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate fresh-sample error and a simple independent-observation standard error.</span></span>
@@ -1476,9 +1476,9 @@ Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 20
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>Chapter 8 established that a network can reduce loss on the records used to update its parameters. That result does not answer the next practical question: whether the same procedure will work on records it has not seen. The held-out result inspected while training Chapter 8 is development evidence, because it influenced the judgement that training was successful; it is not an untouched final test.</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>The network in Chapter 8 learned a boundary that followed the training curves. It also looked promising on the observations set aside from those updates. The natural next question is whether that result would persist for other observations, rather than being a fortunate feature of this particular sample.</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>Generalisation is performance on observations outside fitting and model selection, for a stated target population and operating condition. Overfitting is a training improvement that depends on details of the sample that do not recur. Training loss therefore establishes what the optimisation procedure achieved on observed data, not what it will achieve later, elsewhere, or under a changed measurement process.</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>This is the problem of generalisation. A fitted rule can improve its training loss by learning a pattern that recurs, or by following details that arose only in the observations it happened to receive. The second outcome is overfitting. Training loss records what happened on the data used for updates; it cannot on its own tell us which kind of improvement occurred.</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A controlled example</span></span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
@@ -1532,38 +1532,38 @@ Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 20
 <span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>All three models see the same observations. The degree-1 model cannot represent the curved signal. The degree-5 model follows the broad pattern while leaving some noise unexplained. The degree-17 model can pass close to every training point, but it oscillates between them. Its greater training fit has produced a worse estimate of the known signal.</span>
 <span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-generalisation data-term="Generalisation and overfitting" data-domain="Training and evaluation"}</span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>**Generalisation and overfitting.** Generalisation is performance on observations not used to fit or select the procedure, within a stated target population. Overfitting occurs when an apparent training improvement relies on details that do not transfer. Neither label can be inferred from training loss alone.</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>**Generalisation and overfitting.** Generalisation is performance on new observations from a stated target setting. Overfitting occurs when a training improvement depends on details that do not recur. Training loss alone cannot distinguish them.</span>
 <span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-training-validation-test data-term="Training, validation, and test sets" data-domain="Training and evaluation"}</span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>**Training, validation, and test sets.** Training data estimate parameters. Validation data support choices among procedures or checkpoints and therefore belong to development. A test set is reserved for the final assessment after those choices are fixed. A **held-out** set is excluded from the particular fitting or selection stage under discussion; it is not automatically an untouched final test set.</span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning the sample is not the same as learning the pattern</span></span>
 <span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>Training data contain regularities that can recur and details that arose from sampling or measurement noise. A model cannot label one component as signal and the other as noise before fitting. Its architecture, training procedure, and data determine which patterns it can capture.</span>
 <span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning the sample is not the same as learning the pattern</span></span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>Underfitting occurs when the model or training procedure fails to capture a transferable pattern that is present. Overfitting occurs when improvements on the training sample depend on details that do not transfer. Both are defined relative to a target: a model may generalise to new observations from the same source and fail after the population, measurement process, or deployment conditions change.</span>
 <span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>Training data contain regularities that can recur and details that arose from sampling or measurement noise. A model cannot label one component as signal and the other as noise before fitting. Its architecture, training procedure, and data determine which patterns it can capture.</span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a><span class="fu">### New observations test whether the pattern carries over</span></span>
 <span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>Underfitting occurs when the model or training procedure fails to capture a transferable pattern that is present. Overfitting occurs when improvements on the training sample depend on details that do not transfer. Both are defined relative to a target: a model may generalise to new observations from the same source and fail after the population, measurement process, or deployment conditions change.</span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>To learn whether the fitted rule carries over, we need observations whose outcomes did not help to choose it. Holding out observations provides that first check. If the model performs similarly on them, the result is evidence that the pattern extends beyond the training sample.</span>
 <span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a><span class="fu">### Held-out data create a partial test of transfer</span></span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>That evidence has limits. A small holdout can be unusually easy or hard, and a random split can place near-duplicates on both sides. The next level separates the roles of training, validation, and final test observations.</span>
 <span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>An observation cannot provide an independent assessment after its label has influenced parameter estimates or model choices. Holding out data preserves observations for later evaluation. Performance on those observations estimates transfer from the training sample to the process that generated the held-out sample.</span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a><span class="fu">### Capacity describes options, not inevitable behaviour</span></span>
 <span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>The estimate remains uncertain. A small test set can be unusually easy or hard. A random split can place near-duplicates on both sides. A test set drawn at the same time and place may say little about later deployment. Held-out performance is evidence whose scope is set by the sampling and splitting procedure.</span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>A higher-capacity model can represent more functions. The degree-17 polynomial can represent the smoother degree-5 relationship as well as many oscillating alternatives. Capacity creates the possibility of fitting noise; it does not establish that a particular training algorithm will select the worst alternative. Data quantity, optimisation, architecture, and regularisation influence which fitted function is obtained.</span>
 <span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a><span class="fu">### Capacity describes options, not inevitable behaviour</span></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>The immediate task is to compare performance on observations used for fitting with performance on observations saved for evaluation. Level 2 makes the different roles explicit, then uses capacity and sample-size curves to diagnose the gap.</span>
 <span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a>A higher-capacity model can represent more functions. The degree-17 polynomial can represent the smoother degree-5 relationship as well as many oscillating alternatives. Capacity creates the possibility of fitting noise; it does not establish that a particular training algorithm will select the worst alternative. Data quantity, optimisation, architecture, and regularisation influence which fitted function is obtained.</span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
 <span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a>The immediate task is therefore to preserve observations for different jobs and to compare errors without confusing model development with final assessment. Level 2 makes that workflow explicit, then uses capacity and sample-size curves to diagnose the gap.</span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training, validation, and test data answer different questions</span></span>
 <span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a>The training set estimates parameters. The validation set supports choices such as polynomial degree, hidden width, or stopping point. The test set is reserved for a final assessment after those choices are fixed. If the test result changes the model, the test set has become part of model development and a further untouched set is needed for an independent assessment.</span>
 <span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training, validation, and test data answer different questions</span></span>
-<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>The training set estimates parameters. The validation set supports choices such as polynomial degree, hidden width, or stopping point. The test set is reserved for a final assessment after those choices are fixed. If the test result changes the model, the test set has become part of model development and a further untouched set is needed for an independent assessment.</span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-training-validation-test data-term="Training, validation, and test sets" data-domain="Training and evaluation"}</span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>**Training, validation, and test sets.** Training data estimate parameters. Validation data support choices among procedures or checkpoints and therefore belong to development. A test set is reserved for final assessment after those choices are fixed. A **held-out** set is excluded from one fitting or selection stage; it is not automatically an untouched final test set.</span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>:::</span>
 <span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-data-split-roles</span></span>
