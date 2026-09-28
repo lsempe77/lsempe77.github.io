@@ -127,14 +127,15 @@ div.csl-indent {
 
 
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="book-navigation.css"></head>
+<link rel="stylesheet" href="book-navigation.css">
+</head>
 
 <body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+    <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
@@ -165,7 +166,7 @@ div.csl-indent {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Machine Learning Concepts</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -523,9 +524,7 @@ div.csl-indent {
 <section id="running-conversation" class="level3">
 <h3 class="anchored" data-anchor-id="running-conversation">Running conversation</h3>
 <p>The running example has a system instruction, a user request, and an assistant response. The entire formatted conversation is input to a causal model, but only selected assistant tokens contribute to the supervised loss.</p>
-<div id="fig-chat-template" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-chat-template-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-chat-template" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -540,11 +539,24 @@ div.csl-indent {
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">.87</span>,<span class="st">"loss target"</span> <span class="cf">if</span> target <span class="cf">else</span> <span class="st">"context only"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange <span class="cf">if</span> target <span class="cf">else</span> grey,fontsize<span class="op">=</span><span class="dv">9</span>)<span class="op">;</span> x<span class="op">+=</span>w<span class="op">+</span><span class="fl">.25</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.6</span>,<span class="fl">.35</span>,<span class="st">"Role markers and template tokens are part of the model input contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">2.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-chat-template" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A left-to-right sequence contains system, user, and assistant segments, with only the assistant segment highlighted as supervised targets.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-chat-template-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="29-instruction-tuning_files/figure-html/fig-chat-template-output-1.png" class="img-fluid figure-img" alt="A left-to-right sequence contains system, user, and assistant segments, with only the assistant segment highlighted as supervised targets.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-chat-template-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;30.1
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chat-template-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;30.1: Instruction tuning formats role-marked messages into one causal token sequence while applying loss only to the chosen assistant response.
 </figcaption>
 </figure>
+</div>
+</div>
+</div>
+<div id="concept-instruction-tuning" class="concept-box concept-core" data-term="Instruction tuning" data-domain="Large language models">
+<p><strong>Instruction tuning.</strong> Supervised adaptation that trains a model to produce target responses within a declared conversation format. The target mask determines which tokens receive loss, while the template determines the interface supplied at training and use.</p>
+</div>
+<div id="concept-instruction-prompting" class="concept-box concept-distinction" data-term="Instruction tuning and prompting" data-domain="Large language models">
+<p><strong>Instruction tuning and prompting.</strong> Instruction tuning changes a model through supervised parameter updates. Prompting changes the context supplied to a fixed model at inference time. Both can alter behaviour, but they make different resource and evidence claims.</p>
 </div>
 </section>
 </section>
@@ -554,35 +566,48 @@ Figure&nbsp;30.1
 <h3 class="anchored" data-anchor-id="demonstrations-define-a-response-convention">Demonstrations define a response convention</h3>
 <p>An instruction-tuning dataset contains demonstrations of an input and a target response. They may include a system message, a user request, documents or tool outputs, and one or more assistant turns. During fine-tuning, the model sees the context and is trained to assign high probability to the demonstrated assistant tokens. Repeated examples establish a convention about when to answer, how to structure an answer, and how to handle specified formats.</p>
 <p>This does not convert a model into a database of verified answers. If demonstrations are wrong, incomplete, inconsistent, or narrowly distributed, the model can learn those patterns. A training run can improve compliance with a template while reducing performance on unrelated base-model behaviours. The desired change and the possible regression must both be evaluated.</p>
-<div id="a39437cd" class="cell">
+<div id="818378a1" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>conversation<span class="op">=</span>[<span class="st">"&lt;system&gt;"</span>,<span class="st">"Be concise."</span>,<span class="st">"&lt;user&gt;"</span>,<span class="st">"Name a mammal."</span>,<span class="st">"&lt;assistant&gt;"</span>,<span class="st">"A whale is a mammal."</span>]</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(conversation))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;system&gt;
+Be concise.
+&lt;user&gt;
+Name a mammal.
+&lt;assistant&gt;
+A whale is a mammal.</code></pre>
+</div>
 </div>
 </section>
 <section id="the-template-is-not-decoration" class="level3">
 <h3 class="anchored" data-anchor-id="the-template-is-not-decoration">The template is not decoration</h3>
 <p>Role markers tell the model which span is an instruction, which span is user-provided context, and where an assistant response should begin. A checkpoint trained with one template may respond poorly when served with another, even if the visible wording is unchanged. The tokenizer, special tokens, whitespace rules, and tool-call fields are all part of this interface.</p>
-<div id="fig-template-mismatch" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-template-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-template-mismatch" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.2</span>))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"template A"</span>,[<span class="st">"&lt;user&gt;"</span>,<span class="st">"request"</span>,<span class="st">"&lt;assistant&gt;"</span>,<span class="st">"response"</span>]),(<span class="st">"template B"</span>,[<span class="st">"User:"</span>,<span class="st">"request"</span>,<span class="st">"Assistant:"</span>,<span class="st">"response"</span>])]</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(name,pieces) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,p <span class="kw">in</span> <span class="bu">enumerate</span>(pieces):</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        c<span class="op">=</span>teal <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">2</span> <span class="cf">else</span> orange<span class="op">;</span> x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.18</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.23</span>),<span class="fl">.15</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.075</span>,<span class="fl">.5</span>,p,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.2</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"template A"</span>,[<span class="st">"&lt;user&gt;"</span>,<span class="st">"request"</span>,<span class="st">"&lt;assistant&gt;"</span>,<span class="st">"response"</span>]),(<span class="st">"template B"</span>,[<span class="st">"User:"</span>,<span class="st">"request"</span>,<span class="st">"Assistant:"</span>,<span class="st">"response"</span>])]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(name,pieces) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,p <span class="kw">in</span> <span class="bu">enumerate</span>(pieces):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        c<span class="op">=</span>teal <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">2</span> <span class="cf">else</span> orange<span class="op">;</span> x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.18</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.23</span>),<span class="fl">.15</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.075</span>,<span class="fl">.5</span>,p,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-template-mismatch" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two rows show alternative role-marked encodings of the same user request and assistant response.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-template-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="29-instruction-tuning_files/figure-html/fig-template-mismatch-output-1.png" class="img-fluid figure-img" alt="Two rows show alternative role-marked encodings of the same user request and assistant response.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-template-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;30.2
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-template-mismatch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;30.2: The same visible request can produce different token sequences under different role templates, so training and serving templates must be versioned together.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -591,49 +616,62 @@ Figure&nbsp;30.2
 <section id="context-tokens-and-target-tokens-have-different-roles" class="level3">
 <h3 class="anchored" data-anchor-id="context-tokens-and-target-tokens-have-different-roles">Context tokens and target tokens have different roles</h3>
 <p>The user request must be visible so the model can condition on it. It is usually not a target to reproduce. A common loss mask sets labels for system, user, padding, and structural tokens to an ignore value, while keeping labels for assistant response tokens. The causal model still predicts a distribution at every position, but optimisation averages loss only over supervised positions.</p>
-<div id="4cd51f1f" class="cell">
+<div id="36c99727" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ids<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">3</span>,<span class="dv">20</span>,<span class="dv">21</span>,<span class="dv">4</span>,<span class="dv">30</span>,<span class="dv">31</span>,<span class="dv">32</span>,<span class="dv">5</span>])</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>assistant_start<span class="op">=</span><span class="dv">7</span><span class="op">;</span> pad_label<span class="op">=-</span><span class="dv">100</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>np.full_like(ids,pad_label)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>labels[assistant_start:]<span class="op">=</span>ids[assistant_start:]</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"IDs:   "</span>,ids)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"labels:"</span>,labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ids<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">3</span>,<span class="dv">20</span>,<span class="dv">21</span>,<span class="dv">4</span>,<span class="dv">30</span>,<span class="dv">31</span>,<span class="dv">32</span>,<span class="dv">5</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>assistant_start<span class="op">=</span><span class="dv">7</span><span class="op">;</span> pad_label<span class="op">=-</span><span class="dv">100</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>np.full_like(ids,pad_label)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>labels[assistant_start:]<span class="op">=</span>ids[assistant_start:]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"IDs:   "</span>,ids)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"labels:"</span>,labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>IDs:    [ 2 10 11  3 20 21  4 30 31 32  5]
+labels: [-100 -100 -100 -100 -100 -100 -100   30   31   32    5]</code></pre>
+</div>
 </div>
 <p>An off-by-one target mask can train the model to reproduce user text, omit the first assistant token, or include an end marker inconsistently. The model can still show a decreasing scalar loss, so small examples should print formatted tokens and labels before a large run.</p>
-<div id="fig-target-mask" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-target-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-target-mask" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,(name,values) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"token ID"</span>,ids),(<span class="st">"label"</span>,labels)]):</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.05</span>,<span class="fl">1.8</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,v <span class="kw">in</span> <span class="bu">enumerate</span>(values):</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="dv">1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.66</span><span class="op">;</span> c<span class="op">=</span>orange <span class="cf">if</span> row<span class="op">==</span><span class="dv">1</span> <span class="kw">and</span> v<span class="op">!=</span>pad_label <span class="cf">else</span> (blue <span class="cf">if</span> row<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> grey)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,<span class="fl">1.53</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>),<span class="fl">.52</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.26</span>,<span class="fl">1.74</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,<span class="bu">str</span>(v),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,(name,values) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"token ID"</span>,ids),(<span class="st">"label"</span>,labels)]):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.05</span>,<span class="fl">1.8</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,v <span class="kw">in</span> <span class="bu">enumerate</span>(values):</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="dv">1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.66</span><span class="op">;</span> c<span class="op">=</span>orange <span class="cf">if</span> row<span class="op">==</span><span class="dv">1</span> <span class="kw">and</span> v<span class="op">!=</span>pad_label <span class="cf">else</span> (blue <span class="cf">if</span> row<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> grey)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,<span class="fl">1.53</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>),<span class="fl">.52</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.26</span>,<span class="fl">1.74</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,<span class="bu">str</span>(v),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-target-mask" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Aligned rows display token IDs and labels, with ignored labels before the assistant response and target IDs after it.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-target-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="29-instruction-tuning_files/figure-html/fig-target-mask-output-1.png" class="img-fluid figure-img" alt="Aligned rows display token IDs and labels, with ignored labels before the assistant response and target IDs after it.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-target-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;30.3
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-target-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;30.3: An instruction-tuning target mask excludes context and applies token loss only to the assistant answer span.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 <section id="demonstration-quality-determines-what-is-reinforced" class="level3">
 <h3 class="anchored" data-anchor-id="demonstration-quality-determines-what-is-reinforced">Demonstration quality determines what is reinforced</h3>
 <p>Instruction data may be written by people, collected from existing tasks, generated by another model, or revised through review. Each source can be useful, but each has distinct error and provenance risks. A dataset should record authorship or generation process, licensing and consent conditions, task categories, languages, response length, quality-control rules, and the version of any model used to synthesize examples.</p>
 <p>Data diversity is not a count of surface prompts. It concerns the distribution of tasks, ambiguity, formats, languages, safety-sensitive requests, and response behaviours. A dataset containing many paraphrases of one answer style can produce a narrow model interface. Evaluation splits should prevent template duplicates, source leakage, and near-identical instructions from inflating reported generalisation.</p>
-<div id="c1c8f195" class="cell">
+<div id="fe1f063c" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"extraction"</span>:<span class="dv">1200</span>,<span class="st">"summarisation"</span>:<span class="dv">850</span>,<span class="st">"coding"</span>:<span class="dv">400</span>,<span class="st">"multilingual"</span>:<span class="dv">150</span>}</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task counts:"</span>,examples)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"counts describe coverage only when task definitions and selection rules are documented"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"extraction"</span>:<span class="dv">1200</span>,<span class="st">"summarisation"</span>:<span class="dv">850</span>,<span class="st">"coding"</span>:<span class="dv">400</span>,<span class="st">"multilingual"</span>:<span class="dv">150</span>}</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task counts:"</span>,examples)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"counts describe coverage only when task definitions and selection rules are documented"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>task counts: {'extraction': 1200, 'summarisation': 850, 'coding': 400, 'multilingual': 150}
+counts describe coverage only when task definitions and selection rules are documented</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -642,62 +680,80 @@ Figure&nbsp;30.3
 <section id="fine-tuning-changes-shared-parameters" class="level3">
 <h3 class="anchored" data-anchor-id="fine-tuning-changes-shared-parameters">Fine-tuning changes shared parameters</h3>
 <p>Full supervised fine-tuning updates model parameters using gradients from the demonstration loss. The new gradients can improve target behaviours while changing probabilities needed for earlier behaviours. This is often called catastrophic forgetting when adaptation materially degrades retained capabilities. The term does not imply that any change is harmful: the question is whether a regression occurs on a predeclared retained-task set.</p>
-<div id="781d6db4" class="cell">
+<div id="17994e04" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>before<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.42</span>,<span class="st">"base_completion"</span>:<span class="fl">.31</span>,<span class="st">"code"</span>:<span class="fl">.38</span>}</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>after<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.61</span>,<span class="st">"base_completion"</span>:<span class="fl">.27</span>,<span class="st">"code"</span>:<span class="fl">.33</span>}</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task <span class="kw">in</span> before: <span class="bu">print</span>(task,<span class="st">"change"</span>,<span class="bu">round</span>(after[task]<span class="op">-</span>before[task],<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>before<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.42</span>,<span class="st">"base_completion"</span>:<span class="fl">.31</span>,<span class="st">"code"</span>:<span class="fl">.38</span>}</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>after<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.61</span>,<span class="st">"base_completion"</span>:<span class="fl">.27</span>,<span class="st">"code"</span>:<span class="fl">.33</span>}</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task <span class="kw">in</span> before: <span class="bu">print</span>(task,<span class="st">"change"</span>,<span class="bu">round</span>(after[task]<span class="op">-</span>before[task],<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>instruction change 0.19
+base_completion change -0.04
+code change -0.05</code></pre>
+</div>
 </div>
 <p>The trade-off depends on data size and composition, learning rate, update count, sequence length, parameter scope, regularisation, and the mismatch between pretraining and adaptation tasks. A training report should retain intermediate checkpoints and evaluate both target and retained behaviours. A final checkpoint selected only on instruction loss can conceal a broader regression.</p>
 </section>
 <section id="multi-turn-and-tool-examples-create-additional-boundaries" class="level3">
 <h3 class="anchored" data-anchor-id="multi-turn-and-tool-examples-create-additional-boundaries">Multi-turn and tool examples create additional boundaries</h3>
 <p>In a multi-turn conversation, later assistant targets can condition on earlier assistant text. A training pipeline must specify whether it applies loss to every assistant turn, how it masks user and tool spans, and whether it truncates from the beginning or end. Tool-call examples also require a schema and a decision about whether tool results are trusted context, target text, or both.</p>
-<div id="e35e53b9" class="cell">
+<div id="103f9c77" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>roles<span class="op">=</span>[<span class="st">"system"</span>,<span class="st">"user"</span>,<span class="st">"assistant"</span>,<span class="st">"tool"</span>,<span class="st">"assistant"</span>]</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>supervise<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>])</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">list</span>(<span class="bu">zip</span>(roles,supervise)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>roles<span class="op">=</span>[<span class="st">"system"</span>,<span class="st">"user"</span>,<span class="st">"assistant"</span>,<span class="st">"tool"</span>,<span class="st">"assistant"</span>]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>supervise<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>])</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">list</span>(<span class="bu">zip</span>(roles,supervise)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[('system', np.False_), ('user', np.False_), ('assistant', np.True_), ('tool', np.False_), ('assistant', np.True_)]</code></pre>
+</div>
 </div>
 </section>
 <section id="dataset-mixtures-can-create-instruction-conflicts" class="level3">
 <h3 class="anchored" data-anchor-id="dataset-mixtures-can-create-instruction-conflicts">Dataset mixtures can create instruction conflicts</h3>
 <p>Instruction datasets often combine short question-answer examples, summarisation, extraction, coding, safety responses, tool use, and multi-turn conversations. The same visible request can be paired with incompatible target styles across sources: one example may answer directly, another may ask a clarifying question, and a third may refuse. A model cannot infer an unstated hierarchy among such demonstrations. The dataset builder must define source weights, conflict rules, and the intended role of system messages or policy examples.</p>
 <p>This is also why response length and formatting deserve an audit. A corpus dominated by terse answers can make longer explanations less probable even when they are appropriate. A corpus dominated by verbose templates can produce unnecessary prefacing. These are not properties of “instruction following” in general; they are patterns in the supervised target distribution.</p>
-<div id="fig-demonstration-mixture" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-demonstration-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-demonstration-mixture" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>types<span class="op">=</span>[<span class="st">"extraction"</span>,<span class="st">"explanation"</span>,<span class="st">"coding"</span>,<span class="st">"policy"</span>]</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>shares<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.35</span>,<span class="fl">.2</span>,<span class="fl">.2</span>])</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.9</span>))<span class="op">;</span> left<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,share,c <span class="kw">in</span> <span class="bu">zip</span>(types,shares,[blue,teal,orange,purple]):</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    ax.barh([<span class="dv">0</span>],[share],left<span class="op">=</span>[left],color<span class="op">=</span>c,label<span class="op">=</span>name)<span class="op">;</span> ax.text(left<span class="op">+</span>share<span class="op">/</span><span class="dv">2</span>,<span class="dv">0</span>,<span class="ss">f"</span><span class="sc">{</span><span class="bu">int</span>(share<span class="op">*</span><span class="dv">100</span>)<span class="sc">}</span><span class="ss">%"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> left<span class="op">+=</span>share</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"illustrative supervised-token share"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">4</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Mixture choices define the reinforced response distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>types<span class="op">=</span>[<span class="st">"extraction"</span>,<span class="st">"explanation"</span>,<span class="st">"coding"</span>,<span class="st">"policy"</span>]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>shares<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.35</span>,<span class="fl">.2</span>,<span class="fl">.2</span>])</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.9</span>))<span class="op">;</span> left<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,share,c <span class="kw">in</span> <span class="bu">zip</span>(types,shares,[blue,teal,orange,purple]):</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    ax.barh([<span class="dv">0</span>],[share],left<span class="op">=</span>[left],color<span class="op">=</span>c,label<span class="op">=</span>name)<span class="op">;</span> ax.text(left<span class="op">+</span>share<span class="op">/</span><span class="dv">2</span>,<span class="dv">0</span>,<span class="ss">f"</span><span class="sc">{</span><span class="bu">int</span>(share<span class="op">*</span><span class="dv">100</span>)<span class="sc">}</span><span class="ss">%"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> left<span class="op">+=</span>share</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"illustrative supervised-token share"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">4</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Mixture choices define the reinforced response distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-demonstration-mixture" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A stacked bar shows illustrative shares of extraction, explanation, coding, and policy demonstrations in an instruction-tuning mixture.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-demonstration-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="29-instruction-tuning_files/figure-html/fig-demonstration-mixture-output-1.png" class="img-fluid figure-img" alt="A stacked bar shows illustrative shares of extraction, explanation, coding, and policy demonstrations in an instruction-tuning mixture.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-demonstration-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;30.4
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-demonstration-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;30.4: Instruction-data mixtures allocate different proportions of supervised tokens to task types, response styles, and behavioural policies.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 <section id="training-loss-is-an-incomplete-selection-criterion" class="level3">
 <h3 class="anchored" data-anchor-id="training-loss-is-an-incomplete-selection-criterion">Training loss is an incomplete selection criterion</h3>
 <p>Response-token cross-entropy measures agreement with held-out demonstration continuations. It can identify overfitting to a declared validation set, but it cannot by itself show that an answer is helpful for a different user, factually supported, secure in a tool environment, or stable under prompt variation. Model selection should combine the validation loss with task-specific target and regression evaluations that were chosen before inspecting the final checkpoint.</p>
 <p>The evaluation must also preserve the serving interface. Comparing a base model under a raw completion prompt with a tuned model under a carefully engineered chat template mixes model adaptation and prompting. A fair comparison can report both interfaces, but it should label them separately and make visible any system messages, retrieval context, decoding constraints, or answer extraction rules.</p>
-<div id="64429561" class="cell">
+<div id="edcba399" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>checkpoints<span class="op">=</span>{<span class="st">"step_100"</span>:(<span class="fl">1.42</span>,<span class="fl">.52</span>,<span class="fl">.41</span>),<span class="st">"step_500"</span>:(<span class="fl">1.28</span>,<span class="fl">.61</span>,<span class="fl">.37</span>),<span class="st">"step_900"</span>:(<span class="fl">1.22</span>,<span class="fl">.60</span>,<span class="fl">.31</span>)}</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,(loss,target,retained) <span class="kw">in</span> checkpoints.items():</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(step,<span class="st">"validation loss"</span>,loss,<span class="st">"target score"</span>,target,<span class="st">"retained score"</span>,retained)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>checkpoints<span class="op">=</span>{<span class="st">"step_100"</span>:(<span class="fl">1.42</span>,<span class="fl">.52</span>,<span class="fl">.41</span>),<span class="st">"step_500"</span>:(<span class="fl">1.28</span>,<span class="fl">.61</span>,<span class="fl">.37</span>),<span class="st">"step_900"</span>:(<span class="fl">1.22</span>,<span class="fl">.60</span>,<span class="fl">.31</span>)}</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,(loss,target,retained) <span class="kw">in</span> checkpoints.items():</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(step,<span class="st">"validation loss"</span>,loss,<span class="st">"target score"</span>,target,<span class="st">"retained score"</span>,retained)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>step_100 validation loss 1.42 target score 0.52 retained score 0.41
+step_500 validation loss 1.28 target score 0.61 retained score 0.37
+step_900 validation loss 1.22 target score 0.6 retained score 0.31</code></pre>
+</div>
 </div>
 </section>
 <section id="errors-often-originate-before-the-response-span" class="level3">
@@ -709,13 +765,18 @@ Figure&nbsp;30.4
 <h3 class="anchored" data-anchor-id="the-supervised-objective-has-a-length-and-balance-policy">The supervised objective has a length and balance policy</h3>
 <p>Assistant-only masking is not sufficient to define a dataset loss. Long responses contribute more supervised tokens than short responses when loss is averaged over valid target tokens. A corpus with a few long explanations can therefore exert more gradient influence than a larger number of brief extraction examples. Sampling weights, example packing, maximum length, truncation, and the loss denominator should be chosen together and recorded.</p>
 <p>Truncation is particularly important in multi-turn data. Removing the beginning of a conversation can discard system instructions or the question that makes an assistant answer meaningful. Removing the end can cut the supervised answer and produce incomplete targets. A pipeline needs a declared rule and tests on representative long conversations, including tool results and retrieved context.</p>
-<div id="0cbb1ee3" class="cell">
+<div id="60d42fe2" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"short extraction"</span>:<span class="dv">12</span>,<span class="st">"long explanation"</span>:<span class="dv">180</span>,<span class="st">"tool conversation"</span>:<span class="dv">95</span>}</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>total<span class="op">=</span><span class="bu">sum</span>(examples.values())</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,tokens <span class="kw">in</span> examples.items(): <span class="bu">print</span>(name,<span class="st">"supervised-token share"</span>,<span class="bu">round</span>(tokens<span class="op">/</span>total,<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"short extraction"</span>:<span class="dv">12</span>,<span class="st">"long explanation"</span>:<span class="dv">180</span>,<span class="st">"tool conversation"</span>:<span class="dv">95</span>}</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>total<span class="op">=</span><span class="bu">sum</span>(examples.values())</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,tokens <span class="kw">in</span> examples.items(): <span class="bu">print</span>(name,<span class="st">"supervised-token share"</span>,<span class="bu">round</span>(tokens<span class="op">/</span>total,<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>short extraction supervised-token share 0.04
+long explanation supervised-token share 0.63
+tool conversation supervised-token share 0.33</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -724,32 +785,40 @@ Figure&nbsp;30.4
 <section id="evaluate-behaviour-not-only-response-overlap" class="level3">
 <h3 class="anchored" data-anchor-id="evaluate-behaviour-not-only-response-overlap">Evaluate behaviour, not only response overlap</h3>
 <p>Exact match is useful for extraction and tightly specified outputs. It is insufficient for many instruction tasks where several answers are valid. Evaluations should define the task, input availability, output criterion, scoring procedure, and any human-review protocol. They should compare the base and tuned checkpoints under the same template and decoding policy, then report both improvements and regressions.</p>
-<div id="fig-adaptation-evaluation" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-adaptation-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-adaptation-evaluation" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.35</span>,<span class="st">"base</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.55</span>,<span class="st">"tuned</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.05</span>,<span class="st">"target-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"retained-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.775</span>,<span class="fl">1.59</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Report target gains and retained-task changes separately."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.35</span>,<span class="st">"base</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.55</span>,<span class="st">"tuned</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.05</span>,<span class="st">"target-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"retained-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.775</span>,<span class="fl">1.59</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Report target gains and retained-task changes separately."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-adaptation-evaluation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram shows base and tuned checkpoints evaluated on instruction tasks and retained capability tasks, then reported separately.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-adaptation-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="29-instruction-tuning_files/figure-html/fig-adaptation-evaluation-output-1.png" class="img-fluid figure-img" alt="A diagram shows base and tuned checkpoints evaluated on instruction tasks and retained capability tasks, then reported separately.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-adaptation-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;30.5
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-adaptation-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;30.5: Instruction-tuning evaluation compares the base and tuned models on target tasks and retained tasks under the same serving interface.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 <section id="the-run-record-must-recover-the-exact-interface" class="level3">
 <h3 class="anchored" data-anchor-id="the-run-record-must-recover-the-exact-interface">The run record must recover the exact interface</h3>
 <p>An instruction-tuning record needs base checkpoint and tokenizer, template version, role and special-token rules, source and target masks, training examples and provenance, split policy, maximum length and truncation rule, optimiser settings, parameter scope, checkpoints, target and retained evaluations, decoding settings, and known failure cases. This is the minimum needed to distinguish a model change from a prompt-template or evaluation change.</p>
-<div id="30c143d5" class="cell">
+<div id="96d15895" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"versioned checkpoint"</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>,<span class="st">"target_mask"</span>:<span class="st">"assistant only"</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"evaluation"</span>:<span class="st">"target and retained sets"</span>}</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base"</span>,<span class="st">"template"</span>,<span class="st">"target_mask"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"instruction-tuning record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"versioned checkpoint"</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>,<span class="st">"target_mask"</span>:<span class="st">"assistant only"</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"evaluation"</span>:<span class="st">"target and retained sets"</span>}</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base"</span>,<span class="st">"template"</span>,<span class="st">"target_mask"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"instruction-tuning record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>instruction-tuning record complete</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -1274,262 +1343,270 @@ Wei, Jason, Maarten Bosma, Vincent Zhao, Kelvin Guu, Adams Wei Yu, Brian Lester,
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Instruction Tuning"</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Supervised adaptation from continuation to instruction-following behaviour"</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>A base language model predicts continuations of token sequences. It may complete an instruction, continue it, imitate an answer, or produce an unrelated pattern depending on the prompt and its pretraining distribution. Instruction tuning adapts the model on examples formatted as requests and preferred responses so that a defined interface more reliably produces the intended response style.</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>The optimisation remains token prediction, but the training examples, target mask, conversation template, and evaluation task change. This chapter explains that change without claiming that supervised demonstrations establish factuality, safety, or preference alignment. Chapter 30 examines preference optimisation; Chapter 31 examines full and parameter-efficient task adaptation.</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish base pretraining from supervised instruction tuning;</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define instruction, context, response, template, and target tokens;</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why loss is normally applied to response tokens rather than the user's request;</span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify data quality, diversity, and split risks in demonstration datasets;</span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement a target mask for a toy chat example;</span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>describe catastrophic forgetting and regression evaluation; and</span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify the metadata needed to reproduce an instruction-tuning run.</span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running conversation</span></span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>The running example has a system instruction, a user request, and an assistant response. The entire formatted conversation is input to a causal model, but only selected assistant tokens contribute to the supervised loss.</span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-chat-template</span></span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Instruction tuning formats role-marked messages into one causal token sequence while applying loss only to the chosen assistant response."</span></span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A left-to-right sequence contains system, user, and assistant segments, with only the assistant segment highlighted as supervised targets."</span></span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
-<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
-<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>parts<span class="op">=</span>[(<span class="st">"system"</span>,blue,<span class="va">False</span>),(<span class="st">"user request"</span>,teal,<span class="va">False</span>),(<span class="st">"assistant response"</span>,orange,<span class="va">True</span>)]</span>
-<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)<span class="op">;</span> x<span class="op">=</span><span class="fl">.35</span></span>
-<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,target <span class="kw">in</span> parts:</span>
-<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>    w<span class="op">=</span><span class="fl">2.55</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.54</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>    ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">.87</span>,<span class="st">"loss target"</span> <span class="cf">if</span> target <span class="cf">else</span> <span class="st">"context only"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange <span class="cf">if</span> target <span class="cf">else</span> grey,fontsize<span class="op">=</span><span class="dv">9</span>)<span class="op">;</span> x<span class="op">+=</span>w<span class="op">+</span><span class="fl">.25</span></span>
-<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.6</span>,<span class="fl">.35</span>,<span class="st">"Role markers and template tokens are part of the model input contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">2.2</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a><span class="fu">### Demonstrations define a response convention</span></span>
-<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>An instruction-tuning dataset contains demonstrations of an input and a target response. They may include a system message, a user request, documents or tool outputs, and one or more assistant turns. During fine-tuning, the model sees the context and is trained to assign high probability to the demonstrated assistant tokens. Repeated examples establish a convention about when to answer, how to structure an answer, and how to handle specified formats.</span>
-<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>This does not convert a model into a database of verified answers. If demonstrations are wrong, incomplete, inconsistent, or narrowly distributed, the model can learn those patterns. A training run can improve compliance with a template while reducing performance on unrelated base-model behaviours. The desired change and the possible regression must both be evaluated.</span>
-<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>conversation<span class="op">=</span>[<span class="st">"&lt;system&gt;"</span>,<span class="st">"Be concise."</span>,<span class="st">"&lt;user&gt;"</span>,<span class="st">"Name a mammal."</span>,<span class="st">"&lt;assistant&gt;"</span>,<span class="st">"A whale is a mammal."</span>]</span>
-<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(conversation))</span>
-<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### The template is not decoration</span></span>
-<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>Role markers tell the model which span is an instruction, which span is user-provided context, and where an assistant response should begin. A checkpoint trained with one template may respond poorly when served with another, even if the visible wording is unchanged. The tokenizer, special tokens, whitespace rules, and tool-call fields are all part of this interface.</span>
-<span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-template-mismatch</span></span>
-<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The same visible request can produce different token sequences under different role templates, so training and serving templates must be versioned together."</span></span>
-<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two rows show alternative role-marked encodings of the same user request and assistant response."</span></span>
-<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.2</span>))</span>
-<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"template A"</span>,[<span class="st">"&lt;user&gt;"</span>,<span class="st">"request"</span>,<span class="st">"&lt;assistant&gt;"</span>,<span class="st">"response"</span>]),(<span class="st">"template B"</span>,[<span class="st">"User:"</span>,<span class="st">"request"</span>,<span class="st">"Assistant:"</span>,<span class="st">"response"</span>])]</span>
-<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(name,pieces) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
-<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
-<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,p <span class="kw">in</span> <span class="bu">enumerate</span>(pieces):</span>
-<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a>        c<span class="op">=</span>teal <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">2</span> <span class="cf">else</span> orange<span class="op">;</span> x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.18</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.23</span>),<span class="fl">.15</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.075</span>,<span class="fl">.5</span>,p,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
-<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Supervised mechanics</span></span>
-<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a><span class="fu">### Context tokens and target tokens have different roles</span></span>
-<span id="cb14-86"><a href="#cb14-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-87"><a href="#cb14-87" aria-hidden="true" tabindex="-1"></a>The user request must be visible so the model can condition on it. It is usually not a target to reproduce. A common loss mask sets labels for system, user, padding, and structural tokens to an ignore value, while keeping labels for assistant response tokens. The causal model still predicts a distribution at every position, but optimisation averages loss only over supervised positions.</span>
-<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a>ids<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">3</span>,<span class="dv">20</span>,<span class="dv">21</span>,<span class="dv">4</span>,<span class="dv">30</span>,<span class="dv">31</span>,<span class="dv">32</span>,<span class="dv">5</span>])</span>
-<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a>assistant_start<span class="op">=</span><span class="dv">7</span><span class="op">;</span> pad_label<span class="op">=-</span><span class="dv">100</span></span>
-<span id="cb14-94"><a href="#cb14-94" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>np.full_like(ids,pad_label)</span>
-<span id="cb14-95"><a href="#cb14-95" aria-hidden="true" tabindex="-1"></a>labels[assistant_start:]<span class="op">=</span>ids[assistant_start:]</span>
-<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"IDs:   "</span>,ids)</span>
-<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"labels:"</span>,labels)</span>
-<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>An off-by-one target mask can train the model to reproduce user text, omit the first assistant token, or include an end marker inconsistently. The model can still show a decreasing scalar loss, so small examples should print formatted tokens and labels before a large run.</span>
-<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-target-mask</span></span>
-<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An instruction-tuning target mask excludes context and applies token loss only to the assistant answer span."</span></span>
-<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Aligned rows display token IDs and labels, with ignored labels before the assistant response and target IDs after it."</span></span>
-<span id="cb14-108"><a href="#cb14-108" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb14-109"><a href="#cb14-109" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,(name,values) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"token ID"</span>,ids),(<span class="st">"label"</span>,labels)]):</span>
-<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.05</span>,<span class="fl">1.8</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey)</span>
-<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,v <span class="kw">in</span> <span class="bu">enumerate</span>(values):</span>
-<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="dv">1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.66</span><span class="op">;</span> c<span class="op">=</span>orange <span class="cf">if</span> row<span class="op">==</span><span class="dv">1</span> <span class="kw">and</span> v<span class="op">!=</span>pad_label <span class="cf">else</span> (blue <span class="cf">if</span> row<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> grey)</span>
-<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,<span class="fl">1.53</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>),<span class="fl">.52</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.26</span>,<span class="fl">1.74</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,<span class="bu">str</span>(v),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
-<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a><span class="fu">### Demonstration quality determines what is reinforced</span></span>
-<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a>Instruction data may be written by people, collected from existing tasks, generated by another model, or revised through review. Each source can be useful, but each has distinct error and provenance risks. A dataset should record authorship or generation process, licensing and consent conditions, task categories, languages, response length, quality-control rules, and the version of any model used to synthesize examples.</span>
-<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>Data diversity is not a count of surface prompts. It concerns the distribution of tasks, ambiguity, formats, languages, safety-sensitive requests, and response behaviours. A dataset containing many paraphrases of one answer style can produce a narrow model interface. Evaluation splits should prevent template duplicates, source leakage, and near-identical instructions from inflating reported generalisation.</span>
-<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"extraction"</span>:<span class="dv">1200</span>,<span class="st">"summarisation"</span>:<span class="dv">850</span>,<span class="st">"coding"</span>:<span class="dv">400</span>,<span class="st">"multilingual"</span>:<span class="dv">150</span>}</span>
-<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task counts:"</span>,examples)</span>
-<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"counts describe coverage only when task definitions and selection rules are documented"</span>)</span>
-<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Adaptation and regression</span></span>
-<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fine-tuning changes shared parameters</span></span>
-<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a>Full supervised fine-tuning updates model parameters using gradients from the demonstration loss. The new gradients can improve target behaviours while changing probabilities needed for earlier behaviours. This is often called catastrophic forgetting when adaptation materially degrades retained capabilities. The term does not imply that any change is harmful: the question is whether a regression occurs on a predeclared retained-task set.</span>
-<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a>before<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.42</span>,<span class="st">"base_completion"</span>:<span class="fl">.31</span>,<span class="st">"code"</span>:<span class="fl">.38</span>}</span>
-<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a>after<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.61</span>,<span class="st">"base_completion"</span>:<span class="fl">.27</span>,<span class="st">"code"</span>:<span class="fl">.33</span>}</span>
-<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task <span class="kw">in</span> before: <span class="bu">print</span>(task,<span class="st">"change"</span>,<span class="bu">round</span>(after[task]<span class="op">-</span>before[task],<span class="dv">2</span>))</span>
-<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a>The trade-off depends on data size and composition, learning rate, update count, sequence length, parameter scope, regularisation, and the mismatch between pretraining and adaptation tasks. A training report should retain intermediate checkpoints and evaluate both target and retained behaviours. A final checkpoint selected only on instruction loss can conceal a broader regression.</span>
-<span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a><span class="fu">### Multi-turn and tool examples create additional boundaries</span></span>
-<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a>In a multi-turn conversation, later assistant targets can condition on earlier assistant text. A training pipeline must specify whether it applies loss to every assistant turn, how it masks user and tool spans, and whether it truncates from the beginning or end. Tool-call examples also require a schema and a decision about whether tool results are trusted context, target text, or both.</span>
-<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a>roles<span class="op">=</span>[<span class="st">"system"</span>,<span class="st">"user"</span>,<span class="st">"assistant"</span>,<span class="st">"tool"</span>,<span class="st">"assistant"</span>]</span>
-<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a>supervise<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>])</span>
-<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">list</span>(<span class="bu">zip</span>(roles,supervise)))</span>
-<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dataset mixtures can create instruction conflicts</span></span>
-<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a>Instruction datasets often combine short question-answer examples, summarisation, extraction, coding, safety responses, tool use, and multi-turn conversations. The same visible request can be paired with incompatible target styles across sources: one example may answer directly, another may ask a clarifying question, and a third may refuse. A model cannot infer an unstated hierarchy among such demonstrations. The dataset builder must define source weights, conflict rules, and the intended role of system messages or policy examples.</span>
-<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-163"><a href="#cb14-163" aria-hidden="true" tabindex="-1"></a>This is also why response length and formatting deserve an audit. A corpus dominated by terse answers can make longer explanations less probable even when they are appropriate. A corpus dominated by verbose templates can produce unnecessary prefacing. These are not properties of “instruction following” in general; they are patterns in the supervised target distribution.</span>
-<span id="cb14-164"><a href="#cb14-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-demonstration-mixture</span></span>
-<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Instruction-data mixtures allocate different proportions of supervised tokens to task types, response styles, and behavioural policies."</span></span>
-<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A stacked bar shows illustrative shares of extraction, explanation, coding, and policy demonstrations in an instruction-tuning mixture."</span></span>
-<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a>types<span class="op">=</span>[<span class="st">"extraction"</span>,<span class="st">"explanation"</span>,<span class="st">"coding"</span>,<span class="st">"policy"</span>]</span>
-<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a>shares<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.35</span>,<span class="fl">.2</span>,<span class="fl">.2</span>])</span>
-<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.9</span>))<span class="op">;</span> left<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb14-174"><a href="#cb14-174" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,share,c <span class="kw">in</span> <span class="bu">zip</span>(types,shares,[blue,teal,orange,purple]):</span>
-<span id="cb14-175"><a href="#cb14-175" aria-hidden="true" tabindex="-1"></a>    ax.barh([<span class="dv">0</span>],[share],left<span class="op">=</span>[left],color<span class="op">=</span>c,label<span class="op">=</span>name)<span class="op">;</span> ax.text(left<span class="op">+</span>share<span class="op">/</span><span class="dv">2</span>,<span class="dv">0</span>,<span class="ss">f"</span><span class="sc">{</span><span class="bu">int</span>(share<span class="op">*</span><span class="dv">100</span>)<span class="sc">}</span><span class="ss">%"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> left<span class="op">+=</span>share</span>
-<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"illustrative supervised-token share"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">4</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Mixture choices define the reinforced response distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training loss is an incomplete selection criterion</span></span>
-<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a>Response-token cross-entropy measures agreement with held-out demonstration continuations. It can identify overfitting to a declared validation set, but it cannot by itself show that an answer is helpful for a different user, factually supported, secure in a tool environment, or stable under prompt variation. Model selection should combine the validation loss with task-specific target and regression evaluations that were chosen before inspecting the final checkpoint.</span>
-<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a>The evaluation must also preserve the serving interface. Comparing a base model under a raw completion prompt with a tuned model under a carefully engineered chat template mixes model adaptation and prompting. A fair comparison can report both interfaces, but it should label them separately and make visible any system messages, retrieval context, decoding constraints, or answer extraction rules.</span>
-<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-187"><a href="#cb14-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a>checkpoints<span class="op">=</span>{<span class="st">"step_100"</span>:(<span class="fl">1.42</span>,<span class="fl">.52</span>,<span class="fl">.41</span>),<span class="st">"step_500"</span>:(<span class="fl">1.28</span>,<span class="fl">.61</span>,<span class="fl">.37</span>),<span class="st">"step_900"</span>:(<span class="fl">1.22</span>,<span class="fl">.60</span>,<span class="fl">.31</span>)}</span>
-<span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,(loss,target,retained) <span class="kw">in</span> checkpoints.items():</span>
-<span id="cb14-190"><a href="#cb14-190" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(step,<span class="st">"validation loss"</span>,loss,<span class="st">"target score"</span>,target,<span class="st">"retained score"</span>,retained)</span>
-<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-193"><a href="#cb14-193" aria-hidden="true" tabindex="-1"></a><span class="fu">### Errors often originate before the response span</span></span>
-<span id="cb14-194"><a href="#cb14-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a>An incorrect instruction-tuned output can arise from an ambiguous request, an incompatible template, truncated context, unsupported content in the demonstration data, a target-mask error, decoding choices, or a model distribution that fails despite correct inputs. An audit should retain the formatted token sequence, role boundaries, masked labels, selected output IDs, and evaluation rationale for representative failures. This makes it possible to repair the relevant component rather than adding examples blindly.</span>
-<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a>For a system that uses tools or retrieved documents, source availability should be part of the error record. An answer can be stylistically compliant while failing to use a supplied source, or it can cite a source that was never available in the context. Instruction tuning alone does not establish grounding behaviour; the task interface and evaluation need to test it.</span>
-<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a><span class="fu">### The supervised objective has a length and balance policy</span></span>
-<span id="cb14-200"><a href="#cb14-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a>Assistant-only masking is not sufficient to define a dataset loss. Long responses contribute more supervised tokens than short responses when loss is averaged over valid target tokens. A corpus with a few long explanations can therefore exert more gradient influence than a larger number of brief extraction examples. Sampling weights, example packing, maximum length, truncation, and the loss denominator should be chosen together and recorded.</span>
-<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a>Truncation is particularly important in multi-turn data. Removing the beginning of a conversation can discard system instructions or the question that makes an assistant answer meaningful. Removing the end can cut the supervised answer and produce incomplete targets. A pipeline needs a declared rule and tests on representative long conversations, including tool results and retrieved context.</span>
-<span id="cb14-204"><a href="#cb14-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"short extraction"</span>:<span class="dv">12</span>,<span class="st">"long explanation"</span>:<span class="dv">180</span>,<span class="st">"tool conversation"</span>:<span class="dv">95</span>}</span>
-<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a>total<span class="op">=</span><span class="bu">sum</span>(examples.values())</span>
-<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,tokens <span class="kw">in</span> examples.items(): <span class="bu">print</span>(name,<span class="st">"supervised-token share"</span>,<span class="bu">round</span>(tokens<span class="op">/</span>total,<span class="dv">2</span>))</span>
-<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-213"><a href="#cb14-213" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and interpretation</span></span>
-<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate behaviour, not only response overlap</span></span>
-<span id="cb14-216"><a href="#cb14-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-217"><a href="#cb14-217" aria-hidden="true" tabindex="-1"></a>Exact match is useful for extraction and tightly specified outputs. It is insufficient for many instruction tasks where several answers are valid. Evaluations should define the task, input availability, output criterion, scoring procedure, and any human-review protocol. They should compare the base and tuned checkpoints under the same template and decoding policy, then report both improvements and regressions.</span>
-<span id="cb14-218"><a href="#cb14-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-221"><a href="#cb14-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-222"><a href="#cb14-222" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-adaptation-evaluation</span></span>
-<span id="cb14-223"><a href="#cb14-223" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Instruction-tuning evaluation compares the base and tuned models on target tasks and retained tasks under the same serving interface."</span></span>
-<span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram shows base and tuned checkpoints evaluated on instruction tasks and retained capability tasks, then reported separately."</span></span>
-<span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.35</span>,<span class="st">"base</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.55</span>,<span class="st">"tuned</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.05</span>,<span class="st">"target-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"retained-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.775</span>,<span class="fl">1.59</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Report target gains and retained-task changes separately."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-229"><a href="#cb14-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-230"><a href="#cb14-230" aria-hidden="true" tabindex="-1"></a><span class="fu">### The run record must recover the exact interface</span></span>
-<span id="cb14-231"><a href="#cb14-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-232"><a href="#cb14-232" aria-hidden="true" tabindex="-1"></a>An instruction-tuning record needs base checkpoint and tokenizer, template version, role and special-token rules, source and target masks, training examples and provenance, split policy, maximum length and truncation rule, optimiser settings, parameter scope, checkpoints, target and retained evaluations, decoding settings, and known failure cases. This is the minimum needed to distinguish a model change from a prompt-template or evaluation change.</span>
-<span id="cb14-233"><a href="#cb14-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-236"><a href="#cb14-236" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-237"><a href="#cb14-237" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"versioned checkpoint"</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>,<span class="st">"target_mask"</span>:<span class="st">"assistant only"</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"evaluation"</span>:<span class="st">"target and retained sets"</span>}</span>
-<span id="cb14-238"><a href="#cb14-238" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base"</span>,<span class="st">"template"</span>,<span class="st">"target_mask"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
-<span id="cb14-239"><a href="#cb14-239" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"instruction-tuning record complete"</span>)</span>
-<span id="cb14-240"><a href="#cb14-240" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-241"><a href="#cb14-241" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-242"><a href="#cb14-242" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb14-243"><a href="#cb14-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-244"><a href="#cb14-244" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Instruction tuning replaces the language-model objective.** It usually applies the same token loss to a different, masked demonstration distribution.</span>
-<span id="cb14-245"><a href="#cb14-245" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Every token in a chat transcript should be supervised.** User and system text are commonly conditioning context, not desired output.</span>
-<span id="cb14-246"><a href="#cb14-246" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A chat template can be changed without retraining.** Its role markers and separators alter the input token sequence.</span>
-<span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More demonstrations automatically give broader instruction following.** Coverage, quality, duplication, and task mix determine what is reinforced.</span>
-<span id="cb14-248"><a href="#cb14-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Improved instruction scores prove no retained capability declined.** Regression tests are required.</span>
-<span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A compliant response is necessarily a correct response.** Format following and factual validity require separate evidence.</span>
-<span id="cb14-250"><a href="#cb14-250" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-251"><a href="#cb14-251" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb14-252"><a href="#cb14-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-253"><a href="#cb14-253" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish pretraining and instruction-tuning data distributions.</span>
-<span id="cb14-254"><a href="#cb14-254" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Mark context and target spans in a supplied chat transcript.</span>
-<span id="cb14-255"><a href="#cb14-255" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Implement an assistant-only label mask for a two-turn example.</span>
-<span id="cb14-256"><a href="#cb14-256" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Identify an off-by-one masking error and its consequence.</span>
-<span id="cb14-257"><a href="#cb14-257" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Explain why template versioning is required at serving time.</span>
-<span id="cb14-258"><a href="#cb14-258" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>List provenance fields for a demonstration dataset.</span>
-<span id="cb14-259"><a href="#cb14-259" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Design a split that limits near-duplicate instruction leakage.</span>
-<span id="cb14-260"><a href="#cb14-260" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare target-task and retained-task evaluation.</span>
-<span id="cb14-261"><a href="#cb14-261" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Explain one mechanism that can cause adaptation regression.</span>
-<span id="cb14-262"><a href="#cb14-262" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>State how tool-result spans should be treated in a declared pipeline.</span>
-<span id="cb14-263"><a href="#cb14-263" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Calculate the supervised-token fraction for a supplied conversation.</span>
-<span id="cb14-264"><a href="#cb14-264" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Propose a task category audit beyond simple example counts.</span>
-<span id="cb14-265"><a href="#cb14-265" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Explain why exact match is insufficient for open-ended assistance.</span>
-<span id="cb14-266"><a href="#cb14-266" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>List metadata required to reproduce a tuned checkpoint.</span>
-<span id="cb14-267"><a href="#cb14-267" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Design a test for a template mismatch after deployment.</span>
-<span id="cb14-268"><a href="#cb14-268" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that introduces preference optimisation.</span>
-<span id="cb14-269"><a href="#cb14-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-270"><a href="#cb14-270" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
-<span id="cb14-271"><a href="#cb14-271" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-272"><a href="#cb14-272" aria-hidden="true" tabindex="-1"></a>Instruction tuning adapts a base model to role-formatted demonstrations by applying supervised token loss to declared response spans. The template, tokenizer, target mask, data provenance, and loss denominator define the actual adaptation task. A tuned model must be evaluated for both target behaviour and retained capabilities.</span>
-<span id="cb14-273"><a href="#cb14-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-274"><a href="#cb14-274" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 30</span><span class="co">](30-preference-optimisation.qmd)</span> examines how preference data and related objectives compare candidate responses rather than simply reproducing one demonstration.</span>
-<span id="cb14-275"><a href="#cb14-275" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-276"><a href="#cb14-276" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
-<span id="cb14-277"><a href="#cb14-277" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-278"><a href="#cb14-278" aria-hidden="true" tabindex="-1"></a>Instruction tuning fits stated target responses. <span class="co">[</span><span class="ot">Chapter 30</span><span class="co">](30-preference-optimisation.qmd)</span> examines learning from a different supervision form: comparisons between alternative responses to the same prompt.</span>
-<span id="cb14-279"><a href="#cb14-279" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-280"><a href="#cb14-280" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb14-281"><a href="#cb14-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-282"><a href="#cb14-282" aria-hidden="true" tabindex="-1"></a>Instruction tuning across many tasks is studied by @wei2022finetuned. InstructGPT documents supervised fine-tuning as one stage in an alignment pipeline <span class="co">[</span><span class="ot">@ouyang2022training</span><span class="co">]</span>.</span>
+<div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Instruction Tuning"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Supervised adaptation from continuation to instruction-following behaviour"</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>A base language model predicts continuations of token sequences. It may complete an instruction, continue it, imitate an answer, or produce an unrelated pattern depending on the prompt and its pretraining distribution. Instruction tuning adapts the model on examples formatted as requests and preferred responses so that a defined interface more reliably produces the intended response style.</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>The optimisation remains token prediction, but the training examples, target mask, conversation template, and evaluation task change. This chapter explains that change without claiming that supervised demonstrations establish factuality, safety, or preference alignment. Chapter 30 examines preference optimisation; Chapter 31 examines full and parameter-efficient task adaptation.</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish base pretraining from supervised instruction tuning;</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define instruction, context, response, template, and target tokens;</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why loss is normally applied to response tokens rather than the user's request;</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify data quality, diversity, and split risks in demonstration datasets;</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement a target mask for a toy chat example;</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>describe catastrophic forgetting and regression evaluation; and</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify the metadata needed to reproduce an instruction-tuning run.</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running conversation</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>The running example has a system instruction, a user request, and an assistant response. The entire formatted conversation is input to a causal model, but only selected assistant tokens contribute to the supervised loss.</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-chat-template</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Instruction tuning formats role-marked messages into one causal token sequence while applying loss only to the chosen assistant response."</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A left-to-right sequence contains system, user, and assistant segments, with only the assistant segment highlighted as supervised targets."</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>parts<span class="op">=</span>[(<span class="st">"system"</span>,blue,<span class="va">False</span>),(<span class="st">"user request"</span>,teal,<span class="va">False</span>),(<span class="st">"assistant response"</span>,orange,<span class="va">True</span>)]</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)<span class="op">;</span> x<span class="op">=</span><span class="fl">.35</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,target <span class="kw">in</span> parts:</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>    w<span class="op">=</span><span class="fl">2.55</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.54</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>    ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">.87</span>,<span class="st">"loss target"</span> <span class="cf">if</span> target <span class="cf">else</span> <span class="st">"context only"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange <span class="cf">if</span> target <span class="cf">else</span> grey,fontsize<span class="op">=</span><span class="dv">9</span>)<span class="op">;</span> x<span class="op">+=</span>w<span class="op">+</span><span class="fl">.25</span></span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.6</span>,<span class="fl">.35</span>,<span class="st">"Role markers and template tokens are part of the model input contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">2.2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-instruction-tuning data-term="Instruction tuning" data-domain="Large language models"}</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>**Instruction tuning.** Supervised adaptation that trains a model to produce target responses within a declared conversation format. The target mask determines which tokens receive loss, while the template determines the interface supplied at training and use.</span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-instruction-prompting data-term="Instruction tuning and prompting" data-domain="Large language models"}</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>**Instruction tuning and prompting.** Instruction tuning changes a model through supervised parameter updates. Prompting changes the context supplied to a fixed model at inference time. Both can alter behaviour, but they make different resource and evidence claims.</span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a><span class="fu">### Demonstrations define a response convention</span></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>An instruction-tuning dataset contains demonstrations of an input and a target response. They may include a system message, a user request, documents or tool outputs, and one or more assistant turns. During fine-tuning, the model sees the context and is trained to assign high probability to the demonstrated assistant tokens. Repeated examples establish a convention about when to answer, how to structure an answer, and how to handle specified formats.</span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a>This does not convert a model into a database of verified answers. If demonstrations are wrong, incomplete, inconsistent, or narrowly distributed, the model can learn those patterns. A training run can improve compliance with a template while reducing performance on unrelated base-model behaviours. The desired change and the possible regression must both be evaluated.</span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>conversation<span class="op">=</span>[<span class="st">"&lt;system&gt;"</span>,<span class="st">"Be concise."</span>,<span class="st">"&lt;user&gt;"</span>,<span class="st">"Name a mammal."</span>,<span class="st">"&lt;assistant&gt;"</span>,<span class="st">"A whale is a mammal."</span>]</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(conversation))</span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### The template is not decoration</span></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a>Role markers tell the model which span is an instruction, which span is user-provided context, and where an assistant response should begin. A checkpoint trained with one template may respond poorly when served with another, even if the visible wording is unchanged. The tokenizer, special tokens, whitespace rules, and tool-call fields are all part of this interface.</span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-template-mismatch</span></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "The same visible request can produce different token sequences under different role templates, so training and serving templates must be versioned together."</span></span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two rows show alternative role-marked encodings of the same user request and assistant response."</span></span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.2</span>))</span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"template A"</span>,[<span class="st">"&lt;user&gt;"</span>,<span class="st">"request"</span>,<span class="st">"&lt;assistant&gt;"</span>,<span class="st">"response"</span>]),(<span class="st">"template B"</span>,[<span class="st">"User:"</span>,<span class="st">"request"</span>,<span class="st">"Assistant:"</span>,<span class="st">"response"</span>])]</span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(name,pieces) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,p <span class="kw">in</span> <span class="bu">enumerate</span>(pieces):</span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a>        c<span class="op">=</span>teal <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">2</span> <span class="cf">else</span> orange<span class="op">;</span> x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.18</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.23</span>),<span class="fl">.15</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.075</span>,<span class="fl">.5</span>,p,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Supervised mechanics</span></span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a><span class="fu">### Context tokens and target tokens have different roles</span></span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a>The user request must be visible so the model can condition on it. It is usually not a target to reproduce. A common loss mask sets labels for system, user, padding, and structural tokens to an ignore value, while keeping labels for assistant response tokens. The causal model still predicts a distribution at every position, but optimisation averages loss only over supervised positions.</span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a>ids<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">3</span>,<span class="dv">20</span>,<span class="dv">21</span>,<span class="dv">4</span>,<span class="dv">30</span>,<span class="dv">31</span>,<span class="dv">32</span>,<span class="dv">5</span>])</span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a>assistant_start<span class="op">=</span><span class="dv">7</span><span class="op">;</span> pad_label<span class="op">=-</span><span class="dv">100</span></span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>np.full_like(ids,pad_label)</span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a>labels[assistant_start:]<span class="op">=</span>ids[assistant_start:]</span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"IDs:   "</span>,ids)</span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"labels:"</span>,labels)</span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a>An off-by-one target mask can train the model to reproduce user text, omit the first assistant token, or include an end marker inconsistently. The model can still show a decreasing scalar loss, so small examples should print formatted tokens and labels before a large run.</span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-target-mask</span></span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An instruction-tuning target mask excludes context and applies token loss only to the assistant answer span."</span></span>
+<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Aligned rows display token IDs and labels, with ignored labels before the assistant response and target IDs after it."</span></span>
+<span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,(name,values) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"token ID"</span>,ids),(<span class="st">"label"</span>,labels)]):</span>
+<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.05</span>,<span class="fl">1.8</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,v <span class="kw">in</span> <span class="bu">enumerate</span>(values):</span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="dv">1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.66</span><span class="op">;</span> c<span class="op">=</span>orange <span class="cf">if</span> row<span class="op">==</span><span class="dv">1</span> <span class="kw">and</span> v<span class="op">!=</span>pad_label <span class="cf">else</span> (blue <span class="cf">if</span> row<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> grey)</span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,<span class="fl">1.53</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>),<span class="fl">.52</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.26</span>,<span class="fl">1.74</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.8</span>,<span class="bu">str</span>(v),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a><span class="fu">### Demonstration quality determines what is reinforced</span></span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a>Instruction data may be written by people, collected from existing tasks, generated by another model, or revised through review. Each source can be useful, but each has distinct error and provenance risks. A dataset should record authorship or generation process, licensing and consent conditions, task categories, languages, response length, quality-control rules, and the version of any model used to synthesize examples.</span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a>Data diversity is not a count of surface prompts. It concerns the distribution of tasks, ambiguity, formats, languages, safety-sensitive requests, and response behaviours. A dataset containing many paraphrases of one answer style can produce a narrow model interface. Evaluation splits should prevent template duplicates, source leakage, and near-identical instructions from inflating reported generalisation.</span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"extraction"</span>:<span class="dv">1200</span>,<span class="st">"summarisation"</span>:<span class="dv">850</span>,<span class="st">"coding"</span>:<span class="dv">400</span>,<span class="st">"multilingual"</span>:<span class="dv">150</span>}</span>
+<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task counts:"</span>,examples)</span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"counts describe coverage only when task definitions and selection rules are documented"</span>)</span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Adaptation and regression</span></span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fine-tuning changes shared parameters</span></span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a>Full supervised fine-tuning updates model parameters using gradients from the demonstration loss. The new gradients can improve target behaviours while changing probabilities needed for earlier behaviours. This is often called catastrophic forgetting when adaptation materially degrades retained capabilities. The term does not imply that any change is harmful: the question is whether a regression occurs on a predeclared retained-task set.</span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-147"><a href="#cb22-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a>before<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.42</span>,<span class="st">"base_completion"</span>:<span class="fl">.31</span>,<span class="st">"code"</span>:<span class="fl">.38</span>}</span>
+<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a>after<span class="op">=</span>{<span class="st">"instruction"</span>:<span class="fl">.61</span>,<span class="st">"base_completion"</span>:<span class="fl">.27</span>,<span class="st">"code"</span>:<span class="fl">.33</span>}</span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task <span class="kw">in</span> before: <span class="bu">print</span>(task,<span class="st">"change"</span>,<span class="bu">round</span>(after[task]<span class="op">-</span>before[task],<span class="dv">2</span>))</span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a>The trade-off depends on data size and composition, learning rate, update count, sequence length, parameter scope, regularisation, and the mismatch between pretraining and adaptation tasks. A training report should retain intermediate checkpoints and evaluate both target and retained behaviours. A final checkpoint selected only on instruction loss can conceal a broader regression.</span>
+<span id="cb22-154"><a href="#cb22-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a><span class="fu">### Multi-turn and tool examples create additional boundaries</span></span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a>In a multi-turn conversation, later assistant targets can condition on earlier assistant text. A training pipeline must specify whether it applies loss to every assistant turn, how it masks user and tool spans, and whether it truncates from the beginning or end. Tool-call examples also require a schema and a decision about whether tool results are trusted context, target text, or both.</span>
+<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a>roles<span class="op">=</span>[<span class="st">"system"</span>,<span class="st">"user"</span>,<span class="st">"assistant"</span>,<span class="st">"tool"</span>,<span class="st">"assistant"</span>]</span>
+<span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a>supervise<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>])</span>
+<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">list</span>(<span class="bu">zip</span>(roles,supervise)))</span>
+<span id="cb22-165"><a href="#cb22-165" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-166"><a href="#cb22-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dataset mixtures can create instruction conflicts</span></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a>Instruction datasets often combine short question-answer examples, summarisation, extraction, coding, safety responses, tool use, and multi-turn conversations. The same visible request can be paired with incompatible target styles across sources: one example may answer directly, another may ask a clarifying question, and a third may refuse. A model cannot infer an unstated hierarchy among such demonstrations. The dataset builder must define source weights, conflict rules, and the intended role of system messages or policy examples.</span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-171"><a href="#cb22-171" aria-hidden="true" tabindex="-1"></a>This is also why response length and formatting deserve an audit. A corpus dominated by terse answers can make longer explanations less probable even when they are appropriate. A corpus dominated by verbose templates can produce unnecessary prefacing. These are not properties of “instruction following” in general; they are patterns in the supervised target distribution.</span>
+<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-demonstration-mixture</span></span>
+<span id="cb22-177"><a href="#cb22-177" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Instruction-data mixtures allocate different proportions of supervised tokens to task types, response styles, and behavioural policies."</span></span>
+<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A stacked bar shows illustrative shares of extraction, explanation, coding, and policy demonstrations in an instruction-tuning mixture."</span></span>
+<span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a>types<span class="op">=</span>[<span class="st">"extraction"</span>,<span class="st">"explanation"</span>,<span class="st">"coding"</span>,<span class="st">"policy"</span>]</span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a>shares<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.35</span>,<span class="fl">.2</span>,<span class="fl">.2</span>])</span>
+<span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.9</span>))<span class="op">;</span> left<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb22-182"><a href="#cb22-182" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,share,c <span class="kw">in</span> <span class="bu">zip</span>(types,shares,[blue,teal,orange,purple]):</span>
+<span id="cb22-183"><a href="#cb22-183" aria-hidden="true" tabindex="-1"></a>    ax.barh([<span class="dv">0</span>],[share],left<span class="op">=</span>[left],color<span class="op">=</span>c,label<span class="op">=</span>name)<span class="op">;</span> ax.text(left<span class="op">+</span>share<span class="op">/</span><span class="dv">2</span>,<span class="dv">0</span>,<span class="ss">f"</span><span class="sc">{</span><span class="bu">int</span>(share<span class="op">*</span><span class="dv">100</span>)<span class="sc">}</span><span class="ss">%"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> left<span class="op">+=</span>share</span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"illustrative supervised-token share"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">4</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Mixture choices define the reinforced response distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training loss is an incomplete selection criterion</span></span>
+<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a>Response-token cross-entropy measures agreement with held-out demonstration continuations. It can identify overfitting to a declared validation set, but it cannot by itself show that an answer is helpful for a different user, factually supported, secure in a tool environment, or stable under prompt variation. Model selection should combine the validation loss with task-specific target and regression evaluations that were chosen before inspecting the final checkpoint.</span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a>The evaluation must also preserve the serving interface. Comparing a base model under a raw completion prompt with a tuned model under a carefully engineered chat template mixes model adaptation and prompting. A fair comparison can report both interfaces, but it should label them separately and make visible any system messages, retrieval context, decoding constraints, or answer extraction rules.</span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-195"><a href="#cb22-195" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a>checkpoints<span class="op">=</span>{<span class="st">"step_100"</span>:(<span class="fl">1.42</span>,<span class="fl">.52</span>,<span class="fl">.41</span>),<span class="st">"step_500"</span>:(<span class="fl">1.28</span>,<span class="fl">.61</span>,<span class="fl">.37</span>),<span class="st">"step_900"</span>:(<span class="fl">1.22</span>,<span class="fl">.60</span>,<span class="fl">.31</span>)}</span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,(loss,target,retained) <span class="kw">in</span> checkpoints.items():</span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(step,<span class="st">"validation loss"</span>,loss,<span class="st">"target score"</span>,target,<span class="st">"retained score"</span>,retained)</span>
+<span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-201"><a href="#cb22-201" aria-hidden="true" tabindex="-1"></a><span class="fu">### Errors often originate before the response span</span></span>
+<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a>An incorrect instruction-tuned output can arise from an ambiguous request, an incompatible template, truncated context, unsupported content in the demonstration data, a target-mask error, decoding choices, or a model distribution that fails despite correct inputs. An audit should retain the formatted token sequence, role boundaries, masked labels, selected output IDs, and evaluation rationale for representative failures. This makes it possible to repair the relevant component rather than adding examples blindly.</span>
+<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a>For a system that uses tools or retrieved documents, source availability should be part of the error record. An answer can be stylistically compliant while failing to use a supplied source, or it can cite a source that was never available in the context. Instruction tuning alone does not establish grounding behaviour; the task interface and evaluation need to test it.</span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a><span class="fu">### The supervised objective has a length and balance policy</span></span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a>Assistant-only masking is not sufficient to define a dataset loss. Long responses contribute more supervised tokens than short responses when loss is averaged over valid target tokens. A corpus with a few long explanations can therefore exert more gradient influence than a larger number of brief extraction examples. Sampling weights, example packing, maximum length, truncation, and the loss denominator should be chosen together and recorded.</span>
+<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a>Truncation is particularly important in multi-turn data. Removing the beginning of a conversation can discard system instructions or the question that makes an assistant answer meaningful. Removing the end can cut the supervised answer and produce incomplete targets. A pipeline needs a declared rule and tests on representative long conversations, including tool results and retrieved context.</span>
+<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>{<span class="st">"short extraction"</span>:<span class="dv">12</span>,<span class="st">"long explanation"</span>:<span class="dv">180</span>,<span class="st">"tool conversation"</span>:<span class="dv">95</span>}</span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a>total<span class="op">=</span><span class="bu">sum</span>(examples.values())</span>
+<span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,tokens <span class="kw">in</span> examples.items(): <span class="bu">print</span>(name,<span class="st">"supervised-token share"</span>,<span class="bu">round</span>(tokens<span class="op">/</span>total,<span class="dv">2</span>))</span>
+<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and interpretation</span></span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate behaviour, not only response overlap</span></span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a>Exact match is useful for extraction and tightly specified outputs. It is insufficient for many instruction tasks where several answers are valid. Evaluations should define the task, input availability, output criterion, scoring procedure, and any human-review protocol. They should compare the base and tuned checkpoints under the same template and decoding policy, then report both improvements and regressions.</span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-adaptation-evaluation</span></span>
+<span id="cb22-231"><a href="#cb22-231" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Instruction-tuning evaluation compares the base and tuned models on target tasks and retained tasks under the same serving interface."</span></span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram shows base and tuned checkpoints evaluated on instruction tasks and retained capability tasks, then reported separately."</span></span>
+<span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.35</span>,<span class="st">"base</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.55</span>,<span class="st">"tuned</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.05</span>,<span class="st">"target-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"retained-task</span><span class="ch">\n</span><span class="st">evaluation"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.55</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.775</span>,<span class="fl">1.59</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Report target gains and retained-task changes separately."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.25</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a><span class="fu">### The run record must recover the exact interface</span></span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a>An instruction-tuning record needs base checkpoint and tokenizer, template version, role and special-token rules, source and target masks, training examples and provenance, split policy, maximum length and truncation rule, optimiser settings, parameter scope, checkpoints, target and retained evaluations, decoding settings, and known failure cases. This is the minimum needed to distinguish a model change from a prompt-template or evaluation change.</span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"versioned checkpoint"</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>,<span class="st">"target_mask"</span>:<span class="st">"assistant only"</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"evaluation"</span>:<span class="st">"target and retained sets"</span>}</span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base"</span>,<span class="st">"template"</span>,<span class="st">"target_mask"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
+<span id="cb22-247"><a href="#cb22-247" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"instruction-tuning record complete"</span>)</span>
+<span id="cb22-248"><a href="#cb22-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Instruction tuning replaces the language-model objective.** It usually applies the same token loss to a different, masked demonstration distribution.</span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Every token in a chat transcript should be supervised.** User and system text are commonly conditioning context, not desired output.</span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A chat template can be changed without retraining.** Its role markers and separators alter the input token sequence.</span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More demonstrations automatically give broader instruction following.** Coverage, quality, duplication, and task mix determine what is reinforced.</span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Improved instruction scores prove no retained capability declined.** Regression tests are required.</span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A compliant response is necessarily a correct response.** Format following and factual validity require separate evidence.</span>
+<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb22-260"><a href="#cb22-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-261"><a href="#cb22-261" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish pretraining and instruction-tuning data distributions.</span>
+<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Mark context and target spans in a supplied chat transcript.</span>
+<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Implement an assistant-only label mask for a two-turn example.</span>
+<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Identify an off-by-one masking error and its consequence.</span>
+<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Explain why template versioning is required at serving time.</span>
+<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>List provenance fields for a demonstration dataset.</span>
+<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Design a split that limits near-duplicate instruction leakage.</span>
+<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare target-task and retained-task evaluation.</span>
+<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Explain one mechanism that can cause adaptation regression.</span>
+<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>State how tool-result spans should be treated in a declared pipeline.</span>
+<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Calculate the supervised-token fraction for a supplied conversation.</span>
+<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Propose a task category audit beyond simple example counts.</span>
+<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Explain why exact match is insufficient for open-ended assistance.</span>
+<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>List metadata required to reproduce a tuned checkpoint.</span>
+<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Design a test for a template mismatch after deployment.</span>
+<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that introduces preference optimisation.</span>
+<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-278"><a href="#cb22-278" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb22-279"><a href="#cb22-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-280"><a href="#cb22-280" aria-hidden="true" tabindex="-1"></a>Instruction tuning adapts a base model to role-formatted demonstrations by applying supervised token loss to declared response spans. The template, tokenizer, target mask, data provenance, and loss denominator define the actual adaptation task. A tuned model must be evaluated for both target behaviour and retained capabilities.</span>
+<span id="cb22-281"><a href="#cb22-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-282"><a href="#cb22-282" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 30</span><span class="co">](30-preference-optimisation.qmd)</span> examines how preference data and related objectives compare candidate responses rather than simply reproducing one demonstration.</span>
+<span id="cb22-283"><a href="#cb22-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-284"><a href="#cb22-284" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb22-285"><a href="#cb22-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-286"><a href="#cb22-286" aria-hidden="true" tabindex="-1"></a>Instruction tuning fits stated target responses. <span class="co">[</span><span class="ot">Chapter 30</span><span class="co">](30-preference-optimisation.qmd)</span> examines learning from a different supervision form: comparisons between alternative responses to the same prompt.</span>
+<span id="cb22-287"><a href="#cb22-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-288"><a href="#cb22-288" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb22-289"><a href="#cb22-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-290"><a href="#cb22-290" aria-hidden="true" tabindex="-1"></a>Instruction tuning across many tasks is studied by @wei2022finetuned. InstructGPT documents supervised fine-tuning as one stage in an alignment pipeline <span class="co">[</span><span class="ot">@ouyang2022training</span><span class="co">]</span>.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

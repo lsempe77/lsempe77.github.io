@@ -127,14 +127,15 @@ div.csl-indent {
 
 
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="book-navigation.css"></head>
+<link rel="stylesheet" href="book-navigation.css">
+</head>
 
 <body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+    <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
@@ -165,7 +166,7 @@ div.csl-indent {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Machine Learning Concepts</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -521,9 +522,7 @@ div.csl-indent {
 <section id="running-vector" class="level3">
 <h3 class="anchored" data-anchor-id="running-vector">Running vector</h3>
 <p>The running vector is represented in floating point, mapped to a small integer range, and reconstructed using a scale. The reconstructed values are close to, but not equal to, the original values.</p>
-<div id="fig-quantisation-map" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-quantisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-quantisation-map" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -536,11 +535,21 @@ div.csl-indent {
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label <span class="kw">in</span> [(<span class="fl">2.3</span>,<span class="st">"quantise"</span>),(<span class="fl">5.4</span>,<span class="st">"dequantise"</span>)]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.525</span>),(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">1.525</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">12</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.47</span>,<span class="fl">.95</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-quantisation-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram shows floating values mapped to integer codes then reconstructed into nearby floating values.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quantisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-quantisation-map-output-1.png" class="img-fluid figure-img" alt="A diagram shows floating values mapped to integer codes then reconstructed into nearby floating values.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-quantisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;33.1
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quantisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.1: Quantisation maps floating-point values to a finite integer code range and reconstructs approximate values using stored scale information.
 </figcaption>
 </figure>
+</div>
+</div>
+</div>
+<div id="concept-quantisation" class="concept-box concept-core" data-term="Quantisation" data-domain="Large language models">
+<p><strong>Quantisation.</strong> A representation of values using fewer or different numerical levels to reduce memory or computation. Its effect must be assessed on the stored values, the execution path, and the task outcome.</p>
 </div>
 </section>
 </section>
@@ -550,26 +559,36 @@ Figure&nbsp;33.1
 <h3 class="anchored" data-anchor-id="fewer-bits-trade-representation-detail-for-resource-use">Fewer bits trade representation detail for resource use</h3>
 <p>A floating-point tensor stores values with a wide numerical range and finite precision. A quantised tensor stores codes from a smaller set, plus scales and sometimes zero points that map codes back to approximate values. Fewer bits reduce the raw weight footprint. They can also reduce data movement, which is frequently a practical bottleneck in generation. The conversion discards detail, so task behaviour must be checked after conversion.</p>
 <p>For a model with (P) weights, a simple storage estimate is (Pb/8) bytes for (b)-bit values, before scales, metadata, packing overhead, and non-quantised tensors. This calculation is useful for capacity planning but is not a measured memory requirement.</p>
-<div id="ac2efe02" class="cell">
+<div id="16ad62d6" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bits <span class="kw">in</span> [<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>]: <span class="bu">print</span>(bits,<span class="st">"bit raw weight GiB:"</span>,<span class="bu">round</span>(parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span>,<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>16 bit raw weight GiB: 13.04
+8 bit raw weight GiB: 6.52
+4 bit raw weight GiB: 3.26</code></pre>
 </div>
-<div id="fig-weight-memory" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-weight-memory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+</div>
+<div id="cell-fig-weight-memory" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bits<span class="op">=</span>np.array([<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>])<span class="op">;</span> gib<span class="op">=</span>parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"16-bit"</span>,<span class="st">"8-bit"</span>,<span class="st">"4-bit"</span>],gib,color<span class="op">=</span>[blue,teal,orange])<span class="op">;</span> ax.set_ylabel(<span class="st">"raw weight storage (GiB)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Raw storage estimate before quantisation overhead"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bits<span class="op">=</span>np.array([<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>])<span class="op">;</span> gib<span class="op">=</span>parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"16-bit"</span>,<span class="st">"8-bit"</span>,<span class="st">"4-bit"</span>],gib,color<span class="op">=</span>[blue,teal,orange])<span class="op">;</span> ax.set_ylabel(<span class="st">"raw weight storage (GiB)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Raw storage estimate before quantisation overhead"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-weight-memory" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart compares illustrative raw storage of a seven-billion-parameter model at 16, 8, and 4 bits.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-weight-memory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-weight-memory-output-1.png" class="img-fluid figure-img" alt="A bar chart compares illustrative raw storage of a seven-billion-parameter model at 16, 8, and 4 bits.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-weight-memory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;33.2
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-weight-memory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.2: Lower stored bit width reduces raw weight-memory requirements, while scales, metadata, and unquantised tensors add overhead.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 <section id="precision-names-do-not-specify-an-inference-system" class="level3">
@@ -583,44 +602,57 @@ Figure&nbsp;33.2
 <section id="a-simple-affine-quantiser" class="level3">
 <h3 class="anchored" data-anchor-id="a-simple-affine-quantiser">A simple affine quantiser</h3>
 <p>For symmetric signed quantisation, a scale can map a maximum magnitude to the largest available integer code. Values are divided by the scale, rounded, clipped to the integer range, and reconstructed by multiplying the code by the scale. Real systems add choices about group size, outliers, zero points, packing, and kernel layout.</p>
-<div id="78b1ca39" class="cell">
+<div id="2b481fe7" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">.83</span>,<span class="op">-</span><span class="fl">.31</span>,<span class="fl">.18</span>,<span class="fl">.62</span>,<span class="fl">1.04</span>])</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>qmax<span class="op">=</span><span class="dv">7</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x))<span class="op">/</span>qmax</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>codes<span class="op">=</span>np.clip(np.<span class="bu">round</span>(x<span class="op">/</span>scale),<span class="op">-</span>qmax,qmax).astype(<span class="bu">int</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>reconstructed<span class="op">=</span>codes<span class="op">*</span>scale</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scale:"</span>,<span class="bu">round</span>(scale,<span class="dv">3</span>),<span class="st">"codes:"</span>,codes)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reconstructed:"</span>,np.<span class="bu">round</span>(reconstructed,<span class="dv">3</span>))</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max absolute error:"</span>,<span class="bu">round</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x<span class="op">-</span>reconstructed)),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">.83</span>,<span class="op">-</span><span class="fl">.31</span>,<span class="fl">.18</span>,<span class="fl">.62</span>,<span class="fl">1.04</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>qmax<span class="op">=</span><span class="dv">7</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x))<span class="op">/</span>qmax</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>codes<span class="op">=</span>np.clip(np.<span class="bu">round</span>(x<span class="op">/</span>scale),<span class="op">-</span>qmax,qmax).astype(<span class="bu">int</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>reconstructed<span class="op">=</span>codes<span class="op">*</span>scale</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scale:"</span>,<span class="bu">round</span>(scale,<span class="dv">3</span>),<span class="st">"codes:"</span>,codes)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reconstructed:"</span>,np.<span class="bu">round</span>(reconstructed,<span class="dv">3</span>))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max absolute error:"</span>,<span class="bu">round</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x<span class="op">-</span>reconstructed)),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>scale: 0.149 codes: [-6 -2  1  4  7]
+reconstructed: [-0.891 -0.297  0.149  0.594  1.04 ]
+max absolute error: 0.061</code></pre>
 </div>
-<div id="fig-reconstruction-error" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+</div>
+<div id="cell-fig-reconstruction-error" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>,<span class="fl">4.5</span>))<span class="op">;</span> ax.scatter(x,reconstructed,color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">65</span>)<span class="op">;</span> ax.plot([<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],[<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],color<span class="op">=</span>grey,ls<span class="op">=</span><span class="st">"--"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"original"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"reconstructed"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Toy quantisation reconstruction"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-reconstruction-error" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A scatter plot compares original vector values with reconstructed values, alongside a diagonal equality line.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reconstruction-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>,<span class="fl">4.5</span>))<span class="op">;</span> ax.scatter(x,reconstructed,color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">65</span>)<span class="op">;</span> ax.plot([<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],[<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],color<span class="op">=</span>grey,ls<span class="op">=</span><span class="st">"--"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"original"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"reconstructed"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Toy quantisation reconstruction"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-reconstruction-error-output-1.png" class="img-fluid figure-img" alt="A scatter plot compares original vector values with reconstructed values, alongside a diagonal equality line.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-reconstruction-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;33.3
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reconstruction-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.3: Quantised reconstruction replaces each original value with a nearby representable level; the error depends on scale and code range.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 <section id="scales-determine-where-error-falls" class="level3">
 <h3 class="anchored" data-anchor-id="scales-determine-where-error-falls">Scales determine where error falls</h3>
 <p>One scale for a whole tensor is simple but can represent small values poorly when a few outliers determine the range. Per-channel or groupwise scaling uses more scale values and metadata while allowing each channel or group a more suitable range. The group definition must be recorded because it changes the representation and can change accuracy.</p>
-<div id="4b3f2fce" class="cell">
+<div id="692606e8" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([[<span class="fl">.02</span>,<span class="fl">.04</span>,<span class="fl">.08</span>,<span class="fl">1.1</span>],[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.06</span>,<span class="fl">.09</span>]])</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>global_scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights))<span class="op">/</span><span class="dv">7</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>row_scales<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights),axis<span class="op">=</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">7</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"global scale:"</span>,<span class="bu">round</span>(global_scale,<span class="dv">3</span>),<span class="st">"row scales:"</span>,np.<span class="bu">round</span>(row_scales,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([[<span class="fl">.02</span>,<span class="fl">.04</span>,<span class="fl">.08</span>,<span class="fl">1.1</span>],[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.06</span>,<span class="fl">.09</span>]])</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>global_scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights))<span class="op">/</span><span class="dv">7</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>row_scales<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights),axis<span class="op">=</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">7</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"global scale:"</span>,<span class="bu">round</span>(global_scale,<span class="dv">3</span>),<span class="st">"row scales:"</span>,np.<span class="bu">round</span>(row_scales,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>global scale: 0.157 row scales: [0.157 0.013]</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -629,57 +661,72 @@ Figure&nbsp;33.3
 <section id="weights-activations-and-caches-have-different-roles" class="level3">
 <h3 class="anchored" data-anchor-id="weights-activations-and-caches-have-different-roles">Weights, activations, and caches have different roles</h3>
 <p>Weight quantisation changes static model storage. Activation quantisation changes intermediate computation and may require calibration data or quantisation-aware training. Key-value cache quantisation changes the growing state of autoregressive serving described in Chapter 27. These choices have different numerical and memory consequences and should not be conflated.</p>
-<div id="fig-memory-components" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-memory-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-memory-components" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> components<span class="op">=</span>np.array([<span class="dv">10</span>,<span class="dv">2</span>,<span class="dv">5</span>])<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">0</span>],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"weights"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">1</span>],bottom<span class="op">=</span>components[<span class="dv">0</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"temporary activations"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">2</span>],bottom<span class="op">=</span>components[:<span class="dv">2</span>].<span class="bu">sum</span>(),color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"KV cache"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_ylabel(<span class="st">"relative memory"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Quantisation targets have distinct memory roles"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> components<span class="op">=</span>np.array([<span class="dv">10</span>,<span class="dv">2</span>,<span class="dv">5</span>])<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">0</span>],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"weights"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">1</span>],bottom<span class="op">=</span>components[<span class="dv">0</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"temporary activations"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">2</span>],bottom<span class="op">=</span>components[:<span class="dv">2</span>].<span class="bu">sum</span>(),color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"KV cache"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_ylabel(<span class="st">"relative memory"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Quantisation targets have distinct memory roles"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-memory-components" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A stacked bar separates weights, temporary activations, and KV cache, with annotations for independent precision choices.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-memory-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-memory-components-output-1.png" class="img-fluid figure-img" alt="A stacked bar separates weights, temporary activations, and KV cache, with annotations for independent precision choices.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-memory-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;33.4
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-memory-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.4: Inference memory includes static weights, temporary activations, and a length-dependent key-value cache; each component can use a different precision.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 <p>The relevant memory budget changes with prompt length, output length, concurrency, batch policy, and cache layout. A conversion that permits a checkpoint to load may still fail under long concurrent requests because the cache becomes dominant. Conversely, reducing cache precision can affect long-context outputs even when the weight-only conversion was accurate on short prompts.</p>
 </section>
 <section id="calibration-and-validation-must-follow-conversion" class="level3">
 <h3 class="anchored" data-anchor-id="calibration-and-validation-must-follow-conversion">Calibration and validation must follow conversion</h3>
 <p>Post-training quantisation may use representative activations to choose scales or protect outlier channels. The calibration set should resemble the declared workload in language, length, formatting, and task type. Calibrating only short generic prompts then claiming a result for long code or multilingual documents leaves an untested gap.</p>
-<div id="c3f52935" class="cell">
+<div id="2a344af7" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>baseline<span class="op">=</span>np.array([<span class="fl">.62</span>,<span class="fl">.58</span>,<span class="fl">.71</span>])</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>quantised<span class="op">=</span>np.array([<span class="fl">.61</span>,<span class="fl">.57</span>,<span class="fl">.68</span>])</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task deltas:"</span>,np.<span class="bu">round</span>(quantised<span class="op">-</span>baseline,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>baseline<span class="op">=</span>np.array([<span class="fl">.62</span>,<span class="fl">.58</span>,<span class="fl">.71</span>])</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>quantised<span class="op">=</span>np.array([<span class="fl">.61</span>,<span class="fl">.57</span>,<span class="fl">.68</span>])</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task deltas:"</span>,np.<span class="bu">round</span>(quantised<span class="op">-</span>baseline,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>task deltas: [-0.01 -0.01 -0.03]</code></pre>
+</div>
 </div>
 </section>
 <section id="numerical-error-accumulates-through-a-generation-loop" class="level3">
 <h3 class="anchored" data-anchor-id="numerical-error-accumulates-through-a-generation-loop">Numerical error accumulates through a generation loop</h3>
 <p>Quantisation does not perturb one isolated matrix multiplication. A generated token changes the next prefix, which changes attention keys, values, and later logits. Small differences can leave a short deterministic output unchanged or lead to a different token after a close decision, after which the two generations follow different prefixes. Output disagreement is therefore expected to be task- and decoding-dependent, not proof by itself that conversion failed.</p>
 <p>The useful comparison separates numerical equivalence tests from behaviour tests. On a small fixed reference input, compare intermediate or next-token logits within a stated tolerance. On a task suite, compare outcome scores and error categories. On a serving workload, compare memory and latency at the prompt lengths and concurrency that matter. Each test identifies a different conversion property.</p>
-<div id="b6dc6a67" class="cell">
+<div id="98128c61" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>baseline_logits<span class="op">=</span>np.array([<span class="fl">2.001</span>,<span class="fl">1.200</span>,<span class="fl">.302</span>])</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>quantised_logits<span class="op">=</span>np.array([<span class="fl">1.996</span>,<span class="fl">1.205</span>,<span class="fl">.297</span>])</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max logit difference:"</span>,np.<span class="bu">max</span>(np.<span class="bu">abs</span>(baseline_logits<span class="op">-</span>quantised_logits)))</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same greedy token:"</span>,baseline_logits.argmax()<span class="op">==</span>quantised_logits.argmax())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>baseline_logits<span class="op">=</span>np.array([<span class="fl">2.001</span>,<span class="fl">1.200</span>,<span class="fl">.302</span>])</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>quantised_logits<span class="op">=</span>np.array([<span class="fl">1.996</span>,<span class="fl">1.205</span>,<span class="fl">.297</span>])</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max logit difference:"</span>,np.<span class="bu">max</span>(np.<span class="bu">abs</span>(baseline_logits<span class="op">-</span>quantised_logits)))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same greedy token:"</span>,baseline_logits.argmax()<span class="op">==</span>quantised_logits.argmax())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>max logit difference: 0.0050000000000001155
+same greedy token: True</code></pre>
+</div>
 </div>
 </section>
 <section id="quantisation-policy-should-include-fallback-behaviour" class="level3">
 <h3 class="anchored" data-anchor-id="quantisation-policy-should-include-fallback-behaviour">Quantisation policy should include fallback behaviour</h3>
 <p>Some deployments keep selected modules in higher precision because they are sensitive to a conversion method or because a runtime lacks a suitable kernel. Others route long-context or high-stakes requests to a higher-precision model. A fallback is not a defect, but it changes cost and comparability. The policy should state when it is triggered and report how often it occurs in the intended workload.</p>
-<div id="8274a601" class="cell">
+<div id="74cdab01" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>request<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">12000</span>,<span class="st">"task"</span>:<span class="st">"source-grounded answer"</span>}</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>route<span class="op">=</span><span class="st">"higher precision"</span> <span class="cf">if</span> request[<span class="st">"prompt_tokens"</span>]<span class="op">&gt;</span><span class="dv">8192</span> <span class="cf">else</span> <span class="st">"quantised"</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"route:"</span>,route)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>request<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">12000</span>,<span class="st">"task"</span>:<span class="st">"source-grounded answer"</span>}</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>route<span class="op">=</span><span class="st">"higher precision"</span> <span class="cf">if</span> request[<span class="st">"prompt_tokens"</span>]<span class="op">&gt;</span><span class="dv">8192</span> <span class="cf">else</span> <span class="st">"quantised"</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"route:"</span>,route)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>route: higher precision</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -688,32 +735,40 @@ Figure&nbsp;33.4
 <section id="a-quantised-checkpoint-requires-a-conversion-record" class="level3">
 <h3 class="anchored" data-anchor-id="a-quantised-checkpoint-requires-a-conversion-record">A quantised checkpoint requires a conversion record</h3>
 <p>The record should state base checkpoint hash, tokenizer, source dtype, weight and activation formats, group size, scales and zero-point method, exempt modules, calibration data and procedure, compute accumulation dtype, cache format, runtime and kernel version, hardware, merge status for adapters, and output artifact hashes. A conversion cannot be audited from a filename such as <code>model-4bit</code>.</p>
-<div id="cc09f57f" class="cell">
+<div id="686e9482" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>conversion<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"weight_format"</span>:<span class="st">"int4 groupwise"</span>,<span class="st">"group_size"</span>:<span class="dv">128</span>,<span class="st">"compute_dtype"</span>:<span class="st">"float16"</span>,<span class="st">"kv_cache"</span>:<span class="st">"float16"</span>,<span class="st">"runtime"</span>:<span class="st">"versioned"</span>}</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base_hash"</span>,<span class="st">"weight_format"</span>,<span class="st">"compute_dtype"</span>,<span class="st">"runtime"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(conversion)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"conversion record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>conversion<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"weight_format"</span>:<span class="st">"int4 groupwise"</span>,<span class="st">"group_size"</span>:<span class="dv">128</span>,<span class="st">"compute_dtype"</span>:<span class="st">"float16"</span>,<span class="st">"kv_cache"</span>:<span class="st">"float16"</span>,<span class="st">"runtime"</span>:<span class="st">"versioned"</span>}</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base_hash"</span>,<span class="st">"weight_format"</span>,<span class="st">"compute_dtype"</span>,<span class="st">"runtime"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(conversion)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"conversion record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>conversion record complete</code></pre>
+</div>
 </div>
 </section>
 <section id="validate-both-task-behaviour-and-service-behaviour" class="level3">
 <h3 class="anchored" data-anchor-id="validate-both-task-behaviour-and-service-behaviour">Validate both task behaviour and service behaviour</h3>
 <p>Compare the baseline and converted model under the same tokenizer, prompt template, decoding policy, maximum lengths, and hardware workload where possible. Report target-task scores, retained tasks, output agreement on a fixed reference set, error categories, peak memory, prefill and decode latency, throughput at declared concurrency, and failure behaviour near the context limit. A lower memory number without a matching accuracy and workload record is incomplete evidence.</p>
-<div id="fig-conversion-audit" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-conversion-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-conversion-audit" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.8</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"baseline</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.45</span>,<span class="st">"quantised</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.0</span>,<span class="st">"fixed task</span><span class="ch">\n</span><span class="st">and output tests"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"serving</span><span class="ch">\n</span><span class="st">benchmark"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.5</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.55</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Hold input, tokenizer, and policy fixed for the accuracy comparison."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.8</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"baseline</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.45</span>,<span class="st">"quantised</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.0</span>,<span class="st">"fixed task</span><span class="ch">\n</span><span class="st">and output tests"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"serving</span><span class="ch">\n</span><span class="st">benchmark"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.5</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.55</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Hold input, tokenizer, and policy fixed for the accuracy comparison."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-conversion-audit" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram connects baseline and quantised models to shared task evaluation and shared serving benchmarks.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-conversion-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-conversion-audit-output-1.png" class="img-fluid figure-img" alt="A diagram connects baseline and quantised models to shared task evaluation and shared serving benchmarks.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-conversion-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;33.5
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-conversion-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33.5: Quantisation validation compares a baseline and converted checkpoint on fixed outputs, task scores, memory, latency, and context-boundary behaviour.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -1237,225 +1292,229 @@ Frantar, Elias, Saleh Ashkboos, Torsten Hoefler, and Dan Alistarh. 2023. <span>�
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Quantisation and Efficient Inference"</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Lower-precision representations, memory budgets, and accuracy checks"</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>Inference requires model weights, temporary computation, and often a key-value cache to fit in available hardware memory. Quantisation represents selected tensors with fewer bits than a higher-precision baseline. It can reduce storage, memory traffic, and sometimes latency, but it introduces approximation error and depends on hardware kernels, tensor formats, calibration choices, and serving configuration.</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>Quantisation is not a single setting called “4-bit” or “8-bit”. A valid description states which tensors are converted, group sizes and scales, activation and cache formats, compute precision, conversion method, and the evaluation used to detect degradation. This chapter develops that account before Chapter 33 turns to retrieval-augmented generation.</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish storage precision, compute precision, and quantised tensor values;</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate approximate weight-memory savings from bit width;</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement a toy affine quantiser and reconstruction error check;</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain per-tensor, per-channel, and groupwise scaling;</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify weights, activations, and key-value cache as separate quantisation targets;</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>state why hardware and kernels affect measured speed; and</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify a conversion and evaluation record for an efficient inference deployment.</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running vector</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>The running vector is represented in floating point, mapped to a small integer range, and reconstructed using a scale. The reconstructed values are close to, but not equal to, the original values.</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-quantisation-map</span></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Quantisation maps floating-point values to a finite integer code range and reconstructs approximate values using stored scale information."</span></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram shows floating values mapped to integer codes then reconstructed into nearby floating values."</span></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"float weights</span><span class="ch">\n</span><span class="st">[-0.8, 0.2, 1.1]"</span>,blue),(<span class="fl">3.35</span>,<span class="st">"integer codes</span><span class="ch">\n</span><span class="st">[-3, 1, 4]"</span>,orange),(<span class="fl">6.45</span>,<span class="st">"reconstructed</span><span class="ch">\n</span><span class="st">[-0.75, 0.25, 1.0]"</span>,teal)]: ax.add_patch(Rectangle((x,<span class="fl">1.2</span>),<span class="fl">2.0</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="dv">1</span>,<span class="fl">1.525</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label <span class="kw">in</span> [(<span class="fl">2.3</span>,<span class="st">"quantise"</span>),(<span class="fl">5.4</span>,<span class="st">"dequantise"</span>)]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.525</span>),(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">1.525</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">12</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.47</span>,<span class="fl">.95</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fewer bits trade representation detail for resource use</span></span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>A floating-point tensor stores values with a wide numerical range and finite precision. A quantised tensor stores codes from a smaller set, plus scales and sometimes zero points that map codes back to approximate values. Fewer bits reduce the raw weight footprint. They can also reduce data movement, which is frequently a practical bottleneck in generation. The conversion discards detail, so task behaviour must be checked after conversion.</span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>For a model with <span class="sc">\(</span>P<span class="sc">\)</span> weights, a simple storage estimate is <span class="sc">\(</span>P\times b/8<span class="sc">\)</span> bytes for <span class="sc">\(</span>b<span class="sc">\)</span>-bit values, before scales, metadata, packing overhead, and non-quantised tensors. This calculation is useful for capacity planning but is not a measured memory requirement.</span>
-<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
-<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bits <span class="kw">in</span> [<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>]: <span class="bu">print</span>(bits,<span class="st">"bit raw weight GiB:"</span>,<span class="bu">round</span>(parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span>,<span class="dv">2</span>))</span>
-<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-weight-memory</span></span>
-<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Lower stored bit width reduces raw weight-memory requirements, while scales, metadata, and unquantised tensors add overhead."</span></span>
-<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart compares illustrative raw storage of a seven-billion-parameter model at 16, 8, and 4 bits."</span></span>
-<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>bits<span class="op">=</span>np.array([<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>])<span class="op">;</span> gib<span class="op">=</span>parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
-<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"16-bit"</span>,<span class="st">"8-bit"</span>,<span class="st">"4-bit"</span>],gib,color<span class="op">=</span>[blue,teal,orange])<span class="op">;</span> ax.set_ylabel(<span class="st">"raw weight storage (GiB)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Raw storage estimate before quantisation overhead"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a><span class="fu">### Precision names do not specify an inference system</span></span>
-<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>“4-bit model” may mean weights stored in four-bit codes while matrix multiplication accumulates in higher precision. It may leave embeddings, output layers, activations, or the key-value cache at another precision. Two deployments with the same advertised weight bit width can therefore have different memory use, latency, and output behaviour.</span>
-<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>Quantisation also does not automatically improve latency. A device and runtime need efficient kernels for the format and batch shape. Dequantisation, memory alignment, small batches, long context caches, and unsupported operations can eliminate an expected speed gain. Measure the target workload rather than inferring throughput from a format label.</span>
-<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Quantisation mechanics</span></span>
-<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### A simple affine quantiser</span></span>
-<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>For symmetric signed quantisation, a scale can map a maximum magnitude to the largest available integer code. Values are divided by the scale, rounded, clipped to the integer range, and reconstructed by multiplying the code by the scale. Real systems add choices about group size, outliers, zero points, packing, and kernel layout.</span>
-<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">.83</span>,<span class="op">-</span><span class="fl">.31</span>,<span class="fl">.18</span>,<span class="fl">.62</span>,<span class="fl">1.04</span>])</span>
-<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a>qmax<span class="op">=</span><span class="dv">7</span></span>
-<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a>scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x))<span class="op">/</span>qmax</span>
-<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a>codes<span class="op">=</span>np.clip(np.<span class="bu">round</span>(x<span class="op">/</span>scale),<span class="op">-</span>qmax,qmax).astype(<span class="bu">int</span>)</span>
-<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>reconstructed<span class="op">=</span>codes<span class="op">*</span>scale</span>
-<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scale:"</span>,<span class="bu">round</span>(scale,<span class="dv">3</span>),<span class="st">"codes:"</span>,codes)</span>
-<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reconstructed:"</span>,np.<span class="bu">round</span>(reconstructed,<span class="dv">3</span>))</span>
-<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max absolute error:"</span>,<span class="bu">round</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x<span class="op">-</span>reconstructed)),<span class="dv">3</span>))</span>
-<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reconstruction-error</span></span>
-<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Quantised reconstruction replaces each original value with a nearby representable level; the error depends on scale and code range."</span></span>
-<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A scatter plot compares original vector values with reconstructed values, alongside a diagonal equality line."</span></span>
-<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>,<span class="fl">4.5</span>))<span class="op">;</span> ax.scatter(x,reconstructed,color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">65</span>)<span class="op">;</span> ax.plot([<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],[<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],color<span class="op">=</span>grey,ls<span class="op">=</span><span class="st">"--"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"original"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"reconstructed"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Toy quantisation reconstruction"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb13-104"><a href="#cb13-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scales determine where error falls</span></span>
-<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a>One scale for a whole tensor is simple but can represent small values poorly when a few outliers determine the range. Per-channel or groupwise scaling uses more scale values and metadata while allowing each channel or group a more suitable range. The group definition must be recorded because it changes the representation and can change accuracy.</span>
-<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([[<span class="fl">.02</span>,<span class="fl">.04</span>,<span class="fl">.08</span>,<span class="fl">1.1</span>],[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.06</span>,<span class="fl">.09</span>]])</span>
-<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>global_scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights))<span class="op">/</span><span class="dv">7</span></span>
-<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>row_scales<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights),axis<span class="op">=</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">7</span></span>
-<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"global scale:"</span>,<span class="bu">round</span>(global_scale,<span class="dv">3</span>),<span class="st">"row scales:"</span>,np.<span class="bu">round</span>(row_scales,<span class="dv">3</span>))</span>
-<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - System-level effects</span></span>
-<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### Weights, activations, and caches have different roles</span></span>
-<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a>Weight quantisation changes static model storage. Activation quantisation changes intermediate computation and may require calibration data or quantisation-aware training. Key-value cache quantisation changes the growing state of autoregressive serving described in Chapter 27. These choices have different numerical and memory consequences and should not be conflated.</span>
-<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-memory-components</span></span>
-<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Inference memory includes static weights, temporary activations, and a length-dependent key-value cache; each component can use a different precision."</span></span>
-<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A stacked bar separates weights, temporary activations, and KV cache, with annotations for independent precision choices."</span></span>
-<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> components<span class="op">=</span>np.array([<span class="dv">10</span>,<span class="dv">2</span>,<span class="dv">5</span>])<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">0</span>],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"weights"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">1</span>],bottom<span class="op">=</span>components[<span class="dv">0</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"temporary activations"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">2</span>],bottom<span class="op">=</span>components[:<span class="dv">2</span>].<span class="bu">sum</span>(),color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"KV cache"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_ylabel(<span class="st">"relative memory"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Quantisation targets have distinct memory roles"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a>The relevant memory budget changes with prompt length, output length, concurrency, batch policy, and cache layout. A conversion that permits a checkpoint to load may still fail under long concurrent requests because the cache becomes dominant. Conversely, reducing cache precision can affect long-context outputs even when the weight-only conversion was accurate on short prompts.</span>
-<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a><span class="fu">### Calibration and validation must follow conversion</span></span>
-<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a>Post-training quantisation may use representative activations to choose scales or protect outlier channels. The calibration set should resemble the declared workload in language, length, formatting, and task type. Calibrating only short generic prompts then claiming a result for long code or multilingual documents leaves an untested gap.</span>
-<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a>baseline<span class="op">=</span>np.array([<span class="fl">.62</span>,<span class="fl">.58</span>,<span class="fl">.71</span>])</span>
-<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a>quantised<span class="op">=</span>np.array([<span class="fl">.61</span>,<span class="fl">.57</span>,<span class="fl">.68</span>])</span>
-<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task deltas:"</span>,np.<span class="bu">round</span>(quantised<span class="op">-</span>baseline,<span class="dv">3</span>))</span>
-<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a><span class="fu">### Numerical error accumulates through a generation loop</span></span>
-<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a>Quantisation does not perturb one isolated matrix multiplication. A generated token changes the next prefix, which changes attention keys, values, and later logits. Small differences can leave a short deterministic output unchanged or lead to a different token after a close decision, after which the two generations follow different prefixes. Output disagreement is therefore expected to be task- and decoding-dependent, not proof by itself that conversion failed.</span>
-<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a>The useful comparison separates numerical equivalence tests from behaviour tests. On a small fixed reference input, compare intermediate or next-token logits within a stated tolerance. On a task suite, compare outcome scores and error categories. On a serving workload, compare memory and latency at the prompt lengths and concurrency that matter. Each test identifies a different conversion property.</span>
-<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a>baseline_logits<span class="op">=</span>np.array([<span class="fl">2.001</span>,<span class="fl">1.200</span>,<span class="fl">.302</span>])</span>
-<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a>quantised_logits<span class="op">=</span>np.array([<span class="fl">1.996</span>,<span class="fl">1.205</span>,<span class="fl">.297</span>])</span>
-<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max logit difference:"</span>,np.<span class="bu">max</span>(np.<span class="bu">abs</span>(baseline_logits<span class="op">-</span>quantised_logits)))</span>
-<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same greedy token:"</span>,baseline_logits.argmax()<span class="op">==</span>quantised_logits.argmax())</span>
-<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a><span class="fu">### Quantisation policy should include fallback behaviour</span></span>
-<span id="cb13-164"><a href="#cb13-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-165"><a href="#cb13-165" aria-hidden="true" tabindex="-1"></a>Some deployments keep selected modules in higher precision because they are sensitive to a conversion method or because a runtime lacks a suitable kernel. Others route long-context or high-stakes requests to a higher-precision model. A fallback is not a defect, but it changes cost and comparability. The policy should state when it is triggered and report how often it occurs in the intended workload.</span>
-<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a>request<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">12000</span>,<span class="st">"task"</span>:<span class="st">"source-grounded answer"</span>}</span>
-<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>route<span class="op">=</span><span class="st">"higher precision"</span> <span class="cf">if</span> request[<span class="st">"prompt_tokens"</span>]<span class="op">&gt;</span><span class="dv">8192</span> <span class="cf">else</span> <span class="st">"quantised"</span></span>
-<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"route:"</span>,route)</span>
-<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and deployment</span></span>
-<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a><span class="fu">### A quantised checkpoint requires a conversion record</span></span>
-<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a>The record should state base checkpoint hash, tokenizer, source dtype, weight and activation formats, group size, scales and zero-point method, exempt modules, calibration data and procedure, compute accumulation dtype, cache format, runtime and kernel version, hardware, merge status for adapters, and output artifact hashes. A conversion cannot be audited from a filename such as <span class="in">`model-4bit`</span>.</span>
-<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a>conversion<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"weight_format"</span>:<span class="st">"int4 groupwise"</span>,<span class="st">"group_size"</span>:<span class="dv">128</span>,<span class="st">"compute_dtype"</span>:<span class="st">"float16"</span>,<span class="st">"kv_cache"</span>:<span class="st">"float16"</span>,<span class="st">"runtime"</span>:<span class="st">"versioned"</span>}</span>
-<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base_hash"</span>,<span class="st">"weight_format"</span>,<span class="st">"compute_dtype"</span>,<span class="st">"runtime"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(conversion)</span>
-<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"conversion record complete"</span>)</span>
-<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a><span class="fu">### Validate both task behaviour and service behaviour</span></span>
-<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a>Compare the baseline and converted model under the same tokenizer, prompt template, decoding policy, maximum lengths, and hardware workload where possible. Report target-task scores, retained tasks, output agreement on a fixed reference set, error categories, peak memory, prefill and decode latency, throughput at declared concurrency, and failure behaviour near the context limit. A lower memory number without a matching accuracy and workload record is incomplete evidence.</span>
-<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-conversion-audit</span></span>
-<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Quantisation validation compares a baseline and converted checkpoint on fixed outputs, task scores, memory, latency, and context-boundary behaviour."</span></span>
-<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram connects baseline and quantised models to shared task evaluation and shared serving benchmarks."</span></span>
-<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.8</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"baseline</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.45</span>,<span class="st">"quantised</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.0</span>,<span class="st">"fixed task</span><span class="ch">\n</span><span class="st">and output tests"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"serving</span><span class="ch">\n</span><span class="st">benchmark"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.5</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.55</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Hold input, tokenizer, and policy fixed for the accuracy comparison."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A 4-bit label fully specifies quantisation.** Tensor targets, scales, groups, compute dtype, and runtime remain necessary.</span>
-<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Lower bit width always gives proportional speed gains.** Kernel support and workload shape determine observed latency.</span>
-<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Weight quantisation solves all inference memory limits.** Activations and KV caches can dominate.</span>
-<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Quantisation error is only a scalar reconstruction error.** Task and sequence behaviour can change unevenly.</span>
-<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A model that loads successfully is validated.** It needs accuracy, boundary, and service tests.</span>
-<span id="cb13-211"><a href="#cb13-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-212"><a href="#cb13-212" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate raw storage for a parameter count at 16, 8, and 4 bits.</span>
-<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Implement a symmetric affine quantiser for a supplied vector.</span>
-<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate reconstruction error and identify an outlier effect.</span>
-<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Compare global and per-channel scales.</span>
-<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>List weight, activation, and cache precision separately for a deployment.</span>
-<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Explain why a KV cache can dominate long-context memory.</span>
-<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Design a representative calibration set for a declared application.</span>
-<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Specify a fixed-output comparison between baseline and quantised models.</span>
-<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>List fields needed in a conversion record.</span>
-<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Explain why hardware kernels affect a latency claim.</span>
-<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Compare storage precision and accumulation precision.</span>
-<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a context-boundary test after cache quantisation.</span>
-<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Identify an adapter merge field needed before quantisation.</span>
-<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why a generic short-prompt evaluation is insufficient.</span>
-<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Propose a serving benchmark with stated concurrency.</span>
-<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the next chapter's retrieval pipeline topic.</span>
-<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
-<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a>Quantisation represents selected model tensors with lower-precision codes and associated scaling information. It can reduce weight storage and memory traffic, but its accuracy and latency effects depend on tensor scope, scaling method, activation and cache formats, runtime kernels, workload, and hardware. Conversion must be evaluated as a changed inference system.</span>
-<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 33</span><span class="co">](33-retrieval-augmented-generation.qmd)</span> examines a different route to improving responses: retrieving external evidence and constructing the model context from it.</span>
-<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
-<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-239"><a href="#cb13-239" aria-hidden="true" tabindex="-1"></a>Quantisation changes the representation and execution of a fixed model. <span class="co">[</span><span class="ot">Chapter 33</span><span class="co">](33-retrieval-augmented-generation.qmd)</span> examines a different route to extending a system: constructing model context from an external, versioned collection.</span>
-<span id="cb13-240"><a href="#cb13-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a>QLoRA combines low-rank adaptation with a quantised base model <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>. GPTQ provides one post-training quantisation approach for generative models <span class="co">[</span><span class="ot">@frantar2022gptq</span><span class="co">]</span>.</span>
+<div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Quantisation and Efficient Inference"</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Lower-precision representations, memory budgets, and accuracy checks"</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>Inference requires model weights, temporary computation, and often a key-value cache to fit in available hardware memory. Quantisation represents selected tensors with fewer bits than a higher-precision baseline. It can reduce storage, memory traffic, and sometimes latency, but it introduces approximation error and depends on hardware kernels, tensor formats, calibration choices, and serving configuration.</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>Quantisation is not a single setting called “4-bit” or “8-bit”. A valid description states which tensors are converted, group sizes and scales, activation and cache formats, compute precision, conversion method, and the evaluation used to detect degradation. This chapter develops that account before Chapter 33 turns to retrieval-augmented generation.</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish storage precision, compute precision, and quantised tensor values;</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate approximate weight-memory savings from bit width;</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement a toy affine quantiser and reconstruction error check;</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain per-tensor, per-channel, and groupwise scaling;</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify weights, activations, and key-value cache as separate quantisation targets;</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>state why hardware and kernels affect measured speed; and</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify a conversion and evaluation record for an efficient inference deployment.</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running vector</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>The running vector is represented in floating point, mapped to a small integer range, and reconstructed using a scale. The reconstructed values are close to, but not equal to, the original values.</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-quantisation-map</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Quantisation maps floating-point values to a finite integer code range and reconstructs approximate values using stored scale information."</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram shows floating values mapped to integer codes then reconstructed into nearby floating values."</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"float weights</span><span class="ch">\n</span><span class="st">[-0.8, 0.2, 1.1]"</span>,blue),(<span class="fl">3.35</span>,<span class="st">"integer codes</span><span class="ch">\n</span><span class="st">[-3, 1, 4]"</span>,orange),(<span class="fl">6.45</span>,<span class="st">"reconstructed</span><span class="ch">\n</span><span class="st">[-0.75, 0.25, 1.0]"</span>,teal)]: ax.add_patch(Rectangle((x,<span class="fl">1.2</span>),<span class="fl">2.0</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="dv">1</span>,<span class="fl">1.525</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label <span class="kw">in</span> [(<span class="fl">2.3</span>,<span class="st">"quantise"</span>),(<span class="fl">5.4</span>,<span class="st">"dequantise"</span>)]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.525</span>),(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">1.525</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">12</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.47</span>,<span class="fl">.95</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-quantisation data-term="Quantisation" data-domain="Large language models"}</span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>**Quantisation.** A representation of values using fewer or different numerical levels to reduce memory or computation. Its effect must be assessed on the stored values, the execution path, and the task outcome.</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a><span class="fu">### Fewer bits trade representation detail for resource use</span></span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>A floating-point tensor stores values with a wide numerical range and finite precision. A quantised tensor stores codes from a smaller set, plus scales and sometimes zero points that map codes back to approximate values. Fewer bits reduce the raw weight footprint. They can also reduce data movement, which is frequently a practical bottleneck in generation. The conversion discards detail, so task behaviour must be checked after conversion.</span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>For a model with <span class="sc">\(</span>P<span class="sc">\)</span> weights, a simple storage estimate is <span class="sc">\(</span>P\times b/8<span class="sc">\)</span> bytes for <span class="sc">\(</span>b<span class="sc">\)</span>-bit values, before scales, metadata, packing overhead, and non-quantised tensors. This calculation is useful for capacity planning but is not a measured memory requirement.</span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-61"><a href="#cb20-61" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-62"><a href="#cb20-62" aria-hidden="true" tabindex="-1"></a>parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
+<span id="cb20-63"><a href="#cb20-63" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bits <span class="kw">in</span> [<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>]: <span class="bu">print</span>(bits,<span class="st">"bit raw weight GiB:"</span>,<span class="bu">round</span>(parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span>,<span class="dv">2</span>))</span>
+<span id="cb20-64"><a href="#cb20-64" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-65"><a href="#cb20-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-68"><a href="#cb20-68" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-69"><a href="#cb20-69" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-weight-memory</span></span>
+<span id="cb20-70"><a href="#cb20-70" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Lower stored bit width reduces raw weight-memory requirements, while scales, metadata, and unquantised tensors add overhead."</span></span>
+<span id="cb20-71"><a href="#cb20-71" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart compares illustrative raw storage of a seven-billion-parameter model at 16, 8, and 4 bits."</span></span>
+<span id="cb20-72"><a href="#cb20-72" aria-hidden="true" tabindex="-1"></a>bits<span class="op">=</span>np.array([<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>])<span class="op">;</span> gib<span class="op">=</span>parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
+<span id="cb20-73"><a href="#cb20-73" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"16-bit"</span>,<span class="st">"8-bit"</span>,<span class="st">"4-bit"</span>],gib,color<span class="op">=</span>[blue,teal,orange])<span class="op">;</span> ax.set_ylabel(<span class="st">"raw weight storage (GiB)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Raw storage estimate before quantisation overhead"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb20-74"><a href="#cb20-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-75"><a href="#cb20-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-76"><a href="#cb20-76" aria-hidden="true" tabindex="-1"></a><span class="fu">### Precision names do not specify an inference system</span></span>
+<span id="cb20-77"><a href="#cb20-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-78"><a href="#cb20-78" aria-hidden="true" tabindex="-1"></a>“4-bit model” may mean weights stored in four-bit codes while matrix multiplication accumulates in higher precision. It may leave embeddings, output layers, activations, or the key-value cache at another precision. Two deployments with the same advertised weight bit width can therefore have different memory use, latency, and output behaviour.</span>
+<span id="cb20-79"><a href="#cb20-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-80"><a href="#cb20-80" aria-hidden="true" tabindex="-1"></a>Quantisation also does not automatically improve latency. A device and runtime need efficient kernels for the format and batch shape. Dequantisation, memory alignment, small batches, long context caches, and unsupported operations can eliminate an expected speed gain. Measure the target workload rather than inferring throughput from a format label.</span>
+<span id="cb20-81"><a href="#cb20-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-82"><a href="#cb20-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Quantisation mechanics</span></span>
+<span id="cb20-83"><a href="#cb20-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-84"><a href="#cb20-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### A simple affine quantiser</span></span>
+<span id="cb20-85"><a href="#cb20-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-86"><a href="#cb20-86" aria-hidden="true" tabindex="-1"></a>For symmetric signed quantisation, a scale can map a maximum magnitude to the largest available integer code. Values are divided by the scale, rounded, clipped to the integer range, and reconstructed by multiplying the code by the scale. Real systems add choices about group size, outliers, zero points, packing, and kernel layout.</span>
+<span id="cb20-87"><a href="#cb20-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-90"><a href="#cb20-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-91"><a href="#cb20-91" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">.83</span>,<span class="op">-</span><span class="fl">.31</span>,<span class="fl">.18</span>,<span class="fl">.62</span>,<span class="fl">1.04</span>])</span>
+<span id="cb20-92"><a href="#cb20-92" aria-hidden="true" tabindex="-1"></a>qmax<span class="op">=</span><span class="dv">7</span></span>
+<span id="cb20-93"><a href="#cb20-93" aria-hidden="true" tabindex="-1"></a>scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x))<span class="op">/</span>qmax</span>
+<span id="cb20-94"><a href="#cb20-94" aria-hidden="true" tabindex="-1"></a>codes<span class="op">=</span>np.clip(np.<span class="bu">round</span>(x<span class="op">/</span>scale),<span class="op">-</span>qmax,qmax).astype(<span class="bu">int</span>)</span>
+<span id="cb20-95"><a href="#cb20-95" aria-hidden="true" tabindex="-1"></a>reconstructed<span class="op">=</span>codes<span class="op">*</span>scale</span>
+<span id="cb20-96"><a href="#cb20-96" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scale:"</span>,<span class="bu">round</span>(scale,<span class="dv">3</span>),<span class="st">"codes:"</span>,codes)</span>
+<span id="cb20-97"><a href="#cb20-97" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reconstructed:"</span>,np.<span class="bu">round</span>(reconstructed,<span class="dv">3</span>))</span>
+<span id="cb20-98"><a href="#cb20-98" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max absolute error:"</span>,<span class="bu">round</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x<span class="op">-</span>reconstructed)),<span class="dv">3</span>))</span>
+<span id="cb20-99"><a href="#cb20-99" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-100"><a href="#cb20-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-103"><a href="#cb20-103" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-104"><a href="#cb20-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reconstruction-error</span></span>
+<span id="cb20-105"><a href="#cb20-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Quantised reconstruction replaces each original value with a nearby representable level; the error depends on scale and code range."</span></span>
+<span id="cb20-106"><a href="#cb20-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A scatter plot compares original vector values with reconstructed values, alongside a diagonal equality line."</span></span>
+<span id="cb20-107"><a href="#cb20-107" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>,<span class="fl">4.5</span>))<span class="op">;</span> ax.scatter(x,reconstructed,color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">65</span>)<span class="op">;</span> ax.plot([<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],[<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],color<span class="op">=</span>grey,ls<span class="op">=</span><span class="st">"--"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"original"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"reconstructed"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Toy quantisation reconstruction"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb20-108"><a href="#cb20-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-109"><a href="#cb20-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-110"><a href="#cb20-110" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scales determine where error falls</span></span>
+<span id="cb20-111"><a href="#cb20-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-112"><a href="#cb20-112" aria-hidden="true" tabindex="-1"></a>One scale for a whole tensor is simple but can represent small values poorly when a few outliers determine the range. Per-channel or groupwise scaling uses more scale values and metadata while allowing each channel or group a more suitable range. The group definition must be recorded because it changes the representation and can change accuracy.</span>
+<span id="cb20-113"><a href="#cb20-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-116"><a href="#cb20-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-117"><a href="#cb20-117" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([[<span class="fl">.02</span>,<span class="fl">.04</span>,<span class="fl">.08</span>,<span class="fl">1.1</span>],[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.06</span>,<span class="fl">.09</span>]])</span>
+<span id="cb20-118"><a href="#cb20-118" aria-hidden="true" tabindex="-1"></a>global_scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights))<span class="op">/</span><span class="dv">7</span></span>
+<span id="cb20-119"><a href="#cb20-119" aria-hidden="true" tabindex="-1"></a>row_scales<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights),axis<span class="op">=</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">7</span></span>
+<span id="cb20-120"><a href="#cb20-120" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"global scale:"</span>,<span class="bu">round</span>(global_scale,<span class="dv">3</span>),<span class="st">"row scales:"</span>,np.<span class="bu">round</span>(row_scales,<span class="dv">3</span>))</span>
+<span id="cb20-121"><a href="#cb20-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-122"><a href="#cb20-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-123"><a href="#cb20-123" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - System-level effects</span></span>
+<span id="cb20-124"><a href="#cb20-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-125"><a href="#cb20-125" aria-hidden="true" tabindex="-1"></a><span class="fu">### Weights, activations, and caches have different roles</span></span>
+<span id="cb20-126"><a href="#cb20-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-127"><a href="#cb20-127" aria-hidden="true" tabindex="-1"></a>Weight quantisation changes static model storage. Activation quantisation changes intermediate computation and may require calibration data or quantisation-aware training. Key-value cache quantisation changes the growing state of autoregressive serving described in Chapter 27. These choices have different numerical and memory consequences and should not be conflated.</span>
+<span id="cb20-128"><a href="#cb20-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-131"><a href="#cb20-131" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-132"><a href="#cb20-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-memory-components</span></span>
+<span id="cb20-133"><a href="#cb20-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Inference memory includes static weights, temporary activations, and a length-dependent key-value cache; each component can use a different precision."</span></span>
+<span id="cb20-134"><a href="#cb20-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A stacked bar separates weights, temporary activations, and KV cache, with annotations for independent precision choices."</span></span>
+<span id="cb20-135"><a href="#cb20-135" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> components<span class="op">=</span>np.array([<span class="dv">10</span>,<span class="dv">2</span>,<span class="dv">5</span>])<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">0</span>],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"weights"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">1</span>],bottom<span class="op">=</span>components[<span class="dv">0</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"temporary activations"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">2</span>],bottom<span class="op">=</span>components[:<span class="dv">2</span>].<span class="bu">sum</span>(),color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"KV cache"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_ylabel(<span class="st">"relative memory"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Quantisation targets have distinct memory roles"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb20-136"><a href="#cb20-136" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-137"><a href="#cb20-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-138"><a href="#cb20-138" aria-hidden="true" tabindex="-1"></a>The relevant memory budget changes with prompt length, output length, concurrency, batch policy, and cache layout. A conversion that permits a checkpoint to load may still fail under long concurrent requests because the cache becomes dominant. Conversely, reducing cache precision can affect long-context outputs even when the weight-only conversion was accurate on short prompts.</span>
+<span id="cb20-139"><a href="#cb20-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-140"><a href="#cb20-140" aria-hidden="true" tabindex="-1"></a><span class="fu">### Calibration and validation must follow conversion</span></span>
+<span id="cb20-141"><a href="#cb20-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-142"><a href="#cb20-142" aria-hidden="true" tabindex="-1"></a>Post-training quantisation may use representative activations to choose scales or protect outlier channels. The calibration set should resemble the declared workload in language, length, formatting, and task type. Calibrating only short generic prompts then claiming a result for long code or multilingual documents leaves an untested gap.</span>
+<span id="cb20-143"><a href="#cb20-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-146"><a href="#cb20-146" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-147"><a href="#cb20-147" aria-hidden="true" tabindex="-1"></a>baseline<span class="op">=</span>np.array([<span class="fl">.62</span>,<span class="fl">.58</span>,<span class="fl">.71</span>])</span>
+<span id="cb20-148"><a href="#cb20-148" aria-hidden="true" tabindex="-1"></a>quantised<span class="op">=</span>np.array([<span class="fl">.61</span>,<span class="fl">.57</span>,<span class="fl">.68</span>])</span>
+<span id="cb20-149"><a href="#cb20-149" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task deltas:"</span>,np.<span class="bu">round</span>(quantised<span class="op">-</span>baseline,<span class="dv">3</span>))</span>
+<span id="cb20-150"><a href="#cb20-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-151"><a href="#cb20-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-152"><a href="#cb20-152" aria-hidden="true" tabindex="-1"></a><span class="fu">### Numerical error accumulates through a generation loop</span></span>
+<span id="cb20-153"><a href="#cb20-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-154"><a href="#cb20-154" aria-hidden="true" tabindex="-1"></a>Quantisation does not perturb one isolated matrix multiplication. A generated token changes the next prefix, which changes attention keys, values, and later logits. Small differences can leave a short deterministic output unchanged or lead to a different token after a close decision, after which the two generations follow different prefixes. Output disagreement is therefore expected to be task- and decoding-dependent, not proof by itself that conversion failed.</span>
+<span id="cb20-155"><a href="#cb20-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-156"><a href="#cb20-156" aria-hidden="true" tabindex="-1"></a>The useful comparison separates numerical equivalence tests from behaviour tests. On a small fixed reference input, compare intermediate or next-token logits within a stated tolerance. On a task suite, compare outcome scores and error categories. On a serving workload, compare memory and latency at the prompt lengths and concurrency that matter. Each test identifies a different conversion property.</span>
+<span id="cb20-157"><a href="#cb20-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-160"><a href="#cb20-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-161"><a href="#cb20-161" aria-hidden="true" tabindex="-1"></a>baseline_logits<span class="op">=</span>np.array([<span class="fl">2.001</span>,<span class="fl">1.200</span>,<span class="fl">.302</span>])</span>
+<span id="cb20-162"><a href="#cb20-162" aria-hidden="true" tabindex="-1"></a>quantised_logits<span class="op">=</span>np.array([<span class="fl">1.996</span>,<span class="fl">1.205</span>,<span class="fl">.297</span>])</span>
+<span id="cb20-163"><a href="#cb20-163" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max logit difference:"</span>,np.<span class="bu">max</span>(np.<span class="bu">abs</span>(baseline_logits<span class="op">-</span>quantised_logits)))</span>
+<span id="cb20-164"><a href="#cb20-164" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same greedy token:"</span>,baseline_logits.argmax()<span class="op">==</span>quantised_logits.argmax())</span>
+<span id="cb20-165"><a href="#cb20-165" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-166"><a href="#cb20-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-167"><a href="#cb20-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Quantisation policy should include fallback behaviour</span></span>
+<span id="cb20-168"><a href="#cb20-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-169"><a href="#cb20-169" aria-hidden="true" tabindex="-1"></a>Some deployments keep selected modules in higher precision because they are sensitive to a conversion method or because a runtime lacks a suitable kernel. Others route long-context or high-stakes requests to a higher-precision model. A fallback is not a defect, but it changes cost and comparability. The policy should state when it is triggered and report how often it occurs in the intended workload.</span>
+<span id="cb20-170"><a href="#cb20-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-173"><a href="#cb20-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-174"><a href="#cb20-174" aria-hidden="true" tabindex="-1"></a>request<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">12000</span>,<span class="st">"task"</span>:<span class="st">"source-grounded answer"</span>}</span>
+<span id="cb20-175"><a href="#cb20-175" aria-hidden="true" tabindex="-1"></a>route<span class="op">=</span><span class="st">"higher precision"</span> <span class="cf">if</span> request[<span class="st">"prompt_tokens"</span>]<span class="op">&gt;</span><span class="dv">8192</span> <span class="cf">else</span> <span class="st">"quantised"</span></span>
+<span id="cb20-176"><a href="#cb20-176" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"route:"</span>,route)</span>
+<span id="cb20-177"><a href="#cb20-177" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-178"><a href="#cb20-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-179"><a href="#cb20-179" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and deployment</span></span>
+<span id="cb20-180"><a href="#cb20-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-181"><a href="#cb20-181" aria-hidden="true" tabindex="-1"></a><span class="fu">### A quantised checkpoint requires a conversion record</span></span>
+<span id="cb20-182"><a href="#cb20-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-183"><a href="#cb20-183" aria-hidden="true" tabindex="-1"></a>The record should state base checkpoint hash, tokenizer, source dtype, weight and activation formats, group size, scales and zero-point method, exempt modules, calibration data and procedure, compute accumulation dtype, cache format, runtime and kernel version, hardware, merge status for adapters, and output artifact hashes. A conversion cannot be audited from a filename such as <span class="in">`model-4bit`</span>.</span>
+<span id="cb20-184"><a href="#cb20-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-187"><a href="#cb20-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-188"><a href="#cb20-188" aria-hidden="true" tabindex="-1"></a>conversion<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"weight_format"</span>:<span class="st">"int4 groupwise"</span>,<span class="st">"group_size"</span>:<span class="dv">128</span>,<span class="st">"compute_dtype"</span>:<span class="st">"float16"</span>,<span class="st">"kv_cache"</span>:<span class="st">"float16"</span>,<span class="st">"runtime"</span>:<span class="st">"versioned"</span>}</span>
+<span id="cb20-189"><a href="#cb20-189" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base_hash"</span>,<span class="st">"weight_format"</span>,<span class="st">"compute_dtype"</span>,<span class="st">"runtime"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(conversion)</span>
+<span id="cb20-190"><a href="#cb20-190" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"conversion record complete"</span>)</span>
+<span id="cb20-191"><a href="#cb20-191" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-192"><a href="#cb20-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-193"><a href="#cb20-193" aria-hidden="true" tabindex="-1"></a><span class="fu">### Validate both task behaviour and service behaviour</span></span>
+<span id="cb20-194"><a href="#cb20-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-195"><a href="#cb20-195" aria-hidden="true" tabindex="-1"></a>Compare the baseline and converted model under the same tokenizer, prompt template, decoding policy, maximum lengths, and hardware workload where possible. Report target-task scores, retained tasks, output agreement on a fixed reference set, error categories, peak memory, prefill and decode latency, throughput at declared concurrency, and failure behaviour near the context limit. A lower memory number without a matching accuracy and workload record is incomplete evidence.</span>
+<span id="cb20-196"><a href="#cb20-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-199"><a href="#cb20-199" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-200"><a href="#cb20-200" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-conversion-audit</span></span>
+<span id="cb20-201"><a href="#cb20-201" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Quantisation validation compares a baseline and converted checkpoint on fixed outputs, task scores, memory, latency, and context-boundary behaviour."</span></span>
+<span id="cb20-202"><a href="#cb20-202" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram connects baseline and quantised models to shared task evaluation and shared serving benchmarks."</span></span>
+<span id="cb20-203"><a href="#cb20-203" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.8</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb20-204"><a href="#cb20-204" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"baseline</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.45</span>,<span class="st">"quantised</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.0</span>,<span class="st">"fixed task</span><span class="ch">\n</span><span class="st">and output tests"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"serving</span><span class="ch">\n</span><span class="st">benchmark"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.5</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.55</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb20-205"><a href="#cb20-205" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Hold input, tokenizer, and policy fixed for the accuracy comparison."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb20-206"><a href="#cb20-206" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-207"><a href="#cb20-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-208"><a href="#cb20-208" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb20-209"><a href="#cb20-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-210"><a href="#cb20-210" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A 4-bit label fully specifies quantisation.** Tensor targets, scales, groups, compute dtype, and runtime remain necessary.</span>
+<span id="cb20-211"><a href="#cb20-211" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Lower bit width always gives proportional speed gains.** Kernel support and workload shape determine observed latency.</span>
+<span id="cb20-212"><a href="#cb20-212" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Weight quantisation solves all inference memory limits.** Activations and KV caches can dominate.</span>
+<span id="cb20-213"><a href="#cb20-213" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Quantisation error is only a scalar reconstruction error.** Task and sequence behaviour can change unevenly.</span>
+<span id="cb20-214"><a href="#cb20-214" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A model that loads successfully is validated.** It needs accuracy, boundary, and service tests.</span>
+<span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-216"><a href="#cb20-216" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb20-217"><a href="#cb20-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-218"><a href="#cb20-218" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate raw storage for a parameter count at 16, 8, and 4 bits.</span>
+<span id="cb20-219"><a href="#cb20-219" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Implement a symmetric affine quantiser for a supplied vector.</span>
+<span id="cb20-220"><a href="#cb20-220" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate reconstruction error and identify an outlier effect.</span>
+<span id="cb20-221"><a href="#cb20-221" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Compare global and per-channel scales.</span>
+<span id="cb20-222"><a href="#cb20-222" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>List weight, activation, and cache precision separately for a deployment.</span>
+<span id="cb20-223"><a href="#cb20-223" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Explain why a KV cache can dominate long-context memory.</span>
+<span id="cb20-224"><a href="#cb20-224" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Design a representative calibration set for a declared application.</span>
+<span id="cb20-225"><a href="#cb20-225" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Specify a fixed-output comparison between baseline and quantised models.</span>
+<span id="cb20-226"><a href="#cb20-226" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>List fields needed in a conversion record.</span>
+<span id="cb20-227"><a href="#cb20-227" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Explain why hardware kernels affect a latency claim.</span>
+<span id="cb20-228"><a href="#cb20-228" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Compare storage precision and accumulation precision.</span>
+<span id="cb20-229"><a href="#cb20-229" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a context-boundary test after cache quantisation.</span>
+<span id="cb20-230"><a href="#cb20-230" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Identify an adapter merge field needed before quantisation.</span>
+<span id="cb20-231"><a href="#cb20-231" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why a generic short-prompt evaluation is insufficient.</span>
+<span id="cb20-232"><a href="#cb20-232" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Propose a serving benchmark with stated concurrency.</span>
+<span id="cb20-233"><a href="#cb20-233" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the next chapter's retrieval pipeline topic.</span>
+<span id="cb20-234"><a href="#cb20-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-235"><a href="#cb20-235" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb20-236"><a href="#cb20-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-237"><a href="#cb20-237" aria-hidden="true" tabindex="-1"></a>Quantisation represents selected model tensors with lower-precision codes and associated scaling information. It can reduce weight storage and memory traffic, but its accuracy and latency effects depend on tensor scope, scaling method, activation and cache formats, runtime kernels, workload, and hardware. Conversion must be evaluated as a changed inference system.</span>
+<span id="cb20-238"><a href="#cb20-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-239"><a href="#cb20-239" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 33</span><span class="co">](33-retrieval-augmented-generation.qmd)</span> examines a different route to improving responses: retrieving external evidence and constructing the model context from it.</span>
+<span id="cb20-240"><a href="#cb20-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-241"><a href="#cb20-241" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb20-242"><a href="#cb20-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-243"><a href="#cb20-243" aria-hidden="true" tabindex="-1"></a>Quantisation changes the representation and execution of a fixed model. <span class="co">[</span><span class="ot">Chapter 33</span><span class="co">](33-retrieval-augmented-generation.qmd)</span> examines a different route to extending a system: constructing model context from an external, versioned collection.</span>
+<span id="cb20-244"><a href="#cb20-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-245"><a href="#cb20-245" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb20-246"><a href="#cb20-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-247"><a href="#cb20-247" aria-hidden="true" tabindex="-1"></a>QLoRA combines low-rank adaptation with a quantised base model <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>. GPTQ provides one post-training quantisation approach for generative models <span class="co">[</span><span class="ot">@frantar2022gptq</span><span class="co">]</span>.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

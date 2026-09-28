@@ -127,14 +127,15 @@ div.csl-indent {
 
 
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="book-navigation.css"></head>
+<link rel="stylesheet" href="book-navigation.css">
+</head>
 
 <body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex"><a class="book-site-return" href="/">← sempe.dev</a><a class="book-site-books" href="/#books">Books</a>
+    <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
@@ -165,7 +166,7 @@ div.csl-indent {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Machine Learning Concepts</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -521,9 +522,7 @@ div.csl-indent {
 <section id="running-evaluation" class="level3">
 <h3 class="anchored" data-anchor-id="running-evaluation">Running evaluation</h3>
 <p>The running test has labelled inputs, a fixed template, a checkpoint, a decoding policy, and an exact-match criterion. Changing any of these can change the reported score.</p>
-<div id="fig-evaluation-contract" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-evaluation-contract" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -536,11 +535,24 @@ div.csl-indent {
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.68</span>,<span class="fl">3.68</span>,<span class="fl">5.68</span>,<span class="fl">7.68</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"A score is conditional on the complete evaluation contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-evaluation-contract" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="34-evaluating-llms_files/figure-html/fig-evaluation-contract-output-1.png" class="img-fluid figure-img" alt="Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;35.1
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.1: An LLM score is produced by a defined model and system interface, test set, decoding policy, and scoring procedure.
 </figcaption>
 </figure>
+</div>
+</div>
+</div>
+<div id="concept-llm-evaluation" class="concept-box concept-core" data-term="LLM evaluation" data-domain="Large language models">
+<p><strong>LLM evaluation.</strong> Measurement of a stated system interface on a defined task population and scoring rule. A benchmark score is conditional evidence, shaped by the model, prompt, decoding policy, data provenance, and development history.</p>
+</div>
+<div id="concept-benchmark-deployment" class="concept-box concept-distinction" data-term="Benchmark score and deployment claim" data-domain="Large language models">
+<p><strong>Benchmark score and deployment claim.</strong> A benchmark score estimates performance on its items and interface. A deployment claim requires evidence about the intended users, inputs, consequence, and system configuration; it cannot be inferred from the benchmark alone.</p>
 </div>
 </section>
 </section>
@@ -550,32 +562,40 @@ Figure&nbsp;35.1
 <h3 class="anchored" data-anchor-id="scores-answer-bounded-questions">Scores answer bounded questions</h3>
 <p>Exact accuracy on multiple-choice questions measures success on those items under the supplied prompt and answer extraction rule. A factuality evaluation measures a different property. A safety red-team, long-context retrieval test, code execution task, and human preference study each answer other questions. A broad evaluation programme may combine them, but their scores should not be collapsed into one claim without explaining the aggregation and the uses it represents.</p>
 <p>Benchmark choice defines which errors are visible. A test with short English questions can miss multilingual performance, tool failures, source use, refusal behaviour, latency, and long-document reliability. A test with a fixed answer key can be appropriate for a narrow capability while being unsuitable for an open-ended assistant response.</p>
-<div id="ffdc215b" class="cell">
+<div id="5fc6d048" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>]</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>accuracy<span class="op">=</span>np.mean(items)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"accuracy:"</span>,accuracy,<span class="st">"n:"</span>,<span class="bu">len</span>(items))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>accuracy: 0.7 n: 10</code></pre>
+</div>
 </div>
 </section>
 <section id="reliability-requires-repeated-and-varied-evidence" class="level3">
 <h3 class="anchored" data-anchor-id="reliability-requires-repeated-and-varied-evidence">Reliability requires repeated and varied evidence</h3>
 <p>One successful answer does not estimate how often a system will succeed. Reliability concerns the distribution of outcomes across relevant inputs, including rare but consequential failures. For stochastic generation, the same input can yield different outputs. For tools and retrieval, external state can change. Evaluation should therefore record repetitions, seeds or sampling settings, versions, and the time at which an external collection was queried.</p>
-<div id="fig-aggregate-and-slices" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-aggregate-and-slices" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>[<span class="fl">.72</span>,<span class="fl">.86</span>,<span class="fl">.61</span>,<span class="fl">.49</span>]</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>[<span class="fl">.72</span>,<span class="fl">.86</span>,<span class="fl">.61</span>,<span class="fl">.49</span>]</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-aggregate-and-slices" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="34-evaluating-llms_files/figure-html/fig-aggregate-and-slices-output-1.png" class="img-fluid figure-img" alt="A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;35.2
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.2: An aggregate score can conceal different performance across task or population slices, so evaluation should retain the component results.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -585,40 +605,51 @@ Figure&nbsp;35.2
 <h3 class="anchored" data-anchor-id="the-unit-and-denominator-determine-a-metric">The unit and denominator determine a metric</h3>
 <p>An accuracy denominator can be questions, examples, claims, generated tokens, tool calls, or complete episodes. These choices are not interchangeable. A system that answers one question with five claims may be correct on some claims and not others. A RAG system may retrieve a relevant document but fail the final answer. The report should state the unit, inclusion rule, missing-data rule, and whether an item can receive partial credit.</p>
 <p>For binary accuracy over (n) independent labelled units, a simple standard-error approximation is (). It is not sufficient for clustered, repeated, or adaptively sampled data, but it shows why a score from a small test set has substantial uncertainty.</p>
-<div id="d7005991" class="cell">
+<div id="f6714e29" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>se<span class="op">=</span>np.sqrt(p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)<span class="op">/</span>n)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>se<span class="op">=</span>np.sqrt(p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)<span class="op">/</span>n)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>approximate 95% interval: (np.float64(0.632), np.float64(0.808))</code></pre>
 </div>
-<div id="fig-uncertainty-size" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+</div>
+<div id="cell-fig-uncertainty-size" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-uncertainty-size" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-uncertainty-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<img src="34-evaluating-llms_files/figure-html/fig-uncertainty-size-output-1.png" class="img-fluid figure-img" alt="Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-uncertainty-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;35.3
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-uncertainty-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.3: For a fixed observed accuracy, a larger evaluation set yields a narrower simple binomial uncertainty interval.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 <section id="prompt-and-scorer-choices-are-part-of-the-treatment" class="level3">
 <h3 class="anchored" data-anchor-id="prompt-and-scorer-choices-are-part-of-the-treatment">Prompt and scorer choices are part of the treatment</h3>
 <p>Few-shot examples, system messages, answer options, retrieval context, tool permissions, temperature, and output parsing can all change a score. The evaluation should freeze or systematically vary these choices rather than treating them as invisible plumbing. Automatic scorers should be validated on a labelled subset, particularly when judging open-ended answers, code, citations, or safety properties.</p>
-<div id="d6b5c63c" class="cell">
+<div id="f6dff361" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>,<span class="st">"A"</span>]</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>exact<span class="op">=</span>[p<span class="op">==</span>y <span class="cf">for</span> p,y <span class="kw">in</span> <span class="bu">zip</span>(predictions,labels)]</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>,<span class="st">"A"</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>exact<span class="op">=</span>[p<span class="op">==</span>y <span class="cf">for</span> p,y <span class="kw">in</span> <span class="bu">zip</span>(predictions,labels)]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>exact-match score: 0.75 errors: [2]</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -627,42 +658,53 @@ Figure&nbsp;35.3
 <section id="contamination-changes-the-interpretation-of-benchmark-performance" class="level3">
 <h3 class="anchored" data-anchor-id="contamination-changes-the-interpretation-of-benchmark-performance">Contamination changes the interpretation of benchmark performance</h3>
 <p>If test items, answers, or close variants entered pretraining, fine-tuning, preference data, or prompt examples, benchmark performance can reflect prior exposure as well as generalisation. Exact-string searches are useful but insufficient because paraphrases, translated items, templates, and solutions can differ visibly while preserving the test content. A contamination policy should state search methods, source coverage, match thresholds, exclusions, and what score is reported when exposure is suspected.</p>
-<div id="132d2095" class="cell">
+<div id="e4dbca00" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>training_texts<span class="op">=</span>[<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"What is the eligibility rule?"</span>,<span class="st">"Other text"</span>]</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>matches<span class="op">=</span>[text <span class="cf">for</span> text <span class="kw">in</span> training_texts <span class="cf">if</span> test_item.lower() <span class="kw">in</span> text.lower()]</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>training_texts<span class="op">=</span>[<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"What is the eligibility rule?"</span>,<span class="st">"Other text"</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>matches<span class="op">=</span>[text <span class="cf">for</span> text <span class="kw">in</span> training_texts <span class="cf">if</span> test_item.lower() <span class="kw">in</span> text.lower()]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>exact matches: ['What is the eligibility rule?']</code></pre>
+</div>
 </div>
 <p>Contamination does not always make an evaluation useless, but it narrows the claim. A score may still measure retrieval from memorised material or performance under known exposure. It should not be presented as evidence of behaviour on unseen instances without a defensible boundary.</p>
 </section>
 <section id="evaluate-complete-systems-at-component-boundaries" class="level3">
 <h3 class="anchored" data-anchor-id="evaluate-complete-systems-at-component-boundaries">Evaluate complete systems at component boundaries</h3>
 <p>An LLM application can include a model, prompt template, decoder, retriever, index, tools, output validator, and user interface. A final failure may originate in any of these. The evaluation trace should retain input tokens, retrieved IDs, tool calls and outputs, generated IDs, validator decisions, and the final displayed answer. This supports component-level measurements and repair.</p>
-<div id="a4ffaaae" class="cell">
+<div id="11a4a633" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'retrieval': 'relevant chunk missed', 'tool': 'not called', 'generation': 'unsupported answer', 'validator': 'passed'}</code></pre>
 </div>
-<div id="fig-system-failure-trace" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+</div>
+<div id="cell-fig-system-failure-trace" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"input"</span>,blue),(<span class="st">"retrieve / tools"</span>,teal),(<span class="st">"context"</span>,orange),(<span class="st">"generate"</span>,purple),(<span class="st">"validate"</span>,teal),(<span class="st">"display"</span>,blue)]):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.62</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.625</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-system-failure-trace" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-system-failure-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"input"</span>,blue),(<span class="st">"retrieve / tools"</span>,teal),(<span class="st">"context"</span>,orange),(<span class="st">"generate"</span>,purple),(<span class="st">"validate"</span>,teal),(<span class="st">"display"</span>,blue)]):</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.62</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.625</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
+<img src="34-evaluating-llms_files/figure-html/fig-system-failure-trace-output-1.png" class="img-fluid figure-img" alt="A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-system-failure-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;35.4
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-system-failure-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.4: A complete-system evaluation traces failures across input construction, retrieval or tools, generation, validation, and final output.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 </section>
@@ -671,56 +713,72 @@ Figure&nbsp;35.4
 <section id="build-an-evaluation-around-a-decision" class="level3">
 <h3 class="anchored" data-anchor-id="build-an-evaluation-around-a-decision">Build an evaluation around a decision</h3>
 <p>The intended decision should determine the test: whether to deploy a model version, select an adaptation, allow a tool action, use a retrieval corpus, or claim performance for a population. Define the target inputs, harm or cost of errors, baseline, required confidence, and stopping rule before inspecting the result. This prevents a convenient benchmark from becoming a proxy for a different deployment decision.</p>
-<div id="a3c135ac" class="cell">
+<div id="fbe64a5d" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'decision': 'deploy retrieval update', 'population': 'current policy queries', 'baseline': 'index-v11', 'primary': 'supported-answer rate', 'guardrail': 'no access-control failures'}</code></pre>
+</div>
 </div>
 </section>
 <section id="report-disaggregated-evidence-and-limits" class="level3">
 <h3 class="anchored" data-anchor-id="report-disaggregated-evidence-and-limits">Report disaggregated evidence and limits</h3>
 <p>An audit report should state model, tokenizer, prompt, decoding, tools and index versions; test construction and dates; item counts and strata; scoring and adjudication; uncertainty; contamination checks; excluded cases; failures; cost and latency; and known limits. Where human judgements are used, report judge instructions, information access, agreement, and aggregation. Where benchmarks are public, report whether they may have influenced development.</p>
-<div id="fig-reporting-matrix" class="cell quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div id="cell-fig-reporting-matrix" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fields<span class="op">=</span>[<span class="st">"claim"</span>,<span class="st">"population"</span>,<span class="st">"interface"</span>,<span class="st">"metric"</span>,<span class="st">"uncertainty"</span>,<span class="st">"contamination"</span>,<span class="st">"failures"</span>]</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,field <span class="kw">in</span> <span class="bu">enumerate</span>(fields):</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>(i<span class="op">%</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">2.15</span><span class="op">;</span> y<span class="op">=</span><span class="fl">2.45</span><span class="op">-</span>(i<span class="op">//</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">.85</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>[blue,teal,orange,purple][i<span class="op">%</span><span class="dv">4</span>],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,field,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>fields<span class="op">=</span>[<span class="st">"claim"</span>,<span class="st">"population"</span>,<span class="st">"interface"</span>,<span class="st">"metric"</span>,<span class="st">"uncertainty"</span>,<span class="st">"contamination"</span>,<span class="st">"failures"</span>]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,field <span class="kw">in</span> <span class="bu">enumerate</span>(fields):</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>(i<span class="op">%</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">2.15</span><span class="op">;</span> y<span class="op">=</span><span class="fl">2.45</span><span class="op">-</span>(i<span class="op">//</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">.85</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>[blue,teal,orange,purple][i<span class="op">%</span><span class="dv">4</span>],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,field,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-display">
+<div id="fig-reporting-matrix" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="34-evaluating-llms_files/figure-html/fig-reporting-matrix-output-1.png" class="img-fluid figure-img" alt="A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures.">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;35.5
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35.5: A credible LLM evaluation report links each claim to its population, interface, metric, uncertainty, contamination status, and known limits.
 </figcaption>
 </figure>
+</div>
+</div>
 </div>
 </section>
 <section id="reliability-includes-calibration-and-failure-concentration" class="level3">
 <h3 class="anchored" data-anchor-id="reliability-includes-calibration-and-failure-concentration">Reliability includes calibration and failure concentration</h3>
 <p>An evaluation can ask whether a model’s expressed confidence or probability is related to correctness. Calibration is not solved by a single overall accuracy: a system may be reliable on routine examples and confidently wrong on one task slice. When a system does not expose calibrated probabilities, a proxy such as self-reported confidence, verifier score, or retrieval support should be treated as a separate predictor and evaluated against outcomes.</p>
 <p>Failure concentration also matters. Ten errors distributed across low-stakes formatting tasks have different implications from ten errors concentrated in access-control, medical, or financial cases. An evaluation report should preserve error categories and severity rules, rather than allowing a broad average to conceal the decision consequences of a rare failure.</p>
-<div id="c2535507" class="cell">
+<div id="153560fa" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'slice': 'routine', 'correct': 1, 'confidence': 0.8}
+{'slice': 'high-stakes', 'correct': 0, 'confidence': 0.95}
+{'slice': 'routine', 'correct': 1, 'confidence': 0.7}</code></pre>
+</div>
 </div>
 </section>
 <section id="benchmark-development-is-itself-an-intervention" class="level3">
 <h3 class="anchored" data-anchor-id="benchmark-development-is-itself-an-intervention">Benchmark development is itself an intervention</h3>
 <p>Once a benchmark is public and used repeatedly for model selection, prompt design, data filtering, or reward design, its score can become a target. This can improve performance on the benchmark while narrowing the evidence it provides about unseen work. Held-out sets, refreshed item pools, task variants, and preregistered evaluation protocols can reduce this risk, but none removes the need to describe the development history.</p>
-<div id="5b56888c" class="cell">
+<div id="d8a64167" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'public_benchmark_used_for_tuning': True, 'hidden_holdout': True, 'prompt_fixed_before_holdout': True}</code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -1244,229 +1302,237 @@ Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihi
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Evaluating LLMs"</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Capability, reliability, contamination, and the limits of benchmark scores"</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>An LLM evaluation produces evidence about a defined model or system under a defined input distribution, interface, scoring rule, and time. It does not produce a general scalar measure of intelligence, truthfulness, or fitness for every deployment. The same model can score differently after a template change, a decoding change, an index update, a tool change, or a contaminated test item.</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>This chapter closes Part IV by treating evaluation as a design and measurement problem. It connects the earlier distinctions among token loss, instruction tuning, preference optimisation, inference, and RAG. Part V then turns to reasoning models and the additional question of how to evaluate multi-step computation.</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a capability benchmark, a reliability test, a safety evaluation, and a system evaluation;</span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define the population, unit, interface, and scoring rule for an LLM evaluation;</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate an accuracy estimate and a simple confidence interval;</span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain contamination, prompt sensitivity, and benchmark overfitting;</span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>separate model, retrieval, tool, and decoding failures in a system trace;</span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify when aggregate scores conceal subgroup or task differences; and</span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify an evaluation report that can be audited and reproduced.</span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running evaluation</span></span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>The running test has labelled inputs, a fixed template, a checkpoint, a decoding policy, and an exact-match criterion. Changing any of these can change the reported score.</span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-evaluation-contract</span></span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An LLM score is produced by a defined model and system interface, test set, decoding policy, and scoring procedure."</span></span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval."</span></span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
-<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
-<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"checkpoint +</span><span class="ch">\n</span><span class="st">interface"</span>,blue),(<span class="fl">2.25</span>,<span class="st">"test items</span><span class="ch">\n</span><span class="st">+ labels"</span>,teal),(<span class="fl">4.25</span>,<span class="st">"decoding +</span><span class="ch">\n</span><span class="st">tools"</span>,orange),(<span class="fl">6.25</span>,<span class="st">"scoring</span><span class="ch">\n</span><span class="st">rule"</span>,purple),(<span class="fl">8.2</span>,<span class="st">"metric +</span><span class="ch">\n</span><span class="st">uncertainty"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.4</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.68</span>,<span class="fl">3.68</span>,<span class="fl">5.68</span>,<span class="fl">7.68</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"A score is conditional on the complete evaluation contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scores answer bounded questions</span></span>
-<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>Exact accuracy on multiple-choice questions measures success on those items under the supplied prompt and answer extraction rule. A factuality evaluation measures a different property. A safety red-team, long-context retrieval test, code execution task, and human preference study each answer other questions. A broad evaluation programme may combine them, but their scores should not be collapsed into one claim without explaining the aggregation and the uses it represents.</span>
-<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>Benchmark choice defines which errors are visible. A test with short English questions can miss multilingual performance, tool failures, source use, refusal behaviour, latency, and long-document reliability. A test with a fixed answer key can be appropriate for a narrow capability while being unsuitable for an open-ended assistant response.</span>
-<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>]</span>
-<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>accuracy<span class="op">=</span>np.mean(items)</span>
-<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"accuracy:"</span>,accuracy,<span class="st">"n:"</span>,<span class="bu">len</span>(items))</span>
-<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reliability requires repeated and varied evidence</span></span>
-<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>One successful answer does not estimate how often a system will succeed. Reliability concerns the distribution of outcomes across relevant inputs, including rare but consequential failures. For stochastic generation, the same input can yield different outputs. For tools and retrieval, external state can change. Evaluation should therefore record repetitions, seeds or sampling settings, versions, and the time at which an external collection was queried.</span>
-<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-69"><a href="#cb14-69" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-70"><a href="#cb14-70" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-aggregate-and-slices</span></span>
-<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An aggregate score can conceal different performance across task or population slices, so evaluation should retain the component results."</span></span>
-<span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices."</span></span>
-<span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
-<span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>[<span class="fl">.72</span>,<span class="fl">.86</span>,<span class="fl">.61</span>,<span class="fl">.49</span>]</span>
-<span id="cb14-75"><a href="#cb14-75" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb14-76"><a href="#cb14-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-77"><a href="#cb14-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-78"><a href="#cb14-78" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Measurement mechanics</span></span>
-<span id="cb14-79"><a href="#cb14-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-80"><a href="#cb14-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### The unit and denominator determine a metric</span></span>
-<span id="cb14-81"><a href="#cb14-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-82"><a href="#cb14-82" aria-hidden="true" tabindex="-1"></a>An accuracy denominator can be questions, examples, claims, generated tokens, tool calls, or complete episodes. These choices are not interchangeable. A system that answers one question with five claims may be correct on some claims and not others. A RAG system may retrieve a relevant document but fail the final answer. The report should state the unit, inclusion rule, missing-data rule, and whether an item can receive partial credit.</span>
-<span id="cb14-83"><a href="#cb14-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-84"><a href="#cb14-84" aria-hidden="true" tabindex="-1"></a>For binary accuracy over <span class="sc">\(</span>n<span class="sc">\)</span> independent labelled units, a simple standard-error approximation is <span class="sc">\(</span>\sqrt{\hat p(1-\hat p)/n}<span class="sc">\)</span>. It is not sufficient for clustered, repeated, or adaptively sampled data, but it shows why a score from a small test set has substantial uncertainty.</span>
-<span id="cb14-85"><a href="#cb14-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-88"><a href="#cb14-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-89"><a href="#cb14-89" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
-<span id="cb14-90"><a href="#cb14-90" aria-hidden="true" tabindex="-1"></a>se<span class="op">=</span>np.sqrt(p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)<span class="op">/</span>n)</span>
-<span id="cb14-91"><a href="#cb14-91" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span>
-<span id="cb14-92"><a href="#cb14-92" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-93"><a href="#cb14-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-uncertainty-size</span></span>
-<span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "For a fixed observed accuracy, a larger evaluation set yields a narrower simple binomial uncertainty interval."</span></span>
-<span id="cb14-99"><a href="#cb14-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items."</span></span>
-<span id="cb14-100"><a href="#cb14-100" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
-<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a><span class="fu">### Prompt and scorer choices are part of the treatment</span></span>
-<span id="cb14-105"><a href="#cb14-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-106"><a href="#cb14-106" aria-hidden="true" tabindex="-1"></a>Few-shot examples, system messages, answer options, retrieval context, tool permissions, temperature, and output parsing can all change a score. The evaluation should freeze or systematically vary these choices rather than treating them as invisible plumbing. Automatic scorers should be validated on a labelled subset, particularly when judging open-ended answers, code, citations, or safety properties.</span>
-<span id="cb14-107"><a href="#cb14-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-110"><a href="#cb14-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-111"><a href="#cb14-111" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
-<span id="cb14-112"><a href="#cb14-112" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>,<span class="st">"A"</span>]</span>
-<span id="cb14-113"><a href="#cb14-113" aria-hidden="true" tabindex="-1"></a>exact<span class="op">=</span>[p<span class="op">==</span>y <span class="cf">for</span> p,y <span class="kw">in</span> <span class="bu">zip</span>(predictions,labels)]</span>
-<span id="cb14-114"><a href="#cb14-114" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span>
-<span id="cb14-115"><a href="#cb14-115" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Contamination and system boundaries</span></span>
-<span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-119"><a href="#cb14-119" aria-hidden="true" tabindex="-1"></a><span class="fu">### Contamination changes the interpretation of benchmark performance</span></span>
-<span id="cb14-120"><a href="#cb14-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a>If test items, answers, or close variants entered pretraining, fine-tuning, preference data, or prompt examples, benchmark performance can reflect prior exposure as well as generalisation. Exact-string searches are useful but insufficient because paraphrases, translated items, templates, and solutions can differ visibly while preserving the test content. A contamination policy should state search methods, source coverage, match thresholds, exclusions, and what score is reported when exposure is suspected.</span>
-<span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-125"><a href="#cb14-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-126"><a href="#cb14-126" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
-<span id="cb14-127"><a href="#cb14-127" aria-hidden="true" tabindex="-1"></a>training_texts<span class="op">=</span>[<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"What is the eligibility rule?"</span>,<span class="st">"Other text"</span>]</span>
-<span id="cb14-128"><a href="#cb14-128" aria-hidden="true" tabindex="-1"></a>matches<span class="op">=</span>[text <span class="cf">for</span> text <span class="kw">in</span> training_texts <span class="cf">if</span> test_item.lower() <span class="kw">in</span> text.lower()]</span>
-<span id="cb14-129"><a href="#cb14-129" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span>
-<span id="cb14-130"><a href="#cb14-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-131"><a href="#cb14-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-132"><a href="#cb14-132" aria-hidden="true" tabindex="-1"></a>Contamination does not always make an evaluation useless, but it narrows the claim. A score may still measure retrieval from memorised material or performance under known exposure. It should not be presented as evidence of behaviour on unseen instances without a defensible boundary.</span>
-<span id="cb14-133"><a href="#cb14-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-134"><a href="#cb14-134" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate complete systems at component boundaries</span></span>
-<span id="cb14-135"><a href="#cb14-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-136"><a href="#cb14-136" aria-hidden="true" tabindex="-1"></a>An LLM application can include a model, prompt template, decoder, retriever, index, tools, output validator, and user interface. A final failure may originate in any of these. The evaluation trace should retain input tokens, retrieved IDs, tool calls and outputs, generated IDs, validator decisions, and the final displayed answer. This supports component-level measurements and repair.</span>
-<span id="cb14-137"><a href="#cb14-137" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-141"><a href="#cb14-141" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
-<span id="cb14-142"><a href="#cb14-142" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span>
-<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-147"><a href="#cb14-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-148"><a href="#cb14-148" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-system-failure-trace</span></span>
-<span id="cb14-149"><a href="#cb14-149" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A complete-system evaluation traces failures across input construction, retrieval or tools, generation, validation, and final output."</span></span>
-<span id="cb14-150"><a href="#cb14-150" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage."</span></span>
-<span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"input"</span>,blue),(<span class="st">"retrieve / tools"</span>,teal),(<span class="st">"context"</span>,orange),(<span class="st">"generate"</span>,purple),(<span class="st">"validate"</span>,teal),(<span class="st">"display"</span>,blue)]):</span>
-<span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.62</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.625</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb14-154"><a href="#cb14-154" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb14-155"><a href="#cb14-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Evaluation design and reporting</span></span>
-<span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a><span class="fu">### Build an evaluation around a decision</span></span>
-<span id="cb14-160"><a href="#cb14-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-161"><a href="#cb14-161" aria-hidden="true" tabindex="-1"></a>The intended decision should determine the test: whether to deploy a model version, select an adaptation, allow a tool action, use a retrieval corpus, or claim performance for a population. Define the target inputs, harm or cost of errors, baseline, required confidence, and stopping rule before inspecting the result. This prevents a convenient benchmark from becoming a proxy for a different deployment decision.</span>
-<span id="cb14-162"><a href="#cb14-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-165"><a href="#cb14-165" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-166"><a href="#cb14-166" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
-<span id="cb14-167"><a href="#cb14-167" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span>
-<span id="cb14-168"><a href="#cb14-168" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-169"><a href="#cb14-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-170"><a href="#cb14-170" aria-hidden="true" tabindex="-1"></a><span class="fu">### Report disaggregated evidence and limits</span></span>
-<span id="cb14-171"><a href="#cb14-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-172"><a href="#cb14-172" aria-hidden="true" tabindex="-1"></a>An audit report should state model, tokenizer, prompt, decoding, tools and index versions; test construction and dates; item counts and strata; scoring and adjudication; uncertainty; contamination checks; excluded cases; failures; cost and latency; and known limits. Where human judgements are used, report judge instructions, information access, agreement, and aggregation. Where benchmarks are public, report whether they may have influenced development.</span>
-<span id="cb14-173"><a href="#cb14-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-176"><a href="#cb14-176" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-177"><a href="#cb14-177" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reporting-matrix</span></span>
-<span id="cb14-178"><a href="#cb14-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A credible LLM evaluation report links each claim to its population, interface, metric, uncertainty, contamination status, and known limits."</span></span>
-<span id="cb14-179"><a href="#cb14-179" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures."</span></span>
-<span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a>fields<span class="op">=</span>[<span class="st">"claim"</span>,<span class="st">"population"</span>,<span class="st">"interface"</span>,<span class="st">"metric"</span>,<span class="st">"uncertainty"</span>,<span class="st">"contamination"</span>,<span class="st">"failures"</span>]</span>
-<span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,field <span class="kw">in</span> <span class="bu">enumerate</span>(fields):</span>
-<span id="cb14-183"><a href="#cb14-183" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>(i<span class="op">%</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">2.15</span><span class="op">;</span> y<span class="op">=</span><span class="fl">2.45</span><span class="op">-</span>(i<span class="op">//</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">.85</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>[blue,teal,orange,purple][i<span class="op">%</span><span class="dv">4</span>],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,field,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb14-184"><a href="#cb14-184" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-186"><a href="#cb14-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-187"><a href="#cb14-187" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reliability includes calibration and failure concentration</span></span>
-<span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-189"><a href="#cb14-189" aria-hidden="true" tabindex="-1"></a>An evaluation can ask whether a model's expressed confidence or probability is related to correctness. Calibration is not solved by a single overall accuracy: a system may be reliable on routine examples and confidently wrong on one task slice. When a system does not expose calibrated probabilities, a proxy such as self-reported confidence, verifier score, or retrieval support should be treated as a separate predictor and evaluated against outcomes.</span>
-<span id="cb14-190"><a href="#cb14-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-191"><a href="#cb14-191" aria-hidden="true" tabindex="-1"></a>Failure concentration also matters. Ten errors distributed across low-stakes formatting tasks have different implications from ten errors concentrated in access-control, medical, or financial cases. An evaluation report should preserve error categories and severity rules, rather than allowing a broad average to conceal the decision consequences of a rare failure.</span>
-<span id="cb14-192"><a href="#cb14-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-195"><a href="#cb14-195" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-196"><a href="#cb14-196" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
-<span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span>
-<span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-200"><a href="#cb14-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### Benchmark development is itself an intervention</span></span>
-<span id="cb14-201"><a href="#cb14-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a>Once a benchmark is public and used repeatedly for model selection, prompt design, data filtering, or reward design, its score can become a target. This can improve performance on the benchmark while narrowing the evidence it provides about unseen work. Held-out sets, refreshed item pools, task variants, and preregistered evaluation protocols can reduce this risk, but none removes the need to describe the development history.</span>
-<span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-206"><a href="#cb14-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
-<span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span>
-<span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb14-210"><a href="#cb14-210" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-211"><a href="#cb14-211" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-213"><a href="#cb14-213" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A high benchmark score establishes general intelligence.** It measures performance under a specific evaluation contract.</span>
-<span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A single accuracy is enough for deployment.** Slice performance, uncertainty, reliability, cost, and failure consequences may differ.</span>
-<span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Public benchmarks are necessarily uncontaminated.** Development and training exposure require explicit assessment.</span>
-<span id="cb14-216"><a href="#cb14-216" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A final wrong answer is always a model failure.** Retrieval, tools, prompts, validators, and interfaces can fail first.</span>
-<span id="cb14-217"><a href="#cb14-217" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Automatic judging removes evaluation subjectivity.** It introduces a scorer model and its own validation requirements.</span>
-<span id="cb14-218"><a href="#cb14-218" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More benchmarks automatically improve evidence.** They can duplicate a narrow distribution or encourage benchmark-specific optimisation.</span>
-<span id="cb14-219"><a href="#cb14-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-220"><a href="#cb14-220" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb14-221"><a href="#cb14-221" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-222"><a href="#cb14-222" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Define the unit and denominator for a claim-level factuality metric.</span>
-<span id="cb14-223"><a href="#cb14-223" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate accuracy and a simple interval for a supplied outcome vector.</span>
-<span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why clustered examples violate a simple independent-item interval.</span>
-<span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>List the interface fields to freeze for a reproducible benchmark run.</span>
-<span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Design a slice analysis for multilingual assistance.</span>
-<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Identify an exact contamination check and one limitation of it.</span>
-<span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Construct a trace for a RAG answer that retrieved the wrong chunk.</span>
-<span id="cb14-229"><a href="#cb14-229" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare a capability benchmark with a reliability test.</span>
-<span id="cb14-230"><a href="#cb14-230" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Specify an adjudication process for open-ended human scoring.</span>
-<span id="cb14-231"><a href="#cb14-231" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>State why aggregate scores can conceal deployment risk.</span>
-<span id="cb14-232"><a href="#cb14-232" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Propose a guardrail metric for a tool-using system.</span>
-<span id="cb14-233"><a href="#cb14-233" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a prompt-sensitivity experiment.</span>
-<span id="cb14-234"><a href="#cb14-234" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>List report fields needed for a public benchmark claim.</span>
-<span id="cb14-235"><a href="#cb14-235" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Explain why a validator can create false assurance.</span>
-<span id="cb14-236"><a href="#cb14-236" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Define a decision that an evaluation should support.</span>
-<span id="cb14-237"><a href="#cb14-237" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the first chapter of Part V and its new evaluation problem.</span>
-<span id="cb14-238"><a href="#cb14-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-239"><a href="#cb14-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
-<span id="cb14-240"><a href="#cb14-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-241"><a href="#cb14-241" aria-hidden="true" tabindex="-1"></a>LLM evaluation measures defined systems on defined tasks under defined interfaces. Capability scores, reliability studies, safety tests, retrieval evaluation, and service benchmarks provide different evidence. Strong reports retain the population, denominator, uncertainty, contamination policy, component trace, and known limits rather than reducing the system to one aggregate number.</span>
-<span id="cb14-242"><a href="#cb14-242" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-243"><a href="#cb14-243" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
-<span id="cb14-244"><a href="#cb14-244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-245"><a href="#cb14-245" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 35</span><span class="co">](35-what-makes-a-reasoning-model.qmd)</span> begins Part V by distinguishing base models from reasoning-tuned models and examining what changes when systems are trained or prompted to use more computation on a problem.</span>
-<span id="cb14-246"><a href="#cb14-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb14-248"><a href="#cb14-248" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a>Holistic evaluation categories and scenarios are developed by @liang2022holistic. The MMLU benchmark illustrates multi-task knowledge evaluation and its scope limits <span class="co">[</span><span class="ot">@hendrycks2021measuring</span><span class="co">]</span>.</span>
+<div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Evaluating LLMs"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Capability, reliability, contamination, and the limits of benchmark scores"</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>An LLM evaluation produces evidence about a defined model or system under a defined input distribution, interface, scoring rule, and time. It does not produce a general scalar measure of intelligence, truthfulness, or fitness for every deployment. The same model can score differently after a template change, a decoding change, an index update, a tool change, or a contaminated test item.</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>This chapter closes Part IV by treating evaluation as a design and measurement problem. It connects the earlier distinctions among token loss, instruction tuning, preference optimisation, inference, and RAG. Part V then turns to reasoning models and the additional question of how to evaluate multi-step computation.</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a capability benchmark, a reliability test, a safety evaluation, and a system evaluation;</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>define the population, unit, interface, and scoring rule for an LLM evaluation;</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate an accuracy estimate and a simple confidence interval;</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain contamination, prompt sensitivity, and benchmark overfitting;</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>separate model, retrieval, tool, and decoding failures in a system trace;</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify when aggregate scores conceal subgroup or task differences; and</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify an evaluation report that can be audited and reproduced.</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running evaluation</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>The running test has labelled inputs, a fixed template, a checkpoint, a decoding policy, and an exact-match criterion. Changing any of these can change the reported score.</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-evaluation-contract</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An LLM score is produced by a defined model and system interface, test set, decoding policy, and scoring procedure."</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval."</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"checkpoint +</span><span class="ch">\n</span><span class="st">interface"</span>,blue),(<span class="fl">2.25</span>,<span class="st">"test items</span><span class="ch">\n</span><span class="st">+ labels"</span>,teal),(<span class="fl">4.25</span>,<span class="st">"decoding +</span><span class="ch">\n</span><span class="st">tools"</span>,orange),(<span class="fl">6.25</span>,<span class="st">"scoring</span><span class="ch">\n</span><span class="st">rule"</span>,purple),(<span class="fl">8.2</span>,<span class="st">"metric +</span><span class="ch">\n</span><span class="st">uncertainty"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.4</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.68</span>,<span class="fl">3.68</span>,<span class="fl">5.68</span>,<span class="fl">7.68</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"A score is conditional on the complete evaluation contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-llm-evaluation data-term="LLM evaluation" data-domain="Large language models"}</span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>**LLM evaluation.** Measurement of a stated system interface on a defined task population and scoring rule. A benchmark score is conditional evidence, shaped by the model, prompt, decoding policy, data provenance, and development history.</span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-benchmark-deployment data-term="Benchmark score and deployment claim" data-domain="Large language models"}</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>**Benchmark score and deployment claim.** A benchmark score estimates performance on its items and interface. A deployment claim requires evidence about the intended users, inputs, consequence, and system configuration; it cannot be inferred from the benchmark alone.</span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scores answer bounded questions</span></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>Exact accuracy on multiple-choice questions measures success on those items under the supplied prompt and answer extraction rule. A factuality evaluation measures a different property. A safety red-team, long-context retrieval test, code execution task, and human preference study each answer other questions. A broad evaluation programme may combine them, but their scores should not be collapsed into one claim without explaining the aggregation and the uses it represents.</span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>Benchmark choice defines which errors are visible. A test with short English questions can miss multilingual performance, tool failures, source use, refusal behaviour, latency, and long-document reliability. A test with a fixed answer key can be appropriate for a narrow capability while being unsuitable for an open-ended assistant response.</span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>]</span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a>accuracy<span class="op">=</span>np.mean(items)</span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"accuracy:"</span>,accuracy,<span class="st">"n:"</span>,<span class="bu">len</span>(items))</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reliability requires repeated and varied evidence</span></span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a>One successful answer does not estimate how often a system will succeed. Reliability concerns the distribution of outcomes across relevant inputs, including rare but consequential failures. For stochastic generation, the same input can yield different outputs. For tools and retrieval, external state can change. Evaluation should therefore record repetitions, seeds or sampling settings, versions, and the time at which an external collection was queried.</span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-aggregate-and-slices</span></span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "An aggregate score can conceal different performance across task or population slices, so evaluation should retain the component results."</span></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices."</span></span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>[<span class="fl">.72</span>,<span class="fl">.86</span>,<span class="fl">.61</span>,<span class="fl">.49</span>]</span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Measurement mechanics</span></span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a><span class="fu">### The unit and denominator determine a metric</span></span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a>An accuracy denominator can be questions, examples, claims, generated tokens, tool calls, or complete episodes. These choices are not interchangeable. A system that answers one question with five claims may be correct on some claims and not others. A RAG system may retrieve a relevant document but fail the final answer. The report should state the unit, inclusion rule, missing-data rule, and whether an item can receive partial credit.</span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a>For binary accuracy over <span class="sc">\(</span>n<span class="sc">\)</span> independent labelled units, a simple standard-error approximation is <span class="sc">\(</span>\sqrt{\hat p(1-\hat p)/n}<span class="sc">\)</span>. It is not sufficient for clustered, repeated, or adaptively sampled data, but it shows why a score from a small test set has substantial uncertainty.</span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a>se<span class="op">=</span>np.sqrt(p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)<span class="op">/</span>n)</span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-uncertainty-size</span></span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "For a fixed observed accuracy, a larger evaluation set yields a narrower simple binomial uncertainty interval."</span></span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items."</span></span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a><span class="fu">### Prompt and scorer choices are part of the treatment</span></span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a>Few-shot examples, system messages, answer options, retrieval context, tool permissions, temperature, and output parsing can all change a score. The evaluation should freeze or systematically vary these choices rather than treating them as invisible plumbing. Automatic scorers should be validated on a labelled subset, particularly when judging open-ended answers, code, citations, or safety properties.</span>
+<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>,<span class="st">"A"</span>]</span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a>exact<span class="op">=</span>[p<span class="op">==</span>y <span class="cf">for</span> p,y <span class="kw">in</span> <span class="bu">zip</span>(predictions,labels)]</span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Contamination and system boundaries</span></span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a><span class="fu">### Contamination changes the interpretation of benchmark performance</span></span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a>If test items, answers, or close variants entered pretraining, fine-tuning, preference data, or prompt examples, benchmark performance can reflect prior exposure as well as generalisation. Exact-string searches are useful but insufficient because paraphrases, translated items, templates, and solutions can differ visibly while preserving the test content. A contamination policy should state search methods, source coverage, match thresholds, exclusions, and what score is reported when exposure is suspected.</span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
+<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a>training_texts<span class="op">=</span>[<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"What is the eligibility rule?"</span>,<span class="st">"Other text"</span>]</span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a>matches<span class="op">=</span>[text <span class="cf">for</span> text <span class="kw">in</span> training_texts <span class="cf">if</span> test_item.lower() <span class="kw">in</span> text.lower()]</span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a>Contamination does not always make an evaluation useless, but it narrows the claim. A score may still measure retrieval from memorised material or performance under known exposure. It should not be presented as evidence of behaviour on unseen instances without a defensible boundary.</span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a><span class="fu">### Evaluate complete systems at component boundaries</span></span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a>An LLM application can include a model, prompt template, decoder, retriever, index, tools, output validator, and user interface. A final failure may originate in any of these. The evaluation trace should retain input tokens, retrieved IDs, tool calls and outputs, generated IDs, validator decisions, and the final displayed answer. This supports component-level measurements and repair.</span>
+<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-system-failure-trace</span></span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A complete-system evaluation traces failures across input construction, retrieval or tools, generation, validation, and final output."</span></span>
+<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage."</span></span>
+<span id="cb22-159"><a href="#cb22-159" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"input"</span>,blue),(<span class="st">"retrieve / tools"</span>,teal),(<span class="st">"context"</span>,orange),(<span class="st">"generate"</span>,purple),(<span class="st">"validate"</span>,teal),(<span class="st">"display"</span>,blue)]):</span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.62</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.625</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-165"><a href="#cb22-165" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Evaluation design and reporting</span></span>
+<span id="cb22-166"><a href="#cb22-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Build an evaluation around a decision</span></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a>The intended decision should determine the test: whether to deploy a model version, select an adaptation, allow a tool action, use a retrieval corpus, or claim performance for a population. Define the target inputs, harm or cost of errors, baseline, required confidence, and stopping rule before inspecting the result. This prevents a convenient benchmark from becoming a proxy for a different deployment decision.</span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-177"><a href="#cb22-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a><span class="fu">### Report disaggregated evidence and limits</span></span>
+<span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a>An audit report should state model, tokenizer, prompt, decoding, tools and index versions; test construction and dates; item counts and strata; scoring and adjudication; uncertainty; contamination checks; excluded cases; failures; cost and latency; and known limits. Where human judgements are used, report judge instructions, information access, agreement, and aggregation. Where benchmarks are public, report whether they may have influenced development.</span>
+<span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-reporting-matrix</span></span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A credible LLM evaluation report links each claim to its population, interface, metric, uncertainty, contamination status, and known limits."</span></span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures."</span></span>
+<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a>fields<span class="op">=</span>[<span class="st">"claim"</span>,<span class="st">"population"</span>,<span class="st">"interface"</span>,<span class="st">"metric"</span>,<span class="st">"uncertainty"</span>,<span class="st">"contamination"</span>,<span class="st">"failures"</span>]</span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,field <span class="kw">in</span> <span class="bu">enumerate</span>(fields):</span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>(i<span class="op">%</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">2.15</span><span class="op">;</span> y<span class="op">=</span><span class="fl">2.45</span><span class="op">-</span>(i<span class="op">//</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">.85</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>[blue,teal,orange,purple][i<span class="op">%</span><span class="dv">4</span>],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,field,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-194"><a href="#cb22-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-195"><a href="#cb22-195" aria-hidden="true" tabindex="-1"></a><span class="fu">### Reliability includes calibration and failure concentration</span></span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a>An evaluation can ask whether a model's expressed confidence or probability is related to correctness. Calibration is not solved by a single overall accuracy: a system may be reliable on routine examples and confidently wrong on one task slice. When a system does not expose calibrated probabilities, a proxy such as self-reported confidence, verifier score, or retrieval support should be treated as a separate predictor and evaluated against outcomes.</span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a>Failure concentration also matters. Ten errors distributed across low-stakes formatting tasks have different implications from ten errors concentrated in access-control, medical, or financial cases. An evaluation report should preserve error categories and severity rules, rather than allowing a broad average to conceal the decision consequences of a rare failure.</span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
+<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a><span class="fu">### Benchmark development is itself an intervention</span></span>
+<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a>Once a benchmark is public and used repeatedly for model selection, prompt design, data filtering, or reward design, its score can become a target. This can improve performance on the benchmark while narrowing the evidence it provides about unseen work. Held-out sets, refreshed item pools, task variants, and preregistered evaluation protocols can reduce this risk, but none removes the need to describe the development history.</span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-214"><a href="#cb22-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
+<span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A high benchmark score establishes general intelligence.** It measures performance under a specific evaluation contract.</span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A single accuracy is enough for deployment.** Slice performance, uncertainty, reliability, cost, and failure consequences may differ.</span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Public benchmarks are necessarily uncontaminated.** Development and training exposure require explicit assessment.</span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A final wrong answer is always a model failure.** Retrieval, tools, prompts, validators, and interfaces can fail first.</span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Automatic judging removes evaluation subjectivity.** It introduces a scorer model and its own validation requirements.</span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More benchmarks automatically improve evidence.** They can duplicate a narrow distribution or encourage benchmark-specific optimisation.</span>
+<span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Define the unit and denominator for a claim-level factuality metric.</span>
+<span id="cb22-231"><a href="#cb22-231" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate accuracy and a simple interval for a supplied outcome vector.</span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why clustered examples violate a simple independent-item interval.</span>
+<span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>List the interface fields to freeze for a reproducible benchmark run.</span>
+<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Design a slice analysis for multilingual assistance.</span>
+<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Identify an exact contamination check and one limitation of it.</span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Construct a trace for a RAG answer that retrieved the wrong chunk.</span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare a capability benchmark with a reliability test.</span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Specify an adjudication process for open-ended human scoring.</span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>State why aggregate scores can conceal deployment risk.</span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Propose a guardrail metric for a tool-using system.</span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a prompt-sensitivity experiment.</span>
+<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>List report fields needed for a public benchmark claim.</span>
+<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Explain why a validator can create false assurance.</span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Define a decision that an evaluation should support.</span>
+<span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the first chapter of Part V and its new evaluation problem.</span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-247"><a href="#cb22-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb22-248"><a href="#cb22-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a>LLM evaluation measures defined systems on defined tasks under defined interfaces. Capability scores, reliability studies, safety tests, retrieval evaluation, and service benchmarks provide different evidence. Strong reports retain the population, denominator, uncertainty, contamination policy, component trace, and known limits rather than reducing the system to one aggregate number.</span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 35</span><span class="co">](35-what-makes-a-reasoning-model.qmd)</span> begins Part V by distinguishing base models from reasoning-tuned models and examining what changes when systems are trained or prompted to use more computation on a problem.</span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a>Holistic evaluation categories and scenarios are developed by @liang2022holistic. The MMLU benchmark illustrates multi-task knowledge evaluation and its scope limits <span class="co">[</span><span class="ot">@hendrycks2021measuring</span><span class="co">]</span>.</span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
