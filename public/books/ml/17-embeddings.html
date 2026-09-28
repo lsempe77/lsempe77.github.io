@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Embeddings – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -629,7 +594,7 @@ window.Quarto = {
 <div id="cell-fig-embedding-lookup" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -653,13 +618,13 @@ window.Quarto = {
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">6.5</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.9</span>,<span class="fl">3.0</span>,<span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.2f}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.0</span>,<span class="fl">6.0</span>,<span class="st">"trainable matrix E"</span>,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">12</span>)</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">7.4</span>,<span class="fl">3.55</span>,<span class="st">"selected vector E[3]"</span>,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">9.1</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.5</span>,<span class="fl">6.35</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">9.1</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.5</span>,<span class="fl">6.35</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-embedding-lookup" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram shows six item identifiers pointing to rows in a six-by-three embedding table. The row for puppy is highlighted and copied to an output vector.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-embedding-lookup-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="17-embeddings_files/figure-html/fig-embedding-lookup-output-1.png" class="img-fluid figure-img" alt="A diagram shows six item identifiers pointing to rows in a six-by-three embedding table. The row for puppy is highlighted and copied to an output vector.">
+<img src="17-embeddings_files/figure-html/fig-embedding-lookup-output-1.png" alt="A diagram shows six item identifiers pointing to rows in a six-by-three embedding table. The row for puppy is highlighted and copied to an output vector." width="763" height="359" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-embedding-lookup-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.1: An item identifier selects one row from a shared embedding matrix; the identifier itself does not enter later calculations as a magnitude.
@@ -691,7 +656,7 @@ Figure&nbsp;18.1: An item identifier selects one row from a shared embedding mat
 <div id="cell-fig-one-hot-dense" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>one_hot<span class="op">=</span>np.eye(<span class="bu">len</span>(items))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>one_hot<span class="op">=</span>np.eye(<span class="bu">len</span>(items))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.5</span>))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].imshow(one_hot,cmap<span class="op">=</span><span class="st">"Blues"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="dv">1</span>,aspect<span class="op">=</span><span class="st">"auto"</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_yticks(<span class="bu">range</span>(<span class="bu">len</span>(items)),items)<span class="op">;</span> axes[<span class="dv">0</span>].set_xticks(<span class="bu">range</span>(<span class="bu">len</span>(items)),<span class="bu">range</span>(<span class="bu">len</span>(items)))</span>
@@ -702,13 +667,13 @@ Figure&nbsp;18.1: An item identifier selects one row from a shared embedding mat
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,(x,y) <span class="kw">in</span> <span class="bu">zip</span>(items,points): axes[<span class="dv">1</span>].text(x<span class="op">+</span><span class="fl">.05</span>,y<span class="op">+</span><span class="fl">.04</span>,name)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> axes[<span class="dv">1</span>].axvline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"embedding coordinate 1"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"embedding coordinate 2"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Dense: training can organise geometry"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-one-hot-dense" class="quarto-float quarto-figure quarto-figure-center anchored" alt="The left panel shows six one-hot rows with one active cell each. The right panel shows six labelled points, with animal terms forming one region and vehicle terms another.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-one-hot-dense-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="17-embeddings_files/figure-html/fig-one-hot-dense-output-1.png" class="img-fluid figure-img" alt="The left panel shows six one-hot rows with one active cell each. The right panel shows six labelled points, with animal terms forming one region and vehicle terms another.">
+<img src="17-embeddings_files/figure-html/fig-one-hot-dense-output-1.png" alt="The left panel shows six one-hot rows with one active cell each. The right panel shows six labelled points, with animal terms forming one region and vehicle terms another." width="1047" height="422" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-one-hot-dense-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.2: One-hot vectors separate identifiers uniformly, while dense embeddings can place items used in related contexts near one another.
@@ -738,7 +703,7 @@ Figure&nbsp;18.2: One-hot vectors separate identifiers uniformly, while dense em
 <div id="cell-fig-static-contextual" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.4</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.4</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>contexts<span class="op">=</span>[<span class="st">"river bank"</span>,<span class="st">"bank approved loan"</span>,<span class="st">"muddy bank"</span>]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="st">"Static embedding"</span>,<span class="st">"Contextual representations"</span>]): ax.set_title(title)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">6</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,text <span class="kw">in</span> <span class="bu">enumerate</span>(contexts):</span>
@@ -748,13 +713,13 @@ Figure&nbsp;18.2: One-hot vectors separate identifiers uniformly, while dense em
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(text,target) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(contexts,targets)):</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">4.8</span><span class="op">-</span>i<span class="op">*</span><span class="fl">1.7</span><span class="op">;</span> axes[<span class="dv">1</span>].text(<span class="fl">.3</span>,y,text,va<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].add_patch(FancyArrowPatch((<span class="fl">3.0</span>,y),(target[<span class="dv">0</span>]<span class="op">-</span><span class="fl">.2</span>,target[<span class="dv">1</span>]),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">13</span>,color<span class="op">=</span>grey))</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label <span class="kw">in</span> targets[:<span class="dv">2</span>]: axes[<span class="dv">1</span>].add_patch(Rectangle((x<span class="op">-</span><span class="fl">.1</span>,y<span class="op">-</span><span class="fl">.4</span>),<span class="fl">2.0</span>,<span class="fl">.8</span>,facecolor<span class="op">=</span>teal <span class="cf">if</span> y<span class="op">&gt;</span><span class="dv">3</span> <span class="cf">else</span> orange,alpha<span class="op">=</span><span class="fl">.85</span>))<span class="op">;</span> axes[<span class="dv">1</span>].text(x<span class="op">+</span><span class="fl">.9</span>,y,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-static-contextual" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels show three occurrences of the word bank. In the static panel all arrows reach one vector; in the contextual panel river contexts point to one region and financial contexts to another.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-static-contextual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="17-embeddings_files/figure-html/fig-static-contextual-output-1.png" class="img-fluid figure-img" alt="Two panels show three occurrences of the word bank. In the static panel all arrows reach one vector; in the contextual panel river contexts point to one region and financial contexts to another.">
+<img src="17-embeddings_files/figure-html/fig-static-contextual-output-1.png" alt="Two panels show three occurrences of the word bank. In the static panel all arrows reach one vector; in the contextual panel river contexts point to one region and financial contexts to another." width="1046" height="412" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-static-contextual-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.3: A static table returns one vector for every occurrence of an item, while contextual representations can separate occurrences according to their surrounding sequence.
@@ -775,7 +740,7 @@ Figure&nbsp;18.3: A static table returns one vector for every occurrence of an i
 <div id="cell-fig-context-window" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"small"</span>,<span class="st">"truck"</span>,<span class="st">"carries"</span>,<span class="st">"heavy"</span>,<span class="st">"cargo"</span>,<span class="st">"today"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"small"</span>,<span class="st">"truck"</span>,<span class="st">"carries"</span>,<span class="st">"heavy"</span>,<span class="st">"cargo"</span>,<span class="st">"today"</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>centre<span class="op">=</span><span class="dv">3</span><span class="op">;</span> window<span class="op">=</span><span class="dv">2</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,token <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
@@ -786,13 +751,13 @@ Figure&nbsp;18.3: A static table returns one vector for every occurrence of an i
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,i <span class="kw">in</span> <span class="bu">enumerate</span>(context_indices):</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">2.1</span>,<span class="fl">1.7</span><span class="op">-</span>row<span class="op">*</span><span class="fl">.42</span>,<span class="ss">f"(carries, </span><span class="sc">{</span>tokens[i]<span class="sc">}</span><span class="ss">)"</span>,fontsize<span class="op">=</span><span class="dv">10</span>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">.4</span>,<span class="fl">1.7</span>,<span class="st">"training pairs:"</span>,fontsize<span class="op">=</span><span class="dv">10</span>,fontweight<span class="op">=</span><span class="st">"bold"</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">10.5</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">3.7</span>)<span class="op">;</span> ax.set_title(<span class="st">"Window size 2 around the centre item"</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">10.5</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">3.7</span>)<span class="op">;</span> ax.set_title(<span class="st">"Window size 2 around the centre item"</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-context-window" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A seven-token sequence highlights carries as the centre and the two positions on either side as context. Arrows list four centre-context training pairs.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-context-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="17-embeddings_files/figure-html/fig-context-window-output-1.png" class="img-fluid figure-img" alt="A seven-token sequence highlights carries as the centre and the two positions on either side as context. Arrows list four centre-context training pairs.">
+<img src="17-embeddings_files/figure-html/fig-context-window-output-1.png" alt="A seven-token sequence highlights carries as the centre and the two positions on either side as context. Arrows list four centre-context training pairs." width="838" height="349" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-context-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.4: A context window converts one sequence into centre-context pairs; changing the window changes which relationships training rewards.
@@ -814,7 +779,7 @@ Figure&nbsp;18.4: A context window converts one sequence into centre-context pai
 <div id="cell-fig-cooccurrence-geometry" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>corpus<span class="op">=</span>[</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>corpus<span class="op">=</span>[</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a> [<span class="st">"cat"</span>,<span class="st">"pet"</span>,<span class="st">"soft"</span>],[<span class="st">"kitten"</span>,<span class="st">"pet"</span>,<span class="st">"soft"</span>],[<span class="st">"dog"</span>,<span class="st">"pet"</span>,<span class="st">"loyal"</span>],[<span class="st">"puppy"</span>,<span class="st">"pet"</span>,<span class="st">"loyal"</span>],</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a> [<span class="st">"cat"</span>,<span class="st">"kitten"</span>,<span class="st">"pet"</span>],[<span class="st">"dog"</span>,<span class="st">"puppy"</span>,<span class="st">"pet"</span>],[<span class="st">"car"</span>,<span class="st">"vehicle"</span>,<span class="st">"road"</span>],[<span class="st">"truck"</span>,<span class="st">"vehicle"</span>,<span class="st">"road"</span>],</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a> [<span class="st">"car"</span>,<span class="st">"carries"</span>,<span class="st">"people"</span>],[<span class="st">"truck"</span>,<span class="st">"carries"</span>,<span class="st">"cargo"</span>],[<span class="st">"car"</span>,<span class="st">"truck"</span>,<span class="st">"vehicle"</span>],</span>
@@ -844,13 +809,13 @@ Figure&nbsp;18.4: A context window converts one sequence into centre-context pai
 <span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                     arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-"</span>,<span class="st">"color"</span>:grey,<span class="st">"linewidth"</span>:<span class="fl">.6</span>})</span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> axes[<span class="dv">1</span>].axvline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Two SVD coordinates of PPMI"</span>)</span>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlim(count_vectors[idx,<span class="dv">0</span>].<span class="bu">min</span>()<span class="op">-</span><span class="fl">.12</span>,count_vectors[idx,<span class="dv">0</span>].<span class="bu">max</span>()<span class="op">+</span><span class="fl">.22</span>)</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>fig.colorbar(im,ax<span class="op">=</span>axes[<span class="dv">0</span>],shrink<span class="op">=</span><span class="fl">.75</span>,label<span class="op">=</span><span class="st">"count"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>fig.colorbar(im,ax<span class="op">=</span>axes[<span class="dv">0</span>],shrink<span class="op">=</span><span class="fl">.75</span>,label<span class="op">=</span><span class="st">"count"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-cooccurrence-geometry" class="quarto-float quarto-figure quarto-figure-center anchored" alt="The left panel is a co-occurrence heatmap for eight terms. The right panel is a two-dimensional SVD projection in which animal terms and vehicle terms form separate regions.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cooccurrence-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="17-embeddings_files/figure-html/fig-cooccurrence-geometry-output-1.png" class="img-fluid figure-img" alt="The left panel is a co-occurrence heatmap for eight terms. The right panel is a two-dimensional SVD projection in which animal terms and vehicle terms form separate regions.">
+<img src="17-embeddings_files/figure-html/fig-cooccurrence-geometry-output-1.png" alt="The left panel is a co-occurrence heatmap for eight terms. The right panel is a two-dimensional SVD projection in which animal terms and vehicle terms form separate regions." width="1142" height="494" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cooccurrence-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.5: A small co-occurrence matrix can be compressed into vectors, but the resulting neighbourhoods reflect the corpus and context definition.
@@ -859,7 +824,7 @@ Figure&nbsp;18.5: A small co-occurrence matrix can be compressed into vectors, b
 </div>
 </div>
 </div>
-<p>The projection is unstable in a corpus this small and can flip or rotate without changing the underlying relationships. Its purpose is to connect counts to coordinates. Large count-based methods such as GloVe fit vectors to corpus-wide co-occurrence statistics <span class="citation" data-cites="pennington2014glove">(<a href="#ref-pennington2014glove" role="doc-biblioref">Pennington, Socher, and Manning 2014</a>)</span>.</p>
+<p>The projection is unstable in a corpus this small and can flip or rotate without changing the underlying relationships. Its purpose is to connect counts to coordinates. Large count-based methods such as GloVe fit vectors to corpus-wide co-occurrence statistics <span class="citation" data-cites="pennington2014glove">(<a href="#ref-pennington2014glove" role="doc-biblioref">Pennington et al. 2014</a>)</span>.</p>
 </section>
 <section id="norm-and-direction-contribute-differently" class="level3">
 <h3 class="anchored" data-anchor-id="norm-and-direction-contribute-differently">Norm and direction contribute differently</h3>
@@ -867,7 +832,7 @@ Figure&nbsp;18.5: A small co-occurrence matrix can be compressed into vectors, b
 <div id="cell-fig-similarity-measures" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vectors<span class="op">=</span>{<span class="st">"reference"</span>:np.array([<span class="fl">1.</span>,<span class="fl">.5</span>]),<span class="st">"same direction, larger"</span>:np.array([<span class="fl">3.</span>,<span class="fl">1.5</span>]),<span class="st">"nearby, different angle"</span>:np.array([<span class="fl">.65</span>,<span class="fl">.85</span>]),<span class="st">"opposite"</span>:np.array([<span class="op">-</span><span class="fl">1.</span>,<span class="op">-</span><span class="fl">.5</span>])}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>vectors<span class="op">=</span>{<span class="st">"reference"</span>:np.array([<span class="fl">1.</span>,<span class="fl">.5</span>]),<span class="st">"same direction, larger"</span>:np.array([<span class="fl">3.</span>,<span class="fl">1.5</span>]),<span class="st">"nearby, different angle"</span>:np.array([<span class="fl">.65</span>,<span class="fl">.85</span>]),<span class="st">"opposite"</span>:np.array([<span class="op">-</span><span class="fl">1.</span>,<span class="op">-</span><span class="fl">.5</span>])}</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>reference<span class="op">=</span>vectors[<span class="st">"reference"</span>]</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fig,(ax,table_ax)<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">4.7</span>),gridspec_kw<span class="op">=</span>{<span class="st">"width_ratios"</span>:[<span class="dv">1</span>,<span class="fl">1.35</span>]})</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (name,v),colour <span class="kw">in</span> <span class="bu">zip</span>(vectors.items(),[blue,teal,orange,purple]):</span>
@@ -878,13 +843,13 @@ Figure&nbsp;18.5: A small co-occurrence matrix can be compressed into vectors, b
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    cosine<span class="op">=</span>reference<span class="op">@</span>v<span class="op">/</span>(np.linalg.norm(reference)<span class="op">*</span>np.linalg.norm(v))<span class="op">;</span> distance<span class="op">=</span>np.linalg.norm(reference<span class="op">-</span>v)<span class="op">;</span> dot<span class="op">=</span>reference<span class="op">@</span>v</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    rows.append([name,<span class="ss">f"</span><span class="sc">{</span>cosine<span class="sc">:.2f}</span><span class="ss">"</span>,<span class="ss">f"</span><span class="sc">{</span>distance<span class="sc">:.2f}</span><span class="ss">"</span>,<span class="ss">f"</span><span class="sc">{</span>dot<span class="sc">:.2f}</span><span class="ss">"</span>])</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>table_ax.axis(<span class="st">"off"</span>)<span class="op">;</span> table_ax.table(cellText<span class="op">=</span>rows,colLabels<span class="op">=</span>[<span class="st">"vector"</span>,<span class="st">"cosine"</span>,<span class="st">"Euclidean"</span>,<span class="st">"dot"</span>],loc<span class="op">=</span><span class="st">"center"</span>,cellLoc<span class="op">=</span><span class="st">"center"</span>).scale(<span class="dv">1</span>,<span class="fl">1.6</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-similarity-measures" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A coordinate plot shows a reference vector, a longer vector in the same direction, a nearby short vector at another angle, and an opposite vector, with a table of cosine and distance values.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-similarity-measures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="17-embeddings_files/figure-html/fig-similarity-measures-output-1.png" class="img-fluid figure-img" alt="A coordinate plot shows a reference vector, a longer vector in the same direction, a nearby short vector at another angle, and an opposite vector, with a table of cosine and distance values.">
+<img src="17-embeddings_files/figure-html/fig-similarity-measures-output-1.png" alt="A coordinate plot shows a reference vector, a longer vector in the same direction, a nearby short vector at another angle, and an opposite vector, with a table of cosine and distance values." width="1047" height="442" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-similarity-measures-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.6: Cosine similarity depends on angle, while Euclidean distance and dot products also respond to vector magnitude.
@@ -911,10 +876,10 @@ v_i=E^\top e_i\in\mathbb{R}^{D}.
 \]</span></p>
 <p>Only coordinate <span class="math inline">\(i\)</span> of <span class="math inline">\(e_i\)</span> is non-zero, so the multiplication selects row <span class="math inline">\(i\)</span> of <span class="math inline">\(E\)</span>. Frameworks implement lookup without materialising the large one-hot vector.</p>
 <p>For a batch of identifiers with shape <span class="math inline">\(B\times S\)</span>, lookup returns <span class="math inline">\(B\times S\times D\)</span>. The batch and sequence axes are preserved; the identifier at each position is replaced by its <span class="math inline">\(D\)</span> coordinates.</p>
-<div id="16f4d15a" class="cell" data-execution_count="7">
+<div id="21d37f8f" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">17</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>embedding<span class="op">=</span>nn.Embedding(num_embeddings<span class="op">=</span><span class="dv">8</span>,embedding_dim<span class="op">=</span><span class="dv">4</span>)</span>
@@ -924,7 +889,7 @@ v_i=E^\top e_i\in\mathbb{R}^{D}.
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>multiplied<span class="op">=</span>one_hot<span class="op">@</span>embedding.weight</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"identifier shape:"</span>,<span class="bu">tuple</span>(ids.shape))</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"embedding shape: "</span>,<span class="bu">tuple</span>(looked_up.shape))</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"lookup equals one-hot multiplication:"</span>,torch.allclose(looked_up,multiplied))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"lookup equals one-hot multiplication:"</span>,torch.allclose(looked_up,multiplied))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>identifier shape: (2, 3)
@@ -952,7 +917,7 @@ p(c\mid w)=\frac{\exp(u_c^\top v_w)}{\sum_{j=1}^{V}\exp(u_j^\top v_w)}.
 <div id="cell-fig-skipgram-training" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>vocabulary<span class="op">=</span>all_terms<span class="op">;</span> word_to_id<span class="op">=</span>term_to_id</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>vocabulary<span class="op">=</span>all_terms<span class="op">;</span> word_to_id<span class="op">=</span>term_to_id</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pairs<span class="op">=</span>[]</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sentence <span class="kw">in</span> corpus:</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,centre_word <span class="kw">in</span> <span class="bu">enumerate</span>(sentence):</span>
@@ -975,13 +940,13 @@ p(c\mid w)=\frac{\exp(u_c^\top v_w)}{\sum_{j=1}^{V}\exp(u_j^\top v_w)}.
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    x,y<span class="op">=</span>projected[word_to_id[term]]<span class="op">;</span> colour<span class="op">=</span>teal <span class="cf">if</span> term <span class="kw">in</span> focus[:<span class="dv">4</span>]<span class="op">+</span>[<span class="st">"pet"</span>] <span class="cf">else</span> orange</span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].scatter(x,y,color<span class="op">=</span>colour,s<span class="op">=</span><span class="dv">70</span>)<span class="op">;</span> axes[<span class="dv">1</span>].text(x<span class="op">+</span><span class="fl">.02</span>,y<span class="op">+</span><span class="fl">.02</span>,term)</span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> axes[<span class="dv">1</span>].axvline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Two principal coordinates after training"</span>)</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-skipgram-training" class="quarto-float quarto-figure quarto-figure-center anchored" alt="The left panel shows a decreasing training-loss curve. The right panel shows a two-dimensional projection of trained embeddings, with animal-related terms and vehicle-related terms labelled.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-skipgram-training-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="17-embeddings_files/figure-html/fig-skipgram-training-output-1.png" class="img-fluid figure-img" alt="The left panel shows a decreasing training-loss curve. The right panel shows a two-dimensional projection of trained embeddings, with animal-related terms and vehicle-related terms labelled.">
+<img src="17-embeddings_files/figure-html/fig-skipgram-training-output-1.png" alt="The left panel shows a decreasing training-loss curve. The right panel shows a two-dimensional projection of trained embeddings, with animal-related terms and vehicle-related terms labelled." width="1091" height="431" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-skipgram-training-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;18.7: Skip-gram training lowers the contrastive loss and organises the selected vocabulary according to recurring contexts in the constructed corpus.
@@ -994,22 +959,22 @@ Figure&nbsp;18.7: Skip-gram training lowers the contrastive loss and organises t
 </section>
 <section id="cosine-neighbours-are-calculated-after-normalisation" class="level3">
 <h3 class="anchored" data-anchor-id="cosine-neighbours-are-calculated-after-normalisation">Cosine neighbours are calculated after normalisation</h3>
-<div id="3383a467" class="cell" data-execution_count="9">
+<div id="df2d6038" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cosine_neighbours(term,k<span class="op">=</span><span class="dv">5</span>):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cosine_neighbours(term,k<span class="op">=</span><span class="dv">5</span>):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    query<span class="op">=</span>trained[word_to_id[term]]</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    scores<span class="op">=</span>trained<span class="op">@</span>query</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    order<span class="op">=</span>np.argsort(<span class="op">-</span>scores)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [(vocabulary[i],<span class="bu">float</span>(scores[i])) <span class="cf">for</span> i <span class="kw">in</span> order <span class="cf">if</span> vocabulary[i]<span class="op">!=</span>term][:k]</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> term <span class="kw">in</span> [<span class="st">"cat"</span>,<span class="st">"truck"</span>,<span class="st">"pet"</span>]:</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(term,cosine_neighbours(term,<span class="dv">4</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(term,cosine_neighbours(term,<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>cat [('kitten', 0.5262459516525269), ('soft', 0.45443031191825867), ('dog', 0.38603195548057556), ('pet', 0.19947944581508636)]
-truck [('people', 0.4025771915912628), ('vehicle', 0.3929775059223175), ('road', 0.21301379799842834), ('pet', 0.1742195188999176)]
-pet [('young', 0.684583306312561), ('puppy', 0.4309699535369873), ('kitten', 0.4048229455947876), ('people', 0.387535035610199)]</code></pre>
+<pre><code>cat [('kitten', 0.5262460708618164), ('soft', 0.45443016290664673), ('dog', 0.3860318064689636), ('pet', 0.19947943091392517)]
+truck [('people', 0.4025770127773285), ('vehicle', 0.3929774761199951), ('road', 0.21301373839378357), ('pet', 0.17421948909759521)]
+pet [('young', 0.6845836639404297), ('puppy', 0.43096989393234253), ('kitten', 0.40482303500175476), ('people', 0.38753506541252136)]</code></pre>
 </div>
 </div>
 <p>Normalising each row turns the dot product into cosine similarity. The neighbours should be interpreted against the displayed corpus: a term can be close because it occurs with the same items or because the two terms co-occur directly. The tiny corpus cannot distinguish these mechanisms reliably.</p>
@@ -1032,7 +997,7 @@ h_s=f_\theta(x_1,\ldots,x_S,s).
 <h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
 <section id="predictive-and-count-based-objectives-encode-different-evidence" class="level3">
 <h3 class="anchored" data-anchor-id="predictive-and-count-based-objectives-encode-different-evidence">Predictive and count-based objectives encode different evidence</h3>
-<p>Skip-gram learns through local prediction examples <span class="citation" data-cites="mikolov2013negative">(<a href="#ref-mikolov2013negative" role="doc-biblioref">Mikolov et al. 2013</a>)</span>. GloVe fits a weighted regression objective to global co-occurrence counts <span class="citation" data-cites="pennington2014glove">(<a href="#ref-pennington2014glove" role="doc-biblioref">Pennington, Socher, and Manning 2014</a>)</span>. Both can produce neighbourhoods that support similarity and analogy evaluations, but their objectives, weighting of frequent events, context definitions, and treatment of unobserved pairs differ.</p>
+<p>Skip-gram learns through local prediction examples <span class="citation" data-cites="mikolov2013negative">(<a href="#ref-mikolov2013negative" role="doc-biblioref">Mikolov et al. 2013</a>)</span>. GloVe fits a weighted regression objective to global co-occurrence counts <span class="citation" data-cites="pennington2014glove">(<a href="#ref-pennington2014glove" role="doc-biblioref">Pennington et al. 2014</a>)</span>. Both can produce neighbourhoods that support similarity and analogy evaluations, but their objectives, weighting of frequent events, context definitions, and treatment of unobserved pairs differ.</p>
 <p>This distinction matters when comparing methods. Equal dimensionality does not imply equal evidence. Corpus, vocabulary, minimum frequency, subsampling, window, negative distribution, optimiser budget, and post-processing can explain a difference attributed to an embedding algorithm.</p>
 </section>
 <section id="geometry-is-relative-to-the-fitted-space" class="level3">
@@ -1147,26 +1112,26 @@ VDq\text{ bytes}
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Predictive word vectors and negative sampling are developed by <span class="citation" data-cites="mikolov2013negative">Mikolov et al. (<a href="#ref-mikolov2013negative" role="doc-biblioref">2013</a>)</span>. The global co-occurrence approach is presented by <span class="citation" data-cites="pennington2014glove">Pennington, Socher, and Manning (<a href="#ref-pennington2014glove" role="doc-biblioref">2014</a>)</span>. Context-specific geometry is analysed by <span class="citation" data-cites="ethayarajh2019contextual">Ethayarajh (<a href="#ref-ethayarajh2019contextual" role="doc-biblioref">2019</a>)</span>. Social associations and the limits of geometric debiasing are examined by <span class="citation" data-cites="bolukbasi2016bias">Bolukbasi et al. (<a href="#ref-bolukbasi2016bias" role="doc-biblioref">2016</a>)</span> and <span class="citation" data-cites="gonen2019debiasing">Gonen and Goldberg (<a href="#ref-gonen2019debiasing" role="doc-biblioref">2019</a>)</span>.</p>
+<p>Predictive word vectors and negative sampling are developed by <span class="citation" data-cites="mikolov2013negative">Mikolov et al. (<a href="#ref-mikolov2013negative" role="doc-biblioref">2013</a>)</span>. The global co-occurrence approach is presented by <span class="citation" data-cites="pennington2014glove">Pennington et al. (<a href="#ref-pennington2014glove" role="doc-biblioref">2014</a>)</span>. Context-specific geometry is analysed by <span class="citation" data-cites="ethayarajh2019contextual">Ethayarajh (<a href="#ref-ethayarajh2019contextual" role="doc-biblioref">2019</a>)</span>. Social associations and the limits of geometric debiasing are examined by <span class="citation" data-cites="bolukbasi2016bias">Bolukbasi et al. (<a href="#ref-bolukbasi2016bias" role="doc-biblioref">2016</a>)</span> and <span class="citation" data-cites="gonen2019debiasing">Gonen and Goldberg (<a href="#ref-gonen2019debiasing" role="doc-biblioref">2019</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-bolukbasi2016bias" class="csl-entry" role="listitem">
-Bolukbasi, Tolga, Kai-Wei Chang, James Y. Zou, Venkatesh Saligrama, and Adam T. Kalai. 2016. <span>“Man Is to Computer Programmer as Woman Is to Homemaker? Debiasing Word Embeddings.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 29. <a href="https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings">https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings</a>.
+Bolukbasi, Tolga, Kai-Wei Chang, James Y. Zou, Venkatesh Saligrama, and Adam T. Kalai. 2016. <span>“Man Is to Computer Programmer as Woman Is to Homemaker? Debiasing Word Embeddings.”</span> <em>Advances in Neural Information Processing Systems</em> 29. <a href="https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings">https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings</a>.
 </div>
 <div id="ref-ethayarajh2019contextual" class="csl-entry" role="listitem">
-Ethayarajh, Kawin. 2019. <span>“How Contextual Are Contextualized Word Representations? Comparing the Geometry of <span>BERT</span>, <span>ELMo</span>, and <span>GPT</span>-2 Embeddings.”</span> In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing</em>, 55–65. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/D19-1006">https://doi.org/10.18653/v1/D19-1006</a>.
+Ethayarajh, Kawin. 2019. <span>“How Contextual Are Contextualized Word Representations? Comparing the Geometry of <span>BERT</span>, <span>ELMo</span>, and <span>GPT</span>-2 Embeddings.”</span> <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing</em>, 55–65. <a href="https://doi.org/10.18653/v1/D19-1006">https://doi.org/10.18653/v1/D19-1006</a>.
 </div>
 <div id="ref-gonen2019debiasing" class="csl-entry" role="listitem">
-Gonen, Hila, and Yoav Goldberg. 2019. <span>“Lipstick on a Pig: Debiasing Methods Cover up Systematic Gender Biases in Word Embeddings but Do Not Remove Them.”</span> In <em>Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</em>, 609–14. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/N19-1061">https://doi.org/10.18653/v1/N19-1061</a>.
+Gonen, Hila, and Yoav Goldberg. 2019. <span>“Lipstick on a Pig: Debiasing Methods Cover up Systematic Gender Biases in Word Embeddings but Do Not Remove Them.”</span> <em>Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</em>, 609–14. <a href="https://doi.org/10.18653/v1/N19-1061">https://doi.org/10.18653/v1/N19-1061</a>.
 </div>
 <div id="ref-mikolov2013negative" class="csl-entry" role="listitem">
-Mikolov, Tomas, Ilya Sutskever, Kai Chen, Greg S. Corrado, and Jeff Dean. 2013. <span>“Distributed Representations of Words and Phrases and Their Compositionality.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 26. <a href="https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality">https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality</a>.
+Mikolov, Tomas, Ilya Sutskever, Kai Chen, Greg S. Corrado, and Jeff Dean. 2013. <span>“Distributed Representations of Words and Phrases and Their Compositionality.”</span> <em>Advances in Neural Information Processing Systems</em> 26. <a href="https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality">https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality</a>.
 </div>
 <div id="ref-pennington2014glove" class="csl-entry" role="listitem">
-Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. 2014. <span>“<span>GloVe</span>: Global Vectors for Word Representation.”</span> In <em>Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing</em>, 1532–43. Association for Computational Linguistics. <a href="https://doi.org/10.3115/v1/D14-1162">https://doi.org/10.3115/v1/D14-1162</a>.
+Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. 2014. <span>“<span>GloVe</span>: Global Vectors for Word Representation.”</span> <em>Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing</em>, 1532–43. <a href="https://doi.org/10.3115/v1/D14-1162">https://doi.org/10.3115/v1/D14-1162</a>.
 </div>
 </div>
 </section>
@@ -1223,13 +1188,14 @@ Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. 2014. <span>“
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1263,16 +1229,16 @@ Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. 2014. <span>“
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1634,7 +1600,7 @@ Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. 2014. <span>“
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Embeddings"</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Learning vector coordinates for discrete items and contexts"</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -2114,7 +2080,7 @@ Pennington, Jeffrey, Richard Socher, and Christopher D. Manning. 2014. <span>“
 <span id="cb12-496"><a href="#cb12-496" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb12-497"><a href="#cb12-497" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-498"><a href="#cb12-498" aria-hidden="true" tabindex="-1"></a>Predictive word vectors and negative sampling are developed by @mikolov2013negative. The global co-occurrence approach is presented by @pennington2014glove. Context-specific geometry is analysed by @ethayarajh2019contextual. Social associations and the limits of geometric debiasing are examined by @bolukbasi2016bias and @gonen2019debiasing.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

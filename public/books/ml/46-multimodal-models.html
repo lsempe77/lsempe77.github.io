@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Multimodal Models – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -587,20 +552,20 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 </section>
 <section id="level-1---aligning-representations" class="level2">
 <h2 class="anchored" data-anchor-id="level-1---aligning-representations">Level 1 - Aligning representations</h2>
-<p>An image encoder and a text encoder can map their inputs to vectors that should be close for matched image-text pairs and less similar for mismatched pairs. This contrastive interface supports retrieval and zero-shot classification, but it does not by itself establish grounded visual explanation or reliable generation. CLIP is a prominent example of paired image-text contrastive pretraining <span class="citation" data-cites="radford2021clip">(<a href="#ref-radford2021clip" role="doc-biblioref">Radford et al. 2021</a>)</span>.</p>
+<p>An image encoder and a text encoder can map their inputs to vectors that should be close for matched image-text pairs and less similar for mismatched pairs. This contrastive interface supports retrieval and zero-shot classification, but it does not by itself establish grounded visual explanation or reliable generation. CLIP is a prominent example of paired image-text contrastive pretraining <span class="citation" data-cites="radford2021clip">(<a href="#ref-radford2021clip" role="doc-biblioref"><span class="nocase">Radford et al.</span> 2021</a>)</span>.</p>
 <div id="cell-fig-multimodal-alignment" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="dv">4</span>))<span class="op">;</span>ax.scatter([<span class="dv">1</span>,<span class="dv">4</span>,<span class="fl">2.1</span>,<span class="dv">5</span>],[<span class="dv">1</span>,<span class="dv">3</span>,<span class="fl">1.2</span>,<span class="fl">3.2</span>],c<span class="op">=</span>[<span class="st">"#24527a"</span>,<span class="st">"#24527a"</span>,<span class="st">"#d97745"</span>,<span class="st">"#d97745"</span>],s<span class="op">=</span><span class="dv">90</span>)<span class="op">;</span>ax.text(<span class="dv">1</span>,<span class="fl">1.2</span>,<span class="st">"image A"</span>)<span class="op">;</span>ax.text(<span class="fl">2.1</span>,<span class="fl">1.4</span>,<span class="st">"text A"</span>)<span class="op">;</span>ax.text(<span class="dv">4</span>,<span class="fl">3.2</span>,<span class="st">"image B"</span>)<span class="op">;</span>ax.text(<span class="dv">5</span>,<span class="fl">3.4</span>,<span class="st">"text B"</span>)<span class="op">;</span>ax.set_title(<span class="st">"Illustrative aligned pairs"</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="dv">4</span>))<span class="op">;</span>ax.scatter([<span class="dv">1</span>,<span class="dv">4</span>,<span class="fl">2.1</span>,<span class="dv">5</span>],[<span class="dv">1</span>,<span class="dv">3</span>,<span class="fl">1.2</span>,<span class="fl">3.2</span>],c<span class="op">=</span>[<span class="st">"#24527a"</span>,<span class="st">"#24527a"</span>,<span class="st">"#d97745"</span>,<span class="st">"#d97745"</span>],s<span class="op">=</span><span class="dv">90</span>)<span class="op">;</span>ax.text(<span class="dv">1</span>,<span class="fl">1.2</span>,<span class="st">"image A"</span>)<span class="op">;</span>ax.text(<span class="fl">2.1</span>,<span class="fl">1.4</span>,<span class="st">"text A"</span>)<span class="op">;</span>ax.text(<span class="dv">4</span>,<span class="fl">3.2</span>,<span class="st">"image B"</span>)<span class="op">;</span>ax.text(<span class="dv">5</span>,<span class="fl">3.4</span>,<span class="st">"text B"</span>)<span class="op">;</span>ax.set_title(<span class="st">"Illustrative aligned pairs"</span>)<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-multimodal-alignment" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Image and text encoders project matched pairs near one another in a shared two-dimensional representation space.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-multimodal-alignment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="46-multimodal-models_files/figure-html/fig-multimodal-alignment-output-1.png" class="img-fluid figure-img" alt="Image and text encoders project matched pairs near one another in a shared two-dimensional representation space.">
+<img src="46-multimodal-models_files/figure-html/fig-multimodal-alignment-output-1.png" alt="Image and text encoders project matched pairs near one another in a shared two-dimensional representation space." width="504" height="353" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-multimodal-alignment-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;47.1: Contrastive alignment brings matched image and text representations closer than mismatched pairs in a shared embedding space.
@@ -618,16 +583,16 @@ Figure&nbsp;47.1: Contrastive alignment brings matched image and text representa
 <div id="cell-fig-fusion-choices" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,l,c <span class="kw">in</span> [(<span class="fl">.4</span>,<span class="st">"image</span><span class="ch">\n</span><span class="st">encoder"</span>,<span class="st">"#24527a"</span>),(<span class="fl">2.1</span>,<span class="st">"text</span><span class="ch">\n</span><span class="st">encoder"</span>,<span class="st">"#d97745"</span>),(<span class="dv">4</span>,<span class="st">"shared</span><span class="ch">\n</span><span class="st">space"</span>,<span class="st">"#7655a6"</span>),(<span class="fl">6.1</span>,<span class="st">"cross-</span><span class="ch">\n</span><span class="st">attention"</span>,<span class="st">"#3a9188"</span>)]:ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.28</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-fusion-choices" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two diagrams contrast separate image and text encoders feeding similarity with text tokens attending to image tokens.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fusion-choices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="46-multimodal-models_files/figure-html/fig-fusion-choices-output-1.png" class="img-fluid figure-img" alt="Two diagrams contrast separate image and text encoders feeding similarity with text tokens attending to image tokens.">
+<img src="46-multimodal-models_files/figure-html/fig-fusion-choices-output-1.png" alt="Two diagrams contrast separate image and text encoders feeding similarity with text tokens attending to image tokens." width="614" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fusion-choices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;47.2: Multimodal systems can align separate encoders in a shared space or allow one modality’s tokens to retrieve from another through cross-attention.
@@ -636,10 +601,10 @@ Figure&nbsp;47.2: Multimodal systems can align separate encoders in a shared spa
 </div>
 </div>
 </div>
-<div id="ede96494" class="cell" data-execution_count="3">
+<div id="b4407334" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>image<span class="op">=</span>np.array([<span class="fl">.8</span>,<span class="fl">.1</span>])<span class="op">;</span> text<span class="op">=</span>np.array([<span class="fl">.7</span>,<span class="fl">.2</span>])<span class="op">;</span> <span class="bu">print</span>(<span class="st">"similarity"</span>,image<span class="op">@</span>text<span class="op">/</span>(np.linalg.norm(image)<span class="op">*</span>np.linalg.norm(text)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>image<span class="op">=</span>np.array([<span class="fl">.8</span>,<span class="fl">.1</span>])<span class="op">;</span> text<span class="op">=</span>np.array([<span class="fl">.7</span>,<span class="fl">.2</span>])<span class="op">;</span> <span class="bu">print</span>(<span class="st">"similarity"</span>,image<span class="op">@</span>text<span class="op">/</span>(np.linalg.norm(image)<span class="op">*</span>np.linalg.norm(text)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>similarity 0.9881739033591791</code></pre>
@@ -652,13 +617,13 @@ Figure&nbsp;47.2: Multimodal systems can align separate encoders in a shared spa
 <p>Image captioning, visual question answering, and text-to-image generation require more than aligned pairs. A generative decoder receives a condition and produces tokens or a denoising direction. Training data determine which visual relations, languages, and answer formats are represented. Preserve modality encoders, preprocessing, prompt template, fusion locations, decoding or sampling policy, and loss masks in the training record.</p>
 <p>Paired data also contain their own errors. A caption can omit an object, describe a photographer’s convention, or be copied from surrounding web text rather than visual evidence. A contrastive objective can reward agreement with these labels without distinguishing a grounded relation from a frequent association. Dataset construction should record pairing source, deduplication, language coverage, caption policy, rights, and the treatment of uncertain or conflicting labels.</p>
 <p>Contrastive supervision is usually built from a batch of paired examples. For image (i), its accompanying text is treated as a positive match and the other texts in the batch as negatives; the same comparison can be made from text to images. The loss increases similarity for the stated pair relative to alternatives. This is useful because it permits learning without a class label for every image, but it makes batch composition part of the objective. Repeated captions, near-duplicate images, mislabeled pairs, and systematically missing descriptions change which distinctions the representation can learn.</p>
-<div id="bcd32282" class="cell" data-execution_count="4">
+<div id="16b4d719" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A toy image-to-text contrastive probability for one positive pair among a batch.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A toy image-to-text contrastive probability for one positive pair among a batch.</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>similarities<span class="op">=</span>np.array([<span class="fl">3.1</span>,<span class="fl">1.2</span>,<span class="fl">.4</span>,<span class="op">-</span><span class="fl">.3</span>])</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>probabilities<span class="op">=</span>np.exp(similarities)<span class="op">/</span>np.exp(similarities).<span class="bu">sum</span>()</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"probability assigned to the matched text:"</span>,<span class="bu">round</span>(probabilities[<span class="dv">0</span>],<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"probability assigned to the matched text:"</span>,<span class="bu">round</span>(probabilities[<span class="dv">0</span>],<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>probability assigned to the matched text: 0.8</code></pre>
@@ -669,11 +634,11 @@ Figure&nbsp;47.2: Multimodal systems can align separate encoders in a shared spa
 <h3 class="anchored" data-anchor-id="fusion-location-determines-what-can-be-shared">Fusion location determines what can be shared</h3>
 <p>Early fusion permits image and text tokens to interact in many layers. It can model fine cross-modal relations, but requires the joint sequence and therefore increases memory and training cost. Late fusion keeps modality encoders largely separate and combines summaries near the output. It can be efficient for retrieval, while limiting token-level visual-language interaction. Connector modules provide a third option: they compress image features into a smaller set of tokens before a language decoder consumes them.</p>
 <p>The design should be matched to the task. Whole-image retrieval may require a global embedding. Counting, reading, spatial reference, and visual question answering need a route that retains relevant local information. State where fusion occurs, how many visual tokens reach the decoder, whether image encoders are frozen, and how image resolution or cropping affects that interface.</p>
-<div id="bcc62a39" class="cell" data-execution_count="5">
+<div id="5684e649" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>architectures<span class="op">=</span>{<span class="st">"late fusion"</span>:{<span class="st">"visual_tokens_to_decoder"</span>:<span class="dv">0</span>,<span class="st">"use"</span>:<span class="st">"retrieval"</span>},<span class="st">"cross attention"</span>:{<span class="st">"visual_tokens_to_decoder"</span>:<span class="dv">196</span>,<span class="st">"use"</span>:<span class="st">"grounded generation"</span>},<span class="st">"connector"</span>:{<span class="st">"visual_tokens_to_decoder"</span>:<span class="dv">32</span>,<span class="st">"use"</span>:<span class="st">"compressed multimodal decoding"</span>}}</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,record <span class="kw">in</span> architectures.items(): <span class="bu">print</span>(name,record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>architectures<span class="op">=</span>{<span class="st">"late fusion"</span>:{<span class="st">"visual_tokens_to_decoder"</span>:<span class="dv">0</span>,<span class="st">"use"</span>:<span class="st">"retrieval"</span>},<span class="st">"cross attention"</span>:{<span class="st">"visual_tokens_to_decoder"</span>:<span class="dv">196</span>,<span class="st">"use"</span>:<span class="st">"grounded generation"</span>},<span class="st">"connector"</span>:{<span class="st">"visual_tokens_to_decoder"</span>:<span class="dv">32</span>,<span class="st">"use"</span>:<span class="st">"compressed multimodal decoding"</span>}}</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,record <span class="kw">in</span> architectures.items(): <span class="bu">print</span>(name,record)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>late fusion {'visual_tokens_to_decoder': 0, 'use': 'retrieval'}
@@ -690,15 +655,15 @@ connector {'visual_tokens_to_decoder': 32, 'use': 'compressed multimodal decodin
 <div id="cell-fig-conditioned-generation" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,l,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"image"</span>,<span class="st">"#24527a"</span>),(<span class="fl">1.8</span>,<span class="st">"text"</span>,<span class="st">"#d97745"</span>),(<span class="fl">3.5</span>,<span class="st">"fusion"</span>,<span class="st">"#7655a6"</span>),(<span class="fl">5.3</span>,<span class="st">"decoder"</span>,<span class="st">"#3a9188"</span>),(<span class="fl">6.7</span>,<span class="st">"output"</span>,<span class="st">"#24527a"</span>)]:ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="dv">1</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-conditioned-generation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Image and text condition inputs feed encoders and fusion before a generative decoder produces an output.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-conditioned-generation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="46-multimodal-models_files/figure-html/fig-conditioned-generation-output-1.png" class="img-fluid figure-img" alt="Image and text condition inputs feed encoders and fusion before a generative decoder produces an output.">
+<img src="46-multimodal-models_files/figure-html/fig-conditioned-generation-output-1.png" alt="Image and text condition inputs feed encoders and fusion before a generative decoder produces an output." width="540" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-conditioned-generation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;47.3: A generative multimodal system encodes a condition, fuses it with decoder state, and generates a text or image output under a declared decoding policy.
@@ -718,15 +683,15 @@ Figure&nbsp;47.3: A generative multimodal system encodes a condition, fuses it w
 <h3 class="anchored" data-anchor-id="modality-encoders-define-what-information-reaches-fusion">Modality encoders define what information reaches fusion</h3>
 <p>An image encoder can produce one global vector, a grid of patch vectors, a hierarchy of visual features, or a compressed set of learned query tokens. An audio encoder can retain frames at different temporal resolutions. A text encoder can produce token states or one pooled representation. These choices determine the information that the fusion mechanism can access. A decoder cannot recover a small visual object if the encoder discarded it, and a global embedding may support retrieval while being inadequate for a question about the relative position of two objects.</p>
 <p>The encoder is therefore part of the task contract. Record the image resolution, crop and resize policy, colour space, normalisation values, patch or feature stride, number of visual tokens, and whether the encoder was pretrained, frozen, or updated during multimodal training. For audio or video, record sampling rate, frame rate, windowing, and any temporal pooling. A change in one of these choices can alter both accuracy and the population of inputs on which the system can make a claim.</p>
-<div id="235c9d55" class="cell" data-execution_count="7">
+<div id="f3cc685b" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>encoder_records<span class="op">=</span>{</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>encoder_records<span class="op">=</span>{</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"global retrieval"</span>:{<span class="st">"image_tokens"</span>:<span class="dv">1</span>,<span class="st">"resolution"</span>:<span class="dv">224</span>,<span class="st">"local_questions"</span>:<span class="st">"limited"</span>},</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"patch cross-attention"</span>:{<span class="st">"image_tokens"</span>:<span class="dv">196</span>,<span class="st">"resolution"</span>:<span class="dv">224</span>,<span class="st">"local_questions"</span>:<span class="st">"supported"</span>},</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"compressed connector"</span>:{<span class="st">"image_tokens"</span>:<span class="dv">32</span>,<span class="st">"resolution"</span>:<span class="dv">336</span>,<span class="st">"local_questions"</span>:<span class="st">"depends on compression"</span>},</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> design,record <span class="kw">in</span> encoder_records.items(): <span class="bu">print</span>(design,record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> design,record <span class="kw">in</span> encoder_records.items(): <span class="bu">print</span>(design,record)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>global retrieval {'image_tokens': 1, 'resolution': 224, 'local_questions': 'limited'}
@@ -749,12 +714,12 @@ compressed connector {'image_tokens': 32, 'resolution': 336, 'local_questions': 
 <h3 class="anchored" data-anchor-id="multi-image-and-temporal-inputs-add-binding-problems">Multi-image and temporal inputs add binding problems</h3>
 <p>An application may provide several images, a document with figures, or a video. The model then needs to identify which image supports which part of a question, preserve ordering, and avoid mixing evidence across inputs. A global pooled representation can make these bindings difficult to inspect. The input protocol should label image order, page, timestamp, and source, and the evaluation should include deliberately confusable examples in which only one input contains the answer.</p>
 <p>Temporal tasks need another distinction: a frame can show an object, while an action or change requires evidence across frames. Sampling a few frames may miss the decisive event. Record frame-selection policy and test changes in speed, camera movement, occlusion, and event duration. A model that performs on static representative frames has not established video understanding.</p>
-<div id="10d6c406" class="cell" data-execution_count="8">
+<div id="eb5c743e" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>multi_image_record<span class="op">=</span>{<span class="st">"images"</span>:[<span class="st">"page-1"</span>,<span class="st">"page-2"</span>],<span class="st">"question"</span>:<span class="st">"Which panel contains the red marker?"</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>multi_image_record<span class="op">=</span>{<span class="st">"images"</span>:[<span class="st">"page-1"</span>,<span class="st">"page-2"</span>],<span class="st">"question"</span>:<span class="st">"Which panel contains the red marker?"</span>,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"expected_evidence"</span>:<span class="st">"page-2 panel B"</span>,<span class="st">"ordering"</span>:<span class="st">"preserved"</span>,<span class="st">"answer_policy"</span>:<span class="st">"cite page and panel"</span>}</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(multi_image_record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(multi_image_record)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'images': ['page-1', 'page-2'], 'question': 'Which panel contains the red marker?', 'expected_evidence': 'page-2 panel B', 'ordering': 'preserved', 'answer_policy': 'cite page and panel'}</code></pre>
@@ -784,15 +749,15 @@ compressed connector {'image_tokens': 32, 'resolution': 336, 'local_questions': 
 <h3 class="anchored" data-anchor-id="routing-and-fallback-should-respect-modality-limits">Routing and fallback should respect modality limits</h3>
 <p>A multimodal application may decide whether to use a lightweight retrieval model, a more expensive cross-attention model, OCR, a document parser, a human reviewer, or no automated response. The routing signal can use file type, resolution, detected text, image count, confidence, or stated consequence. It should be evaluated as a policy: unnecessary escalation consumes resources, while missed escalation can leave a difficult request with an inadequate model.</p>
 <p>For low-quality images, a useful fallback may ask for a clearer scan or a different crop. For a document with complex tables, it may route to a layout-aware extraction tool. For a high-consequence image interpretation, it may provide a descriptive summary and require an authorised reviewer to make the decision. Each outcome should be distinguishable in logs and user-facing language. A generic answer from an unsupported modality can hide an information failure.</p>
-<div id="4fbc823f" class="cell" data-execution_count="9">
+<div id="6fe6ac31" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>routing_cases<span class="op">=</span>[</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>routing_cases<span class="op">=</span>[</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"input"</span>:<span class="st">"clear product image"</span>,<span class="st">"route"</span>:<span class="st">"visual retrieval"</span>,<span class="st">"reason"</span>:<span class="st">"global match sufficient"</span>},</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"input"</span>:<span class="st">"blurred invoice"</span>,<span class="st">"route"</span>:<span class="st">"request clearer scan"</span>,<span class="st">"reason"</span>:<span class="st">"text evidence unavailable"</span>},</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"input"</span>:<span class="st">"high-consequence document"</span>,<span class="st">"route"</span>:<span class="st">"human review"</span>,<span class="st">"reason"</span>:<span class="st">"decision boundary"</span>},</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> case <span class="kw">in</span> routing_cases: <span class="bu">print</span>(case)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> case <span class="kw">in</span> routing_cases: <span class="bu">print</span>(case)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'input': 'clear product image', 'route': 'visual retrieval', 'reason': 'global match sufficient'}
@@ -822,15 +787,15 @@ compressed connector {'image_tokens': 32, 'resolution': 336, 'local_questions': 
 <div id="cell-fig-crossmodal-error" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(l,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"encode"</span>,<span class="st">"#24527a"</span>),(<span class="st">"fuse"</span>,<span class="st">"#7655a6"</span>),(<span class="st">"ground"</span>,<span class="st">"#d97745"</span>),(<span class="st">"generate"</span>,<span class="st">"#3a9188"</span>)]):ax.add_patch(Rectangle((<span class="fl">.4</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.8</span>,<span class="dv">1</span>),<span class="fl">1.2</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(<span class="dv">1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.8</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-crossmodal-error" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A pipeline labels possible errors at image encoding, fusion, grounded response, and generated output stages.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-crossmodal-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="46-multimodal-models_files/figure-html/fig-crossmodal-error-output-1.png" class="img-fluid figure-img" alt="A pipeline labels possible errors at image encoding, fusion, grounded response, and generated output stages.">
+<img src="46-multimodal-models_files/figure-html/fig-crossmodal-error-output-1.png" alt="A pipeline labels possible errors at image encoding, fusion, grounded response, and generated output stages." width="614" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-crossmodal-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;47.4: Cross-modal evaluation separates retrieval, grounding, condition adherence, and generation errors rather than reporting one aggregate score.
@@ -842,13 +807,13 @@ Figure&nbsp;47.4: Cross-modal evaluation separates retrieval, grounding, conditi
 <div id="cell-fig-modality-slices" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.bar([<span class="st">"standard"</span>,<span class="st">"low res"</span>,<span class="st">"new language"</span>,<span class="st">"missing image"</span>],[<span class="fl">.82</span>,<span class="fl">.66</span>,<span class="fl">.59</span>,<span class="fl">.31</span>],color<span class="op">=</span>[<span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>])<span class="op">;</span>ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative score"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.bar([<span class="st">"standard"</span>,<span class="st">"low res"</span>,<span class="st">"new language"</span>,<span class="st">"missing image"</span>],[<span class="fl">.82</span>,<span class="fl">.66</span>,<span class="fl">.59</span>,<span class="fl">.31</span>],color<span class="op">=</span>[<span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>])<span class="op">;</span>ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative score"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-modality-slices" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart compares illustrative scores for standard pairs, low-resolution images, uncommon language, and missing-image inputs.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-modality-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="46-multimodal-models_files/figure-html/fig-modality-slices-output-1.png" class="img-fluid figure-img" alt="A bar chart compares illustrative scores for standard pairs, low-resolution images, uncommon language, and missing-image inputs.">
+<img src="46-multimodal-models_files/figure-html/fig-modality-slices-output-1.png" alt="A bar chart compares illustrative scores for standard pairs, low-resolution images, uncommon language, and missing-image inputs." width="615" height="336" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-modality-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;47.5: Performance should be reported by modality and cross-modal slice because missing, shifted, or low-quality inputs can change the system’s behaviour.
@@ -899,14 +864,14 @@ Figure&nbsp;47.5: Performance should be reported by modality and cross-modal sli
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Contrastive image-text pretraining is described by <span class="citation" data-cites="radford2021clip">Radford et al. (<a href="#ref-radford2021clip" role="doc-biblioref">2021</a>)</span>.</p>
+<p>Contrastive image-text pretraining is described by <span class="citation" data-cites="radford2021clip"><span class="nocase">Radford et al.</span> (<a href="#ref-radford2021clip" role="doc-biblioref">2021</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-radford2021clip" class="csl-entry" role="listitem">
-Radford, Alec, Jong Wook Kim, Chris Hallacy, et al. 2021. <span>“Learning Transferable Visual Models from Natural Language Supervision.”</span> <em>Proceedings of the International Conference on Machine Learning</em>. <a href="https://arxiv.org/abs/2103.00020">https://arxiv.org/abs/2103.00020</a>.
+<span class="nocase">Radford, Alec, Jong Wook Kim, Chris Hallacy, et al.</span> 2021. <span>“Learning Transferable Visual Models from Natural Language Supervision.”</span> <em>Proceedings of the International Conference on Machine Learning</em>. <a href="https://arxiv.org/abs/2103.00020">https://arxiv.org/abs/2103.00020</a>.
 </div>
 </div>
 </section>
@@ -963,13 +928,14 @@ Radford, Alec, Jong Wook Kim, Chris Hallacy, et al. 2021. <span>“Learning Tran
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1003,16 +969,16 @@ Radford, Alec, Jong Wook Kim, Chris Hallacy, et al. 2021. <span>“Learning Tran
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1374,7 +1340,7 @@ Radford, Alec, Jong Wook Kim, Chris Hallacy, et al. 2021. <span>“Learning Tran
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Multimodal Models"</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Representation alignment, fusion, generation, and cross-modal evaluation"</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1625,7 +1591,7 @@ Radford, Alec, Jong Wook Kim, Chris Hallacy, et al. 2021. <span>“Learning Tran
 <span id="cb18-271"><a href="#cb18-271" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb18-272"><a href="#cb18-272" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-273"><a href="#cb18-273" aria-hidden="true" tabindex="-1"></a>Contrastive image-text pretraining is described by @radford2021clip.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

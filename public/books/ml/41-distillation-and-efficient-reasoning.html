@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Distillation and Efficient Reasoning – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -605,7 +570,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-distillation-pipeline" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -613,13 +578,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.2</span>,<span class="st">"prompts"</span>,blue),(<span class="fl">1.85</span>,<span class="st">"teacher</span><span class="ch">\n</span><span class="st">rollouts"</span>,purple),(<span class="fl">3.65</span>,<span class="st">"verify /</span><span class="ch">\n</span><span class="st">select"</span>,orange),(<span class="fl">5.45</span>,<span class="st">"distillation</span><span class="ch">\n</span><span class="st">data"</span>,teal),(<span class="fl">7.35</span>,<span class="st">"student"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.3</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.65</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.53</span>,<span class="fl">3.33</span>,<span class="fl">5.13</span>,<span class="fl">7.03</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.25</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"The selected teacher output is a training target, not a certificate of faithful reasoning."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"The selected teacher output is a training target, not a certificate of faithful reasoning."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-distillation-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A flow shows task prompts to teacher rollouts, verifier selection, distillation data, student training, and student deployment.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-distillation-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-distillation-pipeline-output-1.png" class="img-fluid figure-img" alt="A flow shows task prompts to teacher rollouts, verifier selection, distillation data, student training, and student deployment.">
+<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-distillation-pipeline-output-1.png" alt="A flow shows task prompts to teacher rollouts, verifier selection, distillation data, student training, and student deployment." width="763" height="271" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-distillation-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;42.1: A teacher generates candidates under a larger budget, a selection policy retains training targets, and a student is trained and evaluated for accuracy and efficiency.
@@ -638,11 +603,11 @@ Figure&nbsp;42.1: A teacher generates candidates under a larger budget, a select
 <section id="a-teacher-can-spend-more-computation-than-a-student" class="level3">
 <h3 class="anchored" data-anchor-id="a-teacher-can-spend-more-computation-than-a-student">A teacher can spend more computation than a student</h3>
 <p>The teacher may be larger, use more samples, call a verifier, or search longer trajectories. The student is trained to produce a useful answer with fewer parameters, shorter outputs, or one pass. The intended gain is a better accuracy–latency–cost frontier, not necessarily identical outputs.</p>
-<div id="4453e1f5" class="cell" data-execution_count="2">
+<div id="f1d4d231" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"teacher"</span>:{<span class="st">"accuracy"</span>:<span class="fl">.78</span>,<span class="st">"tokens"</span>:<span class="dv">1800</span>,<span class="st">"latency"</span>:<span class="fl">4.1</span>},<span class="st">"student"</span>:{<span class="st">"accuracy"</span>:<span class="fl">.69</span>,<span class="st">"tokens"</span>:<span class="dv">260</span>,<span class="st">"latency"</span>:<span class="fl">.5</span>}}</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,metrics <span class="kw">in</span> systems.items(): <span class="bu">print</span>(name,metrics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"teacher"</span>:{<span class="st">"accuracy"</span>:<span class="fl">.78</span>,<span class="st">"tokens"</span>:<span class="dv">1800</span>,<span class="st">"latency"</span>:<span class="fl">4.1</span>},<span class="st">"student"</span>:{<span class="st">"accuracy"</span>:<span class="fl">.69</span>,<span class="st">"tokens"</span>:<span class="dv">260</span>,<span class="st">"latency"</span>:<span class="fl">.5</span>}}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,metrics <span class="kw">in</span> systems.items(): <span class="bu">print</span>(name,metrics)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>teacher {'accuracy': 0.78, 'tokens': 1800, 'latency': 4.1}
@@ -656,15 +621,15 @@ student {'accuracy': 0.69, 'tokens': 260, 'latency': 0.5}</code></pre>
 <div id="cell-fig-target-types" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"answer"</span>,blue),(<span class="st">"trace"</span>,orange),(<span class="st">"logits"</span>,teal)]): ax.add_patch(Rectangle((<span class="fl">.5</span><span class="op">+</span>i<span class="op">*</span><span class="fl">2.65</span>,<span class="fl">1.35</span>),<span class="fl">1.8</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.4</span><span class="op">+</span>i<span class="op">*</span><span class="fl">2.65</span>,<span class="fl">1.65</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.3</span>,<span class="fl">.55</span>,<span class="st">"Choose targets according to the student task and evaluation, not because a trace appears explanatory."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.3</span>,<span class="fl">.55</span>,<span class="st">"Choose targets according to the student task and evaluation, not because a trace appears explanatory."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-target-types" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three boxes labelled answer, trace, and logits feed from a teacher to a student with notes on their distinct information content.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-target-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-target-types-output-1.png" class="img-fluid figure-img" alt="Three boxes labelled answer, trace, and logits feed from a teacher to a student with notes on their distinct information content.">
+<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-target-types-output-1.png" alt="Three boxes labelled answer, trace, and logits feed from a teacher to a student with notes on their distinct information content." width="652" height="256" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-target-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;42.2: Distillation can target final answers, visible traces, or teacher probability distributions; these targets transfer different information and risks.
@@ -677,7 +642,7 @@ Figure&nbsp;42.2: Distillation can target final answers, visible traces, or teac
 <section id="a-target-needs-provenance-as-well-as-content" class="level3">
 <h3 class="anchored" data-anchor-id="a-target-needs-provenance-as-well-as-content">A target needs provenance as well as content</h3>
 <p>For every retained target, record which teacher version generated it, the prompt and context supplied to the teacher, generation settings, tools or retrieval sources used, selection rule, verification result, and date. A student trained on an answer produced with a private retrieval index or an unavailable tool may learn a response pattern that cannot be supported at deployment. A student trained on public sources may still need a record of the source boundary when the task asks for citations or time-sensitive facts.</p>
-<p>Provenance also separates teacher quality from data leakage. If a teacher response was generated after exposure to an evaluation item or with access to its answer key, it should not become a target for a student evaluated on that item family. Classical distillation transfers a teacher signal through a defined training objective; the signal is only interpretable when its source distribution and interface are known <span class="citation" data-cites="hinton2015distilling">(<a href="#ref-hinton2015distilling" role="doc-biblioref">Hinton, Vinyals, and Dean 2015</a>)</span>.</p>
+<p>Provenance also separates teacher quality from data leakage. If a teacher response was generated after exposure to an evaluation item or with access to its answer key, it should not become a target for a student evaluated on that item family. Classical distillation transfers a teacher signal through a defined training objective; the signal is only interpretable when its source distribution and interface are known <span class="citation" data-cites="hinton2015distilling">(<a href="#ref-hinton2015distilling" role="doc-biblioref">Hinton et al. 2015</a>)</span>.</p>
 </section>
 </section>
 <section id="level-2---data-and-training-mechanics" class="level2">
@@ -685,12 +650,12 @@ Figure&nbsp;42.2: Distillation can target final answers, visible traces, or teac
 <section id="teacher-filtering-determines-what-is-learned" class="level3">
 <h3 class="anchored" data-anchor-id="teacher-filtering-determines-what-is-learned">Teacher filtering determines what is learned</h3>
 <p>Teacher outputs can be retained only when an exact verifier accepts, when several samples agree, when a human reviewer approves, or when a learned score crosses a threshold. Each policy changes coverage. Filtering only easy verified examples can create a clean but narrow student dataset; retaining unverified traces can transfer errors and unsupported claims.</p>
-<div id="4582d80e" class="cell" data-execution_count="4">
+<div id="bc436489" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>teacher_outputs<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"verified"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"verified"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"verified"</span>:<span class="va">True</span>}]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>teacher_outputs<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"verified"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"verified"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"verified"</span>:<span class="va">True</span>}]</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>targets<span class="op">=</span>[row <span class="cf">for</span> row <span class="kw">in</span> teacher_outputs <span class="cf">if</span> row[<span class="st">"verified"</span>]]</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"retained targets:"</span>,targets)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"retained targets:"</span>,targets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>retained targets: [{'answer': 12, 'verified': True}, {'answer': 12, 'verified': True}]</code></pre>
@@ -701,19 +666,19 @@ Figure&nbsp;42.2: Distillation can target final answers, visible traces, or teac
 <div id="cell-fig-target-filtering" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">9.2</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">9.2</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>[(<span class="st">"teacher</span><span class="ch">\n</span><span class="st">outputs"</span>,purple),(<span class="st">"answer</span><span class="ch">\n</span><span class="st">check"</span>,orange),(<span class="st">"trace</span><span class="ch">\n</span><span class="st">review"</span>,teal),(<span class="st">"length and</span><span class="ch">\n</span><span class="st">deduplication"</span>,blue),(<span class="st">"targets"</span>,purple)]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>(steps):</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.8</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.45</span>),<span class="fl">1.25</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.625</span>,<span class="fl">1.74</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i<span class="op">&lt;</span><span class="bu">len</span>(steps)<span class="op">-</span><span class="dv">1</span>: ax.add_patch(FancyArrowPatch((x<span class="op">+</span><span class="fl">1.28</span>,<span class="fl">1.74</span>),(x<span class="op">+</span><span class="fl">1.72</span>,<span class="fl">1.74</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.6</span>,<span class="fl">.65</span>,<span class="st">"Keep rejection reasons: incorrect answer, unsupported trace, excess length, or duplicate target."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.1</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.25</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.1</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.25</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-target-filtering" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A flow chart shows teacher outputs passing through answer verification, trace review, length limit, and deduplication before becoming targets.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-target-filtering-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-target-filtering-output-1.png" class="img-fluid figure-img" alt="A flow chart shows teacher outputs passing through answer verification, trace review, length limit, and deduplication before becoming targets.">
+<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-target-filtering-output-1.png" alt="A flow chart shows teacher outputs passing through answer verification, trace review, length limit, and deduplication before becoming targets." width="704" height="293" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-target-filtering-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;42.3: Teacher outputs can be filtered separately for answer correctness, trace quality, length, and duplication; the retained dataset depends on the declared deployment target.
@@ -740,16 +705,16 @@ Figure&nbsp;42.3: Teacher outputs can be filtered separately for answer correctn
 <div id="cell-fig-frontier" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="dv">4</span>))<span class="op">;</span> x<span class="op">=</span>[<span class="fl">4.1</span>,<span class="fl">.5</span>,<span class="fl">1.0</span>]<span class="op">;</span> y<span class="op">=</span>[<span class="fl">.78</span>,<span class="fl">.69</span>,<span class="fl">.74</span>]<span class="op">;</span> labels<span class="op">=</span>[<span class="st">"teacher"</span>,<span class="st">"student"</span>,<span class="st">"routed"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="dv">4</span>))<span class="op">;</span> x<span class="op">=</span>[<span class="fl">4.1</span>,<span class="fl">.5</span>,<span class="fl">1.0</span>]<span class="op">;</span> y<span class="op">=</span>[<span class="fl">.78</span>,<span class="fl">.69</span>,<span class="fl">.74</span>]<span class="op">;</span> labels<span class="op">=</span>[<span class="st">"teacher"</span>,<span class="st">"student"</span>,<span class="st">"routed"</span>]</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ax.scatter(x,y,s<span class="op">=</span><span class="dv">100</span>,color<span class="op">=</span>[purple,blue,teal])<span class="op">;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a,b,l <span class="kw">in</span> <span class="bu">zip</span>(x,y,labels): ax.text(a,b<span class="op">+</span><span class="fl">.01</span>,l,ha<span class="op">=</span><span class="st">"center"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"latency"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">.82</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative accuracy-latency trade-off"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"latency"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">.82</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative accuracy-latency trade-off"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-frontier" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A scatter plot places teacher, student, and routed system at different latency and accuracy coordinates.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-frontier-output-1.png" class="img-fluid figure-img" alt="A scatter plot places teacher, student, and routed system at different latency and accuracy coordinates.">
+<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-frontier-output-1.png" alt="A scatter plot places teacher, student, and routed system at different latency and accuracy coordinates." width="645" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;42.4: Teacher and student systems should be compared on an accuracy–latency–cost frontier under a matched task and serving interface.
@@ -771,18 +736,18 @@ Figure&nbsp;42.4: Teacher and student systems should be compared on an accuracy�
 <div id="cell-fig-routing-errors" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>matrix<span class="op">=</span>np.array([[<span class="dv">62</span>,<span class="dv">8</span>],[<span class="dv">12</span>,<span class="dv">18</span>]])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>matrix<span class="op">=</span>np.array([[<span class="dv">62</span>,<span class="dv">8</span>],[<span class="dv">12</span>,<span class="dv">18</span>]])</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.imshow(matrix,cmap<span class="op">=</span><span class="st">"Purples"</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>ax.set_xticks([<span class="dv">0</span>,<span class="dv">1</span>],[<span class="st">"student sufficient"</span>,<span class="st">"teacher needed"</span>])<span class="op">;</span> ax.set_yticks([<span class="dv">0</span>,<span class="dv">1</span>],[<span class="st">"student route"</span>,<span class="st">"teacher route"</span>])</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>): ax.text(j,i,<span class="bu">str</span>(matrix[i,j]),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">14</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative routing confusion matrix"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative routing confusion matrix"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-routing-errors" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A two-by-two matrix compares student or teacher route decisions against whether the student was sufficient or a teacher was needed.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-routing-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-routing-errors-output-1.png" class="img-fluid figure-img" alt="A two-by-two matrix compares student or teacher route decisions against whether the student was sufficient or a teacher was needed.">
+<img src="41-distillation-and-efficient-reasoning_files/figure-html/fig-routing-errors-output-1.png" alt="A two-by-two matrix compares student or teacher route decisions against whether the student was sufficient or a teacher was needed." width="422" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-routing-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;42.5: Adaptive routing has two error types: unnecessary teacher escalation and missed escalation of an input on which the student would fail.
@@ -791,11 +756,11 @@ Figure&nbsp;42.5: Adaptive routing has two error types: unnecessary teacher esca
 </div>
 </div>
 </div>
-<div id="60646a41" class="cell" data-execution_count="8">
+<div id="f0934bd2" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>uncertainty<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.7</span>,<span class="fl">.3</span>])<span class="op">;</span> routes<span class="op">=</span>np.where(uncertainty<span class="op">&gt;</span><span class="fl">.5</span>,<span class="st">"teacher"</span>,<span class="st">"student"</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(routes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>uncertainty<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.7</span>,<span class="fl">.3</span>])<span class="op">;</span> routes<span class="op">=</span>np.where(uncertainty<span class="op">&gt;</span><span class="fl">.5</span>,<span class="st">"teacher"</span>,<span class="st">"student"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(routes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>['student' 'teacher' 'student']</code></pre>
@@ -819,12 +784,12 @@ Figure&nbsp;42.5: Adaptive routing has two error types: unnecessary teacher esca
 <h3 class="anchored" data-anchor-id="teacherstudent-disagreement-identifies-what-was-and-was-not-transferred">Teacher–student disagreement identifies what was and was not transferred</h3>
 <p>Evaluate cases where teacher and student disagree, including teacher-correct/student-wrong, student-correct/teacher-wrong, both-wrong, and answers that differ only in format or trace. This is more informative than an average imitation loss. A student may improve on a narrow deployment slice by avoiding an expensive teacher habit, while losing performance on tasks that require the teacher’s search or tool use. These outcomes need task scoring, not a presumption that the teacher is always the gold standard.</p>
 <p>Regression tests should cover inputs outside the teacher-target distribution: different lengths, formats, domains, languages where relevant, tool availability, and adversarial or malformed requests. The objective is to identify the scope of transfer and the system conditions under which the student should defer, not to claim that a student contains a compressed copy of all teacher capabilities.</p>
-<div id="f75eabe6" class="cell" data-execution_count="9">
+<div id="8810cb3a" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"teacher"</span>:<span class="st">"search-v2"</span>,<span class="st">"selection"</span>:<span class="st">"exact verifier"</span>,<span class="st">"target"</span>:<span class="st">"answer only"</span>,<span class="st">"student"</span>:<span class="st">"small-v1"</span>,<span class="st">"routing"</span>:<span class="st">"uncertainty threshold"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"teacher"</span>:<span class="st">"search-v2"</span>,<span class="st">"selection"</span>:<span class="st">"exact verifier"</span>,<span class="st">"target"</span>:<span class="st">"answer only"</span>,<span class="st">"student"</span>:<span class="st">"small-v1"</span>,<span class="st">"routing"</span>:<span class="st">"uncertainty threshold"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out"</span>}</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"teacher"</span>,<span class="st">"selection"</span>,<span class="st">"target"</span>,<span class="st">"student"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"distillation record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"distillation record complete"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>distillation record complete</code></pre>
@@ -875,12 +840,12 @@ Figure&nbsp;42.5: Adaptive routing has two error types: unnecessary teacher esca
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Classical knowledge distillation is introduced by <span class="citation" data-cites="hinton2015distilling">Hinton, Vinyals, and Dean (<a href="#ref-hinton2015distilling" role="doc-biblioref">2015</a>)</span>. Reasoning-model distillation should be assessed with the outcome and process distinctions developed in Chapters 35–40.</p>
+<p>Classical knowledge distillation is introduced by <span class="citation" data-cites="hinton2015distilling">Hinton et al. (<a href="#ref-hinton2015distilling" role="doc-biblioref">2015</a>)</span>. Reasoning-model distillation should be assessed with the outcome and process distinctions developed in Chapters 35–40.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-hinton2015distilling" class="csl-entry" role="listitem">
 Hinton, Geoffrey, Oriol Vinyals, and Jeff Dean. 2015. <span>“Distilling the Knowledge in a Neural Network.”</span> <em>arXiv Preprint arXiv:1503.02531</em>. <a href="https://arxiv.org/abs/1503.02531">https://arxiv.org/abs/1503.02531</a>.
 </div>
@@ -939,13 +904,14 @@ Hinton, Geoffrey, Oriol Vinyals, and Jeff Dean. 2015. <span>“Distilling the Kn
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -979,16 +945,16 @@ Hinton, Geoffrey, Oriol Vinyals, and Jeff Dean. 2015. <span>“Distilling the Kn
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1350,7 +1316,7 @@ Hinton, Geoffrey, Oriol Vinyals, and Jeff Dean. 2015. <span>“Distilling the Kn
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Distillation and Efficient Reasoning"</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Transferring behaviour from slower teachers to cheaper students"</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1581,7 +1547,7 @@ Hinton, Geoffrey, Oriol Vinyals, and Jeff Dean. 2015. <span>“Distilling the Kn
 <span id="cb14-247"><a href="#cb14-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb14-248"><a href="#cb14-248" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a>Classical knowledge distillation is introduced by @hinton2015distilling. Reasoning-model distillation should be assessed with the outcome and process distinctions developed in Chapters 35–40.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

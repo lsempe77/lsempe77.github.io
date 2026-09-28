@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Full and Parameter-efficient Fine-tuning – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -606,7 +571,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-full-vs-peft" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -619,13 +584,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((<span class="fl">.22</span>,y),<span class="fl">.56</span>,<span class="fl">.12</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.5</span>,y<span class="op">+</span><span class="fl">.06</span>,<span class="st">"base layer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mode<span class="op">==</span><span class="st">"peft"</span>: ax.add_patch(Rectangle((<span class="fl">.81</span>,y),<span class="fl">.13</span>,<span class="fl">.12</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.875</span>,y<span class="op">+</span><span class="fl">.06</span>,<span class="st">"A"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.5</span>,<span class="fl">.94</span>,<span class="st">"orange: updated"</span> <span class="cf">if</span> mode<span class="op">==</span><span class="st">"full"</span> <span class="cf">else</span> <span class="st">"blue: frozen; teal: updated"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-full-vs-peft" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two diagrams contrast all layers marked trainable with base layers frozen and small adapter modules marked trainable.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-full-vs-peft-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-full-vs-peft-output-1.png" class="img-fluid figure-img" alt="Two diagrams contrast all layers marked trainable with base layers frozen and small adapter modules marked trainable.">
+<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-full-vs-peft-output-1.png" alt="Two diagrams contrast all layers marked trainable with base layers frozen and small adapter modules marked trainable." width="854" height="326" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-full-vs-peft-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter-efficient adaptation freezes the base and trains a smaller update module.
@@ -648,12 +613,12 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <h3 class="anchored" data-anchor-id="adaptation-changes-a-checkpoint-under-a-task-distribution">Adaptation changes a checkpoint under a task distribution</h3>
 <p>Full fine-tuning applies gradients to all selected model weights. It can represent broad changes, but it requires storing gradients and optimiser state for those weights and usually produces a full new checkpoint. Parameter-efficient methods retain the base checkpoint and train a smaller module, such as low-rank matrices, adapters, prompts, or selected bias terms. This makes it possible to store task-specific changes separately and load different adaptations over one base model.</p>
 <p>The methods are not ordered by quality in the abstract. The relevant comparison depends on task complexity, data size, available hardware, update frequency, latency constraints, compatibility requirements, and the cost of keeping several adapted versions. A smaller update reduces trainable parameters; it does not make the task specification or evaluation smaller.</p>
-<div id="12bd0598" class="cell" data-execution_count="2">
+<div id="9566bcdc" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>base_parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>base_parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>adapter_parameters<span class="op">=</span><span class="dv">8_000_000</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"trainable fraction:"</span>,adapter_parameters<span class="op">/</span>base_parameters)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"trainable fraction:"</span>,adapter_parameters<span class="op">/</span>base_parameters)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>trainable fraction: 0.001142857142857143</code></pre>
@@ -663,11 +628,11 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <section id="frozen-weights-are-still-part-of-the-function" class="level3">
 <h3 class="anchored" data-anchor-id="frozen-weights-are-still-part-of-the-function">Frozen weights are still part of the function</h3>
 <p>A PEFT adapter is not a standalone model. It assumes a particular base checkpoint, architecture, tokenizer, layer naming convention, target modules, rank, scaling rule, and often quantisation configuration. Loading an adapter onto a related model with the same visible size can change or break its function. The serving record must bind the adapter to its compatible base.</p>
-<div id="4ecfa0e5" class="cell" data-execution_count="3">
+<div id="e8676884" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>adapter_metadata<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"checkpoint-v1"</span>,<span class="st">"target_modules"</span>:[<span class="st">"q_proj"</span>,<span class="st">"v_proj"</span>],<span class="st">"rank"</span>:<span class="dv">8</span>,<span class="st">"scale"</span>:<span class="dv">16</span>}</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(adapter_metadata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>adapter_metadata<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"checkpoint-v1"</span>,<span class="st">"target_modules"</span>:[<span class="st">"q_proj"</span>,<span class="st">"v_proj"</span>],<span class="st">"rank"</span>:<span class="dv">8</span>,<span class="st">"scale"</span>:<span class="dv">16</span>}</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(adapter_metadata)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'base': 'checkpoint-v1', 'target_modules': ['q_proj', 'v_proj'], 'rank': 8, 'scale': 16}</code></pre>
@@ -680,12 +645,12 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <section id="low-rank-updates-reduce-trainable-parameter-count" class="level3">
 <h3 class="anchored" data-anchor-id="low-rank-updates-reduce-trainable-parameter-count">Low-rank updates reduce trainable parameter count</h3>
 <p>For a layer (W^{d_{out}d_{in}}), a full update contains (d_{out}d_{in}) parameters. A rank-(r) LoRA update uses (A^{rd_{in}}) and (B^{d_{out}r}), for (r(d_{in}+d_{out})) trainable parameters. The update is commonly scaled by a factor such as (/r) <span class="citation" data-cites="hu2021lora">(<a href="#ref-hu2021lora" role="doc-biblioref">Hu et al. 2022</a>)</span>.</p>
-<div id="c809334e" class="cell" data-execution_count="4">
+<div id="ee0c7f72" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d_in,d_out,r<span class="op">=</span><span class="dv">4096</span>,<span class="dv">4096</span>,<span class="dv">8</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d_in,d_out,r<span class="op">=</span><span class="dv">4096</span>,<span class="dv">4096</span>,<span class="dv">8</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>full<span class="op">=</span>d_in<span class="op">*</span>d_out<span class="op">;</span> lora<span class="op">=</span>r<span class="op">*</span>(d_in<span class="op">+</span>d_out)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"full parameters:"</span>,full,<span class="st">"LoRA parameters:"</span>,lora,<span class="st">"fraction:"</span>,lora<span class="op">/</span>full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"full parameters:"</span>,full,<span class="st">"LoRA parameters:"</span>,lora,<span class="st">"fraction:"</span>,lora<span class="op">/</span>full)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>full parameters: 16777216 LoRA parameters: 65536 fraction: 0.00390625</code></pre>
@@ -694,16 +659,16 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <div id="cell-fig-low-rank-update" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,w,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="fl">1.6</span>,<span class="st">"frozen W</span><span class="ch">\n</span><span class="st">[dout × din]"</span>,blue),(<span class="fl">2.45</span>,<span class="fl">1.25</span>,<span class="st">"A</span><span class="ch">\n</span><span class="st">[r × din]"</span>,teal),(<span class="fl">4.0</span>,<span class="fl">1.25</span>,<span class="st">"B</span><span class="ch">\n</span><span class="st">[dout × r]"</span>,teal),(<span class="fl">5.65</span>,<span class="fl">1.6</span>,<span class="st">"ΔW = BA"</span>,orange),(<span class="fl">7.35</span>,<span class="fl">1.6</span>,<span class="st">"W + ΔW"</span>,purple)]:</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.4</span>,<span class="fl">.55</span>,<span class="st">"The update is low rank; the effective layer still maps din to dout."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.4</span>,<span class="fl">.55</span>,<span class="st">"The update is low rank; the effective layer still maps din to dout."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-low-rank-update" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram shows an input dimension through a rank-eight bottleneck to an output dimension, with the product added to a frozen base matrix.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-low-rank-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-low-rank-update-output-1.png" class="img-fluid figure-img" alt="A diagram shows an input dimension through a rank-eight bottleneck to an output dimension, with the product added to a frozen base matrix.">
+<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-low-rank-update-output-1.png" alt="A diagram shows an input dimension through a rank-eight bottleneck to an output dimension, with the product added to a frozen base matrix." width="689" height="263" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-low-rank-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;32.2: A low-rank adapter represents a large weight update through two smaller matrices whose product has the base layer’s shape.
@@ -717,16 +682,16 @@ Figure&nbsp;32.2: A low-rank adapter represents a large weight update through tw
 <section id="merge-and-unmerge-are-numerical-operations" class="level3">
 <h3 class="anchored" data-anchor-id="merge-and-unmerge-are-numerical-operations">Merge and unmerge are numerical operations</h3>
 <p>At inference, an adapter can be applied as a separate branch or merged by forming (W’ = W + sBA). Merging can reduce runtime overhead, but it creates a new effective weight tensor. Repeated merging, wrong scaling, mismatched dtype, or merging into the wrong base can produce irreversible errors unless the original base and adapter are retained.</p>
-<div id="c5979cce" class="cell" data-execution_count="6">
+<div id="81eeed7e" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">2</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>W<span class="op">=</span>np.random.randn(<span class="dv">3</span>,<span class="dv">4</span>)<span class="op">;</span> A<span class="op">=</span>np.random.randn(<span class="dv">2</span>,<span class="dv">4</span>)<span class="op">;</span> B<span class="op">=</span>np.random.randn(<span class="dv">3</span>,<span class="dv">2</span>)<span class="op">;</span> scale<span class="op">=</span><span class="fl">.5</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.random.randn(<span class="dv">4</span>)</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>separate<span class="op">=</span>W<span class="op">@</span>x<span class="op">+</span>scale<span class="op">*</span>(B<span class="op">@</span>(A<span class="op">@</span>x))</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>merged<span class="op">=</span>(W<span class="op">+</span>scale<span class="op">*</span>B<span class="op">@</span>A)<span class="op">@</span>x</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(separate,merged)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"separate and merged adapter outputs agree"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"separate and merged adapter outputs agree"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>separate and merged adapter outputs agree</code></pre>
@@ -739,13 +704,13 @@ Figure&nbsp;32.2: A low-rank adapter represents a large weight update through tw
 <section id="trainable-parameters-are-not-the-whole-memory-account" class="level3">
 <h3 class="anchored" data-anchor-id="trainable-parameters-are-not-the-whole-memory-account">Trainable parameters are not the whole memory account</h3>
 <p>Training memory includes base weights, trainable weights, gradients, optimiser states, activations, temporary buffers, and communication state. Freezing a base model can remove its gradient and optimiser-state requirements, but the base weights and many forward activations remain. Quantising frozen weights can lower storage further, while introducing a new numerical configuration that must be evaluated. QLoRA combines quantised base weights with low-rank adapters <span class="citation" data-cites="dettmers2023qlora">(<a href="#ref-dettmers2023qlora" role="doc-biblioref">Dettmers et al. 2023</a>)</span>.</p>
-<div id="e920722a" class="cell" data-execution_count="7">
+<div id="e85208ae" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>params<span class="op">=</span><span class="dv">7_000_000_000</span><span class="op">;</span> bytes_per_weight<span class="op">=</span><span class="dv">2</span><span class="op">;</span> bytes_per_adam_state<span class="op">=</span><span class="dv">8</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>params<span class="op">=</span><span class="dv">7_000_000_000</span><span class="op">;</span> bytes_per_weight<span class="op">=</span><span class="dv">2</span><span class="op">;</span> bytes_per_adam_state<span class="op">=</span><span class="dv">8</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>full_weight_gib<span class="op">=</span>params<span class="op">*</span>bytes_per_weight<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>full_adam_gib<span class="op">=</span>params<span class="op">*</span>bytes_per_adam_state<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"base weights GiB:"</span>,<span class="bu">round</span>(full_weight_gib,<span class="dv">1</span>),<span class="st">"Adam moments GiB:"</span>,<span class="bu">round</span>(full_adam_gib,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"base weights GiB:"</span>,<span class="bu">round</span>(full_weight_gib,<span class="dv">1</span>),<span class="st">"Adam moments GiB:"</span>,<span class="bu">round</span>(full_adam_gib,<span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>base weights GiB: 13.0 Adam moments GiB: 52.2</code></pre>
@@ -754,15 +719,15 @@ Figure&nbsp;32.2: A low-rank adapter represents a large weight update through tw
 <div id="cell-fig-memory-account" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> categories<span class="op">=</span>[<span class="st">"base weights"</span>,<span class="st">"gradients"</span>,<span class="st">"optimiser"</span>,<span class="st">"activations"</span>]<span class="op">;</span> full<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">3</span>])<span class="op">;</span> peft<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="fl">.2</span>,<span class="fl">.4</span>,<span class="dv">3</span>])<span class="op">;</span> bottom<span class="op">=</span>np.zeros(<span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> categories<span class="op">=</span>[<span class="st">"base weights"</span>,<span class="st">"gradients"</span>,<span class="st">"optimiser"</span>,<span class="st">"activations"</span>]<span class="op">;</span> full<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">3</span>])<span class="op">;</span> peft<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="fl">.2</span>,<span class="fl">.4</span>,<span class="dv">3</span>])<span class="op">;</span> bottom<span class="op">=</span>np.zeros(<span class="dv">2</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> vals,name,c <span class="kw">in</span> <span class="bu">zip</span>([np.array([full[i],peft[i]]) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)],categories,[blue,orange,purple,teal]): ax.bar([<span class="st">"full"</span>,<span class="st">"PEFT"</span>],vals,bottom<span class="op">=</span>bottom,label<span class="op">=</span>name,color<span class="op">=</span>c)<span class="op">;</span> bottom<span class="op">+=</span>vals</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"relative memory components"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Conceptual training-memory account"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"relative memory components"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Conceptual training-memory account"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-memory-account" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Stacked conceptual bars compare full fine-tuning and PEFT memory components: base weights, gradients, optimiser state, and activations.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-memory-account-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-memory-account-output-1.png" class="img-fluid figure-img" alt="Stacked conceptual bars compare full fine-tuning and PEFT memory components: base weights, gradients, optimiser state, and activations.">
+<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-memory-account-output-1.png" alt="Stacked conceptual bars compare full fine-tuning and PEFT memory components: base weights, gradients, optimiser state, and activations." width="760" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-memory-account-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;32.3: Freezing base weights changes gradient and optimiser-state requirements, but base-weight and activation memory remain in the training account.
@@ -775,12 +740,12 @@ Figure&nbsp;32.3: Freezing base weights changes gradient and optimiser-state req
 <section id="multi-adapter-serving-creates-routing-decisions" class="level3">
 <h3 class="anchored" data-anchor-id="multi-adapter-serving-creates-routing-decisions">Multi-adapter serving creates routing decisions</h3>
 <p>Separate adapters can make several task variants cheaper to store than several full checkpoints. Serving still needs a policy for selecting the adapter, ensuring it is compatible with the request, batching requests that use different adapters, and preventing an adapter intended for one task or policy from being silently applied to another. An adapter identifier is part of the request and audit trace.</p>
-<div id="5192f911" class="cell" data-execution_count="9">
+<div id="d47eb26d" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>routes<span class="op">=</span>{<span class="st">"legal-summary"</span>:<span class="st">"adapter-legal-v2"</span>,<span class="st">"code-review"</span>:<span class="st">"adapter-code-v1"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>routes<span class="op">=</span>{<span class="st">"legal-summary"</span>:<span class="st">"adapter-legal-v2"</span>,<span class="st">"code-review"</span>:<span class="st">"adapter-code-v1"</span>}</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>request_task<span class="op">=</span><span class="st">"code-review"</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected adapter:"</span>,routes[request_task])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected adapter:"</span>,routes[request_task])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>selected adapter: adapter-code-v1</code></pre>
@@ -794,18 +759,18 @@ Figure&nbsp;32.3: Freezing base weights changes gradient and optimiser-state req
 <div id="cell-fig-module-scope" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">3.15</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.72</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.8</span>,y),<span class="fl">2.0</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.8</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="ss">f"Transformer block </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">3.05</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"attn"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">4.1</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.5</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"FFN"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.95</span>,<span class="fl">.25</span>,<span class="st">"Highlighted target modules define where adapter updates are attached."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.05</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.95</span>,<span class="fl">.25</span>,<span class="st">"Highlighted target modules define where adapter updates are attached."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.05</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-module-scope" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A stack of Transformer blocks has highlighted adapter locations in attention projections and feed-forward layers.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-module-scope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-module-scope-output-1.png" class="img-fluid figure-img" alt="A stack of Transformer blocks has highlighted adapter locations in attention projections and feed-forward layers.">
+<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-module-scope-output-1.png" alt="A stack of Transformer blocks has highlighted adapter locations in attention projections and feed-forward layers." width="652" height="315" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-module-scope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;32.4: Adapter placement can target selected attention and feed-forward projections or every compatible layer; the placement changes the trainable update family.
@@ -818,12 +783,12 @@ Figure&nbsp;32.4: Adapter placement can target selected attention and feed-forwa
 <section id="checkpoint-organisation-determines-recoverability" class="level3">
 <h3 class="anchored" data-anchor-id="checkpoint-organisation-determines-recoverability">Checkpoint organisation determines recoverability</h3>
 <p>An adaptation run should preserve the immutable base identifier, adapter weights, configuration, tokenizer and template versions, training state where resumption is required, and evaluation records. A merged weight file alone can make a task variant convenient to serve, but it loses the clean separation between base and update unless both original artefacts are retained. A safe workflow treats merging as a reproducible build step with an output hash and an equivalence test.</p>
-<div id="f0ab7763" class="cell" data-execution_count="11">
+<div id="8c752e9a" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>checkpoint<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"adapter_hash"</span>:<span class="st">"def"</span>,<span class="st">"merge_scale"</span>:<span class="dv">16</span><span class="op">/</span><span class="dv">8</span>,<span class="st">"merged"</span>:<span class="va">False</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>checkpoint<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"adapter_hash"</span>:<span class="st">"def"</span>,<span class="st">"merge_scale"</span>:<span class="dv">16</span><span class="op">/</span><span class="dv">8</span>,<span class="st">"merged"</span>:<span class="va">False</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>}</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> checkpoint[<span class="st">"base_hash"</span>] <span class="kw">and</span> checkpoint[<span class="st">"adapter_hash"</span>]</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"recoverable adapter checkpoint metadata present"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"recoverable adapter checkpoint metadata present"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>recoverable adapter checkpoint metadata present</code></pre>
@@ -834,11 +799,11 @@ Figure&nbsp;32.4: Adapter placement can target selected attention and feed-forwa
 <h3 class="anchored" data-anchor-id="data-volume-and-update-scope-interact">Data volume and update scope interact</h3>
 <p>An adapter with few trainable parameters does not imply that many examples are required, nor does a full update imply that a small dataset is necessarily unsuitable. The relevant risk depends on how far the target distribution differs from the base model, how repetitive the data are, how many update tokens and epochs are used, and which evaluation tasks must remain stable. A small, tightly specified adaptation can overfit through either method when the validation split duplicates templates or sources.</p>
 <p>Checkpoint selection should inspect learning curves and held-out behaviour across more than one update count. A model that reaches its best target score early may degrade after additional passes over narrow data. Retaining base and intermediate checkpoints makes it possible to compare the adaptation trajectory rather than selecting only the final artifact.</p>
-<div id="2ee4ded8" class="cell" data-execution_count="12">
+<div id="b9789ce0" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>history<span class="op">=</span>{<span class="st">"step_100"</span>:{<span class="st">"target"</span>:<span class="fl">.58</span>,<span class="st">"retained"</span>:<span class="fl">.71</span>},<span class="st">"step_500"</span>:{<span class="st">"target"</span>:<span class="fl">.66</span>,<span class="st">"retained"</span>:<span class="fl">.69</span>},<span class="st">"step_900"</span>:{<span class="st">"target"</span>:<span class="fl">.65</span>,<span class="st">"retained"</span>:<span class="fl">.62</span>}}</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,metrics <span class="kw">in</span> history.items(): <span class="bu">print</span>(step,metrics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>history<span class="op">=</span>{<span class="st">"step_100"</span>:{<span class="st">"target"</span>:<span class="fl">.58</span>,<span class="st">"retained"</span>:<span class="fl">.71</span>},<span class="st">"step_500"</span>:{<span class="st">"target"</span>:<span class="fl">.66</span>,<span class="st">"retained"</span>:<span class="fl">.69</span>},<span class="st">"step_900"</span>:{<span class="st">"target"</span>:<span class="fl">.65</span>,<span class="st">"retained"</span>:<span class="fl">.62</span>}}</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,metrics <span class="kw">in</span> history.items(): <span class="bu">print</span>(step,metrics)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>step_100 {'target': 0.58, 'retained': 0.71}
@@ -856,17 +821,17 @@ step_900 {'target': 0.65, 'retained': 0.62}</code></pre>
 <div id="cell-fig-selection-audit" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[<span class="st">"target evaluation"</span>,<span class="st">"retained evaluation"</span>,<span class="st">"memory account"</span>,<span class="st">"checkpoint and merge"</span>,<span class="st">"serving route"</span>]</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,row <span class="kw">in</span> <span class="bu">enumerate</span>(rows):</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.7</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.48</span><span class="op">;</span> ax.text(<span class="fl">.2</span>,y,row,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">3.0</span>,y<span class="op">-</span><span class="fl">.17</span>),<span class="dv">2</span>,<span class="fl">.34</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="dv">4</span>,y,<span class="st">"full"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.25</span>,y<span class="op">-</span><span class="fl">.17</span>),<span class="dv">2</span>,<span class="fl">.34</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.25</span>,y,<span class="st">"PEFT"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-selection-audit" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A table-like diagram compares full fine-tuning and PEFT across target evaluation, regression suite, memory account, checkpoint size, and serving route.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-selection-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-selection-audit-output-1.png" class="img-fluid figure-img" alt="A table-like diagram compares full fine-tuning and PEFT across target evaluation, regression suite, memory account, checkpoint size, and serving route.">
+<img src="31-full-and-parameter-efficient-fine-tuning_files/figure-html/fig-selection-audit-output-1.png" alt="A table-like diagram compares full fine-tuning and PEFT across target evaluation, regression suite, memory account, checkpoint size, and serving route." width="689" height="278" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-selection-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;32.5: Adaptation selection compares full and parameter-efficient methods against target quality, regressions, training resources, storage, and serving constraints.
@@ -880,11 +845,11 @@ Figure&nbsp;32.5: Adaptation selection compares full and parameter-efficient met
 <section id="regression-tests-should-include-the-base-interface" class="level3">
 <h3 class="anchored" data-anchor-id="regression-tests-should-include-the-base-interface">Regression tests should include the base interface</h3>
 <p>Adaptation can change outputs for prompts outside the fine-tuning corpus. Retained tests should include general instruction responses, domain tasks that must remain available, formatting or tool contracts, and safety-sensitive inputs where relevant. Tests must specify whether the adapter is active and which system template is used. Comparing a base checkpoint without its standard template to an adapter checkpoint with a richer interface would not isolate the update.</p>
-<div id="5a3ca3a4" class="cell" data-execution_count="14">
+<div id="11748e85" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{<span class="st">"target"</span>:{<span class="st">"base"</span>:<span class="fl">.48</span>,<span class="st">"adapter"</span>:<span class="fl">.67</span>},<span class="st">"retained"</span>:{<span class="st">"base"</span>:<span class="fl">.72</span>,<span class="st">"adapter"</span>:<span class="fl">.70</span>}}</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> suite,scores <span class="kw">in</span> results.items(): <span class="bu">print</span>(suite,scores)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{<span class="st">"target"</span>:{<span class="st">"base"</span>:<span class="fl">.48</span>,<span class="st">"adapter"</span>:<span class="fl">.67</span>},<span class="st">"retained"</span>:{<span class="st">"base"</span>:<span class="fl">.72</span>,<span class="st">"adapter"</span>:<span class="fl">.70</span>}}</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> suite,scores <span class="kw">in</span> results.items(): <span class="bu">print</span>(suite,scores)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>target {'base': 0.48, 'adapter': 0.67}
@@ -940,12 +905,12 @@ retained {'base': 0.72, 'adapter': 0.7}</code></pre>
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-dettmers2023qlora" class="csl-entry" role="listitem">
 Dettmers, Tim, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer. 2023. <span>“QLo<span>RA</span>: Efficient Finetuning of Quantized <span>LLM</span>s.”</span> <em>Advances in Neural Information Processing Systems</em> 36: 10088–115. <a href="https://arxiv.org/abs/2305.14314">https://arxiv.org/abs/2305.14314</a>.
 </div>
 <div id="ref-hu2021lora" class="csl-entry" role="listitem">
-Hu, Edward J., Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, and Weizhu Chen. 2022. <span>“Lo<span>RA</span>: Low-Rank Adaptation of Large Language Models.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2106.09685">https://arxiv.org/abs/2106.09685</a>.
+Hu, Edward J., Yelong Shen, Phillip Wallis, et al. 2022. <span>“Lo<span>RA</span>: Low-Rank Adaptation of Large Language Models.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2106.09685">https://arxiv.org/abs/2106.09685</a>.
 </div>
 </div>
 </section>
@@ -1002,13 +967,14 @@ Hu, Edward J., Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean 
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1042,16 +1008,16 @@ Hu, Edward J., Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean 
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1413,7 +1379,7 @@ Hu, Edward J., Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean 
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb24" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Full and Parameter-efficient Fine-tuning"</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Changing a model for a task while controlling memory, storage, and regressions"</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1670,7 +1636,7 @@ Hu, Edward J., Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean 
 <span id="cb24-283"><a href="#cb24-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb24-284"><a href="#cb24-284" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-285"><a href="#cb24-285" aria-hidden="true" tabindex="-1"></a>LoRA is introduced by @hu2021lora. QLoRA studies low-rank adaptation with quantised base models <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

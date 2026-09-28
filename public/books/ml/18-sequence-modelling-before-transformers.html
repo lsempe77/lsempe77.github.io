@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Sequence Modelling Before Transformers – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -626,7 +591,7 @@ window.Quarto = {
 <div id="cell-fig-order-sensitive" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -652,13 +617,13 @@ window.Quarto = {
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].add_patch(Rectangle((<span class="fl">3.9</span>,y),<span class="fl">1.25</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">1</span>].text(<span class="fl">4.525</span>,y<span class="op">+</span><span class="fl">.325</span>,<span class="st">"state differs"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlim(<span class="dv">0</span>,<span class="fl">5.7</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylim(<span class="fl">.4</span>,<span class="fl">4.1</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Recurrent processing preserves order"</span>)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-order-sensitive" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two sequences containing red and blue in opposite orders have identical pooled vectors but follow different arrows through recurrent state boxes and end at different states.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-order-sensitive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-order-sensitive-output-1.png" class="img-fluid figure-img" alt="Two sequences containing red and blue in opposite orders have identical pooled vectors but follow different arrows through recurrent state boxes and end at different states.">
+<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-order-sensitive-output-1.png" alt="Two sequences containing red and blue in opposite orders have identical pooled vectors but follow different arrows through recurrent state boxes and end at different states." width="1046" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-order-sensitive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.1: Order-insensitive pooling gives the same summary to reversed sequences, while a recurrent update can produce different states.
@@ -686,7 +651,7 @@ Figure&nbsp;19.1: Order-insensitive pooling gives the same summary to reversed s
 <div id="cell-fig-rnn-unroll" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">11.5</span>,<span class="fl">3.6</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">11.5</span>,<span class="fl">3.6</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span><span class="bu">range</span>(<span class="dv">4</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> positions:</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="dv">1</span><span class="op">+</span>t<span class="op">*</span><span class="fl">2.55</span></span>
@@ -697,13 +662,13 @@ Figure&nbsp;19.1: Order-insensitive pooling gives the same summary to reversed s
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">2.18</span>),(x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">2.45</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>grey))</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> t<span class="op">&gt;</span><span class="dv">0</span>: ax.add_patch(FancyArrowPatch((x<span class="op">-</span><span class="fl">1.65</span>,<span class="fl">1.8</span>),(x<span class="op">-</span><span class="fl">.05</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>grey))</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">.15</span>,<span class="fl">1.8</span>,<span class="st">"h0"</span>,va<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">.45</span>,<span class="fl">1.8</span>),(<span class="fl">.95</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">12</span>,color<span class="op">=</span>grey))</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">11.5</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">2.95</span>)<span class="op">;</span> ax.set_title(<span class="st">"One parameterised transition applied through time"</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">11.5</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">2.95</span>)<span class="op">;</span> ax.set_title(<span class="st">"One parameterised transition applied through time"</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-rnn-unroll" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A left-to-right diagram shows four input vectors entering repeated recurrent cells. Hidden-state arrows connect the cells, and each cell uses the same parameters theta.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rnn-unroll-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-rnn-unroll-output-1.png" class="img-fluid figure-img" alt="A left-to-right diagram shows four input vectors entering repeated recurrent cells. Hidden-state arrows connect the cells, and each cell uses the same parameters theta.">
+<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-rnn-unroll-output-1.png" alt="A left-to-right diagram shows four input vectors entering repeated recurrent cells. Hidden-state arrows connect the cells, and each cell uses the same parameters theta." width="875" height="305" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rnn-unroll-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.2: Unrolling exposes one recurrent cell reused across positions: each state receives the current input and the previous state.
@@ -734,16 +699,16 @@ Figure&nbsp;19.2: Unrolling exposes one recurrent cell reused across positions: 
 h_t=\tanh(W_xx_t+W_hh_{t-1}+b).
 \]</span></p>
 <p>The input term introduces current evidence. The recurrent term carries transformed earlier evidence. Tanh bounds each coordinate, which can stabilise values but can also reduce gradients in saturated regions.</p>
-<div id="577a0ba8" class="cell" data-execution_count="3">
+<div id="42a5b0ec" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_values<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">0.</span>,<span class="fl">0.</span>,<span class="fl">0.</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_values<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">0.</span>,<span class="fl">0.</span>,<span class="fl">0.</span>])</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>W_x,W_h,b<span class="op">=</span><span class="fl">1.0</span>,<span class="fl">.72</span>,<span class="fl">0.0</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>states<span class="op">=</span>[]<span class="op">;</span> h<span class="op">=</span><span class="fl">0.0</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> x_values:</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    h<span class="op">=</span>np.tanh(W_x<span class="op">*</span>x<span class="op">+</span>W_h<span class="op">*</span>h<span class="op">+</span>b)<span class="op">;</span> states.append(h)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"inputs:"</span>,x_values)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"states:"</span>,np.<span class="bu">round</span>(states,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"states:"</span>,np.<span class="bu">round</span>(states,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>inputs: [1. 0. 0. 0. 0.]
@@ -757,20 +722,20 @@ states: [0.762 0.499 0.345 0.243 0.173]</code></pre>
 <div id="cell-fig-state-retention" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span><span class="dv">30</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span><span class="dv">30</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.8</span>))</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> recurrent_weight,colour <span class="kw">in</span> [(<span class="fl">0.3</span>,orange),(<span class="fl">0.72</span>,teal),(<span class="fl">1.05</span>,purple)]:</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    h<span class="op">=</span><span class="fl">0.</span><span class="op">;</span> values<span class="op">=</span>[]</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.</span>]<span class="op">+</span>[<span class="fl">0.</span>]<span class="op">*</span>(steps<span class="op">-</span><span class="dv">1</span>):</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        h<span class="op">=</span>np.tanh(x<span class="op">+</span>recurrent_weight<span class="op">*</span>h)<span class="op">;</span> values.append(h)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="bu">range</span>(<span class="dv">1</span>,steps<span class="op">+</span><span class="dv">1</span>),values,label<span class="op">=</span><span class="ss">f"recurrent weight </span><span class="sc">{</span>recurrent_weight<span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.3</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Position"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Hidden state"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Retention in a scalar tanh recurrence"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Position"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Hidden state"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Retention in a scalar tanh recurrence"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-state-retention" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three line charts show the hidden state after one initial signal and thirty zeros under recurrent multipliers 0.3, 0.72, and 1.05.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-state-retention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-state-retention-output-1.png" class="img-fluid figure-img" alt="Three line charts show the hidden state after one initial signal and thirty zeros under recurrent multipliers 0.3, 0.72, and 1.05.">
+<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-state-retention-output-1.png" alt="Three line charts show the hidden state after one initial signal and thirty zeros under recurrent multipliers 0.3, 0.72, and 1.05." width="855" height="451" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-state-retention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.3: The recurrent transition determines how much of an early signal remains available after later positions contain no new information.
@@ -791,19 +756,19 @@ c_t=f_t\odot c_{t-1}+i_t\odot \tilde c_t,
 <div id="cell-fig-gated-update" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>boxes<span class="op">=</span>[(<span class="fl">.5</span>,<span class="fl">2.2</span>,<span class="st">"prior</span><span class="ch">\n</span><span class="st">cell c(t-1)"</span>,blue),(<span class="fl">3.0</span>,<span class="fl">2.2</span>,<span class="st">"forget</span><span class="ch">\n</span><span class="st">gate f(t)"</span>,teal),(<span class="fl">5.6</span>,<span class="fl">2.2</span>,<span class="st">"new</span><span class="ch">\n</span><span class="st">cell c(t)"</span>,purple),(<span class="fl">.5</span>,<span class="fl">.55</span>,<span class="st">"candidate</span><span class="ch">\n</span><span class="st">update"</span>,orange),(<span class="fl">3.0</span>,<span class="fl">.55</span>,<span class="st">"input</span><span class="ch">\n</span><span class="st">gate i(t)"</span>,teal)]</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,colour <span class="kw">in</span> boxes:</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,y),<span class="fl">1.45</span>,<span class="fl">.72</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,y<span class="op">+</span><span class="fl">.36</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start,end <span class="kw">in</span> [((<span class="fl">1.98</span>,<span class="fl">2.56</span>),(<span class="fl">2.94</span>,<span class="fl">2.56</span>)),((<span class="fl">4.48</span>,<span class="fl">2.56</span>),(<span class="fl">5.54</span>,<span class="fl">2.56</span>)),((<span class="fl">1.98</span>,<span class="fl">.91</span>),(<span class="fl">2.94</span>,<span class="fl">.91</span>)),((<span class="fl">4.48</span>,<span class="fl">.91</span>),(<span class="fl">5.54</span>,<span class="fl">2.42</span>))]:</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch(start,end,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">14</span>,color<span class="op">=</span>grey))</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.15</span>,<span class="fl">1.55</span>,<span class="st">"+"</span>,fontsize<span class="op">=</span><span class="dv">22</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.set_xlim(<span class="fl">.1</span>,<span class="fl">7.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.35</span>)<span class="op">;</span> ax.set_title(<span class="st">"Gated addition creates a path for retained state"</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.15</span>,<span class="fl">1.55</span>,<span class="st">"+"</span>,fontsize<span class="op">=</span><span class="dv">22</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.set_xlim(<span class="fl">.1</span>,<span class="fl">7.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.35</span>)<span class="op">;</span> ax.set_title(<span class="st">"Gated addition creates a path for retained state"</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-gated-update" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram shows prior cell state passing through a forget gate and a candidate update passing through an input gate; both paths add to the new cell state.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-gated-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-gated-update-output-1.png" class="img-fluid figure-img" alt="A diagram shows prior cell state passing through a forget gate and a candidate update passing through an input gate; both paths add to the new cell state.">
+<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-gated-update-output-1.png" alt="A diagram shows prior cell state passing through a forget gate and a candidate update passing through an input gate; both paths add to the new cell state." width="763" height="320" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gated-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.4: Forget and input gates separate retention from replacement: the cell state is a weighted combination of the prior state and a proposed update.
@@ -819,7 +784,7 @@ Figure&nbsp;19.4: Forget and input gates separate retention from replacement: th
 <div id="cell-fig-processing-directions" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"small"</span>,<span class="st">"truck"</span>,<span class="st">"carries"</span>,<span class="st">"cargo"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"small"</span>,<span class="st">"truck"</span>,<span class="st">"carries"</span>,<span class="st">"cargo"</span>]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">5.4</span>),sharex<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="st">"Causal forward states"</span>,<span class="st">"Backward states"</span>,<span class="st">"Bidirectional encoder states"</span>]):</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title,loc<span class="op">=</span><span class="st">"left"</span>,fontsize<span class="op">=</span><span class="dv">11</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.set_xlim(<span class="op">-</span><span class="fl">.3</span>,<span class="fl">5.3</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.2</span>,<span class="fl">1.2</span>)</span>
@@ -830,13 +795,13 @@ Figure&nbsp;19.4: Forget and input gates separate retention from replacement: th
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">2</span>].add_patch(FancyArrowPatch((i<span class="op">+</span><span class="fl">.82</span>,<span class="fl">.97</span>),(i<span class="op">+</span><span class="dv">1</span>,<span class="fl">.97</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">11</span>,color<span class="op">=</span>teal))</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">2</span>].add_patch(FancyArrowPatch((i<span class="op">+</span><span class="dv">1</span>,<span class="fl">.02</span>),(i<span class="op">+</span><span class="fl">.82</span>,<span class="fl">.02</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">11</span>,color<span class="op">=</span>orange))</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-processing-directions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A three-row diagram shows five tokens. Forward arrows move left to right, backward arrows move right to left, and bidirectional states combine both arrows at every token.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-processing-directions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-processing-directions-output-1.png" class="img-fluid figure-img" alt="A three-row diagram shows five tokens. Forward arrows move left to right, backward arrows move right to left, and bidirectional states combine both arrows at every token.">
+<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-processing-directions-output-1.png" alt="A three-row diagram shows five tokens. Forward arrows move left to right, backward arrows move right to left, and bidirectional states combine both arrows at every token." width="950" height="508" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-processing-directions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.5: Causal recurrence exposes only earlier positions; bidirectional encoding combines a forward and backward summary at each position.
@@ -853,7 +818,7 @@ Figure&nbsp;19.5: Causal recurrence exposes only earlier positions; bidirectiona
 <div id="cell-fig-fixed-vector-bottleneck" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,label <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"source 1"</span>,<span class="st">"source 2"</span>,<span class="st">"source 3"</span>,<span class="st">"source 4"</span>]):</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.3</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.85</span>,<span class="fl">2.4</span>),<span class="fl">.7</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.65</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.85</span>,<span class="fl">2.64</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">8</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">2.0</span>,<span class="fl">1.15</span>),<span class="fl">2.2</span>,<span class="fl">.72</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">3.1</span>,<span class="fl">1.51</span>,<span class="st">"recurrent encoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
@@ -863,13 +828,13 @@ Figure&nbsp;19.5: Causal recurrence exposes only earlier positions; bidirectiona
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> start,end <span class="kw">in</span> [((<span class="fl">4.25</span>,<span class="fl">1.51</span>),(<span class="fl">4.95</span>,<span class="fl">1.51</span>)),((<span class="fl">6.15</span>,<span class="fl">1.51</span>),(<span class="fl">6.85</span>,<span class="fl">1.51</span>))]: ax.add_patch(FancyArrowPatch(start,end,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">14</span>,color<span class="op">=</span>grey))</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,label <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="st">"target 1"</span>,<span class="st">"target 2"</span>,<span class="st">"target 3"</span>]):</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">7.0</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.78</span>,<span class="fl">.25</span>),<span class="fl">.65</span>,<span class="fl">.46</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">7.325</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.78</span>,<span class="fl">.48</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">8</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.2</span>)<span class="op">;</span> ax.set_title(<span class="st">"Source information reaches the decoder through a fixed-size interface"</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.2</span>)<span class="op">;</span> ax.set_title(<span class="st">"Source information reaches the decoder through a fixed-size interface"</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-fixed-vector-bottleneck" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A source sequence flows through an encoder into one narrow context vector, then into a decoder that produces a target sequence. The central vector is highlighted as a bottleneck.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fixed-vector-bottleneck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-fixed-vector-bottleneck-output-1.png" class="img-fluid figure-img" alt="A source sequence flows through an encoder into one narrow context vector, then into a decoder that produces a target sequence. The central vector is highlighted as a bottleneck.">
+<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-fixed-vector-bottleneck-output-1.png" alt="A source sequence flows through an encoder into one narrow context vector, then into a decoder that produces a target sequence. The central vector is highlighted as a bottleneck." width="838" height="320" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fixed-vector-bottleneck-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.6: A fixed-vector encoder-decoder must compress every relevant source detail into one state before the decoder begins.
@@ -896,18 +861,18 @@ Figure&nbsp;19.6: A fixed-vector encoder-decoder must compress every relevant so
 <div id="cell-fig-temporal-gradients" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">41</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">41</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.7</span>))</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> derivative,colour <span class="kw">in</span> [(<span class="fl">0.8</span>,orange),(<span class="fl">1.0</span>,teal),(<span class="fl">1.2</span>,purple)]:</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    ax.plot(steps,derivative<span class="op">**</span>steps,label<span class="op">=</span><span class="ss">f"local multiplier </span><span class="sc">{</span>derivative<span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>colour,linewidth<span class="op">=</span><span class="fl">2.3</span>)</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Number of recurrent transitions"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Relative gradient magnitude"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Products of temporal derivatives"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Products of temporal derivatives"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-temporal-gradients" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A log-scale plot shows gradient magnitude across one to forty time steps for local derivative multipliers 0.8, 1.0, and 1.2.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-temporal-gradients-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-temporal-gradients-output-1.png" class="img-fluid figure-img" alt="A log-scale plot shows gradient magnitude across one to forty time steps for local derivative multipliers 0.8, 1.0, and 1.2.">
+<img src="18-sequence-modelling-before-transformers_files/figure-html/fig-temporal-gradients-output-1.png" alt="A log-scale plot shows gradient magnitude across one to forty time steps for local derivative multipliers 0.8, 1.0, and 1.2." width="854" height="441" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-temporal-gradients-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;19.7: Backpropagation through time multiplies one local derivative per step, so a small contraction or expansion compounds with sequence length.
@@ -916,7 +881,7 @@ Figure&nbsp;19.7: Backpropagation through time multiplies one local derivative p
 </div>
 </div>
 </div>
-<p>Backpropagation through time applies the same chain rule introduced in Chapter 4 to the unrolled graph. <span class="citation" data-cites="pascanu2013difficulty">Pascanu, Mikolov, and Bengio (<a href="#ref-pascanu2013difficulty" role="doc-biblioref">2013</a>)</span> analyse the vanishing and exploding gradient problems in recurrent networks and discuss gradient clipping as one response to explosions. Clipping limits update magnitude; it does not restore information lost through sustained contraction.</p>
+<p>Backpropagation through time applies the same chain rule introduced in Chapter 4 to the unrolled graph. <span class="citation" data-cites="pascanu2013difficulty">Pascanu et al. (<a href="#ref-pascanu2013difficulty" role="doc-biblioref">2013</a>)</span> analyse the vanishing and exploding gradient problems in recurrent networks and discuss gradient clipping as one response to explosions. Clipping limits update magnitude; it does not restore information lost through sustained contraction.</p>
 </section>
 <section id="gated-cell-equations-expose-retention-paths" class="level3">
 <h3 class="anchored" data-anchor-id="gated-cell-equations-expose-retention-paths">Gated cell equations expose retention paths</h3>
@@ -932,14 +897,14 @@ h_t&amp;=o_t\odot\tanh(c_t).
 \end{aligned}
 \]</span></p>
 <p>The forget gate directly multiplies the prior cell. When <span class="math inline">\(f_t\)</span> remains near one and the remaining terms are controlled, a component of <span class="math inline">\(c_{t-1}\)</span> can persist across many steps. This is a learned possibility, not a guarantee that a fitted model will use long-range information.</p>
-<div id="9ae705d3" class="cell" data-execution_count="9">
+<div id="329b0188" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>forget_values<span class="op">=</span>np.array([<span class="fl">.15</span>,<span class="fl">.55</span>,<span class="fl">.92</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>forget_values<span class="op">=</span>np.array([<span class="fl">.15</span>,<span class="fl">.55</span>,<span class="fl">.92</span>])</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>initial_cell<span class="op">=</span><span class="fl">1.0</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> forget <span class="kw">in</span> forget_values:</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    retained<span class="op">=</span>initial_cell<span class="op">*</span>forget<span class="op">**</span><span class="dv">20</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"forget gate </span><span class="sc">{</span>forget<span class="sc">:.2f}</span><span class="ss">: cell contribution after 20 steps = </span><span class="sc">{</span>retained<span class="sc">:.5f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"forget gate </span><span class="sc">{</span>forget<span class="sc">:.2f}</span><span class="ss">: cell contribution after 20 steps = </span><span class="sc">{</span>retained<span class="sc">:.5f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>forget gate 0.15: cell contribution after 20 steps = 0.00000
@@ -951,10 +916,10 @@ forget gate 0.92: cell contribution after 20 steps = 0.18869</code></pre>
 </section>
 <section id="framework-modules-preserve-the-sequence-axis" class="level3">
 <h3 class="anchored" data-anchor-id="framework-modules-preserve-the-sequence-axis">Framework modules preserve the sequence axis</h3>
-<div id="044e8e16" class="cell" data-execution_count="10">
+<div id="6c10015d" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">18</span>)</span>
@@ -964,7 +929,7 @@ forget gate 0.92: cell contribution after 20 steps = 0.18869</code></pre>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>bidirectional<span class="op">=</span>nn.GRU(input_size<span class="op">=</span><span class="dv">4</span>,hidden_size<span class="op">=</span><span class="dv">6</span>,batch_first<span class="op">=</span><span class="va">True</span>,bidirectional<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>bi_outputs,bi_final<span class="op">=</span>bidirectional(inputs)</span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"forward outputs:"</span>,<span class="bu">tuple</span>(outputs.shape),<span class="st">"final state:"</span>,<span class="bu">tuple</span>(final_state.shape))</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"bidirectional outputs:"</span>,<span class="bu">tuple</span>(bi_outputs.shape),<span class="st">"final state:"</span>,<span class="bu">tuple</span>(bi_final.shape))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"bidirectional outputs:"</span>,<span class="bu">tuple</span>(bi_outputs.shape),<span class="st">"final state:"</span>,<span class="bu">tuple</span>(bi_final.shape))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>forward outputs: (3, 5, 6) final state: (1, 3, 6)
@@ -975,15 +940,15 @@ bidirectional outputs: (3, 5, 12) final state: (2, 3, 6)</code></pre>
 </section>
 <section id="variable-lengths-require-packing-or-masks" class="level3">
 <h3 class="anchored" data-anchor-id="variable-lengths-require-packing-or-masks">Variable lengths require packing or masks</h3>
-<div id="d46966aa" class="cell" data-execution_count="11">
+<div id="5b48dd8b" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>torch.tensor([<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">2</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>torch.tensor([<span class="dv">5</span>,<span class="dv">3</span>,<span class="dv">2</span>])</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span>torch.randn(<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">4</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>packed<span class="op">=</span>nn.utils.rnn.pack_padded_sequence(sequence,lengths,batch_first<span class="op">=</span><span class="va">True</span>,enforce_sorted<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>packed_output,packed_final<span class="op">=</span>gru(packed)</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>unpacked,returned_lengths<span class="op">=</span>nn.utils.rnn.pad_packed_sequence(packed_output,batch_first<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"unpacked shape:"</span>,<span class="bu">tuple</span>(unpacked.shape),<span class="st">"returned lengths:"</span>,returned_lengths.tolist())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"unpacked shape:"</span>,<span class="bu">tuple</span>(unpacked.shape),<span class="st">"returned lengths:"</span>,returned_lengths.tolist())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>unpacked shape: (3, 5, 6) returned lengths: [5, 3, 2]</code></pre>
@@ -1012,7 +977,7 @@ bidirectional outputs: (3, 5, 12) final state: (2, 3, 6)</code></pre>
 </section>
 <section id="encoder-decoder-bottlenecks-motivated-attention" class="level3">
 <h3 class="anchored" data-anchor-id="encoder-decoder-bottlenecks-motivated-attention">Encoder-decoder bottlenecks motivated attention</h3>
-<p>Early encoder-decoder systems encoded a variable-length source in one fixed-length vector <span class="citation" data-cites="cho2014gru">(<a href="#ref-cho2014gru" role="doc-biblioref">Cho et al. 2014</a>)</span>. This is workable for short patterns but creates a constrained interface as source length and target requirements grow. <span class="citation" data-cites="bahdanau2015attention">Bahdanau, Cho, and Bengio (<a href="#ref-bahdanau2015attention" role="doc-biblioref">2015</a>)</span> introduced a learned alignment mechanism that lets a decoder form a different weighted context from encoder states at each output step.</p>
+<p>Early encoder-decoder systems encoded a variable-length source in one fixed-length vector <span class="citation" data-cites="cho2014gru">(<a href="#ref-cho2014gru" role="doc-biblioref">Cho et al. 2014</a>)</span>. This is workable for short patterns but creates a constrained interface as source length and target requirements grow. <span class="citation" data-cites="bahdanau2015attention">Bahdanau et al. (<a href="#ref-bahdanau2015attention" role="doc-biblioref">2015</a>)</span> introduced a learned alignment mechanism that lets a decoder form a different weighted context from encoder states at each output step.</p>
 <p>The historical motivation should not be read as a claim that attention automatically solves long-context reliability, memory, or computation. It changes the access pattern: source states become separately available to a decoder. Chapter 19 derives that weighted retrieval operation. Chapters 20–22 then develop self-attention, positional information, and the Transformer block.</p>
 </section>
 <section id="sequence-direction-is-a-deployment-constraint" class="level3">
@@ -1094,17 +1059,17 @@ bidirectional outputs: (3, 5, 12) final state: (2, 3, 6)</code></pre>
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>The simple recurrent network is developed by <span class="citation" data-cites="elman1990">Elman (<a href="#ref-elman1990" role="doc-biblioref">1990</a>)</span>. The original LSTM architecture is described by <span class="citation" data-cites="hochreiter1997lstm">Hochreiter and Schmidhuber (<a href="#ref-hochreiter1997lstm" role="doc-biblioref">1997</a>)</span>, and the GRU encoder-decoder by <span class="citation" data-cites="cho2014gru">Cho et al. (<a href="#ref-cho2014gru" role="doc-biblioref">2014</a>)</span>. Temporal gradient problems are analysed by <span class="citation" data-cites="pascanu2013difficulty">Pascanu, Mikolov, and Bengio (<a href="#ref-pascanu2013difficulty" role="doc-biblioref">2013</a>)</span>. The fixed-vector encoder-decoder limitation and its attention-based response are developed by <span class="citation" data-cites="bahdanau2015attention">Bahdanau, Cho, and Bengio (<a href="#ref-bahdanau2015attention" role="doc-biblioref">2015</a>)</span>.</p>
+<p>The simple recurrent network is developed by <span class="citation" data-cites="elman1990">Elman (<a href="#ref-elman1990" role="doc-biblioref">1990</a>)</span>. The original LSTM architecture is described by <span class="citation" data-cites="hochreiter1997lstm">Hochreiter and Schmidhuber (<a href="#ref-hochreiter1997lstm" role="doc-biblioref">1997</a>)</span>, and the GRU encoder-decoder by <span class="citation" data-cites="cho2014gru">Cho et al. (<a href="#ref-cho2014gru" role="doc-biblioref">2014</a>)</span>. Temporal gradient problems are analysed by <span class="citation" data-cites="pascanu2013difficulty">Pascanu et al. (<a href="#ref-pascanu2013difficulty" role="doc-biblioref">2013</a>)</span>. The fixed-vector encoder-decoder limitation and its attention-based response are developed by <span class="citation" data-cites="bahdanau2015attention">Bahdanau et al. (<a href="#ref-bahdanau2015attention" role="doc-biblioref">2015</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-bahdanau2015attention" class="csl-entry" role="listitem">
-Bahdanau, Dzmitry, Kyunghyun Cho, and Yoshua Bengio. 2015. <span>“Neural Machine Translation by Jointly Learning to Align and Translate.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/">https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/</a>.
+Bahdanau, Dzmitry, Kyunghyun Cho, and Yoshua Bengio. 2015. <span>“Neural Machine Translation by Jointly Learning to Align and Translate.”</span> <em>International Conference on Learning Representations</em>. <a href="https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/">https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/</a>.
 </div>
 <div id="ref-cho2014gru" class="csl-entry" role="listitem">
-Cho, Kyunghyun, Bart van Merriënboer, Caglar Gulcehre, Dzmitry Bahdanau, Fethi Bougares, Holger Schwenk, and Yoshua Bengio. 2014. <span>“Learning Phrase Representations Using <span>RNN</span> Encoder–Decoder for Statistical Machine Translation.”</span> In <em>Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing</em>, 1724–34. Association for Computational Linguistics. <a href="https://doi.org/10.3115/v1/D14-1179">https://doi.org/10.3115/v1/D14-1179</a>.
+Cho, Kyunghyun, Bart van Merriënboer, Caglar Gulcehre, et al. 2014. <span>“Learning Phrase Representations Using <span>RNN</span> Encoder–Decoder for Statistical Machine Translation.”</span> <em>Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing</em>, 1724–34. <a href="https://doi.org/10.3115/v1/D14-1179">https://doi.org/10.3115/v1/D14-1179</a>.
 </div>
 <div id="ref-elman1990" class="csl-entry" role="listitem">
 Elman, Jeffrey L. 1990. <span>“Finding Structure in Time.”</span> <em>Cognitive Science</em> 14 (2): 179–211. <a href="https://doi.org/10.1207/s15516709cog1402_1">https://doi.org/10.1207/s15516709cog1402_1</a>.
@@ -1113,7 +1078,7 @@ Elman, Jeffrey L. 1990. <span>“Finding Structure in Time.”</span> <em>Cognit
 Hochreiter, Sepp, and Jürgen Schmidhuber. 1997. <span>“Long Short-Term Memory.”</span> <em>Neural Computation</em> 9 (8): 1735–80. <a href="https://doi.org/10.1162/neco.1997.9.8.1735">https://doi.org/10.1162/neco.1997.9.8.1735</a>.
 </div>
 <div id="ref-pascanu2013difficulty" class="csl-entry" role="listitem">
-Pascanu, Razvan, Tomas Mikolov, and Yoshua Bengio. 2013. <span>“On the Difficulty of Training Recurrent Neural Networks.”</span> In <em>Proceedings of the 30th International Conference on Machine Learning</em>, 28:1310–18. Proceedings of Machine Learning Research. <a href="https://proceedings.mlr.press/v28/pascanu13.html">https://proceedings.mlr.press/v28/pascanu13.html</a>.
+Pascanu, Razvan, Tomas Mikolov, and Yoshua Bengio. 2013. <span>“On the Difficulty of Training Recurrent Neural Networks.”</span> <em>Proceedings of the 30th International Conference on Machine Learning</em>, Proceedings of machine learning research, vol. 28: 1310–18. <a href="https://proceedings.mlr.press/v28/pascanu13.html">https://proceedings.mlr.press/v28/pascanu13.html</a>.
 </div>
 </div>
 </section>
@@ -1170,13 +1135,14 @@ Pascanu, Razvan, Tomas Mikolov, and Yoshua Bengio. 2013. <span>“On the Difficu
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1210,16 +1176,16 @@ Pascanu, Razvan, Tomas Mikolov, and Yoshua Bengio. 2013. <span>“On the Difficu
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1581,7 +1547,7 @@ Pascanu, Razvan, Tomas Mikolov, and Yoshua Bengio. 2013. <span>“On the Difficu
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb16" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Sequence Modelling Before Transformers"</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Order, recurrent state, and the fixed-memory bottleneck"</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1987,7 +1953,7 @@ Pascanu, Razvan, Tomas Mikolov, and Yoshua Bengio. 2013. <span>“On the Difficu
 <span id="cb16-426"><a href="#cb16-426" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb16-427"><a href="#cb16-427" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-428"><a href="#cb16-428" aria-hidden="true" tabindex="-1"></a>The simple recurrent network is developed by @elman1990. The original LSTM architecture is described by @hochreiter1997lstm, and the GRU encoder-decoder by @cho2014gru. Temporal gradient problems are analysed by @pascanu2013difficulty. The fixed-vector encoder-decoder limitation and its attention-based response are developed by @bahdanau2015attention.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

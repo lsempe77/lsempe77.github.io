@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Mixture-of-experts Models – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -606,7 +571,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-moe-layer" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -621,13 +586,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">1.09</span>,<span class="fl">1.89</span>,<span class="fl">2.69</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">1.45</span>,y),(<span class="fl">2.15</span>,<span class="fl">1.65</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">9</span>))</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">2.95</span>,<span class="fl">2.15</span>,<span class="fl">1.35</span>,<span class="fl">.55</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">3.45</span>,<span class="fl">1.65</span>),(<span class="fl">4.35</span>,y),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">8</span>,alpha<span class="op">=</span><span class="fl">.6</span>))</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> y <span class="kw">in</span> [<span class="fl">2.95</span>,<span class="fl">2.15</span>,<span class="fl">1.35</span>,<span class="fl">.55</span>]: ax.add_patch(FancyArrowPatch((<span class="fl">5.7</span>,y),(<span class="fl">6.95</span>,<span class="fl">1.65</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">8</span>,alpha<span class="op">=</span><span class="fl">.6</span>))</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-moe-layer" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three token representations enter a router; each is sent to two of four expert boxes before weighted outputs are combined.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-moe-layer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="43-mixture-of-experts-models_files/figure-html/fig-moe-layer-output-1.png" class="img-fluid figure-img" alt="Three token representations enter a router; each is sent to two of four expert boxes before weighted outputs are combined.">
+<img src="43-mixture-of-experts-models_files/figure-html/fig-moe-layer-output-1.png" alt="Three token representations enter a router; each is sent to two of four expert boxes before weighted outputs are combined." width="763" height="315" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-moe-layer-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;44.1: An MoE layer routes each token to a small subset of experts, combines their outputs, and leaves the remaining experts inactive for that token.
@@ -646,13 +611,13 @@ Figure&nbsp;44.1: An MoE layer routes each token to a small subset of experts, c
 <section id="capacity-can-grow-without-activating-every-parameter" class="level3">
 <h3 class="anchored" data-anchor-id="capacity-can-grow-without-activating-every-parameter">Capacity can grow without activating every parameter</h3>
 <p>The dense layer asks one feed-forward network to process every token. An MoE layer gives the router several such networks and lets it select specialists conditionally. A token associated with code-like text may be routed differently from a token in another language or a mathematical expression. The system does not need a semantic story about each expert for this to be useful; the operational claim is that different tokens activate different parameter subsets.</p>
-<p>Sparse activation changes the comparison. A model with eight experts may store roughly eight feed-forward parameter sets, but a top-2 router only executes two for one token. Parameter count therefore measures stored capacity, while active parameters and communication determine per-token cost. The sparsely gated MoE layer formalised this conditional-computation approach, and subsequent work made routing simple enough to support large Transformer training <span class="citation" data-cites="shazeer2017moe fedus2021switch">(<a href="#ref-shazeer2017moe" role="doc-biblioref">Shazeer et al. 2017</a>; <a href="#ref-fedus2021switch" role="doc-biblioref">Fedus, Zoph, and Shazeer 2022</a>)</span>.</p>
-<div id="426b1ec9" class="cell" data-execution_count="2">
+<p>Sparse activation changes the comparison. A model with eight experts may store roughly eight feed-forward parameter sets, but a top-2 router only executes two for one token. Parameter count therefore measures stored capacity, while active parameters and communication determine per-token cost. The sparsely gated MoE layer formalised this conditional-computation approach, and subsequent work made routing simple enough to support large Transformer training <span class="citation" data-cites="shazeer2017moe fedus2021switch">(<a href="#ref-shazeer2017moe" role="doc-biblioref">Shazeer et al. 2017</a>; <a href="#ref-fedus2021switch" role="doc-biblioref">Fedus et al. 2022</a>)</span>.</p>
+<div id="a8c48d44" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dense_parameters<span class="op">=</span><span class="dv">100</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dense_parameters<span class="op">=</span><span class="dv">100</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>experts,active<span class="op">=</span><span class="dv">8</span>,<span class="dv">2</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"dense_active"</span>:dense_parameters,<span class="st">"moe_total"</span>:experts<span class="op">*</span>dense_parameters,<span class="st">"moe_active"</span>:active<span class="op">*</span>dense_parameters})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"dense_active"</span>:dense_parameters,<span class="st">"moe_total"</span>:experts<span class="op">*</span>dense_parameters,<span class="st">"moe_active"</span>:active<span class="op">*</span>dense_parameters})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'dense_active': 100, 'moe_total': 800, 'moe_active': 200}</code></pre>
@@ -661,15 +626,15 @@ Figure&nbsp;44.1: An MoE layer routes each token to a small subset of experts, c
 <div id="cell-fig-total-active-parameters" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"dense</span><span class="ch">\n</span><span class="st">active"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">total"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">active"</span>]<span class="op">;</span> values<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">800</span>,<span class="dv">200</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"dense</span><span class="ch">\n</span><span class="st">active"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">total"</span>,<span class="st">"MoE</span><span class="ch">\n</span><span class="st">active"</span>]<span class="op">;</span> values<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">800</span>,<span class="dv">200</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(labels,values,color<span class="op">=</span>[blue,purple,teal])<span class="op">;</span> ax.set_ylabel(<span class="st">"illustrative parameter units"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Stored and active parameter counts"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Stored and active parameter counts"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-total-active-parameters" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bars compare dense active parameters with total and active parameters for an eight-expert top-two MoE layer.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-total-active-parameters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="43-mixture-of-experts-models_files/figure-html/fig-total-active-parameters-output-1.png" class="img-fluid figure-img" alt="Bars compare dense active parameters with total and active parameters for an eight-expert top-two MoE layer.">
+<img src="43-mixture-of-experts-models_files/figure-html/fig-total-active-parameters-output-1.png" alt="Bars compare dense active parameters with total and active parameters for an eight-expert top-two MoE layer." width="616" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-total-active-parameters-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;44.2: An MoE layer can increase stored parameter capacity while keeping the active expert count per token fixed.
@@ -690,13 +655,13 @@ Figure&nbsp;44.2: An MoE layer can increase stored parameter capacity while keep
 <section id="router-scores-become-a-sparse-dispatch-decision" class="level3">
 <h3 class="anchored" data-anchor-id="router-scores-become-a-sparse-dispatch-decision">Router scores become a sparse dispatch decision</h3>
 <p>For token representation (x), a router produces one score per expert. A softmax can turn the scores into non-negative weights. Top-&nbsp;k routing retains only the k largest weights, renormalises them, sends the token to those experts, and combines their outputs. If experts are functions (f_e), the layer output is the weighted sum of the selected (f_e(x)). This is conditional computation: routing determines which parameters participate in this token’s forward and backward pass.</p>
-<div id="af895c5a" class="cell" data-execution_count="4">
+<div id="19d437cf" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>np.array([<span class="fl">1.8</span>,<span class="fl">.4</span>,<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.3</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>np.array([<span class="fl">1.8</span>,<span class="fl">.4</span>,<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.3</span>])</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.exp(scores<span class="op">-</span>scores.<span class="bu">max</span>())<span class="op">;</span> weights<span class="op">=</span>weights<span class="op">/</span>weights.<span class="bu">sum</span>()</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>chosen<span class="op">=</span>np.argsort(weights)[<span class="op">-</span><span class="dv">2</span>:]<span class="op">;</span> selected<span class="op">=</span>weights[chosen]<span class="op">/</span>weights[chosen].<span class="bu">sum</span>()</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"router weights:"</span>,np.<span class="bu">round</span>(weights,<span class="dv">3</span>),<span class="st">"experts:"</span>,chosen,<span class="st">"renormalised:"</span>,np.<span class="bu">round</span>(selected,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"router weights:"</span>,np.<span class="bu">round</span>(weights,<span class="dv">3</span>),<span class="st">"experts:"</span>,chosen,<span class="st">"renormalised:"</span>,np.<span class="bu">round</span>(selected,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>router weights: [0.521 0.129 0.286 0.064] experts: [2 0] renormalised: [0.354 0.646]</code></pre>
@@ -705,15 +670,15 @@ Figure&nbsp;44.2: An MoE layer can increase stored parameter capacity while keep
 <div id="cell-fig-topk-routing" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> colours<span class="op">=</span>[orange <span class="cf">if</span> i <span class="kw">in</span> chosen <span class="cf">else</span> grey <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> colours<span class="op">=</span>[orange <span class="cf">if</span> i <span class="kw">in</span> chosen <span class="cf">else</span> grey <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),weights,color<span class="op">=</span>colours)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"router weight"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative top-two router decision"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative top-two router decision"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-topk-routing" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart shows four router weights, highlighting the two selected experts and their renormalised weights.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-topk-routing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="43-mixture-of-experts-models_files/figure-html/fig-topk-routing-output-1.png" class="img-fluid figure-img" alt="A bar chart shows four router weights, highlighting the two selected experts and their renormalised weights.">
+<img src="43-mixture-of-experts-models_files/figure-html/fig-topk-routing-output-1.png" alt="A bar chart shows four router weights, highlighting the two selected experts and their renormalised weights." width="663" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-topk-routing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;44.3: Top-k routing retains the largest router weights and renormalises only the selected experts before their outputs are combined.
@@ -732,12 +697,12 @@ Figure&nbsp;44.3: Top-k routing retains the largest router weights and renormali
 <section id="capacity-limits-make-dispatch-observable" class="level3">
 <h3 class="anchored" data-anchor-id="capacity-limits-make-dispatch-observable">Capacity limits make dispatch observable</h3>
 <p>Experts cannot process an unlimited number of token assignments in one batch. A capacity factor sets a per-expert quota relative to the average expected load. When an expert is full, the implementation may drop an assignment, send it to a backup expert, or preserve a residual path. Each choice changes the layer output and must be reported. A low capacity limit raises the chance of discarded routes; a high limit reserves memory and can leave accelerator work uneven.</p>
-<div id="f18fa99b" class="cell" data-execution_count="6">
+<div id="623304d9" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>assignments<span class="op">=</span>np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>])<span class="op">;</span> capacity<span class="op">=</span><span class="dv">2</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>assignments<span class="op">=</span>np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>])<span class="op">;</span> capacity<span class="op">=</span><span class="dv">2</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>counts<span class="op">=</span>np.bincount(assignments,minlength<span class="op">=</span><span class="dv">4</span>)<span class="op">;</span> overflow<span class="op">=</span>np.maximum(counts<span class="op">-</span>capacity,<span class="dv">0</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"expert loads:"</span>,counts,<span class="st">"overflow:"</span>,overflow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"expert loads:"</span>,counts,<span class="st">"overflow:"</span>,overflow)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>expert loads: [3 2 1 2] overflow: [1 0 0 0]</code></pre>
@@ -746,15 +711,15 @@ Figure&nbsp;44.3: Top-k routing retains the largest router weights and renormali
 <div id="cell-fig-expert-capacity" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),counts,color<span class="op">=</span>[orange <span class="cf">if</span> c<span class="op">&gt;</span>capacity <span class="cf">else</span> teal <span class="cf">for</span> c <span class="kw">in</span> counts])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),counts,color<span class="op">=</span>[orange <span class="cf">if</span> c<span class="op">&gt;</span>capacity <span class="cf">else</span> teal <span class="cf">for</span> c <span class="kw">in</span> counts])</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>ax.axhline(capacity,color<span class="op">=</span>purple,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"capacity"</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"token assignments"</span>)<span class="op">;</span> ax.legend()</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative capacity overflow"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative capacity overflow"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-expert-capacity" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four bars show expert token loads against a horizontal capacity limit; the first expert exceeds the line.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-expert-capacity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="43-mixture-of-experts-models_files/figure-html/fig-expert-capacity-output-1.png" class="img-fluid figure-img" alt="Four bars show expert token loads against a horizontal capacity limit; the first expert exceeds the line.">
+<img src="43-mixture-of-experts-models_files/figure-html/fig-expert-capacity-output-1.png" alt="Four bars show expert token loads against a horizontal capacity limit; the first expert exceeds the line." width="663" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-expert-capacity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;44.4: Expert capacity limits turn unequal router demand into overflow that must be dropped, rerouted, or handled by a declared fallback.
@@ -776,11 +741,11 @@ Figure&nbsp;44.4: Expert capacity limits turn unequal router demand into overflo
 <h3 class="anchored" data-anchor-id="load-balancing-supplies-a-training-signal-and-a-hardware-constraint">Load balancing supplies a training signal and a hardware constraint</h3>
 <p>If a router repeatedly selects one expert, that expert becomes a bottleneck while other experts receive little data or gradient signal. MoE training commonly adds an auxiliary load-balancing objective based on routing probabilities and realised assignments. The objective encourages use of the available experts; it does not prove that expert specialisation is meaningful or that all experts should receive identical traffic.</p>
 <p>The systems consequence is immediate. Tokens assigned to experts on other devices must be exchanged, processed, and returned. The slowest or most overloaded expert can determine the layer’s step time. GShard treated conditional computation and sharding together because large MoE training requires both a routing rule and an execution plan <span class="citation" data-cites="lepikhin2020gshard">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>)</span>.</p>
-<div id="fd863f3b" class="cell" data-execution_count="8">
+<div id="bf507d8b" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>loads<span class="op">=</span>np.array([<span class="dv">47</span>,<span class="dv">26</span>,<span class="dv">17</span>,<span class="dv">10</span>])<span class="op">;</span> uniform<span class="op">=</span>np.repeat(<span class="dv">25</span>,<span class="dv">4</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"absolute deviation from equal load:"</span>,np.<span class="bu">abs</span>(loads<span class="op">-</span>uniform).<span class="bu">sum</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>loads<span class="op">=</span>np.array([<span class="dv">47</span>,<span class="dv">26</span>,<span class="dv">17</span>,<span class="dv">10</span>])<span class="op">;</span> uniform<span class="op">=</span>np.repeat(<span class="dv">25</span>,<span class="dv">4</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"absolute deviation from equal load:"</span>,np.<span class="bu">abs</span>(loads<span class="op">-</span>uniform).<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>absolute deviation from equal load: 46</code></pre>
@@ -789,15 +754,15 @@ Figure&nbsp;44.4: Expert capacity limits turn unequal router demand into overflo
 <div id="cell-fig-load-balance" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),loads,color<span class="op">=</span>[orange,teal,teal,teal])<span class="op">;</span> ax.axhline(<span class="dv">25</span>,color<span class="op">=</span>purple,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"equal share"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(<span class="bu">range</span>(<span class="dv">4</span>),loads,color<span class="op">=</span>[orange,teal,teal,teal])<span class="op">;</span> ax.axhline(<span class="dv">25</span>,color<span class="op">=</span>purple,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"equal share"</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"expert 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"share of assignments (%)"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Illustrative routing imbalance"</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-load-balance" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart compares uneven token shares across four experts with a horizontal equal-share line.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-load-balance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="43-mixture-of-experts-models_files/figure-html/fig-load-balance-output-1.png" class="img-fluid figure-img" alt="A bar chart compares uneven token shares across four experts with a horizontal equal-share line.">
+<img src="43-mixture-of-experts-models_files/figure-html/fig-load-balance-output-1.png" alt="A bar chart compares uneven token shares across four experts with a horizontal equal-share line." width="663" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-load-balance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;44.5: Unequal expert load leaves some experts underused and makes the busiest expert a capacity and latency bottleneck.
@@ -810,16 +775,16 @@ Figure&nbsp;44.5: Unequal expert load leaves some experts underused and makes th
 <section id="load-balancing-has-probability-assignment-and-quality-diagnostics" class="level3">
 <h3 class="anchored" data-anchor-id="load-balancing-has-probability-assignment-and-quality-diagnostics">Load balancing has probability, assignment, and quality diagnostics</h3>
 <p>The router’s average probability mass and the realised token assignments are related but not identical. A load-balancing loss can encourage probability mass to spread across experts while top-k selection and capacity constraints still produce uneven realised loads. Report both quantities, together with overflow, expert utilisation, duplicate selections, and the coefficient of variation or another stated imbalance measure. A single auxiliary-loss value is not evidence that the dispatch is balanced.</p>
-<p>Balance also has a quality boundary. Equal traffic can be undesirable if a subset of tasks genuinely needs a particular expert and the balance penalty forces it elsewhere. Conversely, concentrated traffic may expose an expert to a narrow data slice and leave other experts poorly trained. Compare task outcome and routing diagnostics as the balance coefficient changes, keeping the rest of the training contract fixed. Sparse-routing systems such as GShard and Switch Transformers make these routing and capacity choices part of the training design, not a post-training serving adjustment <span class="citation" data-cites="lepikhin2020gshard fedus2021switch">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>; <a href="#ref-fedus2021switch" role="doc-biblioref">Fedus, Zoph, and Shazeer 2022</a>)</span>.</p>
+<p>Balance also has a quality boundary. Equal traffic can be undesirable if a subset of tasks genuinely needs a particular expert and the balance penalty forces it elsewhere. Conversely, concentrated traffic may expose an expert to a narrow data slice and leave other experts poorly trained. Compare task outcome and routing diagnostics as the balance coefficient changes, keeping the rest of the training contract fixed. Sparse-routing systems such as GShard and Switch Transformers make these routing and capacity choices part of the training design, not a post-training serving adjustment <span class="citation" data-cites="lepikhin2020gshard fedus2021switch">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>; <a href="#ref-fedus2021switch" role="doc-biblioref">Fedus et al. 2022</a>)</span>.</p>
 </section>
 <section id="a-dense-comparison-requires-an-end-to-end-cost-record" class="level3">
 <h3 class="anchored" data-anchor-id="a-dense-comparison-requires-an-end-to-end-cost-record">A dense comparison requires an end-to-end cost record</h3>
 <p>MoE can reduce active feed-forward computation for a given stored capacity, but it can also add router work, dispatch overhead, all-to-all communication, padding to expert capacity, and latency variation across requests. Compare dense and sparse models under the same sequence lengths, batch policy, precision, hardware, and quality metric. A parameter count alone cannot establish a serving advantage.</p>
-<div id="41604c33" class="cell" data-execution_count="10">
+<div id="5dd585d6" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"dense"</span>:{<span class="st">"compute"</span>:<span class="dv">100</span>,<span class="st">"communication"</span>:<span class="dv">0</span>,<span class="st">"latency"</span>:<span class="dv">12</span>},<span class="st">"moe"</span>:{<span class="st">"compute"</span>:<span class="dv">35</span>,<span class="st">"communication"</span>:<span class="dv">18</span>,<span class="st">"latency"</span>:<span class="dv">14</span>}}</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,record <span class="kw">in</span> systems.items(): <span class="bu">print</span>(name,record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"dense"</span>:{<span class="st">"compute"</span>:<span class="dv">100</span>,<span class="st">"communication"</span>:<span class="dv">0</span>,<span class="st">"latency"</span>:<span class="dv">12</span>},<span class="st">"moe"</span>:{<span class="st">"compute"</span>:<span class="dv">35</span>,<span class="st">"communication"</span>:<span class="dv">18</span>,<span class="st">"latency"</span>:<span class="dv">14</span>}}</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,record <span class="kw">in</span> systems.items(): <span class="bu">print</span>(name,record)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>dense {'compute': 100, 'communication': 0, 'latency': 12}
@@ -834,16 +799,16 @@ moe {'compute': 35, 'communication': 18, 'latency': 14}</code></pre>
 <div id="cell-fig-cost-decomposition" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">100</span>,<span class="dv">35</span>],color<span class="op">=</span>[blue,teal],label<span class="op">=</span><span class="st">"expert computation"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">100</span>,<span class="dv">35</span>],color<span class="op">=</span>[blue,teal],label<span class="op">=</span><span class="st">"expert computation"</span>)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">0</span>,<span class="dv">8</span>],bottom<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">35</span>],color<span class="op">=</span>purple,label<span class="op">=</span><span class="st">"routing"</span>)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>ax.bar([<span class="st">"dense"</span>,<span class="st">"MoE"</span>],[<span class="dv">0</span>,<span class="dv">18</span>],bottom<span class="op">=</span>[<span class="dv">100</span>,<span class="dv">43</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"communication"</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"illustrative cost units"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"End-to-end cost decomposition"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"illustrative cost units"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"End-to-end cost decomposition"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-cost-decomposition" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Stacked bars compare illustrative dense compute with MoE expert compute, routing, and communication costs.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cost-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="43-mixture-of-experts-models_files/figure-html/fig-cost-decomposition-output-1.png" class="img-fluid figure-img" alt="Stacked bars compare illustrative dense compute with MoE expert compute, routing, and communication costs.">
+<img src="43-mixture-of-experts-models_files/figure-html/fig-cost-decomposition-output-1.png" alt="Stacked bars compare illustrative dense compute with MoE expert compute, routing, and communication costs." width="664" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cost-decomposition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;44.6: MoE active expert computation can be lower than a dense comparison while routing and communication add to the end-to-end latency budget.
@@ -865,12 +830,12 @@ Figure&nbsp;44.6: MoE active expert computation can be lower than a dense compar
 <h3 class="anchored" data-anchor-id="evaluate-routing-changes-with-matched-quality-and-workload-slices">Evaluate routing changes with matched quality and workload slices</h3>
 <p>An MoE intervention can change top-k, capacity factor, balance coefficient, overflow fallback, expert count, or device placement. Evaluate one such change at a time under the same checkpoint where possible, input distribution, sequence lengths, batch policy, precision, and quality scorer. Report task outcome together with overflow, routed fraction, per-expert load, communication, p50 and p95 latency, and memory. A throughput gain that relies on dropping more assignments or a quality gain that relies on a larger batch is not a routing result alone.</p>
 <p>Slice the record by properties that plausibly change routing: language, input length, token class, domain, tool-call format, or a declared sensitive workload category. The purpose is not to assign an expert a human-readable identity. It is to discover whether the routing policy creates concentrated overflow, latency, or quality loss for a subset that aggregate results hide. A deployment decision can then adjust capacity, routing, or fallback for the affected workload rather than treating a global average as sufficient evidence.</p>
-<div id="3122456d" class="cell" data-execution_count="12">
+<div id="ceeaa69b" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"experts"</span>:<span class="dv">8</span>,<span class="st">"top_k"</span>:<span class="dv">2</span>,<span class="st">"capacity_factor"</span>:<span class="fl">1.25</span>,<span class="st">"overflow_rate"</span>:<span class="fl">.03</span>,<span class="st">"load_cv"</span>:<span class="fl">.31</span>,<span class="st">"p95_latency_ms"</span>:<span class="dv">28</span>,<span class="st">"quality"</span>:<span class="st">"held-out exact match"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"experts"</span>:<span class="dv">8</span>,<span class="st">"top_k"</span>:<span class="dv">2</span>,<span class="st">"capacity_factor"</span>:<span class="fl">1.25</span>,<span class="st">"overflow_rate"</span>:<span class="fl">.03</span>,<span class="st">"load_cv"</span>:<span class="fl">.31</span>,<span class="st">"p95_latency_ms"</span>:<span class="dv">28</span>,<span class="st">"quality"</span>:<span class="st">"held-out exact match"</span>}</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"experts"</span>,<span class="st">"top_k"</span>,<span class="st">"overflow_rate"</span>,<span class="st">"p95_latency_ms"</span>,<span class="st">"quality"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MoE evaluation record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MoE evaluation record complete"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>MoE evaluation record complete</code></pre>
@@ -919,26 +884,26 @@ Figure&nbsp;44.6: MoE active expert computation can be lower than a dense compar
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>The sparsely gated MoE layer is introduced by <span class="citation" data-cites="shazeer2017moe">Shazeer et al. (<a href="#ref-shazeer2017moe" role="doc-biblioref">2017</a>)</span>. GShard studies conditional computation with automatic sharding <span class="citation" data-cites="lepikhin2020gshard">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>)</span>, and Switch Transformers simplify sparse expert routing for large Transformer training <span class="citation" data-cites="fedus2021switch">(<a href="#ref-fedus2021switch" role="doc-biblioref">Fedus, Zoph, and Shazeer 2022</a>)</span>.</p>
+<p>The sparsely gated MoE layer is introduced by <span class="citation" data-cites="shazeer2017moe">Shazeer et al. (<a href="#ref-shazeer2017moe" role="doc-biblioref">2017</a>)</span>. GShard studies conditional computation with automatic sharding <span class="citation" data-cites="lepikhin2020gshard">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>)</span>, and Switch Transformers simplify sparse expert routing for large Transformer training <span class="citation" data-cites="fedus2021switch">(<a href="#ref-fedus2021switch" role="doc-biblioref">Fedus et al. 2022</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-fedus2021switch" class="csl-entry" role="listitem">
 Fedus, William, Barret Zoph, and Noam Shazeer. 2022. <span>“Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity.”</span> <em>Journal of Machine Learning Research</em> 23 (120): 1–39. <a href="https://jmlr.org/papers/v23/21-0998.html">https://jmlr.org/papers/v23/21-0998.html</a>.
 </div>
 <div id="ref-lepikhin2020gshard" class="csl-entry" role="listitem">
-Lepikhin, Dmitry, HyoukJoong Lee, Yuanzhong Xu, Dehao Chen, Orhan Firat, Yanping Huang, Maxim Krikun, Noam Shazeer, and Zhifeng Chen. 2020. <span>“GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding.”</span> <em>arXiv Preprint arXiv:2006.16668</em>. <a href="https://arxiv.org/abs/2006.16668">https://arxiv.org/abs/2006.16668</a>.
+Lepikhin, Dmitry, HyoukJoong Lee, Yuanzhong Xu, et al. 2020. <span>“GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding.”</span> <em>arXiv Preprint arXiv:2006.16668</em>. <a href="https://arxiv.org/abs/2006.16668">https://arxiv.org/abs/2006.16668</a>.
 </div>
 <div id="ref-li2020ddp" class="csl-entry" role="listitem">
-Li, Shen, Yanli Zhao, Rohan Varma, Omkar Salpekar, Pieter Noordhuis, Teng Li, Adam Paszke, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
+Li, Shen, Yanli Zhao, Rohan Varma, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
 </div>
 <div id="ref-narayanan2021megatron" class="csl-entry" role="listitem">
-Narayanan, Deepak, Mohammad Shoeybi, Jared Casper, Patrick LeGresley, Mostofa Patwary, Vijay Anand Korthikanti, Dmitri Vainbrand, et al. 2021. <span>“Efficient Large-Scale Language Model Training on <span>GPU</span> Clusters Using <span>Megatron-LM</span>.”</span> <em>arXiv Preprint arXiv:2104.04473</em>. <a href="https://arxiv.org/abs/2104.04473">https://arxiv.org/abs/2104.04473</a>.
+Narayanan, Deepak, Mohammad Shoeybi, Jared Casper, et al. 2021. <span>“Efficient Large-Scale Language Model Training on <span>GPU</span> Clusters Using <span>Megatron-LM</span>.”</span> <em>arXiv Preprint arXiv:2104.04473</em>. <a href="https://arxiv.org/abs/2104.04473">https://arxiv.org/abs/2104.04473</a>.
 </div>
 <div id="ref-shazeer2017moe" class="csl-entry" role="listitem">
-Shazeer, Noam, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc V. Le, Geoffrey Hinton, and Jeff Dean. 2017. <span>“Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer.”</span> <em>arXiv Preprint arXiv:1701.06538</em>. <a href="https://arxiv.org/abs/1701.06538">https://arxiv.org/abs/1701.06538</a>.
+Shazeer, Noam, Azalia Mirhoseini, Krzysztof Maziarz, et al. 2017. <span>“Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer.”</span> <em>arXiv Preprint arXiv:1701.06538</em>. <a href="https://arxiv.org/abs/1701.06538">https://arxiv.org/abs/1701.06538</a>.
 </div>
 </div>
 </section>
@@ -995,13 +960,14 @@ Shazeer, Noam, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc V. Le, Geo
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1035,16 +1001,16 @@ Shazeer, Noam, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc V. Le, Geo
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1406,7 +1372,7 @@ Shazeer, Noam, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc V. Le, Geo
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb19" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Mixture-of-experts Models"</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Sparse routing, expert capacity, load balancing, and systems cost"</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1655,7 +1621,7 @@ Shazeer, Noam, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc V. Le, Geo
 <span id="cb19-271"><a href="#cb19-271" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb19-272"><a href="#cb19-272" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-273"><a href="#cb19-273" aria-hidden="true" tabindex="-1"></a>The sparsely gated MoE layer is introduced by @shazeer2017moe. GShard studies conditional computation with automatic sharding <span class="co">[</span><span class="ot">@lepikhin2020gshard</span><span class="co">]</span>, and Switch Transformers simplify sparse expert routing for large Transformer training <span class="co">[</span><span class="ot">@fedus2021switch</span><span class="co">]</span>.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

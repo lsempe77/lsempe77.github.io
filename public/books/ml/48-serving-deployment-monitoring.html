@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Serving, Deployment, and Monitoring – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -574,7 +539,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 
 <section id="chapter-orientation" class="level2">
 <h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
-<p>A trained model becomes a service only when requests can be admitted, processed, observed, and recovered under a declared reliability and cost budget. Model quality measured offline is one component of that system. Prompt length, batching, queueing, decoding, cache policy, hardware, fallbacks, and user traffic determine what a deployment delivers. The dependence of model behaviour on surrounding technical systems is a central source of accumulated machine-learning technical debt <span class="citation" data-cites="sculley2015">(<a href="#ref-sculley2015" role="doc-biblioref">Sculley et al. 2015</a>)</span>.</p>
+<p>A trained model becomes a service only when requests can be admitted, processed, observed, and recovered under a declared reliability and cost budget. Model quality measured offline is one component of that system. Prompt length, batching, queueing, decoding, cache policy, hardware, fallbacks, and user traffic determine what a deployment delivers. The dependence of model behaviour on surrounding technical systems is a central source of accumulated machine-learning technical debt <span class="citation" data-cites="sculley2015">(<a href="#ref-sculley2015" role="doc-biblioref"><span class="nocase">Sculley et al.</span> 2015</a>)</span>.</p>
 <div id="concept-serving-system" class="concept-box concept-core" data-term="Serving system" data-domain="Modern AI systems">
 <p><strong>Serving system.</strong> The operational path that admits, queues, processes, checks, returns, and records model requests. Latency, throughput, caching, routing, fallbacks, and monitoring determine delivered behaviour.</p>
 </div>
@@ -588,19 +553,19 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-request-lifecycle" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(l,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"admit"</span>,<span class="st">"#24527a"</span>),(<span class="st">"queue"</span>,<span class="st">"#7655a6"</span>),(<span class="st">"prefill"</span>,<span class="st">"#3a9188"</span>),(<span class="st">"decode"</span>,<span class="st">"#d97745"</span>),(<span class="st">"checks"</span>,<span class="st">"#24527a"</span>),(<span class="st">"respond"</span>,<span class="st">"#3a9188"</span>)]):</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a> x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.55</span><span class="op">;</span>ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="fl">1.1</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.55</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.6</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.6</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-request-lifecycle" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A sequence of boxes shows the request lifecycle from admission to response, with monitoring attached to each stage.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-request-lifecycle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="48-serving-deployment-monitoring_files/figure-html/fig-request-lifecycle-output-1.png" class="img-fluid figure-img" alt="A sequence of boxes shows the request lifecycle from admission to response, with monitoring attached to each stage.">
+<img src="48-serving-deployment-monitoring_files/figure-html/fig-request-lifecycle-output-1.png" alt="A sequence of boxes shows the request lifecycle from admission to response, with monitoring attached to each stage." width="763" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-request-lifecycle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;49.1: A deployed model request passes through admission, queueing, prefill, decoding, checks, response, and an observability record.
@@ -621,11 +586,11 @@ Figure&nbsp;49.1: A deployed model request passes through admission, queueing, p
 <h3 class="anchored" data-anchor-id="queue-policy-distributes-a-scarce-resource">Queue policy distributes a scarce resource</h3>
 <p>Requests may be processed in arrival order, grouped by length, prioritised by workflow, or limited by user and tenant quotas. Each policy changes who waits and whose context is truncated or rejected under load. A short-request preference can improve aggregate latency while delaying long-document work; a priority lane can protect a high-consequence workflow while reducing capacity for others. State these choices and measure their effects by request class.</p>
 <p>Retries require the same care. Retrying a failed generation can improve completion rates, but retries also increase load and can duplicate a consequential tool action. Use idempotency keys for actions, cap retry budgets, distinguish transient infrastructure failures from policy refusals, and record whether the retry changed prompt, model, tool state, or user-visible result.</p>
-<div id="c054807d" class="cell" data-execution_count="2">
+<div id="5c5cbe2c" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>requests<span class="op">=</span>[{<span class="st">"class"</span>:<span class="st">"interactive"</span>,<span class="st">"queue_ms"</span>:<span class="dv">18</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"long-context"</span>,<span class="st">"queue_ms"</span>:<span class="dv">140</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"tool-action"</span>,<span class="st">"queue_ms"</span>:<span class="dv">31</span>,<span class="st">"completed"</span>:<span class="va">False</span>}]</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> request <span class="kw">in</span> requests: <span class="bu">print</span>(request)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>requests<span class="op">=</span>[{<span class="st">"class"</span>:<span class="st">"interactive"</span>,<span class="st">"queue_ms"</span>:<span class="dv">18</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"long-context"</span>,<span class="st">"queue_ms"</span>:<span class="dv">140</span>,<span class="st">"completed"</span>:<span class="va">True</span>},{<span class="st">"class"</span>:<span class="st">"tool-action"</span>,<span class="st">"queue_ms"</span>:<span class="dv">31</span>,<span class="st">"completed"</span>:<span class="va">False</span>}]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> request <span class="kw">in</span> requests: <span class="bu">print</span>(request)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'class': 'interactive', 'queue_ms': 18, 'completed': True}
@@ -636,14 +601,14 @@ Figure&nbsp;49.1: A deployed model request passes through admission, queueing, p
 <div id="cell-fig-batching-tradeoff" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>b<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>])<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.plot(b,[<span class="dv">8</span>,<span class="dv">24</span>,<span class="dv">39</span>,<span class="dv">54</span>,<span class="dv">61</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"throughput"</span>)<span class="op">;</span>ax.plot(b,[<span class="dv">35</span>,<span class="dv">42</span>,<span class="dv">55</span>,<span class="dv">79</span>,<span class="dv">128</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"p95 latency"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_xlabel(<span class="st">"batch size"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>b<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>])<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.plot(b,[<span class="dv">8</span>,<span class="dv">24</span>,<span class="dv">39</span>,<span class="dv">54</span>,<span class="dv">61</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"throughput"</span>)<span class="op">;</span>ax.plot(b,[<span class="dv">35</span>,<span class="dv">42</span>,<span class="dv">55</span>,<span class="dv">79</span>,<span class="dv">128</span>],marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"p95 latency"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_xlabel(<span class="st">"batch size"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-batching-tradeoff" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two lines show throughput increasing and p95 latency increasing as batch size grows.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-batching-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="48-serving-deployment-monitoring_files/figure-html/fig-batching-tradeoff-output-1.png" class="img-fluid figure-img" alt="Two lines show throughput increasing and p95 latency increasing as batch size grows.">
+<img src="48-serving-deployment-monitoring_files/figure-html/fig-batching-tradeoff-output-1.png" alt="Two lines show throughput increasing and p95 latency increasing as batch size grows." width="616" height="336" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-batching-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;49.2: Larger batches can raise throughput while queueing and tail latency increase; the selected policy should be evaluated against both measures.
@@ -652,11 +617,11 @@ Figure&nbsp;49.2: Larger batches can raise throughput while queueing and tail la
 </div>
 </div>
 </div>
-<div id="02745621" class="cell" data-execution_count="4">
+<div id="28b2106b" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">900</span>,<span class="st">"generated_tokens"</span>:<span class="dv">120</span>,<span class="st">"prefill_ms"</span>:<span class="dv">180</span>,<span class="st">"decode_ms"</span>:<span class="dv">410</span>,<span class="st">"queue_ms"</span>:<span class="dv">35</span>}</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end latency"</span>,<span class="bu">sum</span>(v <span class="cf">for</span> k,v <span class="kw">in</span> record.items() <span class="cf">if</span> k.endswith(<span class="st">"_ms"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">900</span>,<span class="st">"generated_tokens"</span>:<span class="dv">120</span>,<span class="st">"prefill_ms"</span>:<span class="dv">180</span>,<span class="st">"decode_ms"</span>:<span class="dv">410</span>,<span class="st">"queue_ms"</span>:<span class="dv">35</span>}</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end latency"</span>,<span class="bu">sum</span>(v <span class="cf">for</span> k,v <span class="kw">in</span> record.items() <span class="cf">if</span> k.endswith(<span class="st">"_ms"</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>end-to-end latency 625</code></pre>
@@ -665,13 +630,13 @@ Figure&nbsp;49.2: Larger batches can raise throughput while queueing and tail la
 <div id="cell-fig-kv-cache" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">9</span>)<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.bar(steps,steps<span class="op">*</span><span class="dv">12</span>,color<span class="op">=</span><span class="st">"#7655a6"</span>)<span class="op">;</span>ax.set_xlabel(<span class="st">"generated token step"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative cache memory"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">9</span>)<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.bar(steps,steps<span class="op">*</span><span class="dv">12</span>,color<span class="op">=</span><span class="st">"#7655a6"</span>)<span class="op">;</span>ax.set_xlabel(<span class="st">"generated token step"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative cache memory"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-kv-cache" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A growing token sequence points to an expanding cache memory bar during successive decoding steps.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-kv-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="48-serving-deployment-monitoring_files/figure-html/fig-kv-cache-output-1.png" class="img-fluid figure-img" alt="A growing token sequence points to an expanding cache memory bar during successive decoding steps.">
+<img src="48-serving-deployment-monitoring_files/figure-html/fig-kv-cache-output-1.png" alt="A growing token sequence points to an expanding cache memory bar during successive decoding steps." width="616" height="326" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kv-cache-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;49.3: A key-value cache avoids recomputing prior attention states during decoding but grows with active sequence length and concurrency.
@@ -689,15 +654,15 @@ Figure&nbsp;49.3: A key-value cache avoids recomputing prior attention states du
 <div id="cell-fig-staged-release" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">3</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,l,c <span class="kw">in</span> [(<span class="fl">.4</span>,<span class="st">"baseline"</span>,<span class="st">"#24527a"</span>),(<span class="fl">2.2</span>,<span class="st">"5%"</span>,<span class="st">"#3a9188"</span>),(<span class="fl">3.7</span>,<span class="st">"25%"</span>,<span class="st">"#3a9188"</span>),(<span class="fl">5.4</span>,<span class="st">"rollback"</span>,<span class="st">"#d97745"</span>)]:ax.add_patch(Rectangle((x,<span class="dv">1</span>),<span class="fl">1.15</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(x<span class="op">+</span><span class="fl">.58</span>,<span class="fl">1.25</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="fl">.5</span>,<span class="dv">2</span>)<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-staged-release" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Traffic flows first to a baseline and then in increasing small shares to a candidate, with a rollback arrow.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-staged-release-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="48-serving-deployment-monitoring_files/figure-html/fig-staged-release-output-1.png" class="img-fluid figure-img" alt="Traffic flows first to a baseline and then in increasing small shares to a candidate, with a rollback arrow.">
+<img src="48-serving-deployment-monitoring_files/figure-html/fig-staged-release-output-1.png" alt="Traffic flows first to a baseline and then in increasing small shares to a candidate, with a rollback arrow." width="577" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-staged-release-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;49.4: A staged release sends a measured share of eligible traffic to a candidate model while retaining a baseline, safeguards, and rollback decision.
@@ -723,12 +688,12 @@ Figure&nbsp;49.4: A staged release sends a measured share of eligible traffic to
 <h3 class="anchored" data-anchor-id="measure-latency-as-a-distribution-not-one-number">Measure latency as a distribution, not one number</h3>
 <p>An average response time can be compatible with an unacceptable experience for a minority of requests. Long prompts may take longer to prefill; long outputs may occupy a decoder slot; tool calls may pause a response; and requests arriving during a burst may wait in a queue. Report median, p95, p99, timeout, and cancellation rates, together with the prompt-length, output-length, and request-class distributions. A service that looks fast on short prompts can be unusable for the document workflow it was intended to support.</p>
 <p>Break the end-to-end trace into admission, queueing, prefill, decoding, retrieval, tool execution, safety checks, network transfer, and client rendering where the boundary is observable. The purpose is diagnosis. A rising p95 may originate in a new model, cache pressure, an index rebuild, a connector, or traffic composition. Without component traces, a team can make a costly model change to solve a queueing problem.</p>
-<div id="7b069dcd" class="cell" data-execution_count="7">
+<div id="18e77728" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>latency_trace<span class="op">=</span>{<span class="st">"admission_ms"</span>:<span class="dv">2</span>,<span class="st">"queue_ms"</span>:<span class="dv">47</span>,<span class="st">"prefill_ms"</span>:<span class="dv">210</span>,<span class="st">"decode_ms"</span>:<span class="dv">380</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>latency_trace<span class="op">=</span>{<span class="st">"admission_ms"</span>:<span class="dv">2</span>,<span class="st">"queue_ms"</span>:<span class="dv">47</span>,<span class="st">"prefill_ms"</span>:<span class="dv">210</span>,<span class="st">"decode_ms"</span>:<span class="dv">380</span>,</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"tool_ms"</span>:<span class="dv">0</span>,<span class="st">"checks_ms"</span>:<span class="dv">9</span>,<span class="st">"network_ms"</span>:<span class="dv">18</span>}</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end ms:"</span>,<span class="bu">sum</span>(latency_trace.values()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"end-to-end ms:"</span>,<span class="bu">sum</span>(latency_trace.values()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>end-to-end ms: 666</code></pre>
@@ -744,13 +709,13 @@ Figure&nbsp;49.4: A staged release sends a measured share of eligible traffic to
 <h3 class="anchored" data-anchor-id="caches-require-both-a-performance-and-a-data-policy">Caches require both a performance and a data policy</h3>
 <p>The key-value cache is a model-state optimisation during autoregressive decoding. A prefix cache can additionally reuse an identical initial context across requests. Both save work only under strict identity and isolation conditions. The key must bind the correct model and tokenizer versions, system prompt, retrieved context where applicable, and permission context. It must not permit one user’s context to become another user’s starting state.</p>
 <p>Cache policies should describe what is stored, where, for how long, who can access it, and what triggers eviction. Memory pressure can cause queueing, an out-of-memory error, truncation, or a lower-concurrency mode. Test these paths. A cache hit rate is not sufficient evidence of a correct design; evaluate cross-user isolation, stale-context risk, and the quality effect of any truncation or summarisation used to preserve capacity.</p>
-<div id="2493948a" class="cell" data-execution_count="8">
+<div id="1d4fa3e0" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cache_record<span class="op">=</span>{<span class="st">"key_fields"</span>:[<span class="st">"model"</span>,<span class="st">"tokenizer"</span>,<span class="st">"system prompt"</span>,<span class="st">"authorisation context"</span>],</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cache_record<span class="op">=</span>{<span class="st">"key_fields"</span>:[<span class="st">"model"</span>,<span class="st">"tokenizer"</span>,<span class="st">"system prompt"</span>,<span class="st">"authorisation context"</span>],</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>              <span class="st">"ttl_minutes"</span>:<span class="dv">15</span>,<span class="st">"shared_across_users"</span>:<span class="va">False</span>,<span class="st">"eviction"</span>:<span class="st">"least recently used"</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>              <span class="st">"pressure_action"</span>:<span class="st">"admit fewer long contexts"</span>}</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cache_record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cache_record)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'key_fields': ['model', 'tokenizer', 'system prompt', 'authorisation context'], 'ttl_minutes': 15, 'shared_across_users': False, 'eviction': 'least recently used', 'pressure_action': 'admit fewer long contexts'}</code></pre>
@@ -772,13 +737,13 @@ Figure&nbsp;49.4: A staged release sends a measured share of eligible traffic to
 <p>Dataset-shift evaluations show that predictive uncertainty can itself become unreliable when the data distribution changes <span class="citation" data-cites="ovadia2019">(<a href="#ref-ovadia2019" role="doc-biblioref">Ovadia et al. 2019</a>)</span>. A deployed AI system has several distributions and components that can change. Users may ask new questions, provide longer documents, switch languages, adopt a new interface, or retry differently. A retrieval corpus can be updated. A tool endpoint can alter its schema or availability. A safety policy can change what is refused. The model may remain fixed while the system outcome changes materially.</p>
 <p>Start a drift investigation with a baseline window and a defined comparison window. Compare request characteristics, routing, model and prompt versions, retrieval and tool versions, latency components, output or outcome samples, and failure categories. Slice by task, language, user role, context length, and consequence where those dimensions are relevant. An aggregate metric can remain stable while one important workflow deteriorates.</p>
 <p>When a change is observed, state competing explanations before selecting a remedy. A rise in hallucination reports may reflect a new knowledge domain, weaker retrieval, changed user expectations, or a reporting-interface change. A rise in latency may reflect traffic, cache pressure, model version, or an external service. The corrective action should follow the diagnosis: change a corpus, adjust routing, modify a prompt, add capacity, disable a tool, or roll back a release. Monitoring cannot decide this without a traceable configuration record.</p>
-<div id="98c596fb" class="cell" data-execution_count="9">
+<div id="6dfd0d10" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>drift_compare<span class="op">=</span>{<span class="st">"baseline"</span>:{<span class="st">"long_context_share"</span>:<span class="fl">.14</span>,<span class="st">"p95_ms"</span>:<span class="dv">820</span>,<span class="st">"grounding_score"</span>:<span class="fl">.76</span>},</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>drift_compare<span class="op">=</span>{<span class="st">"baseline"</span>:{<span class="st">"long_context_share"</span>:<span class="fl">.14</span>,<span class="st">"p95_ms"</span>:<span class="dv">820</span>,<span class="st">"grounding_score"</span>:<span class="fl">.76</span>},</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">"current"</span>:{<span class="st">"long_context_share"</span>:<span class="fl">.31</span>,<span class="st">"p95_ms"</span>:<span class="dv">1260</span>,<span class="st">"grounding_score"</span>:<span class="fl">.68</span>},</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">"first_checks"</span>:[<span class="st">"request length"</span>,<span class="st">"retrieval index version"</span>,<span class="st">"cache pressure"</span>,<span class="st">"prompt version"</span>]}</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(drift_compare)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(drift_compare)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'baseline': {'long_context_share': 0.14, 'p95_ms': 820, 'grounding_score': 0.76}, 'current': {'long_context_share': 0.31, 'p95_ms': 1260, 'grounding_score': 0.68}, 'first_checks': ['request length', 'retrieval index version', 'cache pressure', 'prompt version']}</code></pre>
@@ -794,13 +759,13 @@ Figure&nbsp;49.4: A staged release sends a measured share of eligible traffic to
 <h3 class="anchored" data-anchor-id="incidents-require-containment-and-learning">Incidents require containment and learning</h3>
 <p>An incident can involve availability, data exposure, harmful output, unauthorised tool action, severe quality regression, or a combination. The immediate priority is containment: stop traffic, disable a tool, revoke a credential, isolate a corpus, or route requests to a safe fallback. The response should preserve authorised evidence, identify affected users or assets, and communicate status according to the consequence and policy.</p>
 <p>Investigation then reconstructs the path. Which request or input class triggered the failure? Which model, prompt, policy, retrieval index, cache state, and tool version were active? Did a safeguard fail, or was the pathway outside its declared coverage? Corrective work should add a regression test that reproduces the failure under safe conditions. Closing an incident because a visible symptom disappeared does not demonstrate that the underlying pathway is controlled.</p>
-<div id="ad5ce513" class="cell" data-execution_count="10">
+<div id="e475b52f" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>incident<span class="op">=</span>{<span class="st">"signal"</span>:<span class="st">"unexpected tool calls"</span>,<span class="st">"containment"</span>:<span class="st">"disable write scope"</span>,<span class="st">"owner"</span>:<span class="st">"on-call lead"</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>incident<span class="op">=</span>{<span class="st">"signal"</span>:<span class="st">"unexpected tool calls"</span>,<span class="st">"containment"</span>:<span class="st">"disable write scope"</span>,<span class="st">"owner"</span>:<span class="st">"on-call lead"</span>,</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"evidence"</span>:<span class="st">"authorisation and request traces"</span>,<span class="st">"correction"</span>:<span class="st">"validate structured arguments"</span>,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"regression"</span>:<span class="st">"hostile retrieved-content test"</span>}</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(incident)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(incident)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'signal': 'unexpected tool calls', 'containment': 'disable write scope', 'owner': 'on-call lead', 'evidence': 'authorisation and request traces', 'correction': 'validate structured arguments', 'regression': 'hostile retrieved-content test'}</code></pre>
@@ -814,7 +779,7 @@ Figure&nbsp;49.4: A staged release sends a measured share of eligible traffic to
 </section>
 <section id="the-operational-record-connects-the-chapters-mechanisms" class="level3">
 <h3 class="anchored" data-anchor-id="the-operational-record-connects-the-chapters-mechanisms">The operational record connects the chapter’s mechanisms</h3>
-<p>For each production version, retain a concise record of the model and tokenizer, prompt and policy configuration, routing and batching rules, cache policy, hardware and region, retrieval and tool versions, eligible traffic, SLOs, monitoring fields, incident contacts, rollback procedure, data-retention policy, and evaluation evidence. This extends the reporting discipline proposed for model documentation <span class="citation" data-cites="mitchell2019">(<a href="#ref-mitchell2019" role="doc-biblioref">Mitchell et al. 2019</a>)</span> to the configuration that actually serves users. It is the minimum information required to interpret a latency number, a quality metric, or an incident report.</p>
+<p>For each production version, retain a concise record of the model and tokenizer, prompt and policy configuration, routing and batching rules, cache policy, hardware and region, retrieval and tool versions, eligible traffic, SLOs, monitoring fields, incident contacts, rollback procedure, data-retention policy, and evaluation evidence. This extends the reporting discipline proposed for model documentation <span class="citation" data-cites="mitchell2019">(<a href="#ref-mitchell2019" role="doc-biblioref"><span class="nocase">Mitchell et al.</span> 2019</a>)</span> to the configuration that actually serves users. It is the minimum information required to interpret a latency number, a quality metric, or an incident report.</p>
 <p>The record also establishes the boundary for Chapter 49. Safe and responsible use depends on service permissions, data handling, monitoring, and recovery as well as model behaviour. A model can be well evaluated offline and still be deployed through an unsafe operational configuration.</p>
 </section>
 <section id="test-the-service-before-and-after-deployment" class="level3">
@@ -832,15 +797,15 @@ Figure&nbsp;49.4: A staged release sends a measured share of eligible traffic to
 <div id="cell-fig-monitoring-layers" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span>ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(l,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"infrastructure"</span>,<span class="st">"#24527a"</span>),(<span class="st">"requests"</span>,<span class="st">"#7655a6"</span>),(<span class="st">"outputs"</span>,<span class="st">"#3a9188"</span>),(<span class="st">"outcomes"</span>,<span class="st">"#d97745"</span>),(<span class="st">"governance"</span>,<span class="st">"#24527a"</span>)]):ax.add_patch(Rectangle((<span class="dv">1</span>,<span class="fl">2.9</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span>),<span class="dv">5</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span>ax.text(<span class="fl">3.5</span>,<span class="fl">3.11</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span>,l,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.6</span>)<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span>ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.6</span>)<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-monitoring-layers" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Five stacked bands label infrastructure, requests, outputs, outcomes, and governance records.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-monitoring-layers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="48-serving-deployment-monitoring_files/figure-html/fig-monitoring-layers-output-1.png" class="img-fluid figure-img" alt="Five stacked bands label infrastructure, requests, outputs, outcomes, and governance records.">
+<img src="48-serving-deployment-monitoring_files/figure-html/fig-monitoring-layers-output-1.png" alt="Five stacked bands label infrastructure, requests, outputs, outcomes, and governance records." width="540" height="300" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-monitoring-layers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;49.5: Monitoring separates infrastructure, request, model-output, task-outcome, and governance signals because one layer cannot diagnose all failures.
@@ -852,13 +817,13 @@ Figure&nbsp;49.5: Monitoring separates infrastructure, request, model-output, ta
 <div id="cell-fig-drift-slices" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.81</span>,<span class="fl">.80</span>,<span class="fl">.81</span>,<span class="fl">.80</span>],label<span class="op">=</span><span class="st">"reference"</span>)<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.80</span>,<span class="fl">.77</span>,<span class="fl">.69</span>,<span class="fl">.63</span>],label<span class="op">=</span><span class="st">"shifted slice"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_ylabel(<span class="st">"task score"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.81</span>,<span class="fl">.80</span>,<span class="fl">.81</span>,<span class="fl">.80</span>],label<span class="op">=</span><span class="st">"reference"</span>)<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.80</span>,<span class="fl">.77</span>,<span class="fl">.69</span>,<span class="fl">.63</span>],label<span class="op">=</span><span class="st">"shifted slice"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_ylabel(<span class="st">"task score"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-drift-slices" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A line chart shows stable reference performance and declining performance on a shifted traffic slice.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-drift-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="48-serving-deployment-monitoring_files/figure-html/fig-drift-slices-output-1.png" class="img-fluid figure-img" alt="A line chart shows stable reference performance and declining performance on a shifted traffic slice.">
+<img src="48-serving-deployment-monitoring_files/figure-html/fig-drift-slices-output-1.png" alt="A line chart shows stable reference performance and declining performance on a shifted traffic slice." width="616" height="326" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-drift-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;49.6: Outcome monitoring should compare a stable reference slice with changed request populations rather than infer quality from aggregate traffic alone.
@@ -901,15 +866,15 @@ Figure&nbsp;49.6: Outcome monitoring should compare a stable reference slice wit
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-mitchell2019" class="csl-entry" role="listitem">
-Mitchell, Margaret et al. 2019. <span>“Model Cards for Model Reporting.”</span> In <em>Proceedings of the Conference on Fairness, Accountability, and Transparency</em>, 220–29. <a href="https://doi.org/10.1145/3287560.3287596">https://doi.org/10.1145/3287560.3287596</a>.
+<span class="nocase">Mitchell, Margaret et al.</span> 2019. <span>“Model Cards for Model Reporting.”</span> <em>Proceedings of the Conference on Fairness, Accountability, and Transparency</em>, 220–29. <a href="https://doi.org/10.1145/3287560.3287596">https://doi.org/10.1145/3287560.3287596</a>.
 </div>
 <div id="ref-ovadia2019" class="csl-entry" role="listitem">
-Ovadia, Yaniv, Emily Fertig, Jie Ren, Zachary Nado, D. Sculley, Sebastian Nowozin, Joshua V. Dillon, Balaji Lakshminarayanan, and Jasper Snoek. 2019. <span>“Can You Trust Your Model’s Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 32. <a href="https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html">https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html</a>.
+Ovadia, Yaniv, Emily Fertig, Jie Ren, et al. 2019. <span>“Can You Trust Your Model’s Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift.”</span> <em>Advances in Neural Information Processing Systems</em> 32. <a href="https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html">https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html</a>.
 </div>
 <div id="ref-sculley2015" class="csl-entry" role="listitem">
-Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Systems.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 28.
+<span class="nocase">Sculley, D. et al.</span> 2015. <span>“Hidden Technical Debt in Machine Learning Systems.”</span> <em>Advances in Neural Information Processing Systems</em> 28.
 </div>
 </div>
 </section>
@@ -966,13 +931,14 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1006,16 +972,16 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1377,7 +1343,7 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb19" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Serving, Deployment, and Monitoring"</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Latency, throughput, batching, caching, observability, and drift"</span></span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1636,7 +1602,7 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
 <span id="cb19-281"><a href="#cb19-281" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
 <span id="cb19-282"><a href="#cb19-282" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-283"><a href="#cb19-283" aria-hidden="true" tabindex="-1"></a>Operational controls can expose failures and limit their spread, but they do not define which threats a system must withstand or who is accountable when controls fail. <span class="co">[</span><span class="ot">Chapter 49</span><span class="co">](49-safety-security-responsible-use.qmd)</span> addresses those safety, security, data-handling, and governance decisions.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

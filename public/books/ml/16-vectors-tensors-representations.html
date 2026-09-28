@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Vectors, Tensors, and Representations – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -626,7 +591,7 @@ window.Quarto = {
 <div id="cell-fig-tensor-ranks" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -646,13 +611,13 @@ window.Quarto = {
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>): axes[<span class="dv">3</span>].add_patch(Rectangle((<span class="fl">.1</span><span class="op">+</span>j<span class="op">*</span><span class="fl">.26</span><span class="op">+</span>offset,<span class="fl">.17</span><span class="op">+</span>(<span class="dv">2</span><span class="op">-</span>i)<span class="op">*</span><span class="fl">.26</span><span class="op">+</span>offset),<span class="fl">.24</span>,<span class="fl">.24</span>,facecolor<span class="op">=</span>purple,alpha<span class="op">=</span>alpha,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.set_xlim(<span class="dv">0</span>,<span class="fl">1.55</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">1.45</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-tensor-ranks" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four panels show a scalar as one cell, a vector as one row, a matrix as a grid, and a rank-three tensor as two stacked grids.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-tensor-ranks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="16-vectors-tensors-representations_files/figure-html/fig-tensor-ranks-output-1.png" class="img-fluid figure-img" alt="Four panels show a scalar as one cell, a vector as one row, a matrix as a grid, and a rank-three tensor as two stacked grids.">
+<img src="16-vectors-tensors-representations_files/figure-html/fig-tensor-ranks-output-1.png" alt="Four panels show a scalar as one cell, a vector as one row, a matrix as a grid, and a rank-three tensor as two stacked grids." width="1142" height="310" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tensor-ranks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.1: Scalar, vector, matrix, and rank-three tensor describe different numbers of axes; axis meaning requires additional labels.
@@ -686,7 +651,7 @@ Figure&nbsp;17.1: Scalar, vector, matrix, and rank-three tensor describe differe
 <div id="cell-fig-same-values-different-semantics" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>values<span class="op">=</span>np.array([[<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.4</span>,<span class="fl">.7</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>,<span class="op">-</span><span class="fl">1.1</span>],[<span class="fl">1.4</span>,<span class="fl">.2</span>,<span class="fl">.3</span>],[<span class="op">-</span><span class="fl">.7</span>,<span class="fl">.5</span>,<span class="fl">1.0</span>]])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>values<span class="op">=</span>np.array([[<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.4</span>,<span class="fl">.7</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>,<span class="op">-</span><span class="fl">1.1</span>],[<span class="fl">1.4</span>,<span class="fl">.2</span>,<span class="fl">.3</span>],[<span class="op">-</span><span class="fl">.7</span>,<span class="fl">.5</span>,<span class="fl">1.0</span>]])</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">4.3</span>))</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,row_label,col_labels,title <span class="kw">in</span> [</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    (axes[<span class="dv">0</span>],<span class="st">"Observation"</span>,[<span class="st">"age"</span>,<span class="st">"income"</span>,<span class="st">"score"</span>],<span class="st">"Tabular interpretation"</span>),</span>
@@ -697,13 +662,13 @@ Figure&nbsp;17.1: Scalar, vector, matrix, and rank-three tensor describe differe
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>): ax.text(j,i,<span class="ss">f"</span><span class="sc">{</span>values[i,j]<span class="sc">:.1f}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>fig.colorbar(im,ax<span class="op">=</span>axes.ravel().tolist(),label<span class="op">=</span><span class="st">"stored value"</span>,shrink<span class="op">=</span><span class="fl">.82</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-same-values-different-semantics" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two heatmaps contain identical values. The first labels rows as observations and columns as features; the second labels rows as time positions and columns as channels.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-same-values-different-semantics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="16-vectors-tensors-representations_files/figure-html/fig-same-values-different-semantics-output-1.png" class="img-fluid figure-img" alt="Two heatmaps contain identical values. The first labels rows as observations and columns as features; the second labels rows as time positions and columns as channels.">
+<img src="16-vectors-tensors-representations_files/figure-html/fig-same-values-different-semantics-output-1.png" alt="Two heatmaps contain identical values. The first labels rows as observations and columns as features; the second labels rows as time positions and columns as channels." width="745" height="412" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-same-values-different-semantics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.2: Identical values support different interpretations when rows and columns are assigned different meanings.
@@ -720,7 +685,7 @@ Figure&nbsp;17.2: Identical values support different interpretations when rows a
 <div id="cell-fig-representation-pipeline" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>nodes<span class="op">=</span>[(<span class="fl">.5</span>,<span class="st">"Source</span><span class="ch">\n</span><span class="st">object"</span>,orange),(<span class="fl">2.7</span>,<span class="st">"Input</span><span class="ch">\n</span><span class="st">$ x</span><span class="er">\</span><span class="st">in R^4 $"</span>,blue),(<span class="fl">5.0</span>,<span class="st">"Hidden</span><span class="ch">\n</span><span class="st">$ h^{(1)}</span><span class="er">\</span><span class="st">in R^6 $"</span>,teal),(<span class="fl">7.4</span>,<span class="st">"Hidden</span><span class="ch">\n</span><span class="st">$ h^{(2)}</span><span class="er">\</span><span class="st">in R^3 $"</span>,teal),(<span class="fl">9.7</span>,<span class="st">"Output</span><span class="ch">\n</span><span class="st">score"</span>,purple)]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,colour <span class="kw">in</span> nodes:</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x<span class="op">-</span><span class="fl">.65</span>,<span class="fl">.8</span>),<span class="fl">1.3</span>,<span class="fl">1.0</span>,facecolor<span class="op">=</span>colour,alpha<span class="op">=</span><span class="fl">.88</span>,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
@@ -730,13 +695,13 @@ Figure&nbsp;17.2: Identical values support different interpretations when rows a
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch((start,<span class="fl">1.3</span>),(end,<span class="fl">1.3</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">14</span>,color<span class="op">=</span>grey))</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"encode"</span>,<span class="st">"layer 1"</span>,<span class="st">"layer 2"</span>,<span class="st">"readout"</span>]</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,label <span class="kw">in</span> <span class="bu">enumerate</span>(labels): ax.text((nodes[i][<span class="dv">0</span>]<span class="op">+</span>nodes[i<span class="op">+</span><span class="dv">1</span>][<span class="dv">0</span>])<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.58</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>,color<span class="op">=</span>grey)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">.3</span>,<span class="fl">10.6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.45</span>,<span class="fl">2.15</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">.3</span>,<span class="fl">10.6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.45</span>,<span class="fl">2.15</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-representation-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A left-to-right diagram shows a source object, an input vector, two hidden representations, and an output score connected by encoding and learned transformations.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-representation-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="16-vectors-tensors-representations_files/figure-html/fig-representation-pipeline-output-1.png" class="img-fluid figure-img" alt="A left-to-right diagram shows a source object, an input vector, two hidden representations, and an output score connected by encoding and learned transformations.">
+<img src="16-vectors-tensors-representations_files/figure-html/fig-representation-pipeline-output-1.png" alt="A left-to-right diagram shows a source object, an input vector, two hidden representations, and an output score connected by encoding and learned transformations." width="838" height="256" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-representation-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.3: A model receives an encoded input and produces successive numerical representations whose meanings follow from the transformations that created them.
@@ -758,16 +723,16 @@ Figure&nbsp;17.3: A model receives an encoded input and produces successive nume
 <section id="indexing-selects-positions-along-named-axes" class="level3">
 <h3 class="anchored" data-anchor-id="indexing-selects-positions-along-named-axes">Indexing selects positions along named axes</h3>
 <p>Let <code>H</code> have shape <code>(B, S, D)</code>. Then <code>H[1, 2, 0]</code> selects one number: feature 0 at position 2 of sequence 1. <code>H[1, 2, :]</code> selects the complete feature vector at that position. <code>H[1, :, :]</code> selects one sequence, and <code>H[:, 2, :]</code> selects the third position from every sequence.</p>
-<div id="2d590930" class="cell" data-execution_count="4">
+<div id="5fda366e" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>B,S,D<span class="op">=</span><span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>B,S,D<span class="op">=</span><span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>H<span class="op">=</span>np.arange(B<span class="op">*</span>S<span class="op">*</span>D).reshape(B,S,D)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"H shape:             "</span>,H.shape)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"one scalar:          "</span>,H[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">0</span>])</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"one position vector: "</span>,H[<span class="dv">1</span>,<span class="dv">2</span>,:],H[<span class="dv">1</span>,<span class="dv">2</span>,:].shape)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"one sequence:        "</span>,H[<span class="dv">1</span>,:,:].shape)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"one position, batch: "</span>,H[:,<span class="dv">2</span>,:].shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"one position, batch: "</span>,H[:,<span class="dv">2</span>,:].shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>H shape:              (2, 4, 3)
@@ -786,7 +751,7 @@ one position, batch:  (2, 3)</code></pre>
 <div id="cell-fig-axis-operations" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>display<span class="op">=</span>H.astype(<span class="bu">float</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>display<span class="op">=</span>H.astype(<span class="bu">float</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">4</span>,figsize<span class="op">=</span>(<span class="dv">13</span>,<span class="fl">4.3</span>))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].imshow(np.concatenate([display[<span class="dv">0</span>],display[<span class="dv">1</span>]],axis<span class="op">=</span><span class="dv">1</span>),cmap<span class="op">=</span><span class="st">"Blues"</span>,aspect<span class="op">=</span><span class="st">"auto"</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].axvline(<span class="fl">2.5</span>,color<span class="op">=</span><span class="st">"white"</span>,linewidth<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_title(<span class="st">"Original: B x S x D"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_xlabel(<span class="st">"features within each batch item"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_ylabel(<span class="st">"sequence position"</span>)</span>
@@ -794,13 +759,13 @@ one position, batch:  (2, 3)</code></pre>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>permuted<span class="op">=</span>np.transpose(display,(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">2</span>))</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].imshow(permuted.reshape(S,B<span class="op">*</span>D),cmap<span class="op">=</span><span class="st">"Blues"</span>,aspect<span class="op">=</span><span class="st">"auto"</span>)<span class="op">;</span> axes[<span class="dv">2</span>].axvline(<span class="fl">2.5</span>,color<span class="op">=</span><span class="st">"white"</span>,linewidth<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span> axes[<span class="dv">2</span>].set_title(<span class="st">"Permute: S x B x D"</span>)<span class="op">;</span> axes[<span class="dv">2</span>].set_xlabel(<span class="st">"features within each batch item"</span>)<span class="op">;</span> axes[<span class="dv">2</span>].set_ylabel(<span class="st">"position"</span>)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">3</span>].imshow(display.reshape(B<span class="op">*</span>S,D),cmap<span class="op">=</span><span class="st">"Blues"</span>,aspect<span class="op">=</span><span class="st">"auto"</span>)<span class="op">;</span> axes[<span class="dv">3</span>].axhline(<span class="fl">3.5</span>,color<span class="op">=</span><span class="st">"white"</span>,linewidth<span class="op">=</span><span class="dv">3</span>)<span class="op">;</span> axes[<span class="dv">3</span>].set_title(<span class="st">"Reshape: (B S) x D"</span>)<span class="op">;</span> axes[<span class="dv">3</span>].set_xlabel(<span class="st">"feature"</span>)<span class="op">;</span> axes[<span class="dv">3</span>].set_ylabel(<span class="st">"combined position"</span>)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-axis-operations" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four labelled heatmaps show a batch by sequence by feature tensor as separate sequence panels, one selected sequence, a sequence-first permutation, and batch and sequence flattened into one axis.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-axis-operations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="16-vectors-tensors-representations_files/figure-html/fig-axis-operations-output-1.png" class="img-fluid figure-img" alt="Four labelled heatmaps show a batch by sequence by feature tensor as separate sequence panels, one selected sequence, a sequence-first permutation, and batch and sequence flattened into one axis.">
+<img src="16-vectors-tensors-representations_files/figure-html/fig-axis-operations-output-1.png" alt="Four labelled heatmaps show a batch by sequence by feature tensor as separate sequence panels, one selected sequence, a sequence-first permutation, and batch and sequence flattened into one axis." width="1249" height="403" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-axis-operations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.4: Indexing, permutation, and reshaping preserve different parts of a tensor’s axis structure.
@@ -814,14 +779,14 @@ Figure&nbsp;17.4: Indexing, permutation, and reshaping preserve different parts 
 <section id="broadcasting-aligns-compatible-axes" class="level3">
 <h3 class="anchored" data-anchor-id="broadcasting-aligns-compatible-axes">Broadcasting aligns compatible axes</h3>
 <p>Broadcasting applies an operation between arrays of different shapes by treating selected length-one or absent axes as repeated. Adding a bias vector of shape <code>(D,)</code> to <code>H</code> adds the same feature-specific bias at every batch item and sequence position. Adding a position offset of shape <code>(S, 1)</code> changes every feature at a position by the same amount.</p>
-<div id="92cd85b2" class="cell" data-execution_count="6">
+<div id="a5b203c4" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>feature_bias<span class="op">=</span>np.array([<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>])             <span class="co"># (D,)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>feature_bias<span class="op">=</span>np.array([<span class="dv">100</span>,<span class="dv">200</span>,<span class="dv">300</span>])             <span class="co"># (D,)</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>position_offset<span class="op">=</span>np.arange(S).reshape(S,<span class="dv">1</span>)<span class="op">*</span><span class="dv">10</span>     <span class="co"># (S,1)</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"feature-biased shape:"</span>, (H<span class="op">+</span>feature_bias).shape)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"position offsets:</span><span class="ch">\n</span><span class="st">"</span>,position_offset)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"first sequence after both operations:</span><span class="ch">\n</span><span class="st">"</span>,H[<span class="dv">0</span>]<span class="op">+</span>feature_bias<span class="op">+</span>position_offset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"first sequence after both operations:</span><span class="ch">\n</span><span class="st">"</span>,H[<span class="dv">0</span>]<span class="op">+</span>feature_bias<span class="op">+</span>position_offset)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>feature-biased shape: (2, 4, 3)
@@ -850,7 +815,7 @@ first sequence after both operations:
 <div id="cell-fig-padding-mask" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>np.array([<span class="dv">6</span>,<span class="dv">4</span>,<span class="dv">2</span>])<span class="op">;</span> max_length<span class="op">=</span><span class="dv">6</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>np.array([<span class="dv">6</span>,<span class="dv">4</span>,<span class="dv">2</span>])<span class="op">;</span> max_length<span class="op">=</span><span class="dv">6</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>mask<span class="op">=</span>np.arange(max_length)[<span class="va">None</span>,:] <span class="op">&lt;</span> lengths[:,<span class="va">None</span>]</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.2</span>))</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
@@ -861,13 +826,13 @@ first sequence after both operations:
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">6.25</span>,b<span class="op">*</span><span class="fl">1.1</span><span class="op">+</span><span class="fl">.31</span>,<span class="st">"mask: "</span><span class="op">+</span><span class="st">" "</span>.join(mask[b].astype(<span class="bu">int</span>).astype(<span class="bu">str</span>)),va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>ax.set_yticks([<span class="fl">.31</span>,<span class="fl">1.41</span>,<span class="fl">2.51</span>],[<span class="st">"sequence 1"</span>,<span class="st">"sequence 2"</span>,<span class="st">"sequence 3"</span>])<span class="op">;</span> ax.set_xticks(np.arange(<span class="dv">6</span>)<span class="op">+</span><span class="fl">.45</span>,np.arange(<span class="dv">1</span>,<span class="dv">7</span>))<span class="op">;</span> ax.set_xlabel(<span class="st">"Position"</span>)</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">9.2</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">3.35</span>,<span class="op">-</span><span class="fl">.25</span>)<span class="op">;</span> ax.set_title(<span class="st">"Sequence length is metadata that padding alone cannot recover"</span>)<span class="op">;</span> ax.grid(<span class="va">False</span>)</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-padding-mask" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three horizontal sequence rows have different valid lengths. Coloured cells show valid positions and grey cells show padding, with a binary mask beneath each row.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-padding-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="16-vectors-tensors-representations_files/figure-html/fig-padding-mask-output-1.png" class="img-fluid figure-img" alt="Three horizontal sequence rows have different valid lengths. Coloured cells show valid positions and grey cells show padding, with a binary mask beneath each row.">
+<img src="16-vectors-tensors-representations_files/figure-html/fig-padding-mask-output-1.png" alt="Three horizontal sequence rows have different valid lengths. Coloured cells show valid positions and grey cells show padding, with a binary mask beneath each row." width="858" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-padding-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.5: Padding creates a rectangular tensor, while a mask preserves the boundary between valid positions and storage added for batching.
@@ -898,10 +863,10 @@ W\in\mathbb{R}^{D_{\mathrm{out}}\times D_{\mathrm{in}}},
 Z_{bsd}=\sum_{k=1}^{D_{\mathrm{in}}}H_{bsk}W_{dk}+b_d.
 \]</span></p>
 <p>The indices <span class="math inline">\(b\)</span> and <span class="math inline">\(s\)</span> remain in the output. The input-feature index <span class="math inline">\(k\)</span> is summed out, and the output-feature index <span class="math inline">\(d\)</span> is introduced by the rows of <span class="math inline">\(W\)</span>. The equation therefore states both the numerical calculation and the axis transformation.</p>
-<div id="812bc878" class="cell" data-execution_count="8">
+<div id="099179b8" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rng<span class="op">=</span>np.random.default_rng(<span class="dv">16</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>rng<span class="op">=</span>np.random.default_rng(<span class="dv">16</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>B,S,D_in,D_out<span class="op">=</span><span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">5</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>H_num<span class="op">=</span>rng.normal(size<span class="op">=</span>(B,S,D_in))</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>W<span class="op">=</span>rng.normal(size<span class="op">=</span>(D_out,D_in))<span class="op">;</span> bias<span class="op">=</span>rng.normal(size<span class="op">=</span>D_out)</span>
@@ -915,7 +880,7 @@ Z_{bsd}=\sum_{k=1}^{D_{\mathrm{in}}}H_{bsk}W_{dk}+b_d.
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                H_num[b_index,s_index,k]<span class="op">*</span>W[d_index,k] <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(D_in)</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            )<span class="op">+</span>bias[d_index]</span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"output shape:"</span>,Z_matmul.shape)</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"three implementations agree:"</span>,np.allclose(Z_matmul,Z_einsum) <span class="kw">and</span> np.allclose(Z_matmul,Z_loop))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"three implementations agree:"</span>,np.allclose(Z_matmul,Z_einsum) <span class="kw">and</span> np.allclose(Z_matmul,Z_loop))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>output shape: (2, 4, 5)
@@ -938,7 +903,7 @@ w'=A^{-\top}w,
 <div id="cell-fig-coordinate-change" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>points<span class="op">=</span>np.array([[<span class="op">-</span><span class="dv">2</span>,<span class="op">-</span><span class="dv">1</span>],[<span class="op">-</span><span class="fl">1.2</span>,<span class="fl">.5</span>],[<span class="op">-</span><span class="fl">.4</span>,<span class="op">-</span><span class="fl">.8</span>],[<span class="fl">.5</span>,<span class="fl">.2</span>],[<span class="fl">1.1</span>,<span class="fl">1.4</span>],[<span class="dv">2</span>,<span class="fl">.7</span>]])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>points<span class="op">=</span>np.array([[<span class="op">-</span><span class="dv">2</span>,<span class="op">-</span><span class="dv">1</span>],[<span class="op">-</span><span class="fl">1.2</span>,<span class="fl">.5</span>],[<span class="op">-</span><span class="fl">.4</span>,<span class="op">-</span><span class="fl">.8</span>],[<span class="fl">.5</span>,<span class="fl">.2</span>],[<span class="fl">1.1</span>,<span class="fl">1.4</span>],[<span class="dv">2</span>,<span class="fl">.7</span>]])</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>A<span class="op">=</span>np.array([[<span class="fl">1.3</span>,<span class="fl">.8</span>],[<span class="op">-</span><span class="fl">.2</span>,<span class="fl">.7</span>]])</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>changed<span class="op">=</span>points<span class="op">@</span>A.T</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">4.5</span>))</span>
@@ -947,13 +912,13 @@ w'=A^{-\top}w,
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,(x,y) <span class="kw">in</span> <span class="bu">enumerate</span>(data): ax.text(x<span class="op">+</span><span class="fl">.08</span>,y<span class="op">+</span><span class="fl">.08</span>,<span class="bu">str</span>(i<span class="op">+</span><span class="dv">1</span>),fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> ax.axvline(<span class="dv">0</span>,color<span class="op">=</span>grey,linewidth<span class="op">=</span><span class="fl">.8</span>)</span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"coordinate 1"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"coordinate 2"</span>)<span class="op">;</span> ax.set_title(title)<span class="op">;</span> ax.set_aspect(<span class="st">"equal"</span>,adjustable<span class="op">=</span><span class="st">"datalim"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-coordinate-change" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two scatter plots show the same labelled observations in original coordinates and after an invertible shear and scaling. Point labels remain paired although their coordinates change.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-coordinate-change-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="16-vectors-tensors-representations_files/figure-html/fig-coordinate-change-output-1.png" class="img-fluid figure-img" alt="Two scatter plots show the same labelled observations in original coordinates and after an invertible shear and scaling. Point labels remain paired although their coordinates change.">
+<img src="16-vectors-tensors-representations_files/figure-html/fig-coordinate-change-output-1.png" alt="Two scatter plots show the same labelled observations in original coordinates and after an invertible shear and scaling. Point labels remain paired although their coordinates change." width="951" height="422" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coordinate-change-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.6: An invertible change of basis alters coordinates, distances along plotted axes, and apparent directions while preserving the represented points and a compatible linear score.
@@ -971,17 +936,17 @@ Figure&nbsp;17.6: An invertible change of basis alters coordinates, distances al
 </section>
 <section id="pytorch-separates-logical-shape-from-physical-layout" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-separates-logical-shape-from-physical-layout">PyTorch separates logical shape from physical layout</h3>
-<div id="1a461d24" class="cell" data-execution_count="10">
+<div id="a8d2cd44" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>tensor<span class="op">=</span>torch.arange(<span class="dv">24</span>).reshape(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">3</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>sequence_first<span class="op">=</span>tensor.permute(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">2</span>)</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"original shape and stride:      "</span>,<span class="bu">tuple</span>(tensor.shape),tensor.stride())</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"permuted shape and stride:      "</span>,<span class="bu">tuple</span>(sequence_first.shape),sequence_first.stride())</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"permuted tensor is contiguous:  "</span>,sequence_first.is_contiguous())</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>restored<span class="op">=</span>sequence_first.contiguous().view(<span class="dv">4</span>,<span class="dv">6</span>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"materialised and reshaped:      "</span>,<span class="bu">tuple</span>(restored.shape),restored.stride())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"materialised and reshaped:      "</span>,<span class="bu">tuple</span>(restored.shape),restored.stride())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>original shape and stride:       (2, 4, 3) (12, 3, 1)
@@ -998,7 +963,7 @@ materialised and reshaped:       (4, 6) (6, 1)</code></pre>
 <h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
 <section id="representation-quality-is-conditional-on-a-task" class="level3">
 <h3 class="anchored" data-anchor-id="representation-quality-is-conditional-on-a-task">Representation quality is conditional on a task</h3>
-<p>Representation learning aims to make relevant structure easier for later computations to use. <span class="citation" data-cites="bengio2013representation">Bengio, Courville, and Vincent (<a href="#ref-bengio2013representation" role="doc-biblioref">2013</a>)</span> review how representations can expose or entangle factors of variation and why learned features became central to deep learning. The formulation does not provide one task-independent score of representation quality.</p>
+<p>Representation learning aims to make relevant structure easier for later computations to use. <span class="citation" data-cites="bengio2013representation">Bengio et al. (<a href="#ref-bengio2013representation" role="doc-biblioref">2013</a>)</span> review how representations can expose or entangle factors of variation and why learned features became central to deep learning. The formulation does not provide one task-independent score of representation quality.</p>
 <p>A representation can support one target and suppress another. Removing speaker identity may help a speech recogniser generalise across speakers but prevent a speaker-identification task. Compressing an image to one class score may preserve the current classification decision while discarding location, texture, and alternative labels. Evaluation should therefore name the downstream task, data distribution, readout capacity, and amount of labelled data.</p>
 <p>Linear probing is one common test: freeze a representation and fit a linear predictor for a target. Strong probe performance shows that the target is linearly accessible under that protocol. It does not show that one coordinate corresponds to the concept, that the model uses the information causally, or that the representation will transfer under distribution shift.</p>
 </section>
@@ -1016,20 +981,20 @@ f(gx)=\rho(g)f(x).
 <div id="cell-fig-invariance-equivariance" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>signal<span class="op">=</span>np.array([<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])<span class="op">;</span> shifted<span class="op">=</span>np.roll(signal,<span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>signal<span class="op">=</span>np.array([<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])<span class="op">;</span> shifted<span class="op">=</span>np.roll(signal,<span class="dv">2</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>),gridspec_kw<span class="op">=</span>{<span class="st">"width_ratios"</span>:[<span class="fl">1.3</span>,<span class="fl">1.3</span>,<span class="fl">.9</span>]})</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row,(data,label) <span class="kw">in</span> <span class="bu">enumerate</span>([(signal,<span class="st">"original x"</span>),(shifted,<span class="st">"transformed gx"</span>)]):</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    axes[row,<span class="dv">0</span>].bar(<span class="bu">range</span>(<span class="dv">5</span>),data,color<span class="op">=</span>orange)<span class="op">;</span> axes[row,<span class="dv">0</span>].set_ylim(<span class="dv">0</span>,<span class="fl">1.2</span>)<span class="op">;</span> axes[row,<span class="dv">0</span>].set_title(label)</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    axes[row,<span class="dv">1</span>].bar(<span class="bu">range</span>(<span class="dv">5</span>),data,color<span class="op">=</span>teal)<span class="op">;</span> axes[row,<span class="dv">1</span>].set_ylim(<span class="dv">0</span>,<span class="fl">1.2</span>)<span class="op">;</span> axes[row,<span class="dv">1</span>].set_title(<span class="st">"equivariant f(x)"</span>)</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    axes[row,<span class="dv">2</span>].bar([<span class="dv">0</span>],[data.<span class="bu">max</span>()],color<span class="op">=</span>purple,width<span class="op">=</span><span class="fl">.5</span>)<span class="op">;</span> axes[row,<span class="dv">2</span>].set_ylim(<span class="dv">0</span>,<span class="fl">1.2</span>)<span class="op">;</span> axes[row,<span class="dv">2</span>].set_xticks([<span class="dv">0</span>],[<span class="st">"max"</span>])<span class="op">;</span> axes[row,<span class="dv">2</span>].set_title(<span class="st">"invariant summary"</span>)</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes.ravel(): ax.grid(axis<span class="op">=</span><span class="st">"x"</span>,visible<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-invariance-equivariance" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three columns compare an original three-cell signal with a shifted signal. An invariant summary stays at the same value, while an equivariant feature map shifts with the input.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-invariance-equivariance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="16-vectors-tensors-representations_files/figure-html/fig-invariance-equivariance-output-1.png" class="img-fluid figure-img" alt="Three columns compare an original three-cell signal with a shifted signal. An invariant summary stays at the same value, while an equivariant feature map shifts with the input.">
+<img src="16-vectors-tensors-representations_files/figure-html/fig-invariance-equivariance-output-1.png" alt="Three columns compare an original three-cell signal with a shifted signal. An invariant summary stays at the same value, while an equivariant feature map shifts with the input." width="951" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-invariance-equivariance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;17.7: Invariance keeps a representation unchanged, while equivariance transforms it in a predictable way when the input moves.
@@ -1127,23 +1092,23 @@ Figure&nbsp;17.7: Invariance keeps a representation unchanged, while equivarianc
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>The linear-algebra and representation-learning foundations are presented by <span class="citation" data-cites="goodfellow2016">Goodfellow, Bengio, and Courville (<a href="#ref-goodfellow2016" role="doc-biblioref">2016</a>)</span>. <span class="citation" data-cites="bengio2013representation">Bengio, Courville, and Vincent (<a href="#ref-bengio2013representation" role="doc-biblioref">2013</a>)</span> review representation learning and the problem of making explanatory factors accessible to later models. Transfer across layers and tasks is examined by <span class="citation" data-cites="yosinski2014transfer">Yosinski et al. (<a href="#ref-yosinski2014transfer" role="doc-biblioref">2014</a>)</span>. Equivariance encoded through structured transformations is developed by <span class="citation" data-cites="cohen2016equivariant">Cohen and Welling (<a href="#ref-cohen2016equivariant" role="doc-biblioref">2016</a>)</span>.</p>
+<p>The linear-algebra and representation-learning foundations are presented by <span class="citation" data-cites="goodfellow2016">Goodfellow et al. (<a href="#ref-goodfellow2016" role="doc-biblioref">2016</a>)</span>. <span class="citation" data-cites="bengio2013representation">Bengio et al. (<a href="#ref-bengio2013representation" role="doc-biblioref">2013</a>)</span> review representation learning and the problem of making explanatory factors accessible to later models. Transfer across layers and tasks is examined by <span class="citation" data-cites="yosinski2014transfer">Yosinski et al. (<a href="#ref-yosinski2014transfer" role="doc-biblioref">2014</a>)</span>. Equivariance encoded through structured transformations is developed by <span class="citation" data-cites="cohen2016equivariant">Cohen and Welling (<a href="#ref-cohen2016equivariant" role="doc-biblioref">2016</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-bengio2013representation" class="csl-entry" role="listitem">
 Bengio, Yoshua, Aaron Courville, and Pascal Vincent. 2013. <span>“Representation Learning: A Review and New Perspectives.”</span> <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em> 35 (8): 1798–828. <a href="https://doi.org/10.1109/TPAMI.2013.50">https://doi.org/10.1109/TPAMI.2013.50</a>.
 </div>
 <div id="ref-cohen2016equivariant" class="csl-entry" role="listitem">
-Cohen, Taco S., and Max Welling. 2016. <span>“Group Equivariant Convolutional Networks.”</span> In <em>Proceedings of the 33rd International Conference on Machine Learning</em>, 48:2990–99. Proceedings of Machine Learning Research. <a href="https://proceedings.mlr.press/v48/cohenc16.html">https://proceedings.mlr.press/v48/cohenc16.html</a>.
+Cohen, Taco S., and Max Welling. 2016. <span>“Group Equivariant Convolutional Networks.”</span> <em>Proceedings of the 33rd International Conference on Machine Learning</em>, Proceedings of machine learning research, vol. 48: 2990–99. <a href="https://proceedings.mlr.press/v48/cohenc16.html">https://proceedings.mlr.press/v48/cohenc16.html</a>.
 </div>
 <div id="ref-goodfellow2016" class="csl-entry" role="listitem">
 Goodfellow, Ian, Yoshua Bengio, and Aaron Courville. 2016. <em>Deep Learning</em>. MIT Press. <a href="https://www.deeplearningbook.org/">https://www.deeplearningbook.org/</a>.
 </div>
 <div id="ref-yosinski2014transfer" class="csl-entry" role="listitem">
-Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How Transferable Are Features in Deep Neural Networks?”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 27. <a href="https://papers.nips.cc/paper/5347-how-transferable-are-features-in-deep-neural-networks">https://papers.nips.cc/paper/5347-how-transferable-are-features-in-deep-neural-networks</a>.
+Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How Transferable Are Features in Deep Neural Networks?”</span> <em>Advances in Neural Information Processing Systems</em> 27. <a href="https://papers.nips.cc/paper/5347-how-transferable-are-features-in-deep-neural-networks">https://papers.nips.cc/paper/5347-how-transferable-are-features-in-deep-neural-networks</a>.
 </div>
 </div>
 </section>
@@ -1200,13 +1165,14 @@ Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How T
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1240,16 +1206,16 @@ Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How T
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1611,7 +1577,7 @@ Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How T
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb16" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Vectors, Tensors, and Representations"</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Giving numerical arrays a computational and semantic structure"</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -2048,7 +2014,7 @@ Yosinski, Jason, Jeff Clune, Yoshua Bengio, and Hod Lipson. 2014. <span>“How T
 <span id="cb16-457"><a href="#cb16-457" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb16-458"><a href="#cb16-458" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-459"><a href="#cb16-459" aria-hidden="true" tabindex="-1"></a>The linear-algebra and representation-learning foundations are presented by @goodfellow2016. @bengio2013representation review representation learning and the problem of making explanatory factors accessible to later models. Transfer across layers and tasks is examined by @yosinski2014transfer. Equivariance encoded through structured transformations is developed by @cohen2016equivariant.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Decoding and Generation – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,86 +130,75 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="book-navigation.css">
@@ -520,33 +514,31 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <li><a href="#the-problem" id="toc-the-problem" class="nav-link active" data-scroll-target="#the-problem">The problem</a>
   <ul class="collapse">
-  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
-  <li><a href="#running-distribution" id="toc-running-distribution" class="nav-link" data-scroll-target="#running-distribution">Running distribution</a></li>
+  <li><a href="#a-fixed-distribution-isolates-the-decision" id="toc-a-fixed-distribution-isolates-the-decision" class="nav-link" data-scroll-target="#a-fixed-distribution-isolates-the-decision">A fixed distribution isolates the decision</a></li>
   </ul></li>
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
   <li><a href="#the-model-supplies-options-decoding-makes-a-choice" id="toc-the-model-supplies-options-decoding-makes-a-choice" class="nav-link" data-scroll-target="#the-model-supplies-options-decoding-makes-a-choice">The model supplies options; decoding makes a choice</a></li>
   <li><a href="#stopping-is-also-a-decoding-decision" id="toc-stopping-is-also-a-decoding-decision" class="nav-link" data-scroll-target="#stopping-is-also-a-decoding-decision">Stopping is also a decoding decision</a></li>
   </ul></li>
-  <li><a href="#level-2---distribution-transformations" id="toc-level-2---distribution-transformations" class="nav-link" data-scroll-target="#level-2---distribution-transformations">Level 2 - Distribution transformations</a>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
   <ul class="collapse">
   <li><a href="#temperature-changes-relative-concentration" id="toc-temperature-changes-relative-concentration" class="nav-link" data-scroll-target="#temperature-changes-relative-concentration">Temperature changes relative concentration</a></li>
   <li><a href="#top-k-and-top-p-restrict-the-candidate-set" id="toc-top-k-and-top-p-restrict-the-candidate-set" class="nav-link" data-scroll-target="#top-k-and-top-p-restrict-the-candidate-set">Top-k and top-p restrict the candidate set</a></li>
   </ul></li>
-  <li><a href="#level-3---sequence-controls" id="toc-level-3---sequence-controls" class="nav-link" data-scroll-target="#level-3---sequence-controls">Level 3 - Sequence controls</a>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
   <ul class="collapse">
   <li><a href="#repetition-controls-change-the-sequence-distribution" id="toc-repetition-controls-change-the-sequence-distribution" class="nav-link" data-scroll-target="#repetition-controls-change-the-sequence-distribution">Repetition controls change the sequence distribution</a></li>
   <li><a href="#beam-search-is-a-search-policy-not-a-probability-objective" id="toc-beam-search-is-a-search-policy-not-a-probability-objective" class="nav-link" data-scroll-target="#beam-search-is-a-search-policy-not-a-probability-objective">Beam search is a search policy, not a probability objective</a></li>
   <li><a href="#length-preferences-need-to-be-made-visible" id="toc-length-preferences-need-to-be-made-visible" class="nav-link" data-scroll-target="#length-preferences-need-to-be-made-visible">Length preferences need to be made visible</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
   <li><a href="#output-diversity-is-not-an-unconditional-good" id="toc-output-diversity-is-not-an-unconditional-good" class="nav-link" data-scroll-target="#output-diversity-is-not-an-unconditional-good">Output diversity is not an unconditional good</a></li>
   <li><a href="#token-level-controls-interact-across-steps" id="toc-token-level-controls-interact-across-steps" class="nav-link" data-scroll-target="#token-level-controls-interact-across-steps">Token-level controls interact across steps</a></li>
   <li><a href="#decoding-must-match-the-consequence-of-an-error" id="toc-decoding-must-match-the-consequence-of-an-error" class="nav-link" data-scroll-target="#decoding-must-match-the-consequence-of-an-error">Decoding must match the consequence of an error</a></li>
-  </ul></li>
-  <li><a href="#level-4---auditing-generation" id="toc-level-4---auditing-generation" class="nav-link" data-scroll-target="#level-4---auditing-generation">Level 4 - Auditing generation</a>
-  <ul class="collapse">
   <li><a href="#a-decoding-evaluation-varies-policies-deliberately" id="toc-a-decoding-evaluation-varies-policies-deliberately" class="nav-link" data-scroll-target="#a-decoding-evaluation-varies-policies-deliberately">A decoding evaluation varies policies deliberately</a></li>
   <li><a href="#a-generation-record-supports-reproduction-and-diagnosis" id="toc-a-generation-record-supports-reproduction-and-diagnosis" class="nav-link" data-scroll-target="#a-generation-record-supports-reproduction-and-diagnosis">A generation record supports reproduction and diagnosis</a></li>
   </ul></li>
@@ -581,32 +573,18 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 </header>
 
 
-<section id="chapter-orientation" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
-<section id="why-this-chapter-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
-<p>Chapter 25 defined a language model’s next-token probability distribution. A generated response requires an additional policy that selects or samples from that distribution, repeats the process, and decides when to stop. Greedy decoding, temperature, top-k sampling, nucleus sampling, repetition controls, and output constraints can produce different text from the same model and prompt.</p>
-<p>Decoding is therefore part of the deployed system. It changes reproducibility, diversity, latency, output length, and the types of errors a user sees. It does not repair missing evidence, change the model’s training data, or establish truth. This chapter defines the common policies and their evaluation.</p>
-</section>
-<section id="learning-objectives" class="level3">
-<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
-<p>By the end of this chapter, you should be able to:</p>
-<ul>
-<li>distinguish a probability distribution from a decoding policy and a generated sequence;</li>
-<li>implement greedy, temperature, top-k, and top-p selection on a toy distribution;</li>
-<li>explain why sampling is stochastic and how seeds affect reproducibility;</li>
-<li>identify stopping, length, repetition, and constraint policies as generation choices;</li>
-<li>evaluate decoding settings against a stated task rather than a generic quality claim; and</li>
-<li>record the configuration needed to reproduce a generation.</li>
-</ul>
-</section>
-<section id="running-distribution" class="level3">
-<h3 class="anchored" data-anchor-id="running-distribution">Running distribution</h3>
-<p>For one prefix, suppose a vocabulary has probabilities for <code>the</code>, <code>a</code>, <code>cat</code>, <code>slept</code>, and <code>&lt;eos&gt;</code>. The model distribution is fixed in the first examples; only the selection rule changes.</p>
+<section id="the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
+<p>Chapter 27 showed a request unfolding inside a finite window: prefill processes the prompt, then each decode step extends it by one token. At every one of those steps the model does not emit a token — it emits a probability distribution over the whole vocabulary. A generated response requires an additional policy that selects or samples from that distribution, repeats the process, and decides when to stop.</p>
+<p>That policy is decoding, and it is part of the deployed system. Greedy decoding, temperature, top-k sampling, nucleus sampling, repetition controls, and output constraints can produce different text from the same model and prompt. Decoding changes reproducibility, diversity, latency, output length, and the types of errors a user sees. It does not repair missing evidence, change the model’s training data, or establish truth. This chapter defines the common policies and their evaluation.</p>
+<section id="a-fixed-distribution-isolates-the-decision" class="level3">
+<h3 class="anchored" data-anchor-id="a-fixed-distribution-isolates-the-decision">A fixed distribution isolates the decision</h3>
+<p>The running example fixes one prefix’s next-token distribution: probabilities for <code>the</code>, <code>a</code>, <code>cat</code>, <code>slept</code>, and <code>&lt;eos&gt;</code>. The model distribution stays constant through the first examples, so every difference in output traces to the selection rule alone.</p>
+<p>The first diagram shows the separation this chapter maintains. On the left, the bar chart is the model’s distribution over the five tokens; on the right, a decision box emits one selected token. Notice the arrow between them: the distribution does not determine that arrow. A declared rule — greedy, temperature, sampling, constraints — does.</p>
 <div id="cell-fig-distribution-decision" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -614,13 +592,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>np.array([<span class="st">"the"</span>,<span class="st">"a"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>])</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>probs<span class="op">=</span>np.array([<span class="fl">.42</span>,<span class="fl">.25</span>,<span class="fl">.17</span>,<span class="fl">.10</span>,<span class="fl">.06</span>])</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.bar(tokens,probs,color<span class="op">=</span>blue)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">.5</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"next-token probability"</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">4.2</span>,<span class="fl">.3</span>),(<span class="fl">5.45</span>,<span class="fl">.3</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>orange,mutation_scale<span class="op">=</span><span class="dv">14</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.6</span>,<span class="fl">.12</span>),<span class="fl">1.3</span>,<span class="fl">.36</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.25</span>,<span class="fl">.3</span>,<span class="st">"decoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(<span class="fl">7.55</span>,<span class="fl">.3</span>,<span class="st">"selected</span><span class="ch">\n</span><span class="st">token"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_title(<span class="st">"Distribution and decision are separate objects"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">4.2</span>,<span class="fl">.3</span>),(<span class="fl">5.45</span>,<span class="fl">.3</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>orange,mutation_scale<span class="op">=</span><span class="dv">14</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.6</span>,<span class="fl">.12</span>),<span class="fl">1.3</span>,<span class="fl">.36</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.25</span>,<span class="fl">.3</span>,<span class="st">"decoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(<span class="fl">7.55</span>,<span class="fl">.3</span>,<span class="st">"selected</span><span class="ch">\n</span><span class="st">token"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_title(<span class="st">"Distribution and decision are separate objects"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-distribution-decision" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A probability bar chart feeds into a decision box that outputs one selected token.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-distribution-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="28-decoding-generation_files/figure-html/fig-distribution-decision-output-1.png" class="img-fluid figure-img" alt="A probability bar chart feeds into a decision box that outputs one selected token.">
+<img src="28-decoding-generation_files/figure-html/fig-distribution-decision-output-1.png" alt="A probability bar chart feeds into a decision box that outputs one selected token." width="708" height="345" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-distribution-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;29.1: A decoder transforms a next-token probability distribution into a selected token under a declared rule.
@@ -629,6 +607,7 @@ Figure&nbsp;29.1: A decoder transforms a next-token probability distribution int
 </div>
 </div>
 </div>
+<p>Two systems with identical distributions can emit different text under different rules, and one sampling rule can emit different text across runs. Attributing any observed difference requires knowing the rule, which is why decoding configuration belongs in every reproducible record.</p>
 <div id="concept-decoding" class="concept-box concept-core" data-term="Decoding" data-domain="Large language models">
 <p><strong>Decoding.</strong> The policy that turns a model’s next-token distribution into an output sequence. Temperature, truncation, sampling, and stopping rules change the distribution of produced responses without changing the trained parameters.</p>
 </div>
@@ -640,12 +619,12 @@ Figure&nbsp;29.1: A decoder transforms a next-token probability distribution int
 <h3 class="anchored" data-anchor-id="the-model-supplies-options-decoding-makes-a-choice">The model supplies options; decoding makes a choice</h3>
 <p>Greedy decoding selects the highest-probability token at every step. It is deterministic when model computation is deterministic and the prompt is unchanged. It can be appropriate when a task has a narrow expected continuation, but it can also create repetitive or generic sequences because it always commits to the local maximum.</p>
 <p>Sampling selects a token according to the probability distribution, so lower-probability options can appear. Two runs can differ even when the model and prompt are identical. This is not evidence that the model changed; it is a property of the generation policy. A seed can make pseudorandom sampling reproducible for a declared implementation, but it does not make the output uniquely implied by the model.</p>
-<div id="b87a83ea" class="cell" data-execution_count="2">
+<div id="150f4069" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">7</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">7</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"greedy:"</span>,tokens[probs.argmax()])</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"samples:"</span>,np.random.choice(tokens,size<span class="op">=</span><span class="dv">8</span>,p<span class="op">=</span>probs))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"samples:"</span>,np.random.choice(tokens,size<span class="op">=</span><span class="dv">8</span>,p<span class="op">=</span>probs))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>greedy: the
@@ -657,14 +636,14 @@ samples: ['the' 'cat' 'a' 'cat' '&lt;eos&gt;' 'a' 'a' 'the']</code></pre>
 <section id="stopping-is-also-a-decoding-decision" class="level3">
 <h3 class="anchored" data-anchor-id="stopping-is-also-a-decoding-decision">Stopping is also a decoding decision</h3>
 <p>Many systems stop when an end-of-sequence token is selected, when a maximum new-token length is reached, or when a configured string or token sequence occurs. Each rule can truncate an answer or permit unnecessary continuation. A maximum length is not merely a user-interface setting: it changes which complete sequences can be emitted and may interact with the context budget in Chapter 27.</p>
-<div id="64d3e814" class="cell" data-execution_count="3">
+<div id="41648c7e" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>generated<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>generated<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,token <span class="kw">in</span> <span class="bu">enumerate</span>(generated,<span class="dv">1</span>):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(step,token)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> token<span class="op">==</span><span class="st">"&lt;eos&gt;"</span>:</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"stop on end token"</span>)<span class="op">;</span> <span class="cf">break</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"stop on end token"</span>)<span class="op">;</span> <span class="cf">break</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>1 the
@@ -674,21 +653,22 @@ samples: ['the' 'cat' 'a' 'cat' '&lt;eos&gt;' 'a' 'a' 'the']</code></pre>
 stop on end token</code></pre>
 </div>
 </div>
+<p>Level 1 separated the model’s options from the decoder’s choice, including the choice to stop. Level 2 makes the single-step transformations explicit: how temperature, top-k, and top-p reshape the distribution before a token is drawn.</p>
 </section>
 </section>
-<section id="level-2---distribution-transformations" class="level2">
-<h2 class="anchored" data-anchor-id="level-2---distribution-transformations">Level 2 - Distribution transformations</h2>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
 <section id="temperature-changes-relative-concentration" class="level3">
 <h3 class="anchored" data-anchor-id="temperature-changes-relative-concentration">Temperature changes relative concentration</h3>
-<p>Temperature divides logits before softmax. For logits (z) and temperature (&gt;0), the transformed distribution is ((z/)). Values below one sharpen differences between logits; values above one flatten the distribution. Temperature does not add information or identify an appropriate answer. It changes how sharply the decoder follows the model’s existing ranking.</p>
-<div id="dc376d3c" class="cell" data-execution_count="4">
+<p>Temperature divides logits before softmax. For logits <span class="math inline">\(z\)</span> and temperature <span class="math inline">\(\tau&gt;0\)</span>, the transformed distribution is <span class="math inline">\(\operatorname{softmax}(z/\tau)\)</span>. Values below one sharpen differences between logits; values above one flatten the distribution. Temperature does not add information or identify an appropriate answer. It changes how sharply the decoder follows the model’s existing ranking.</p>
+<div id="ef31747a" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>logits<span class="op">=</span>np.log(probs)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>logits<span class="op">=</span>np.log(probs)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(x):</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>x<span class="op">-</span>x.<span class="bu">max</span>()<span class="op">;</span> e<span class="op">=</span>np.exp(x)<span class="op">;</span> <span class="cf">return</span> e<span class="op">/</span>e.<span class="bu">sum</span>()</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temperature <span class="kw">in</span> [<span class="fl">.5</span>,<span class="fl">1.0</span>,<span class="fl">1.5</span>]:</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(temperature,np.<span class="bu">round</span>(softmax(logits<span class="op">/</span>temperature),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(temperature,np.<span class="bu">round</span>(softmax(logits<span class="op">/</span>temperature),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>0.5 [0.627 0.222 0.103 0.036 0.013]
@@ -699,15 +679,15 @@ stop on end token</code></pre>
 <div id="cell-fig-temperature" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temperature,c <span class="kw">in</span> [(<span class="fl">.5</span>,orange),(<span class="fl">1.0</span>,teal),(<span class="fl">1.5</span>,purple)]: ax.plot(tokens,softmax(logits<span class="op">/</span>temperature),marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="ss">f"T=</span><span class="sc">{</span>temperature<span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>c)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"sampling probability"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Temperature transforms the distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"sampling probability"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Temperature transforms the distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-temperature" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three line plots compare token probabilities at temperatures 0.5, 1.0, and 1.5.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-temperature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="28-decoding-generation_files/figure-html/fig-temperature-output-1.png" class="img-fluid figure-img" alt="Three line plots compare token probabilities at temperatures 0.5, 1.0, and 1.5.">
+<img src="28-decoding-generation_files/figure-html/fig-temperature-output-1.png" alt="Three line plots compare token probabilities at temperatures 0.5, 1.0, and 1.5." width="759" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-temperature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;29.2: Lower temperatures concentrate probability on high-logit tokens, while higher temperatures flatten the sampling distribution.
@@ -720,18 +700,18 @@ Figure&nbsp;29.2: Lower temperatures concentrate probability on high-logit token
 </section>
 <section id="top-k-and-top-p-restrict-the-candidate-set" class="level3">
 <h3 class="anchored" data-anchor-id="top-k-and-top-p-restrict-the-candidate-set">Top-k and top-p restrict the candidate set</h3>
-<p>Top-k keeps the (k) highest-probability entries, sets the rest to zero, and renormalises. Nucleus or top-p sampling keeps the smallest high-probability set whose cumulative mass reaches a threshold (p), then renormalises. Top-k has a fixed candidate count; top-p adapts its count to the distribution’s concentration <span class="citation" data-cites="holtzman2020curious">(<a href="#ref-holtzman2020curious" role="doc-biblioref">Holtzman et al. 2020</a>)</span>.</p>
-<div id="a9da21f5" class="cell" data-execution_count="6">
+<p>Top-k keeps the <span class="math inline">\(k\)</span> highest-probability entries, sets the rest to zero, and renormalises. Nucleus or top-p sampling keeps the smallest high-probability set whose cumulative mass reaches a threshold <span class="math inline">\(p\)</span>, then renormalises. Top-k has a fixed candidate count; top-p adapts its count to the distribution’s concentration <span class="citation" data-cites="holtzman2020curious">(<a href="#ref-holtzman2020curious" role="doc-biblioref">Holtzman et al. 2020</a>)</span>.</p>
+<div id="d2c2368b" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_k_distribution(p,k):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_k_distribution(p,k):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    keep<span class="op">=</span>np.argsort(p)[<span class="op">-</span>k:]<span class="op">;</span> q<span class="op">=</span>np.zeros_like(p)<span class="op">;</span> q[keep]<span class="op">=</span>p[keep]<span class="op">;</span> <span class="cf">return</span> q<span class="op">/</span>q.<span class="bu">sum</span>()</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_p_distribution(p,threshold):</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    order<span class="op">=</span>np.argsort(p)[::<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> cumulative<span class="op">=</span>np.cumsum(p[order])<span class="op">;</span> keep<span class="op">=</span>order[cumulative<span class="op">&lt;=</span>threshold]</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(keep)<span class="op">==</span><span class="dv">0</span>: keep<span class="op">=</span>order[:<span class="dv">1</span>]</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    q<span class="op">=</span>np.zeros_like(p)<span class="op">;</span> q[keep]<span class="op">=</span>p[keep]<span class="op">;</span> <span class="cf">return</span> q<span class="op">/</span>q.<span class="bu">sum</span>()</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-k=3:"</span>,np.<span class="bu">round</span>(top_k_distribution(probs,<span class="dv">3</span>),<span class="dv">3</span>))</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-p=.8:"</span>,np.<span class="bu">round</span>(top_p_distribution(probs,<span class="fl">.8</span>),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-p=.8:"</span>,np.<span class="bu">round</span>(top_p_distribution(probs,<span class="fl">.8</span>),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>top-k=3: [0.5   0.298 0.202 0.    0.   ]
@@ -742,14 +722,14 @@ top-p=.8: [0.627 0.373 0.    0.    0.   ]</code></pre>
 <div id="cell-fig-truncation-policies" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>order<span class="op">=</span>np.argsort(probs)[::<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> ranked<span class="op">=</span>probs[order]</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(np.arange(<span class="bu">len</span>(tokens)),ranked,color<span class="op">=</span>[teal,teal,teal,grey,grey])<span class="op">;</span> ax.plot(np.arange(<span class="bu">len</span>(tokens)),np.cumsum(ranked),color<span class="op">=</span>orange,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"cumulative mass"</span>)<span class="op">;</span> ax.axhline(<span class="fl">.8</span>,color<span class="op">=</span>purple,ls<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"top-p threshold"</span>)<span class="op">;</span> ax.set_xticks(np.arange(<span class="bu">len</span>(tokens)),tokens[order])<span class="op">;</span> ax.set_ylabel(<span class="st">"probability / cumulative mass"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Candidate restrictions depend on distribution rank"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>order<span class="op">=</span>np.argsort(probs)[::<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> ranked<span class="op">=</span>probs[order]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(np.arange(<span class="bu">len</span>(tokens)),ranked,color<span class="op">=</span>[teal,teal,teal,grey,grey])<span class="op">;</span> ax.plot(np.arange(<span class="bu">len</span>(tokens)),np.cumsum(ranked),color<span class="op">=</span>orange,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"cumulative mass"</span>)<span class="op">;</span> ax.axhline(<span class="fl">.8</span>,color<span class="op">=</span>purple,ls<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"top-p threshold"</span>)<span class="op">;</span> ax.set_xticks(np.arange(<span class="bu">len</span>(tokens)),tokens[order])<span class="op">;</span> ax.set_ylabel(<span class="st">"probability / cumulative mass"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Candidate restrictions depend on distribution rank"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-truncation-policies" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A ranked probability bar chart highlights three top-k entries and the entries retained by an 0.8 cumulative threshold.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-truncation-policies-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="28-decoding-generation_files/figure-html/fig-truncation-policies-output-1.png" class="img-fluid figure-img" alt="A ranked probability bar chart highlights three top-k entries and the entries retained by an 0.8 cumulative threshold.">
+<img src="28-decoding-generation_files/figure-html/fig-truncation-policies-output-1.png" alt="A ranked probability bar chart highlights three top-k entries and the entries retained by an 0.8 cumulative threshold." width="759" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-truncation-policies-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;29.3: Top-k keeps a fixed number of candidates, while top-p keeps a variable number sufficient to reach a cumulative probability threshold.
@@ -758,21 +738,23 @@ Figure&nbsp;29.3: Top-k keeps a fixed number of candidates, while top-p keeps a 
 </div>
 </div>
 </div>
+<p>The two policies restrict the same ranked distribution differently: top-k keeps a fixed count regardless of how the mass is spread, while top-p keeps as many tokens as the threshold requires. A peaked distribution gives top-p few candidates; a flat one gives it many.</p>
+<p>Level 2 reshaped the distribution for a single decision. Level 3 assembles decisions into sequence-level controls: repetition penalties, hard constraints, beam search, and length policies.</p>
 </section>
 </section>
-<section id="level-3---sequence-controls" class="level2">
-<h2 class="anchored" data-anchor-id="level-3---sequence-controls">Level 3 - Sequence controls</h2>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
 <section id="repetition-controls-change-the-sequence-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="repetition-controls-change-the-sequence-distribution">Repetition controls change the sequence distribution</h3>
 <p>Systems sometimes penalise tokens that appeared in the prefix, block repeated n-grams, or alter logits after selected patterns. These controls can reduce some visible loops, but they also can suppress legitimate repetition: names, quotations, structured lists, and code may require the same token or phrase. A repetition setting should therefore be evaluated on examples where repetition is both undesirable and necessary.</p>
-<div id="8bb3b9d7" class="cell" data-execution_count="8">
+<div id="3c12f053" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>seen<span class="op">=</span>{<span class="st">"the"</span>,<span class="st">"cat"</span>}<span class="op">;</span> adjusted<span class="op">=</span>logits.copy()</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>seen<span class="op">=</span>{<span class="st">"the"</span>,<span class="st">"cat"</span>}<span class="op">;</span> adjusted<span class="op">=</span>logits.copy()</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> t <span class="kw">in</span> seen: adjusted[i]<span class="op">-=</span><span class="fl">.8</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"original:"</span>,np.<span class="bu">round</span>(softmax(logits),<span class="dv">3</span>))</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"penalised:"</span>,np.<span class="bu">round</span>(softmax(adjusted),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"penalised:"</span>,np.<span class="bu">round</span>(softmax(adjusted),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>original: [0.42 0.25 0.17 0.1  0.06]
@@ -780,12 +762,12 @@ penalised: [0.28  0.37  0.113 0.148 0.089]</code></pre>
 </div>
 </div>
 <p>Constraints can be hard rather than soft. A JSON grammar, allowed vocabulary, stop sequence, or tool-call schema can make invalid outputs impossible under the decoder, while leaving questions about the correctness of valid content. Constraints operate on form; they do not verify claims unless they are connected to an external validation process.</p>
-<div id="02fcc701" class="cell" data-execution_count="9">
+<div id="f76bb2fd" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>allowed<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">True</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>allowed<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">True</span>])</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>constrained<span class="op">=</span>np.where(allowed,logits,<span class="op">-</span>np.inf)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"allowed sampling distribution:"</span>,np.<span class="bu">round</span>(softmax(constrained),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"allowed sampling distribution:"</span>,np.<span class="bu">round</span>(softmax(constrained),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>allowed sampling distribution: [0.    0.    0.515 0.303 0.182]</code></pre>
@@ -795,15 +777,15 @@ penalised: [0.28  0.37  0.113 0.148 0.089]</code></pre>
 <section id="beam-search-is-a-search-policy-not-a-probability-objective" class="level3">
 <h3 class="anchored" data-anchor-id="beam-search-is-a-search-policy-not-a-probability-objective">Beam search is a search policy, not a probability objective</h3>
 <p>Beam search retains several partial sequences and expands them, often ranking by accumulated log probability with an optional length adjustment. It can find a higher-probability complete sequence than greedy decoding under its search width, but it is more costly and can favour short or repetitive text without a declared length policy. It is useful to distinguish its search score from a user-facing quality measure.</p>
-<div id="4b5601ca" class="cell" data-execution_count="10">
+<div id="7cb95ac7" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>beams<span class="op">=</span>[([<span class="st">"the"</span>],np.log(<span class="fl">.42</span>)),([<span class="st">"a"</span>],np.log(<span class="fl">.25</span>))]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>beams<span class="op">=</span>[([<span class="st">"the"</span>],np.log(<span class="fl">.42</span>)),([<span class="st">"a"</span>],np.log(<span class="fl">.25</span>))]</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>extensions<span class="op">=</span>{<span class="st">"the"</span>:[(<span class="st">"cat"</span>,<span class="fl">.6</span>),(<span class="st">"dog"</span>,<span class="fl">.3</span>)],<span class="st">"a"</span>:[(<span class="st">"cat"</span>,<span class="fl">.5</span>),(<span class="st">"dog"</span>,<span class="fl">.4</span>)]}</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[]</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> prefix,score <span class="kw">in</span> beams:</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> token,p <span class="kw">in</span> extensions[prefix[<span class="op">-</span><span class="dv">1</span>]]: candidates.append((prefix<span class="op">+</span>[token],score<span class="op">+</span>np.log(p)))</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(candidates,key<span class="op">=</span><span class="kw">lambda</span> x:x[<span class="dv">1</span>],reverse<span class="op">=</span><span class="va">True</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(candidates,key<span class="op">=</span><span class="kw">lambda</span> x:x[<span class="dv">1</span>],reverse<span class="op">=</span><span class="va">True</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[(['the', 'cat'], np.float64(-1.378326191470714)), (['the', 'dog'], np.float64(-2.0714733720306593)), (['a', 'cat'], np.float64(-2.0794415416798357)), (['a', 'dog'], np.float64(-2.3025850929940455))]</code></pre>
@@ -817,15 +799,15 @@ penalised: [0.28  0.37  0.113 0.148 0.089]</code></pre>
 <div id="cell-fig-length-policy" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"short candidate"</span>,<span class="st">"long candidate"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"short candidate"</span>,<span class="st">"long candidate"</span>]</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>raw_scores<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">2.0</span>,<span class="op">-</span><span class="fl">2.7</span>])<span class="op">;</span> normalised<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">1.0</span>,<span class="op">-</span><span class="fl">.9</span>])<span class="op">;</span> x<span class="op">=</span>np.arange(<span class="dv">2</span>)<span class="op">;</span> w<span class="op">=</span><span class="fl">.35</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw_scores,w,label<span class="op">=</span><span class="st">"raw log score"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,normalised,w,label<span class="op">=</span><span class="st">"illustrative length-normalised score"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,labels)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.7</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Ranking depends on an explicit length policy"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw_scores,w,label<span class="op">=</span><span class="st">"raw log score"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,normalised,w,label<span class="op">=</span><span class="st">"illustrative length-normalised score"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,labels)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.7</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Ranking depends on an explicit length policy"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-length-policy" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart compares raw accumulated log probability and a length-normalised score for a short and long candidate.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-length-policy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="28-decoding-generation_files/figure-html/fig-length-policy-output-1.png" class="img-fluid figure-img" alt="A bar chart compares raw accumulated log probability and a length-normalised score for a short and long candidate.">
+<img src="28-decoding-generation_files/figure-html/fig-length-policy-output-1.png" alt="A bar chart compares raw accumulated log probability and a length-normalised score for a short and long candidate." width="663" height="355" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-length-policy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;29.4: A length policy can change the ranking of candidate sequences even when their token-level probabilities are unchanged.
@@ -834,18 +816,23 @@ Figure&nbsp;29.4: A length policy can change the ranking of candidate sequences 
 </div>
 </div>
 </div>
+<p>The raw accumulated score favours the short candidate; the normalised score reverses that ranking. Neither ranking is intrinsic to the model: each follows from a policy that must be declared.</p>
+<p>Level 3 implemented the single-step and sequence-level controls. Level 4 examines how they are evaluated against a stated task: diversity, cross-step interaction, error consequence, and the records that make a generation reproducible.</p>
 </section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
 <section id="output-diversity-is-not-an-unconditional-good" class="level3">
 <h3 class="anchored" data-anchor-id="output-diversity-is-not-an-unconditional-good">Output diversity is not an unconditional good</h3>
 <p>Sampling several continuations can be useful when a task permits alternatives, such as brainstorming, creative writing, or producing candidate solutions for a later verifier. Diversity can be harmful when an answer must be stable, precisely formatted, or grounded in a supplied record. Increasing temperature or candidate support changes the distribution of output strings; it does not distinguish useful variation from unsupported variation.</p>
 <p>An evaluation should therefore state whether it values one reproducible best answer, multiple candidates with a selection stage, or variation subject to a constraint. When several samples are generated, report the number of draws and aggregation rule. Selecting the most attractive sample after inspection without recording that selection produces a result that cannot be reproduced or fairly compared with one deterministic output.</p>
-<div id="00d2e475" class="cell" data-execution_count="12">
+<div id="06e7bd4c" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">3</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">3</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>draws<span class="op">=</span>[np.random.choice(tokens,p<span class="op">=</span>softmax(logits<span class="op">/</span><span class="fl">.9</span>)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>)]</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>counts<span class="op">=</span>{token:draws.count(token) <span class="cf">for</span> token <span class="kw">in</span> tokens}</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sample counts:"</span>,counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sample counts:"</span>,counts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>sample counts: {np.str_('the'): 10, np.str_('a'): 7, np.str_('cat'): 1, np.str_('slept'): 2, np.str_('&lt;eos&gt;'): 0}</code></pre>
@@ -861,11 +848,11 @@ Figure&nbsp;29.4: A length policy can change the ranking of candidate sequences 
 <h3 class="anchored" data-anchor-id="decoding-must-match-the-consequence-of-an-error">Decoding must match the consequence of an error</h3>
 <p>For a structured extraction task, a system can favour deterministic decoding, an exact schema, and a validator because variation has little value and an incorrect field can cause a downstream error. For exploratory drafting, several sampled candidates may be useful if a reviewer or verifier selects among them. For a question that requires external evidence, sampling cannot compensate for missing or irrelevant context. The selection policy should follow the task’s decision rule and cost of failure.</p>
 <p>This is also why output quality and model probability should not be conflated. A highly probable continuation can be generic, outdated, or unsupported. A low-probability continuation may be correct but should be checked against evidence or a task verifier. Decoding controls the way a model distribution is exposed; it is not an independent source of knowledge.</p>
-<div id="acd11a5e" class="cell" data-execution_count="13">
+<div id="1c37abd9" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>tasks<span class="op">=</span>{<span class="st">"extraction"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"schema and source match"</span>},<span class="st">"drafting"</span>:{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"validator"</span>:<span class="st">"human selection"</span>},<span class="st">"calculation"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"exact check"</span>}}</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task,policy <span class="kw">in</span> tasks.items(): <span class="bu">print</span>(task,policy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>tasks<span class="op">=</span>{<span class="st">"extraction"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"schema and source match"</span>},<span class="st">"drafting"</span>:{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"validator"</span>:<span class="st">"human selection"</span>},<span class="st">"calculation"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"exact check"</span>}}</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task,policy <span class="kw">in</span> tasks.items(): <span class="bu">print</span>(task,policy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>extraction {'temperature': 0, 'validator': 'schema and source match'}
@@ -874,9 +861,6 @@ calculation {'temperature': 0, 'validator': 'exact check'}</code></pre>
 </div>
 </div>
 </section>
-</section>
-<section id="level-4---auditing-generation" class="level2">
-<h2 class="anchored" data-anchor-id="level-4---auditing-generation">Level 4 - Auditing generation</h2>
 <section id="a-decoding-evaluation-varies-policies-deliberately" class="level3">
 <h3 class="anchored" data-anchor-id="a-decoding-evaluation-varies-policies-deliberately">A decoding evaluation varies policies deliberately</h3>
 <p>An evaluation should hold model version, prompt construction, context policy, and scoring rule fixed while varying one decoding decision at a time. It should report output length, stop reason, random seed where applicable, temperature, candidate restriction, penalties, constraints, and number of samples or beams. Comparing two outputs generated under hiddenly different settings does not identify whether a change came from the model or the decoder.</p>
@@ -884,17 +868,17 @@ calculation {'temperature': 0, 'validator': 'exact check'}</code></pre>
 <div id="cell-fig-policy-audit" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"model +</span><span class="ch">\n</span><span class="st">prompt"</span>,blue),(<span class="fl">2.5</span>,<span class="st">"decoding</span><span class="ch">\n</span><span class="st">policy"</span>,teal),(<span class="fl">4.7</span>,<span class="st">"generated</span><span class="ch">\n</span><span class="st">samples"</span>,orange),(<span class="fl">6.9</span>,<span class="st">"declared</span><span class="ch">\n</span><span class="st">evaluation"</span>,purple)]:</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.15</span>),<span class="fl">1.5</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.46</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x<span class="op">&lt;</span><span class="dv">6</span>: ax.add_patch(FancyArrowPatch((x<span class="op">+</span><span class="fl">1.53</span>,<span class="fl">1.46</span>),(x<span class="op">+</span><span class="fl">2.12</span>,<span class="fl">1.46</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">12</span>))</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Record the settings that turn a probability distribution into an observable output."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.25</span>,<span class="fl">2.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Record the settings that turn a probability distribution into an observable output."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.25</span>,<span class="fl">2.2</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-policy-audit" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Boxes for model and prompt feed into decoding settings, then generated samples and task-specific evaluation.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-policy-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="28-decoding-generation_files/figure-html/fig-policy-audit-output-1.png" class="img-fluid figure-img" alt="Boxes for model and prompt feed into decoding settings, then generated samples and task-specific evaluation.">
+<img src="28-decoding-generation_files/figure-html/fig-policy-audit-output-1.png" alt="Boxes for model and prompt feed into decoding settings, then generated samples and task-specific evaluation." width="689" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-policy-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;29.5: A generation result depends on the model and prompt as well as a recorded decoding policy, stopping rule, and evaluation criterion.
@@ -907,12 +891,12 @@ Figure&nbsp;29.5: A generation result depends on the model and prompt as well as
 <section id="a-generation-record-supports-reproduction-and-diagnosis" class="level3">
 <h3 class="anchored" data-anchor-id="a-generation-record-supports-reproduction-and-diagnosis">A generation record supports reproduction and diagnosis</h3>
 <p>At minimum, retain the checkpoint and tokenizer versions, prompt template and final token IDs, system messages or tool constraints, context and truncation policy, maximum new tokens, temperature, top-k or top-p convention, seed, repetition controls, stop sequences, beam settings, hardware or numerical settings where determinism matters, output IDs, and stop reason. This record makes it possible to reproduce a result or identify why a boundary case changed after a system update.</p>
-<div id="63df6036" class="cell" data-execution_count="15">
+<div id="7e4824f8" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>generation_record<span class="op">=</span>{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"top_p"</span>:<span class="fl">.9</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">256</span>,<span class="st">"seed"</span>:<span class="dv">17</span>,<span class="st">"stop_reason"</span>:<span class="st">"eos"</span>,<span class="st">"tokenizer"</span>:<span class="st">"versioned"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>generation_record<span class="op">=</span>{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"top_p"</span>:<span class="fl">.9</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">256</span>,<span class="st">"seed"</span>:<span class="dv">17</span>,<span class="st">"stop_reason"</span>:<span class="st">"eos"</span>,<span class="st">"tokenizer"</span>:<span class="st">"versioned"</span>}</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"temperature"</span>,<span class="st">"max_new_tokens"</span>,<span class="st">"tokenizer"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(generation_record)</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generation_record)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generation_record)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'temperature': 0.8, 'top_p': 0.9, 'max_new_tokens': 256, 'seed': 17, 'stop_reason': 'eos', 'tokenizer': 'versioned'}</code></pre>
@@ -968,9 +952,9 @@ Figure&nbsp;29.5: A generation result depends on the model and prompt as well as
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-holtzman2020curious" class="csl-entry" role="listitem">
-Holtzman, Ari, Jan Buys, Li Du, Maxwell Forbes, and Yejin Choi. 2020. <span>“The Curious Case of Neural Text Degeneration.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1904.09751">https://arxiv.org/abs/1904.09751</a>.
+Holtzman, Ari, Jan Buys, Li Du, Maxwell Forbes, and Yejin Choi. 2020. <span>“The Curious Case of Neural Text Degeneration.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1904.09751">https://arxiv.org/abs/1904.09751</a>.
 </div>
 </div>
 </section>
@@ -1027,13 +1011,14 @@ Holtzman, Ari, Jan Buys, Li Du, Maxwell Forbes, and Yejin Choi. 2020. <span>“T
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1067,16 +1052,16 @@ Holtzman, Ari, Jan Buys, Li Du, Maxwell Forbes, and Yejin Choi. 2020. <span>“T
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1438,282 +1423,283 @@ Holtzman, Ari, Jan Buys, Li Du, Maxwell Forbes, and Yejin Choi. 2020. <span>“T
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb26" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Decoding and Generation"</span></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Turning next-token distributions into sequences under explicit policies"</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>Chapter 27 showed a request unfolding inside a finite window: prefill processes the prompt, then each decode step extends it by one token. At every one of those steps the model does not emit a token — it emits a probability distribution over the whole vocabulary. A generated response requires an additional policy that selects or samples from that distribution, repeats the process, and decides when to stop.</span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>Chapter 25 defined a language model's next-token probability distribution. A generated response requires an additional policy that selects or samples from that distribution, repeats the process, and decides when to stop. Greedy decoding, temperature, top-k sampling, nucleus sampling, repetition controls, and output constraints can produce different text from the same model and prompt.</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>That policy is decoding, and it is part of the deployed system. Greedy decoding, temperature, top-k sampling, nucleus sampling, repetition controls, and output constraints can produce different text from the same model and prompt. Decoding changes reproducibility, diversity, latency, output length, and the types of errors a user sees. It does not repair missing evidence, change the model's training data, or establish truth. This chapter defines the common policies and their evaluation.</span>
 <span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>Decoding is therefore part of the deployed system. It changes reproducibility, diversity, latency, output length, and the types of errors a user sees. It does not repair missing evidence, change the model's training data, or establish truth. This chapter defines the common policies and their evaluation.</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A fixed distribution isolates the decision</span></span>
 <span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>The running example fixes one prefix's next-token distribution: probabilities for <span class="in">`the`</span>, <span class="in">`a`</span>, <span class="in">`cat`</span>, <span class="in">`slept`</span>, and <span class="in">`&lt;eos&gt;`</span>. The model distribution stays constant through the first examples, so every difference in output traces to the selection rule alone.</span>
 <span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>The first diagram shows the separation this chapter maintains. On the left, the bar chart is the model's distribution over the five tokens; on the right, a decision box emits one selected token. Notice the arrow between them: the distribution does not determine that arrow. A declared rule — greedy, temperature, sampling, constraints — does.</span>
 <span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a probability distribution from a decoding policy and a generated sequence;</span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>implement greedy, temperature, top-k, and top-p selection on a toy distribution;</span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why sampling is stochastic and how seeds affect reproducibility;</span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify stopping, length, repetition, and constraint policies as generation choices;</span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>evaluate decoding settings against a stated task rather than a generic quality claim; and</span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>record the configuration needed to reproduce a generation.</span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running distribution</span></span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>For one prefix, suppose a vocabulary has probabilities for <span class="in">`the`</span>, <span class="in">`a`</span>, <span class="in">`cat`</span>, <span class="in">`slept`</span>, and <span class="in">`&lt;eos&gt;`</span>. The model distribution is fixed in the first examples; only the selection rule changes.</span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-distribution-decision</span></span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A decoder transforms a next-token probability distribution into a selected token under a declared rule."</span></span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A probability bar chart feeds into a decision box that outputs one selected token."</span></span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>np.array([<span class="st">"the"</span>,<span class="st">"a"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>])</span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>probs<span class="op">=</span>np.array([<span class="fl">.42</span>,<span class="fl">.25</span>,<span class="fl">.17</span>,<span class="fl">.10</span>,<span class="fl">.06</span>])</span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.bar(tokens,probs,color<span class="op">=</span>blue)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">.5</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"next-token probability"</span>)</span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">4.2</span>,<span class="fl">.3</span>),(<span class="fl">5.45</span>,<span class="fl">.3</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>orange,mutation_scale<span class="op">=</span><span class="dv">14</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.6</span>,<span class="fl">.12</span>),<span class="fl">1.3</span>,<span class="fl">.36</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.25</span>,<span class="fl">.3</span>,<span class="st">"decoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(<span class="fl">7.55</span>,<span class="fl">.3</span>,<span class="st">"selected</span><span class="ch">\n</span><span class="st">token"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_title(<span class="st">"Distribution and decision are separate objects"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-decoding data-term="Decoding" data-domain="Large language models"}</span>
-<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>**Decoding.** The policy that turns a model's next-token distribution into an output sequence. Temperature, truncation, sampling, and stopping rules change the distribution of produced responses without changing the trained parameters.</span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a><span class="fu">### The model supplies options; decoding makes a choice</span></span>
-<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>Greedy decoding selects the highest-probability token at every step. It is deterministic when model computation is deterministic and the prompt is unchanged. It can be appropriate when a task has a narrow expected continuation, but it can also create repetitive or generic sequences because it always commits to the local maximum.</span>
-<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>Sampling selects a token according to the probability distribution, so lower-probability options can appear. Two runs can differ even when the model and prompt are identical. This is not evidence that the model changed; it is a property of the generation policy. A seed can make pseudorandom sampling reproducible for a declared implementation, but it does not make the output uniquely implied by the model.</span>
-<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-61"><a href="#cb26-61" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">7</span>)</span>
-<span id="cb26-62"><a href="#cb26-62" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"greedy:"</span>,tokens[probs.argmax()])</span>
-<span id="cb26-63"><a href="#cb26-63" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"samples:"</span>,np.random.choice(tokens,size<span class="op">=</span><span class="dv">8</span>,p<span class="op">=</span>probs))</span>
-<span id="cb26-64"><a href="#cb26-64" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-65"><a href="#cb26-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-66"><a href="#cb26-66" aria-hidden="true" tabindex="-1"></a>Generated text is a sequence of such decisions. A locally likely first token can move the prefix into a different region of the model distribution. This is why a loss measured under teacher forcing does not fully describe the behaviour of an autoregressive system that conditions on its own selected tokens.</span>
-<span id="cb26-67"><a href="#cb26-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-68"><a href="#cb26-68" aria-hidden="true" tabindex="-1"></a><span class="fu">### Stopping is also a decoding decision</span></span>
-<span id="cb26-69"><a href="#cb26-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-70"><a href="#cb26-70" aria-hidden="true" tabindex="-1"></a>Many systems stop when an end-of-sequence token is selected, when a maximum new-token length is reached, or when a configured string or token sequence occurs. Each rule can truncate an answer or permit unnecessary continuation. A maximum length is not merely a user-interface setting: it changes which complete sequences can be emitted and may interact with the context budget in Chapter 27.</span>
-<span id="cb26-71"><a href="#cb26-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-74"><a href="#cb26-74" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-75"><a href="#cb26-75" aria-hidden="true" tabindex="-1"></a>generated<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>]</span>
-<span id="cb26-76"><a href="#cb26-76" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,token <span class="kw">in</span> <span class="bu">enumerate</span>(generated,<span class="dv">1</span>):</span>
-<span id="cb26-77"><a href="#cb26-77" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(step,token)</span>
-<span id="cb26-78"><a href="#cb26-78" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> token<span class="op">==</span><span class="st">"&lt;eos&gt;"</span>:</span>
-<span id="cb26-79"><a href="#cb26-79" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"stop on end token"</span>)<span class="op">;</span> <span class="cf">break</span></span>
-<span id="cb26-80"><a href="#cb26-80" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-81"><a href="#cb26-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-82"><a href="#cb26-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Distribution transformations</span></span>
-<span id="cb26-83"><a href="#cb26-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-84"><a href="#cb26-84" aria-hidden="true" tabindex="-1"></a><span class="fu">### Temperature changes relative concentration</span></span>
-<span id="cb26-85"><a href="#cb26-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-86"><a href="#cb26-86" aria-hidden="true" tabindex="-1"></a>Temperature divides logits before softmax. For logits <span class="sc">\(</span>z<span class="sc">\)</span> and temperature <span class="sc">\(</span>\tau&gt;0<span class="sc">\)</span>, the transformed distribution is <span class="sc">\(</span>\operatorname{softmax}(z/\tau)<span class="sc">\)</span>. Values below one sharpen differences between logits; values above one flatten the distribution. Temperature does not add information or identify an appropriate answer. It changes how sharply the decoder follows the model's existing ranking.</span>
-<span id="cb26-87"><a href="#cb26-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-90"><a href="#cb26-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-91"><a href="#cb26-91" aria-hidden="true" tabindex="-1"></a>logits<span class="op">=</span>np.log(probs)</span>
-<span id="cb26-92"><a href="#cb26-92" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(x):</span>
-<span id="cb26-93"><a href="#cb26-93" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>x<span class="op">-</span>x.<span class="bu">max</span>()<span class="op">;</span> e<span class="op">=</span>np.exp(x)<span class="op">;</span> <span class="cf">return</span> e<span class="op">/</span>e.<span class="bu">sum</span>()</span>
-<span id="cb26-94"><a href="#cb26-94" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temperature <span class="kw">in</span> [<span class="fl">.5</span>,<span class="fl">1.0</span>,<span class="fl">1.5</span>]:</span>
-<span id="cb26-95"><a href="#cb26-95" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(temperature,np.<span class="bu">round</span>(softmax(logits<span class="op">/</span>temperature),<span class="dv">3</span>))</span>
-<span id="cb26-96"><a href="#cb26-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-97"><a href="#cb26-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-100"><a href="#cb26-100" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-101"><a href="#cb26-101" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-temperature</span></span>
-<span id="cb26-102"><a href="#cb26-102" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Lower temperatures concentrate probability on high-logit tokens, while higher temperatures flatten the sampling distribution."</span></span>
-<span id="cb26-103"><a href="#cb26-103" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three line plots compare token probabilities at temperatures 0.5, 1.0, and 1.5."</span></span>
-<span id="cb26-104"><a href="#cb26-104" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
-<span id="cb26-105"><a href="#cb26-105" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temperature,c <span class="kw">in</span> [(<span class="fl">.5</span>,orange),(<span class="fl">1.0</span>,teal),(<span class="fl">1.5</span>,purple)]: ax.plot(tokens,softmax(logits<span class="op">/</span>temperature),marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="ss">f"T=</span><span class="sc">{</span>temperature<span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>c)</span>
-<span id="cb26-106"><a href="#cb26-106" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"sampling probability"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Temperature transforms the distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb26-107"><a href="#cb26-107" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-108"><a href="#cb26-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-109"><a href="#cb26-109" aria-hidden="true" tabindex="-1"></a>Very low temperature approaches greedy selection but remains a distribution. Very high temperature can allocate substantial mass to tokens that were unlikely under the original model. The useful setting depends on the task, prompt, model, and other controls; one numerical value should not be treated as a universal quality setting.</span>
-<span id="cb26-110"><a href="#cb26-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-111"><a href="#cb26-111" aria-hidden="true" tabindex="-1"></a><span class="fu">### Top-k and top-p restrict the candidate set</span></span>
-<span id="cb26-112"><a href="#cb26-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-113"><a href="#cb26-113" aria-hidden="true" tabindex="-1"></a>Top-k keeps the <span class="sc">\(</span>k<span class="sc">\)</span> highest-probability entries, sets the rest to zero, and renormalises. Nucleus or top-p sampling keeps the smallest high-probability set whose cumulative mass reaches a threshold <span class="sc">\(</span>p<span class="sc">\)</span>, then renormalises. Top-k has a fixed candidate count; top-p adapts its count to the distribution's concentration <span class="co">[</span><span class="ot">@holtzman2020curious</span><span class="co">]</span>.</span>
-<span id="cb26-114"><a href="#cb26-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-117"><a href="#cb26-117" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-118"><a href="#cb26-118" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_k_distribution(p,k):</span>
-<span id="cb26-119"><a href="#cb26-119" aria-hidden="true" tabindex="-1"></a>    keep<span class="op">=</span>np.argsort(p)[<span class="op">-</span>k:]<span class="op">;</span> q<span class="op">=</span>np.zeros_like(p)<span class="op">;</span> q[keep]<span class="op">=</span>p[keep]<span class="op">;</span> <span class="cf">return</span> q<span class="op">/</span>q.<span class="bu">sum</span>()</span>
-<span id="cb26-120"><a href="#cb26-120" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_p_distribution(p,threshold):</span>
-<span id="cb26-121"><a href="#cb26-121" aria-hidden="true" tabindex="-1"></a>    order<span class="op">=</span>np.argsort(p)[::<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> cumulative<span class="op">=</span>np.cumsum(p[order])<span class="op">;</span> keep<span class="op">=</span>order[cumulative<span class="op">&lt;=</span>threshold]</span>
-<span id="cb26-122"><a href="#cb26-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(keep)<span class="op">==</span><span class="dv">0</span>: keep<span class="op">=</span>order[:<span class="dv">1</span>]</span>
-<span id="cb26-123"><a href="#cb26-123" aria-hidden="true" tabindex="-1"></a>    q<span class="op">=</span>np.zeros_like(p)<span class="op">;</span> q[keep]<span class="op">=</span>p[keep]<span class="op">;</span> <span class="cf">return</span> q<span class="op">/</span>q.<span class="bu">sum</span>()</span>
-<span id="cb26-124"><a href="#cb26-124" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-k=3:"</span>,np.<span class="bu">round</span>(top_k_distribution(probs,<span class="dv">3</span>),<span class="dv">3</span>))</span>
-<span id="cb26-125"><a href="#cb26-125" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-p=.8:"</span>,np.<span class="bu">round</span>(top_p_distribution(probs,<span class="fl">.8</span>),<span class="dv">3</span>))</span>
-<span id="cb26-126"><a href="#cb26-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-127"><a href="#cb26-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-128"><a href="#cb26-128" aria-hidden="true" tabindex="-1"></a>The exact top-p boundary convention must be stated: implementations often include the first token that crosses the threshold, while the toy function above retains entries up to the threshold. Small implementation details can change generated output, especially near a boundary.</span>
-<span id="cb26-129"><a href="#cb26-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-132"><a href="#cb26-132" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-133"><a href="#cb26-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-truncation-policies</span></span>
-<span id="cb26-134"><a href="#cb26-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Top-k keeps a fixed number of candidates, while top-p keeps a variable number sufficient to reach a cumulative probability threshold."</span></span>
-<span id="cb26-135"><a href="#cb26-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A ranked probability bar chart highlights three top-k entries and the entries retained by an 0.8 cumulative threshold."</span></span>
-<span id="cb26-136"><a href="#cb26-136" aria-hidden="true" tabindex="-1"></a>order<span class="op">=</span>np.argsort(probs)[::<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> ranked<span class="op">=</span>probs[order]</span>
-<span id="cb26-137"><a href="#cb26-137" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(np.arange(<span class="bu">len</span>(tokens)),ranked,color<span class="op">=</span>[teal,teal,teal,grey,grey])<span class="op">;</span> ax.plot(np.arange(<span class="bu">len</span>(tokens)),np.cumsum(ranked),color<span class="op">=</span>orange,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"cumulative mass"</span>)<span class="op">;</span> ax.axhline(<span class="fl">.8</span>,color<span class="op">=</span>purple,ls<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"top-p threshold"</span>)<span class="op">;</span> ax.set_xticks(np.arange(<span class="bu">len</span>(tokens)),tokens[order])<span class="op">;</span> ax.set_ylabel(<span class="st">"probability / cumulative mass"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Candidate restrictions depend on distribution rank"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb26-138"><a href="#cb26-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-139"><a href="#cb26-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-140"><a href="#cb26-140" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Sequence controls</span></span>
-<span id="cb26-141"><a href="#cb26-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-142"><a href="#cb26-142" aria-hidden="true" tabindex="-1"></a><span class="fu">### Repetition controls change the sequence distribution</span></span>
-<span id="cb26-143"><a href="#cb26-143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-144"><a href="#cb26-144" aria-hidden="true" tabindex="-1"></a>Systems sometimes penalise tokens that appeared in the prefix, block repeated n-grams, or alter logits after selected patterns. These controls can reduce some visible loops, but they also can suppress legitimate repetition: names, quotations, structured lists, and code may require the same token or phrase. A repetition setting should therefore be evaluated on examples where repetition is both undesirable and necessary.</span>
-<span id="cb26-145"><a href="#cb26-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-148"><a href="#cb26-148" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-149"><a href="#cb26-149" aria-hidden="true" tabindex="-1"></a>seen<span class="op">=</span>{<span class="st">"the"</span>,<span class="st">"cat"</span>}<span class="op">;</span> adjusted<span class="op">=</span>logits.copy()</span>
-<span id="cb26-150"><a href="#cb26-150" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
-<span id="cb26-151"><a href="#cb26-151" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> t <span class="kw">in</span> seen: adjusted[i]<span class="op">-=</span><span class="fl">.8</span></span>
-<span id="cb26-152"><a href="#cb26-152" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"original:"</span>,np.<span class="bu">round</span>(softmax(logits),<span class="dv">3</span>))</span>
-<span id="cb26-153"><a href="#cb26-153" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"penalised:"</span>,np.<span class="bu">round</span>(softmax(adjusted),<span class="dv">3</span>))</span>
-<span id="cb26-154"><a href="#cb26-154" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-155"><a href="#cb26-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-156"><a href="#cb26-156" aria-hidden="true" tabindex="-1"></a>Constraints can be hard rather than soft. A JSON grammar, allowed vocabulary, stop sequence, or tool-call schema can make invalid outputs impossible under the decoder, while leaving questions about the correctness of valid content. Constraints operate on form; they do not verify claims unless they are connected to an external validation process.</span>
-<span id="cb26-157"><a href="#cb26-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-160"><a href="#cb26-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-161"><a href="#cb26-161" aria-hidden="true" tabindex="-1"></a>allowed<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">True</span>])</span>
-<span id="cb26-162"><a href="#cb26-162" aria-hidden="true" tabindex="-1"></a>constrained<span class="op">=</span>np.where(allowed,logits,<span class="op">-</span>np.inf)</span>
-<span id="cb26-163"><a href="#cb26-163" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"allowed sampling distribution:"</span>,np.<span class="bu">round</span>(softmax(constrained),<span class="dv">3</span>))</span>
-<span id="cb26-164"><a href="#cb26-164" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-165"><a href="#cb26-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-166"><a href="#cb26-166" aria-hidden="true" tabindex="-1"></a><span class="fu">### Beam search is a search policy, not a probability objective</span></span>
-<span id="cb26-167"><a href="#cb26-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-168"><a href="#cb26-168" aria-hidden="true" tabindex="-1"></a>Beam search retains several partial sequences and expands them, often ranking by accumulated log probability with an optional length adjustment. It can find a higher-probability complete sequence than greedy decoding under its search width, but it is more costly and can favour short or repetitive text without a declared length policy. It is useful to distinguish its search score from a user-facing quality measure.</span>
-<span id="cb26-169"><a href="#cb26-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-172"><a href="#cb26-172" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-173"><a href="#cb26-173" aria-hidden="true" tabindex="-1"></a>beams<span class="op">=</span>[([<span class="st">"the"</span>],np.log(<span class="fl">.42</span>)),([<span class="st">"a"</span>],np.log(<span class="fl">.25</span>))]</span>
-<span id="cb26-174"><a href="#cb26-174" aria-hidden="true" tabindex="-1"></a>extensions<span class="op">=</span>{<span class="st">"the"</span>:[(<span class="st">"cat"</span>,<span class="fl">.6</span>),(<span class="st">"dog"</span>,<span class="fl">.3</span>)],<span class="st">"a"</span>:[(<span class="st">"cat"</span>,<span class="fl">.5</span>),(<span class="st">"dog"</span>,<span class="fl">.4</span>)]}</span>
-<span id="cb26-175"><a href="#cb26-175" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[]</span>
-<span id="cb26-176"><a href="#cb26-176" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> prefix,score <span class="kw">in</span> beams:</span>
-<span id="cb26-177"><a href="#cb26-177" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> token,p <span class="kw">in</span> extensions[prefix[<span class="op">-</span><span class="dv">1</span>]]: candidates.append((prefix<span class="op">+</span>[token],score<span class="op">+</span>np.log(p)))</span>
-<span id="cb26-178"><a href="#cb26-178" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(candidates,key<span class="op">=</span><span class="kw">lambda</span> x:x[<span class="dv">1</span>],reverse<span class="op">=</span><span class="va">True</span>))</span>
-<span id="cb26-179"><a href="#cb26-179" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-180"><a href="#cb26-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-181"><a href="#cb26-181" aria-hidden="true" tabindex="-1"></a><span class="fu">### Length preferences need to be made visible</span></span>
-<span id="cb26-182"><a href="#cb26-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-183"><a href="#cb26-183" aria-hidden="true" tabindex="-1"></a>Sequence probability multiplies conditional probabilities, so longer sequences usually accumulate more negative log probability than shorter ones. A decoder that ranks complete sequences therefore needs an explicit policy for length, end tokens, and incomplete outputs. Beam search implementations commonly use a length-normalised score or penalty for this reason. The formula and stopping rule matter: a change can favour concise answers, unfinished fragments, or unnecessarily extended text.</span>
-<span id="cb26-184"><a href="#cb26-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-185"><a href="#cb26-185" aria-hidden="true" tabindex="-1"></a>The right policy depends on the task. Extracting one span, producing valid code, writing a bounded abstract, and continuing open-ended prose have different length requirements. A generic statement that a setting “improves quality” is not enough. The evaluation must identify the desired completion boundary and assess whether outputs stop too early, too late, or at an inappropriate structural point.</span>
-<span id="cb26-186"><a href="#cb26-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-189"><a href="#cb26-189" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-190"><a href="#cb26-190" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-length-policy</span></span>
-<span id="cb26-191"><a href="#cb26-191" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A length policy can change the ranking of candidate sequences even when their token-level probabilities are unchanged."</span></span>
-<span id="cb26-192"><a href="#cb26-192" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart compares raw accumulated log probability and a length-normalised score for a short and long candidate."</span></span>
-<span id="cb26-193"><a href="#cb26-193" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"short candidate"</span>,<span class="st">"long candidate"</span>]</span>
-<span id="cb26-194"><a href="#cb26-194" aria-hidden="true" tabindex="-1"></a>raw_scores<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">2.0</span>,<span class="op">-</span><span class="fl">2.7</span>])<span class="op">;</span> normalised<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">1.0</span>,<span class="op">-</span><span class="fl">.9</span>])<span class="op">;</span> x<span class="op">=</span>np.arange(<span class="dv">2</span>)<span class="op">;</span> w<span class="op">=</span><span class="fl">.35</span></span>
-<span id="cb26-195"><a href="#cb26-195" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw_scores,w,label<span class="op">=</span><span class="st">"raw log score"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,normalised,w,label<span class="op">=</span><span class="st">"illustrative length-normalised score"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,labels)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.7</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Ranking depends on an explicit length policy"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb26-196"><a href="#cb26-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-197"><a href="#cb26-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-198"><a href="#cb26-198" aria-hidden="true" tabindex="-1"></a><span class="fu">### Output diversity is not an unconditional good</span></span>
-<span id="cb26-199"><a href="#cb26-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-200"><a href="#cb26-200" aria-hidden="true" tabindex="-1"></a>Sampling several continuations can be useful when a task permits alternatives, such as brainstorming, creative writing, or producing candidate solutions for a later verifier. Diversity can be harmful when an answer must be stable, precisely formatted, or grounded in a supplied record. Increasing temperature or candidate support changes the distribution of output strings; it does not distinguish useful variation from unsupported variation.</span>
-<span id="cb26-201"><a href="#cb26-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-202"><a href="#cb26-202" aria-hidden="true" tabindex="-1"></a>An evaluation should therefore state whether it values one reproducible best answer, multiple candidates with a selection stage, or variation subject to a constraint. When several samples are generated, report the number of draws and aggregation rule. Selecting the most attractive sample after inspection without recording that selection produces a result that cannot be reproduced or fairly compared with one deterministic output.</span>
-<span id="cb26-203"><a href="#cb26-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-206"><a href="#cb26-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-207"><a href="#cb26-207" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">3</span>)</span>
-<span id="cb26-208"><a href="#cb26-208" aria-hidden="true" tabindex="-1"></a>draws<span class="op">=</span>[np.random.choice(tokens,p<span class="op">=</span>softmax(logits<span class="op">/</span><span class="fl">.9</span>)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>)]</span>
-<span id="cb26-209"><a href="#cb26-209" aria-hidden="true" tabindex="-1"></a>counts<span class="op">=</span>{token:draws.count(token) <span class="cf">for</span> token <span class="kw">in</span> tokens}</span>
-<span id="cb26-210"><a href="#cb26-210" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sample counts:"</span>,counts)</span>
-<span id="cb26-211"><a href="#cb26-211" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-212"><a href="#cb26-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-213"><a href="#cb26-213" aria-hidden="true" tabindex="-1"></a><span class="fu">### Token-level controls interact across steps</span></span>
-<span id="cb26-214"><a href="#cb26-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-215"><a href="#cb26-215" aria-hidden="true" tabindex="-1"></a>Temperature, top-p, penalties, and constraints are recalculated at every generated position. A setting that appears mild for the first token can have a larger effect after the prefix changes or after a penalty has accumulated. Stop sequences can be split into several token IDs, so checking visible strings after decoding is not always equivalent to checking token sequences during decoding. The tokenizer and exact control stage should be recorded.</span>
-<span id="cb26-216"><a href="#cb26-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-217"><a href="#cb26-217" aria-hidden="true" tabindex="-1"></a>This interaction is a reason to test full sequences rather than only the first next-token distribution. A policy evaluation can retain traces of logits or candidate sets for a small reference prompt, then compare the selected IDs and stop reason across implementations. The trace is especially useful when a library upgrade changes a boundary convention or numerical path.</span>
-<span id="cb26-218"><a href="#cb26-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-219"><a href="#cb26-219" aria-hidden="true" tabindex="-1"></a><span class="fu">### Decoding must match the consequence of an error</span></span>
-<span id="cb26-220"><a href="#cb26-220" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-221"><a href="#cb26-221" aria-hidden="true" tabindex="-1"></a>For a structured extraction task, a system can favour deterministic decoding, an exact schema, and a validator because variation has little value and an incorrect field can cause a downstream error. For exploratory drafting, several sampled candidates may be useful if a reviewer or verifier selects among them. For a question that requires external evidence, sampling cannot compensate for missing or irrelevant context. The selection policy should follow the task's decision rule and cost of failure.</span>
-<span id="cb26-222"><a href="#cb26-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-223"><a href="#cb26-223" aria-hidden="true" tabindex="-1"></a>This is also why output quality and model probability should not be conflated. A highly probable continuation can be generic, outdated, or unsupported. A low-probability continuation may be correct but should be checked against evidence or a task verifier. Decoding controls the way a model distribution is exposed; it is not an independent source of knowledge.</span>
-<span id="cb26-224"><a href="#cb26-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-227"><a href="#cb26-227" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-228"><a href="#cb26-228" aria-hidden="true" tabindex="-1"></a>tasks<span class="op">=</span>{<span class="st">"extraction"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"schema and source match"</span>},<span class="st">"drafting"</span>:{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"validator"</span>:<span class="st">"human selection"</span>},<span class="st">"calculation"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"exact check"</span>}}</span>
-<span id="cb26-229"><a href="#cb26-229" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task,policy <span class="kw">in</span> tasks.items(): <span class="bu">print</span>(task,policy)</span>
-<span id="cb26-230"><a href="#cb26-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-231"><a href="#cb26-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-232"><a href="#cb26-232" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Auditing generation</span></span>
-<span id="cb26-233"><a href="#cb26-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-234"><a href="#cb26-234" aria-hidden="true" tabindex="-1"></a><span class="fu">### A decoding evaluation varies policies deliberately</span></span>
-<span id="cb26-235"><a href="#cb26-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-236"><a href="#cb26-236" aria-hidden="true" tabindex="-1"></a>An evaluation should hold model version, prompt construction, context policy, and scoring rule fixed while varying one decoding decision at a time. It should report output length, stop reason, random seed where applicable, temperature, candidate restriction, penalties, constraints, and number of samples or beams. Comparing two outputs generated under hiddenly different settings does not identify whether a change came from the model or the decoder.</span>
-<span id="cb26-237"><a href="#cb26-237" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-238"><a href="#cb26-238" aria-hidden="true" tabindex="-1"></a>For deterministic tasks, assess exact validity, extraction accuracy, code execution, or another declared criterion. For open-ended tasks, collect multiple samples and evaluate properties such as factual support, adherence to required format, diversity, and harmful or irrelevant content under a defined protocol. A single appealing sample is not an estimate of a stochastic policy's expected behaviour.</span>
-<span id="cb26-239"><a href="#cb26-239" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-242"><a href="#cb26-242" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-243"><a href="#cb26-243" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-policy-audit</span></span>
-<span id="cb26-244"><a href="#cb26-244" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A generation result depends on the model and prompt as well as a recorded decoding policy, stopping rule, and evaluation criterion."</span></span>
-<span id="cb26-245"><a href="#cb26-245" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Boxes for model and prompt feed into decoding settings, then generated samples and task-specific evaluation."</span></span>
-<span id="cb26-246"><a href="#cb26-246" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb26-247"><a href="#cb26-247" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"model +</span><span class="ch">\n</span><span class="st">prompt"</span>,blue),(<span class="fl">2.5</span>,<span class="st">"decoding</span><span class="ch">\n</span><span class="st">policy"</span>,teal),(<span class="fl">4.7</span>,<span class="st">"generated</span><span class="ch">\n</span><span class="st">samples"</span>,orange),(<span class="fl">6.9</span>,<span class="st">"declared</span><span class="ch">\n</span><span class="st">evaluation"</span>,purple)]:</span>
-<span id="cb26-248"><a href="#cb26-248" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.15</span>),<span class="fl">1.5</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.46</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb26-249"><a href="#cb26-249" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x<span class="op">&lt;</span><span class="dv">6</span>: ax.add_patch(FancyArrowPatch((x<span class="op">+</span><span class="fl">1.53</span>,<span class="fl">1.46</span>),(x<span class="op">+</span><span class="fl">2.12</span>,<span class="fl">1.46</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">12</span>))</span>
-<span id="cb26-250"><a href="#cb26-250" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Record the settings that turn a probability distribution into an observable output."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.25</span>,<span class="fl">2.2</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb26-251"><a href="#cb26-251" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-252"><a href="#cb26-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-253"><a href="#cb26-253" aria-hidden="true" tabindex="-1"></a><span class="fu">### A generation record supports reproduction and diagnosis</span></span>
-<span id="cb26-254"><a href="#cb26-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-255"><a href="#cb26-255" aria-hidden="true" tabindex="-1"></a>At minimum, retain the checkpoint and tokenizer versions, prompt template and final token IDs, system messages or tool constraints, context and truncation policy, maximum new tokens, temperature, top-k or top-p convention, seed, repetition controls, stop sequences, beam settings, hardware or numerical settings where determinism matters, output IDs, and stop reason. This record makes it possible to reproduce a result or identify why a boundary case changed after a system update.</span>
-<span id="cb26-256"><a href="#cb26-256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-259"><a href="#cb26-259" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb26-260"><a href="#cb26-260" aria-hidden="true" tabindex="-1"></a>generation_record<span class="op">=</span>{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"top_p"</span>:<span class="fl">.9</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">256</span>,<span class="st">"seed"</span>:<span class="dv">17</span>,<span class="st">"stop_reason"</span>:<span class="st">"eos"</span>,<span class="st">"tokenizer"</span>:<span class="st">"versioned"</span>}</span>
-<span id="cb26-261"><a href="#cb26-261" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"temperature"</span>,<span class="st">"max_new_tokens"</span>,<span class="st">"tokenizer"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(generation_record)</span>
-<span id="cb26-262"><a href="#cb26-262" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generation_record)</span>
-<span id="cb26-263"><a href="#cb26-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb26-264"><a href="#cb26-264" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-265"><a href="#cb26-265" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb26-266"><a href="#cb26-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-267"><a href="#cb26-267" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Greedy output is the model's only answer.** It is one selection rule applied repeatedly.</span>
-<span id="cb26-268"><a href="#cb26-268" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Temperature improves factuality.** It changes the concentration of sampling probabilities.</span>
-<span id="cb26-269"><a href="#cb26-269" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Top-p always retains the same number of tokens.** Candidate count changes with distribution shape.</span>
-<span id="cb26-270"><a href="#cb26-270" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A fixed seed makes all generation environments identical.** Implementations, precision, and sampling conventions can still differ.</span>
-<span id="cb26-271"><a href="#cb26-271" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Repetition penalties solve hallucination.** They alter token preferences without adding evidence.</span>
-<span id="cb26-272"><a href="#cb26-272" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A valid constrained format proves correct content.** Structural validity and factual correctness are separate checks.</span>
-<span id="cb26-273"><a href="#cb26-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-274"><a href="#cb26-274" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb26-275"><a href="#cb26-275" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-276"><a href="#cb26-276" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Select the greedy token from a supplied distribution.</span>
-<span id="cb26-277"><a href="#cb26-277" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Explain why sampling produces different valid runs.</span>
-<span id="cb26-278"><a href="#cb26-278" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate a temperature-transformed softmax for two logits.</span>
-<span id="cb26-279"><a href="#cb26-279" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Implement top-k filtering and state its boundary rule.</span>
-<span id="cb26-280"><a href="#cb26-280" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Implement top-p filtering that includes the threshold-crossing token.</span>
-<span id="cb26-281"><a href="#cb26-281" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Compare top-k and top-p on a peaked and a flat distribution.</span>
-<span id="cb26-282"><a href="#cb26-282" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>State two stop policies and their failure modes.</span>
-<span id="cb26-283"><a href="#cb26-283" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Apply a token repetition penalty to a toy logit vector.</span>
-<span id="cb26-284"><a href="#cb26-284" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Explain why a hard JSON constraint does not verify a claim inside JSON.</span>
-<span id="cb26-285"><a href="#cb26-285" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Expand one beam-search step and rank candidate prefixes.</span>
-<span id="cb26-286"><a href="#cb26-286" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Design an evaluation for stochastic short-answer generation.</span>
-<span id="cb26-287"><a href="#cb26-287" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>State which settings must be held fixed when comparing temperature values.</span>
-<span id="cb26-288"><a href="#cb26-288" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>List the fields needed to reproduce one generated output.</span>
-<span id="cb26-289"><a href="#cb26-289" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Explain why teacher-forced loss does not fully determine generated sequences.</span>
-<span id="cb26-290"><a href="#cb26-290" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Compare a length cap with an end-token stop rule.</span>
-<span id="cb26-291"><a href="#cb26-291" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that treats instruction tuning after base pretraining.</span>
-<span id="cb26-292"><a href="#cb26-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-293"><a href="#cb26-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
-<span id="cb26-294"><a href="#cb26-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-295"><a href="#cb26-295" aria-hidden="true" tabindex="-1"></a>Decoding turns next-token distributions into generated sequences through a sequence of explicit decisions. Temperature, candidate restrictions, search, penalties, constraints, and stopping rules all change the output policy. They should be selected and evaluated against a stated task, not presented as generic quality improvements.</span>
-<span id="cb26-296"><a href="#cb26-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-297"><a href="#cb26-297" aria-hidden="true" tabindex="-1"></a>Generation records must retain the model, input, tokenisation, and decoding configuration. <span class="co">[</span><span class="ot">Chapter 29</span><span class="co">](29-instruction-tuning.qmd)</span> examines supervised adaptation from base next-token prediction to instruction-following behaviour.</span>
-<span id="cb26-298"><a href="#cb26-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-299"><a href="#cb26-299" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
-<span id="cb26-300"><a href="#cb26-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-301"><a href="#cb26-301" aria-hidden="true" tabindex="-1"></a>Decoding changes how a fixed checkpoint behaves at inference time. <span class="co">[</span><span class="ot">Chapter 29</span><span class="co">](29-instruction-tuning.qmd)</span> examines a different intervention: supervised adaptation of the checkpoint to structured instruction-and-response examples.</span>
-<span id="cb26-302"><a href="#cb26-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-303"><a href="#cb26-303" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb26-304"><a href="#cb26-304" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-305"><a href="#cb26-305" aria-hidden="true" tabindex="-1"></a>Nucleus sampling is analysed by @holtzman2020curious. The base autoregressive distribution and causal target shift are developed in Chapter 25.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-distribution-decision</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A decoder transforms a next-token probability distribution into a selected token under a declared rule."</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A probability bar chart feeds into a decision box that outputs one selected token."</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>np.array([<span class="st">"the"</span>,<span class="st">"a"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>])</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>probs<span class="op">=</span>np.array([<span class="fl">.42</span>,<span class="fl">.25</span>,<span class="fl">.17</span>,<span class="fl">.10</span>,<span class="fl">.06</span>])</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.bar(tokens,probs,color<span class="op">=</span>blue)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">.5</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"next-token probability"</span>)</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">4.2</span>,<span class="fl">.3</span>),(<span class="fl">5.45</span>,<span class="fl">.3</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>orange,mutation_scale<span class="op">=</span><span class="dv">14</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.6</span>,<span class="fl">.12</span>),<span class="fl">1.3</span>,<span class="fl">.36</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.25</span>,<span class="fl">.3</span>,<span class="st">"decoder"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.text(<span class="fl">7.55</span>,<span class="fl">.3</span>,<span class="st">"selected</span><span class="ch">\n</span><span class="st">token"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_title(<span class="st">"Distribution and decision are separate objects"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>Two systems with identical distributions can emit different text under different rules, and one sampling rule can emit different text across runs. Attributing any observed difference requires knowing the rule, which is why decoding configuration belongs in every reproducible record.</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-decoding data-term="Decoding" data-domain="Large language models"}</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>**Decoding.** The policy that turns a model's next-token distribution into an output sequence. Temperature, truncation, sampling, and stopping rules change the distribution of produced responses without changing the trained parameters.</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a><span class="fu">### The model supplies options; decoding makes a choice</span></span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>Greedy decoding selects the highest-probability token at every step. It is deterministic when model computation is deterministic and the prompt is unchanged. It can be appropriate when a task has a narrow expected continuation, but it can also create repetitive or generic sequences because it always commits to the local maximum.</span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>Sampling selects a token according to the probability distribution, so lower-probability options can appear. Two runs can differ even when the model and prompt are identical. This is not evidence that the model changed; it is a property of the generation policy. A seed can make pseudorandom sampling reproducible for a declared implementation, but it does not make the output uniquely implied by the model.</span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">7</span>)</span>
+<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"greedy:"</span>,tokens[probs.argmax()])</span>
+<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"samples:"</span>,np.random.choice(tokens,size<span class="op">=</span><span class="dv">8</span>,p<span class="op">=</span>probs))</span>
+<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>Generated text is a sequence of such decisions. A locally likely first token can move the prefix into a different region of the model distribution. This is why a loss measured under teacher forcing does not fully describe the behaviour of an autoregressive system that conditions on its own selected tokens.</span>
+<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a><span class="fu">### Stopping is also a decoding decision</span></span>
+<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-61"><a href="#cb26-61" aria-hidden="true" tabindex="-1"></a>Many systems stop when an end-of-sequence token is selected, when a maximum new-token length is reached, or when a configured string or token sequence occurs. Each rule can truncate an answer or permit unnecessary continuation. A maximum length is not merely a user-interface setting: it changes which complete sequences can be emitted and may interact with the context budget in Chapter 27.</span>
+<span id="cb26-62"><a href="#cb26-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-65"><a href="#cb26-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-66"><a href="#cb26-66" aria-hidden="true" tabindex="-1"></a>generated<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>]</span>
+<span id="cb26-67"><a href="#cb26-67" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,token <span class="kw">in</span> <span class="bu">enumerate</span>(generated,<span class="dv">1</span>):</span>
+<span id="cb26-68"><a href="#cb26-68" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(step,token)</span>
+<span id="cb26-69"><a href="#cb26-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> token<span class="op">==</span><span class="st">"&lt;eos&gt;"</span>:</span>
+<span id="cb26-70"><a href="#cb26-70" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"stop on end token"</span>)<span class="op">;</span> <span class="cf">break</span></span>
+<span id="cb26-71"><a href="#cb26-71" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-72"><a href="#cb26-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-73"><a href="#cb26-73" aria-hidden="true" tabindex="-1"></a>Level 1 separated the model's options from the decoder's choice, including the choice to stop. Level 2 makes the single-step transformations explicit: how temperature, top-k, and top-p reshape the distribution before a token is drawn.</span>
+<span id="cb26-74"><a href="#cb26-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-75"><a href="#cb26-75" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb26-76"><a href="#cb26-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-77"><a href="#cb26-77" aria-hidden="true" tabindex="-1"></a><span class="fu">### Temperature changes relative concentration</span></span>
+<span id="cb26-78"><a href="#cb26-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-79"><a href="#cb26-79" aria-hidden="true" tabindex="-1"></a>Temperature divides logits before softmax. For logits $z$ and temperature $\tau&gt;0$, the transformed distribution is $\operatorname{softmax}(z/\tau)$. Values below one sharpen differences between logits; values above one flatten the distribution. Temperature does not add information or identify an appropriate answer. It changes how sharply the decoder follows the model's existing ranking.</span>
+<span id="cb26-80"><a href="#cb26-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-83"><a href="#cb26-83" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-84"><a href="#cb26-84" aria-hidden="true" tabindex="-1"></a>logits<span class="op">=</span>np.log(probs)</span>
+<span id="cb26-85"><a href="#cb26-85" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(x):</span>
+<span id="cb26-86"><a href="#cb26-86" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>x<span class="op">-</span>x.<span class="bu">max</span>()<span class="op">;</span> e<span class="op">=</span>np.exp(x)<span class="op">;</span> <span class="cf">return</span> e<span class="op">/</span>e.<span class="bu">sum</span>()</span>
+<span id="cb26-87"><a href="#cb26-87" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temperature <span class="kw">in</span> [<span class="fl">.5</span>,<span class="fl">1.0</span>,<span class="fl">1.5</span>]:</span>
+<span id="cb26-88"><a href="#cb26-88" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(temperature,np.<span class="bu">round</span>(softmax(logits<span class="op">/</span>temperature),<span class="dv">3</span>))</span>
+<span id="cb26-89"><a href="#cb26-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-90"><a href="#cb26-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-93"><a href="#cb26-93" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-94"><a href="#cb26-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-temperature</span></span>
+<span id="cb26-95"><a href="#cb26-95" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Lower temperatures concentrate probability on high-logit tokens, while higher temperatures flatten the sampling distribution."</span></span>
+<span id="cb26-96"><a href="#cb26-96" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three line plots compare token probabilities at temperatures 0.5, 1.0, and 1.5."</span></span>
+<span id="cb26-97"><a href="#cb26-97" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))</span>
+<span id="cb26-98"><a href="#cb26-98" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> temperature,c <span class="kw">in</span> [(<span class="fl">.5</span>,orange),(<span class="fl">1.0</span>,teal),(<span class="fl">1.5</span>,purple)]: ax.plot(tokens,softmax(logits<span class="op">/</span>temperature),marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="ss">f"T=</span><span class="sc">{</span>temperature<span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>c)</span>
+<span id="cb26-99"><a href="#cb26-99" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"sampling probability"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Temperature transforms the distribution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb26-100"><a href="#cb26-100" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-101"><a href="#cb26-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-102"><a href="#cb26-102" aria-hidden="true" tabindex="-1"></a>Very low temperature approaches greedy selection but remains a distribution. Very high temperature can allocate substantial mass to tokens that were unlikely under the original model. The useful setting depends on the task, prompt, model, and other controls; one numerical value should not be treated as a universal quality setting.</span>
+<span id="cb26-103"><a href="#cb26-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-104"><a href="#cb26-104" aria-hidden="true" tabindex="-1"></a><span class="fu">### Top-k and top-p restrict the candidate set</span></span>
+<span id="cb26-105"><a href="#cb26-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-106"><a href="#cb26-106" aria-hidden="true" tabindex="-1"></a>Top-k keeps the $k$ highest-probability entries, sets the rest to zero, and renormalises. Nucleus or top-p sampling keeps the smallest high-probability set whose cumulative mass reaches a threshold $p$, then renormalises. Top-k has a fixed candidate count; top-p adapts its count to the distribution's concentration <span class="co">[</span><span class="ot">@holtzman2020curious</span><span class="co">]</span>.</span>
+<span id="cb26-107"><a href="#cb26-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-110"><a href="#cb26-110" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-111"><a href="#cb26-111" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_k_distribution(p,k):</span>
+<span id="cb26-112"><a href="#cb26-112" aria-hidden="true" tabindex="-1"></a>    keep<span class="op">=</span>np.argsort(p)[<span class="op">-</span>k:]<span class="op">;</span> q<span class="op">=</span>np.zeros_like(p)<span class="op">;</span> q[keep]<span class="op">=</span>p[keep]<span class="op">;</span> <span class="cf">return</span> q<span class="op">/</span>q.<span class="bu">sum</span>()</span>
+<span id="cb26-113"><a href="#cb26-113" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_p_distribution(p,threshold):</span>
+<span id="cb26-114"><a href="#cb26-114" aria-hidden="true" tabindex="-1"></a>    order<span class="op">=</span>np.argsort(p)[::<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> cumulative<span class="op">=</span>np.cumsum(p[order])<span class="op">;</span> keep<span class="op">=</span>order[cumulative<span class="op">&lt;=</span>threshold]</span>
+<span id="cb26-115"><a href="#cb26-115" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(keep)<span class="op">==</span><span class="dv">0</span>: keep<span class="op">=</span>order[:<span class="dv">1</span>]</span>
+<span id="cb26-116"><a href="#cb26-116" aria-hidden="true" tabindex="-1"></a>    q<span class="op">=</span>np.zeros_like(p)<span class="op">;</span> q[keep]<span class="op">=</span>p[keep]<span class="op">;</span> <span class="cf">return</span> q<span class="op">/</span>q.<span class="bu">sum</span>()</span>
+<span id="cb26-117"><a href="#cb26-117" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-k=3:"</span>,np.<span class="bu">round</span>(top_k_distribution(probs,<span class="dv">3</span>),<span class="dv">3</span>))</span>
+<span id="cb26-118"><a href="#cb26-118" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"top-p=.8:"</span>,np.<span class="bu">round</span>(top_p_distribution(probs,<span class="fl">.8</span>),<span class="dv">3</span>))</span>
+<span id="cb26-119"><a href="#cb26-119" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-120"><a href="#cb26-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-121"><a href="#cb26-121" aria-hidden="true" tabindex="-1"></a>The exact top-p boundary convention must be stated: implementations often include the first token that crosses the threshold, while the toy function above retains entries up to the threshold. Small implementation details can change generated output, especially near a boundary.</span>
+<span id="cb26-122"><a href="#cb26-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-125"><a href="#cb26-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-126"><a href="#cb26-126" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-truncation-policies</span></span>
+<span id="cb26-127"><a href="#cb26-127" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Top-k keeps a fixed number of candidates, while top-p keeps a variable number sufficient to reach a cumulative probability threshold."</span></span>
+<span id="cb26-128"><a href="#cb26-128" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A ranked probability bar chart highlights three top-k entries and the entries retained by an 0.8 cumulative threshold."</span></span>
+<span id="cb26-129"><a href="#cb26-129" aria-hidden="true" tabindex="-1"></a>order<span class="op">=</span>np.argsort(probs)[::<span class="op">-</span><span class="dv">1</span>]<span class="op">;</span> ranked<span class="op">=</span>probs[order]</span>
+<span id="cb26-130"><a href="#cb26-130" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(np.arange(<span class="bu">len</span>(tokens)),ranked,color<span class="op">=</span>[teal,teal,teal,grey,grey])<span class="op">;</span> ax.plot(np.arange(<span class="bu">len</span>(tokens)),np.cumsum(ranked),color<span class="op">=</span>orange,marker<span class="op">=</span><span class="st">"o"</span>,label<span class="op">=</span><span class="st">"cumulative mass"</span>)<span class="op">;</span> ax.axhline(<span class="fl">.8</span>,color<span class="op">=</span>purple,ls<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"top-p threshold"</span>)<span class="op">;</span> ax.set_xticks(np.arange(<span class="bu">len</span>(tokens)),tokens[order])<span class="op">;</span> ax.set_ylabel(<span class="st">"probability / cumulative mass"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Candidate restrictions depend on distribution rank"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb26-131"><a href="#cb26-131" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-132"><a href="#cb26-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-133"><a href="#cb26-133" aria-hidden="true" tabindex="-1"></a>The two policies restrict the same ranked distribution differently: top-k keeps a fixed count regardless of how the mass is spread, while top-p keeps as many tokens as the threshold requires. A peaked distribution gives top-p few candidates; a flat one gives it many.</span>
+<span id="cb26-134"><a href="#cb26-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-135"><a href="#cb26-135" aria-hidden="true" tabindex="-1"></a>Level 2 reshaped the distribution for a single decision. Level 3 assembles decisions into sequence-level controls: repetition penalties, hard constraints, beam search, and length policies.</span>
+<span id="cb26-136"><a href="#cb26-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-137"><a href="#cb26-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb26-138"><a href="#cb26-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-139"><a href="#cb26-139" aria-hidden="true" tabindex="-1"></a><span class="fu">### Repetition controls change the sequence distribution</span></span>
+<span id="cb26-140"><a href="#cb26-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-141"><a href="#cb26-141" aria-hidden="true" tabindex="-1"></a>Systems sometimes penalise tokens that appeared in the prefix, block repeated n-grams, or alter logits after selected patterns. These controls can reduce some visible loops, but they also can suppress legitimate repetition: names, quotations, structured lists, and code may require the same token or phrase. A repetition setting should therefore be evaluated on examples where repetition is both undesirable and necessary.</span>
+<span id="cb26-142"><a href="#cb26-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-145"><a href="#cb26-145" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-146"><a href="#cb26-146" aria-hidden="true" tabindex="-1"></a>seen<span class="op">=</span>{<span class="st">"the"</span>,<span class="st">"cat"</span>}<span class="op">;</span> adjusted<span class="op">=</span>logits.copy()</span>
+<span id="cb26-147"><a href="#cb26-147" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
+<span id="cb26-148"><a href="#cb26-148" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> t <span class="kw">in</span> seen: adjusted[i]<span class="op">-=</span><span class="fl">.8</span></span>
+<span id="cb26-149"><a href="#cb26-149" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"original:"</span>,np.<span class="bu">round</span>(softmax(logits),<span class="dv">3</span>))</span>
+<span id="cb26-150"><a href="#cb26-150" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"penalised:"</span>,np.<span class="bu">round</span>(softmax(adjusted),<span class="dv">3</span>))</span>
+<span id="cb26-151"><a href="#cb26-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-152"><a href="#cb26-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-153"><a href="#cb26-153" aria-hidden="true" tabindex="-1"></a>Constraints can be hard rather than soft. A JSON grammar, allowed vocabulary, stop sequence, or tool-call schema can make invalid outputs impossible under the decoder, while leaving questions about the correctness of valid content. Constraints operate on form; they do not verify claims unless they are connected to an external validation process.</span>
+<span id="cb26-154"><a href="#cb26-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-157"><a href="#cb26-157" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-158"><a href="#cb26-158" aria-hidden="true" tabindex="-1"></a>allowed<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">True</span>])</span>
+<span id="cb26-159"><a href="#cb26-159" aria-hidden="true" tabindex="-1"></a>constrained<span class="op">=</span>np.where(allowed,logits,<span class="op">-</span>np.inf)</span>
+<span id="cb26-160"><a href="#cb26-160" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"allowed sampling distribution:"</span>,np.<span class="bu">round</span>(softmax(constrained),<span class="dv">3</span>))</span>
+<span id="cb26-161"><a href="#cb26-161" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-162"><a href="#cb26-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-163"><a href="#cb26-163" aria-hidden="true" tabindex="-1"></a><span class="fu">### Beam search is a search policy, not a probability objective</span></span>
+<span id="cb26-164"><a href="#cb26-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-165"><a href="#cb26-165" aria-hidden="true" tabindex="-1"></a>Beam search retains several partial sequences and expands them, often ranking by accumulated log probability with an optional length adjustment. It can find a higher-probability complete sequence than greedy decoding under its search width, but it is more costly and can favour short or repetitive text without a declared length policy. It is useful to distinguish its search score from a user-facing quality measure.</span>
+<span id="cb26-166"><a href="#cb26-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-169"><a href="#cb26-169" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-170"><a href="#cb26-170" aria-hidden="true" tabindex="-1"></a>beams<span class="op">=</span>[([<span class="st">"the"</span>],np.log(<span class="fl">.42</span>)),([<span class="st">"a"</span>],np.log(<span class="fl">.25</span>))]</span>
+<span id="cb26-171"><a href="#cb26-171" aria-hidden="true" tabindex="-1"></a>extensions<span class="op">=</span>{<span class="st">"the"</span>:[(<span class="st">"cat"</span>,<span class="fl">.6</span>),(<span class="st">"dog"</span>,<span class="fl">.3</span>)],<span class="st">"a"</span>:[(<span class="st">"cat"</span>,<span class="fl">.5</span>),(<span class="st">"dog"</span>,<span class="fl">.4</span>)]}</span>
+<span id="cb26-172"><a href="#cb26-172" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[]</span>
+<span id="cb26-173"><a href="#cb26-173" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> prefix,score <span class="kw">in</span> beams:</span>
+<span id="cb26-174"><a href="#cb26-174" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> token,p <span class="kw">in</span> extensions[prefix[<span class="op">-</span><span class="dv">1</span>]]: candidates.append((prefix<span class="op">+</span>[token],score<span class="op">+</span>np.log(p)))</span>
+<span id="cb26-175"><a href="#cb26-175" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(candidates,key<span class="op">=</span><span class="kw">lambda</span> x:x[<span class="dv">1</span>],reverse<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb26-176"><a href="#cb26-176" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-177"><a href="#cb26-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-178"><a href="#cb26-178" aria-hidden="true" tabindex="-1"></a><span class="fu">### Length preferences need to be made visible</span></span>
+<span id="cb26-179"><a href="#cb26-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-180"><a href="#cb26-180" aria-hidden="true" tabindex="-1"></a>Sequence probability multiplies conditional probabilities, so longer sequences usually accumulate more negative log probability than shorter ones. A decoder that ranks complete sequences therefore needs an explicit policy for length, end tokens, and incomplete outputs. Beam search implementations commonly use a length-normalised score or penalty for this reason. The formula and stopping rule matter: a change can favour concise answers, unfinished fragments, or unnecessarily extended text.</span>
+<span id="cb26-181"><a href="#cb26-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-182"><a href="#cb26-182" aria-hidden="true" tabindex="-1"></a>The right policy depends on the task. Extracting one span, producing valid code, writing a bounded abstract, and continuing open-ended prose have different length requirements. A generic statement that a setting “improves quality” is not enough. The evaluation must identify the desired completion boundary and assess whether outputs stop too early, too late, or at an inappropriate structural point.</span>
+<span id="cb26-183"><a href="#cb26-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-186"><a href="#cb26-186" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-187"><a href="#cb26-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-length-policy</span></span>
+<span id="cb26-188"><a href="#cb26-188" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A length policy can change the ranking of candidate sequences even when their token-level probabilities are unchanged."</span></span>
+<span id="cb26-189"><a href="#cb26-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A bar chart compares raw accumulated log probability and a length-normalised score for a short and long candidate."</span></span>
+<span id="cb26-190"><a href="#cb26-190" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"short candidate"</span>,<span class="st">"long candidate"</span>]</span>
+<span id="cb26-191"><a href="#cb26-191" aria-hidden="true" tabindex="-1"></a>raw_scores<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">2.0</span>,<span class="op">-</span><span class="fl">2.7</span>])<span class="op">;</span> normalised<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">1.0</span>,<span class="op">-</span><span class="fl">.9</span>])<span class="op">;</span> x<span class="op">=</span>np.arange(<span class="dv">2</span>)<span class="op">;</span> w<span class="op">=</span><span class="fl">.35</span></span>
+<span id="cb26-192"><a href="#cb26-192" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw_scores,w,label<span class="op">=</span><span class="st">"raw log score"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,normalised,w,label<span class="op">=</span><span class="st">"illustrative length-normalised score"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,labels)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.7</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Ranking depends on an explicit length policy"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb26-193"><a href="#cb26-193" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-194"><a href="#cb26-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-195"><a href="#cb26-195" aria-hidden="true" tabindex="-1"></a>The raw accumulated score favours the short candidate; the normalised score reverses that ranking. Neither ranking is intrinsic to the model: each follows from a policy that must be declared.</span>
+<span id="cb26-196"><a href="#cb26-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-197"><a href="#cb26-197" aria-hidden="true" tabindex="-1"></a>Level 3 implemented the single-step and sequence-level controls. Level 4 examines how they are evaluated against a stated task: diversity, cross-step interaction, error consequence, and the records that make a generation reproducible.</span>
+<span id="cb26-198"><a href="#cb26-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-199"><a href="#cb26-199" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb26-200"><a href="#cb26-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-201"><a href="#cb26-201" aria-hidden="true" tabindex="-1"></a><span class="fu">### Output diversity is not an unconditional good</span></span>
+<span id="cb26-202"><a href="#cb26-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-203"><a href="#cb26-203" aria-hidden="true" tabindex="-1"></a>Sampling several continuations can be useful when a task permits alternatives, such as brainstorming, creative writing, or producing candidate solutions for a later verifier. Diversity can be harmful when an answer must be stable, precisely formatted, or grounded in a supplied record. Increasing temperature or candidate support changes the distribution of output strings; it does not distinguish useful variation from unsupported variation.</span>
+<span id="cb26-204"><a href="#cb26-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-205"><a href="#cb26-205" aria-hidden="true" tabindex="-1"></a>An evaluation should therefore state whether it values one reproducible best answer, multiple candidates with a selection stage, or variation subject to a constraint. When several samples are generated, report the number of draws and aggregation rule. Selecting the most attractive sample after inspection without recording that selection produces a result that cannot be reproduced or fairly compared with one deterministic output.</span>
+<span id="cb26-206"><a href="#cb26-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-209"><a href="#cb26-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-210"><a href="#cb26-210" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">3</span>)</span>
+<span id="cb26-211"><a href="#cb26-211" aria-hidden="true" tabindex="-1"></a>draws<span class="op">=</span>[np.random.choice(tokens,p<span class="op">=</span>softmax(logits<span class="op">/</span><span class="fl">.9</span>)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>)]</span>
+<span id="cb26-212"><a href="#cb26-212" aria-hidden="true" tabindex="-1"></a>counts<span class="op">=</span>{token:draws.count(token) <span class="cf">for</span> token <span class="kw">in</span> tokens}</span>
+<span id="cb26-213"><a href="#cb26-213" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sample counts:"</span>,counts)</span>
+<span id="cb26-214"><a href="#cb26-214" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-215"><a href="#cb26-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-216"><a href="#cb26-216" aria-hidden="true" tabindex="-1"></a><span class="fu">### Token-level controls interact across steps</span></span>
+<span id="cb26-217"><a href="#cb26-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-218"><a href="#cb26-218" aria-hidden="true" tabindex="-1"></a>Temperature, top-p, penalties, and constraints are recalculated at every generated position. A setting that appears mild for the first token can have a larger effect after the prefix changes or after a penalty has accumulated. Stop sequences can be split into several token IDs, so checking visible strings after decoding is not always equivalent to checking token sequences during decoding. The tokenizer and exact control stage should be recorded.</span>
+<span id="cb26-219"><a href="#cb26-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-220"><a href="#cb26-220" aria-hidden="true" tabindex="-1"></a>This interaction is a reason to test full sequences rather than only the first next-token distribution. A policy evaluation can retain traces of logits or candidate sets for a small reference prompt, then compare the selected IDs and stop reason across implementations. The trace is especially useful when a library upgrade changes a boundary convention or numerical path.</span>
+<span id="cb26-221"><a href="#cb26-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-222"><a href="#cb26-222" aria-hidden="true" tabindex="-1"></a><span class="fu">### Decoding must match the consequence of an error</span></span>
+<span id="cb26-223"><a href="#cb26-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-224"><a href="#cb26-224" aria-hidden="true" tabindex="-1"></a>For a structured extraction task, a system can favour deterministic decoding, an exact schema, and a validator because variation has little value and an incorrect field can cause a downstream error. For exploratory drafting, several sampled candidates may be useful if a reviewer or verifier selects among them. For a question that requires external evidence, sampling cannot compensate for missing or irrelevant context. The selection policy should follow the task's decision rule and cost of failure.</span>
+<span id="cb26-225"><a href="#cb26-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-226"><a href="#cb26-226" aria-hidden="true" tabindex="-1"></a>This is also why output quality and model probability should not be conflated. A highly probable continuation can be generic, outdated, or unsupported. A low-probability continuation may be correct but should be checked against evidence or a task verifier. Decoding controls the way a model distribution is exposed; it is not an independent source of knowledge.</span>
+<span id="cb26-227"><a href="#cb26-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-230"><a href="#cb26-230" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-231"><a href="#cb26-231" aria-hidden="true" tabindex="-1"></a>tasks<span class="op">=</span>{<span class="st">"extraction"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"schema and source match"</span>},<span class="st">"drafting"</span>:{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"validator"</span>:<span class="st">"human selection"</span>},<span class="st">"calculation"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"exact check"</span>}}</span>
+<span id="cb26-232"><a href="#cb26-232" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> task,policy <span class="kw">in</span> tasks.items(): <span class="bu">print</span>(task,policy)</span>
+<span id="cb26-233"><a href="#cb26-233" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-234"><a href="#cb26-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-235"><a href="#cb26-235" aria-hidden="true" tabindex="-1"></a><span class="fu">### A decoding evaluation varies policies deliberately</span></span>
+<span id="cb26-236"><a href="#cb26-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-237"><a href="#cb26-237" aria-hidden="true" tabindex="-1"></a>An evaluation should hold model version, prompt construction, context policy, and scoring rule fixed while varying one decoding decision at a time. It should report output length, stop reason, random seed where applicable, temperature, candidate restriction, penalties, constraints, and number of samples or beams. Comparing two outputs generated under hiddenly different settings does not identify whether a change came from the model or the decoder.</span>
+<span id="cb26-238"><a href="#cb26-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-239"><a href="#cb26-239" aria-hidden="true" tabindex="-1"></a>For deterministic tasks, assess exact validity, extraction accuracy, code execution, or another declared criterion. For open-ended tasks, collect multiple samples and evaluate properties such as factual support, adherence to required format, diversity, and harmful or irrelevant content under a defined protocol. A single appealing sample is not an estimate of a stochastic policy's expected behaviour.</span>
+<span id="cb26-240"><a href="#cb26-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-243"><a href="#cb26-243" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-244"><a href="#cb26-244" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-policy-audit</span></span>
+<span id="cb26-245"><a href="#cb26-245" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A generation result depends on the model and prompt as well as a recorded decoding policy, stopping rule, and evaluation criterion."</span></span>
+<span id="cb26-246"><a href="#cb26-246" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Boxes for model and prompt feed into decoding settings, then generated samples and task-specific evaluation."</span></span>
+<span id="cb26-247"><a href="#cb26-247" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb26-248"><a href="#cb26-248" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"model +</span><span class="ch">\n</span><span class="st">prompt"</span>,blue),(<span class="fl">2.5</span>,<span class="st">"decoding</span><span class="ch">\n</span><span class="st">policy"</span>,teal),(<span class="fl">4.7</span>,<span class="st">"generated</span><span class="ch">\n</span><span class="st">samples"</span>,orange),(<span class="fl">6.9</span>,<span class="st">"declared</span><span class="ch">\n</span><span class="st">evaluation"</span>,purple)]:</span>
+<span id="cb26-249"><a href="#cb26-249" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.15</span>),<span class="fl">1.5</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.46</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb26-250"><a href="#cb26-250" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x<span class="op">&lt;</span><span class="dv">6</span>: ax.add_patch(FancyArrowPatch((x<span class="op">+</span><span class="fl">1.53</span>,<span class="fl">1.46</span>),(x<span class="op">+</span><span class="fl">2.12</span>,<span class="fl">1.46</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">12</span>))</span>
+<span id="cb26-251"><a href="#cb26-251" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Record the settings that turn a probability distribution into an observable output."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.25</span>,<span class="fl">2.2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb26-252"><a href="#cb26-252" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-253"><a href="#cb26-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-254"><a href="#cb26-254" aria-hidden="true" tabindex="-1"></a><span class="fu">### A generation record supports reproduction and diagnosis</span></span>
+<span id="cb26-255"><a href="#cb26-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-256"><a href="#cb26-256" aria-hidden="true" tabindex="-1"></a>At minimum, retain the checkpoint and tokenizer versions, prompt template and final token IDs, system messages or tool constraints, context and truncation policy, maximum new tokens, temperature, top-k or top-p convention, seed, repetition controls, stop sequences, beam settings, hardware or numerical settings where determinism matters, output IDs, and stop reason. This record makes it possible to reproduce a result or identify why a boundary case changed after a system update.</span>
+<span id="cb26-257"><a href="#cb26-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-260"><a href="#cb26-260" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb26-261"><a href="#cb26-261" aria-hidden="true" tabindex="-1"></a>generation_record<span class="op">=</span>{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"top_p"</span>:<span class="fl">.9</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">256</span>,<span class="st">"seed"</span>:<span class="dv">17</span>,<span class="st">"stop_reason"</span>:<span class="st">"eos"</span>,<span class="st">"tokenizer"</span>:<span class="st">"versioned"</span>}</span>
+<span id="cb26-262"><a href="#cb26-262" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"temperature"</span>,<span class="st">"max_new_tokens"</span>,<span class="st">"tokenizer"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(generation_record)</span>
+<span id="cb26-263"><a href="#cb26-263" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generation_record)</span>
+<span id="cb26-264"><a href="#cb26-264" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb26-265"><a href="#cb26-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-266"><a href="#cb26-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb26-267"><a href="#cb26-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-268"><a href="#cb26-268" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Greedy output is the model's only answer.** It is one selection rule applied repeatedly.</span>
+<span id="cb26-269"><a href="#cb26-269" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Temperature improves factuality.** It changes the concentration of sampling probabilities.</span>
+<span id="cb26-270"><a href="#cb26-270" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Top-p always retains the same number of tokens.** Candidate count changes with distribution shape.</span>
+<span id="cb26-271"><a href="#cb26-271" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A fixed seed makes all generation environments identical.** Implementations, precision, and sampling conventions can still differ.</span>
+<span id="cb26-272"><a href="#cb26-272" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Repetition penalties solve hallucination.** They alter token preferences without adding evidence.</span>
+<span id="cb26-273"><a href="#cb26-273" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A valid constrained format proves correct content.** Structural validity and factual correctness are separate checks.</span>
+<span id="cb26-274"><a href="#cb26-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-275"><a href="#cb26-275" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb26-276"><a href="#cb26-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-277"><a href="#cb26-277" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Select the greedy token from a supplied distribution.</span>
+<span id="cb26-278"><a href="#cb26-278" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Explain why sampling produces different valid runs.</span>
+<span id="cb26-279"><a href="#cb26-279" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate a temperature-transformed softmax for two logits.</span>
+<span id="cb26-280"><a href="#cb26-280" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Implement top-k filtering and state its boundary rule.</span>
+<span id="cb26-281"><a href="#cb26-281" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Implement top-p filtering that includes the threshold-crossing token.</span>
+<span id="cb26-282"><a href="#cb26-282" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Compare top-k and top-p on a peaked and a flat distribution.</span>
+<span id="cb26-283"><a href="#cb26-283" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>State two stop policies and their failure modes.</span>
+<span id="cb26-284"><a href="#cb26-284" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Apply a token repetition penalty to a toy logit vector.</span>
+<span id="cb26-285"><a href="#cb26-285" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Explain why a hard JSON constraint does not verify a claim inside JSON.</span>
+<span id="cb26-286"><a href="#cb26-286" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Expand one beam-search step and rank candidate prefixes.</span>
+<span id="cb26-287"><a href="#cb26-287" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Design an evaluation for stochastic short-answer generation.</span>
+<span id="cb26-288"><a href="#cb26-288" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>State which settings must be held fixed when comparing temperature values.</span>
+<span id="cb26-289"><a href="#cb26-289" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>List the fields needed to reproduce one generated output.</span>
+<span id="cb26-290"><a href="#cb26-290" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Explain why teacher-forced loss does not fully determine generated sequences.</span>
+<span id="cb26-291"><a href="#cb26-291" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Compare a length cap with an end-token stop rule.</span>
+<span id="cb26-292"><a href="#cb26-292" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that treats instruction tuning after base pretraining.</span>
+<span id="cb26-293"><a href="#cb26-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-294"><a href="#cb26-294" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb26-295"><a href="#cb26-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-296"><a href="#cb26-296" aria-hidden="true" tabindex="-1"></a>Decoding turns next-token distributions into generated sequences through a sequence of explicit decisions. Temperature, candidate restrictions, search, penalties, constraints, and stopping rules all change the output policy. They should be selected and evaluated against a stated task, not presented as generic quality improvements.</span>
+<span id="cb26-297"><a href="#cb26-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-298"><a href="#cb26-298" aria-hidden="true" tabindex="-1"></a>Generation records must retain the model, input, tokenisation, and decoding configuration. <span class="co">[</span><span class="ot">Chapter 29</span><span class="co">](29-instruction-tuning.qmd)</span> examines supervised adaptation from base next-token prediction to instruction-following behaviour.</span>
+<span id="cb26-299"><a href="#cb26-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-300"><a href="#cb26-300" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb26-301"><a href="#cb26-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-302"><a href="#cb26-302" aria-hidden="true" tabindex="-1"></a>Decoding changes how a fixed checkpoint behaves at inference time. <span class="co">[</span><span class="ot">Chapter 29</span><span class="co">](29-instruction-tuning.qmd)</span> examines a different intervention: supervised adaptation of the checkpoint to structured instruction-and-response examples.</span>
+<span id="cb26-303"><a href="#cb26-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-304"><a href="#cb26-304" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb26-305"><a href="#cb26-305" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-306"><a href="#cb26-306" aria-hidden="true" tabindex="-1"></a>Nucleus sampling is analysed by @holtzman2020curious. The base autoregressive distribution and causal target shift are developed in Chapter 25.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

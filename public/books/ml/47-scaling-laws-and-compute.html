@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Scaling Laws and Compute – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -589,16 +554,16 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-power-law" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>compute<span class="op">=</span>np.logspace(<span class="dv">2</span>,<span class="dv">6</span>,<span class="dv">30</span>)<span class="op">;</span> loss<span class="op">=</span><span class="fl">2.3</span><span class="op">*</span>compute<span class="op">**-</span><span class="fl">.13</span><span class="op">+</span><span class="fl">.7</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.7</span>))<span class="op">;</span>ax.loglog(compute,loss,color<span class="op">=</span><span class="st">"#24527a"</span>)<span class="op">;</span>ax.set_xlabel(<span class="st">"training compute"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"held-out loss"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.7</span>))<span class="op">;</span>ax.loglog(compute,loss,color<span class="op">=</span><span class="st">"#24527a"</span>)<span class="op">;</span>ax.set_xlabel(<span class="st">"training compute"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"held-out loss"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-power-law" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A log-log line shows illustrative held-out loss falling as training compute rises.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-power-law-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="47-scaling-laws-and-compute_files/figure-html/fig-power-law-output-1.png" class="img-fluid figure-img" alt="A log-log line shows illustrative held-out loss falling as training compute rises.">
+<img src="47-scaling-laws-and-compute_files/figure-html/fig-power-law-output-1.png" alt="A log-log line shows illustrative held-out loss falling as training compute rises." width="614" height="345" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-power-law-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;48.1: A fitted scaling curve describes declining held-out loss over a declared range of compute, with smaller marginal gains at larger budgets.
@@ -610,14 +575,14 @@ Figure&nbsp;48.1: A fitted scaling curve describes declining held-out loss over 
 </section>
 <section id="level-2---the-fitted-relation-has-a-contract" class="level2">
 <h2 class="anchored" data-anchor-id="level-2---the-fitted-relation-has-a-contract">Level 2 - The fitted relation has a contract</h2>
-<p>A simple form is (L(C)=aC^{-b}+c), where (L) is a chosen loss and (C) is a declared compute measure. The exponent is estimated from observations; it is not supplied by the equation. Changing tokenisation, data quality, architecture, optimiser, or evaluation distribution can change the fitted curve. Kaplan and colleagues reported such empirical relationships for language models <span class="citation" data-cites="kaplan2020scaling">(<a href="#ref-kaplan2020scaling" role="doc-biblioref">Kaplan et al. 2020</a>)</span>, while later compute-optimal analysis changed the recommended balance between parameters and training tokens <span class="citation" data-cites="hoffmann2022chinchilla">(<a href="#ref-hoffmann2022chinchilla" role="doc-biblioref">Hoffmann et al. 2022</a>)</span>.</p>
+<p>A simple form is (L(C)=aC^{-b}+c), where (L) is a chosen loss and (C) is a declared compute measure. The exponent is estimated from observations; it is not supplied by the equation. Changing tokenisation, data quality, architecture, optimiser, or evaluation distribution can change the fitted curve. Kaplan and colleagues reported such empirical relationships for language models <span class="citation" data-cites="kaplan2020scaling">(<a href="#ref-kaplan2020scaling" role="doc-biblioref"><span class="nocase">Kaplan et al.</span> 2020</a>)</span>, while later compute-optimal analysis changed the recommended balance between parameters and training tokens <span class="citation" data-cites="hoffmann2022chinchilla">(<a href="#ref-hoffmann2022chinchilla" role="doc-biblioref"><span class="nocase">Hoffmann et al.</span> 2022</a>)</span>.</p>
 <p>Fitting starts with repeated runs at deliberately varied budgets. For every run, retain the model family, parameter count, FLOP convention, training tokens, batch and sequence length, optimiser and schedule, checkpoint rule, and held-out evaluation. Plot the observed points before fitting a line. A regular-looking curve can be driven by one failed run, a changed data source, or an excluded small model. Residuals and uncertainty intervals are evidence about the fitted relation, not decorative additions.</p>
-<div id="f7da172a" class="cell" data-execution_count="2">
+<div id="fd0422f5" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>log_compute<span class="op">=</span>np.log(np.array([<span class="fl">1e3</span>,<span class="fl">3e3</span>,<span class="fl">1e4</span>,<span class="fl">3e4</span>]))<span class="op">;</span> log_loss<span class="op">=</span>np.log(np.array([<span class="fl">1.90</span>,<span class="fl">1.63</span>,<span class="fl">1.43</span>,<span class="fl">1.31</span>]))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>log_compute<span class="op">=</span>np.log(np.array([<span class="fl">1e3</span>,<span class="fl">3e3</span>,<span class="fl">1e4</span>,<span class="fl">3e4</span>]))<span class="op">;</span> log_loss<span class="op">=</span>np.log(np.array([<span class="fl">1.90</span>,<span class="fl">1.63</span>,<span class="fl">1.43</span>,<span class="fl">1.31</span>]))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>slope,intercept<span class="op">=</span>np.polyfit(log_compute,log_loss,<span class="dv">1</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"estimated exponent:"</span>,<span class="bu">round</span>(slope,<span class="dv">3</span>),<span class="st">"residuals:"</span>,np.<span class="bu">round</span>(log_loss<span class="op">-</span>(slope<span class="op">*</span>log_compute<span class="op">+</span>intercept),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"estimated exponent:"</span>,<span class="bu">round</span>(slope,<span class="dv">3</span>),<span class="st">"residuals:"</span>,np.<span class="bu">round</span>(log_loss<span class="op">-</span>(slope<span class="op">*</span>log_compute<span class="op">+</span>intercept),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>estimated exponent: -0.109 residuals: [ 0.017 -0.017 -0.016  0.016]</code></pre>
@@ -626,14 +591,14 @@ Figure&nbsp;48.1: A fitted scaling curve describes declining held-out loss over 
 <div id="cell-fig-allocation-grid" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>])<span class="op">;</span>t<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>])<span class="op">;</span>z<span class="op">=</span>np.array([[<span class="fl">1.8</span>,<span class="fl">1.5</span>,<span class="fl">1.4</span>,<span class="fl">1.5</span>],[<span class="fl">1.6</span>,<span class="fl">1.3</span>,<span class="fl">1.15</span>,<span class="fl">1.25</span>],[<span class="fl">1.5</span>,<span class="fl">1.18</span>,<span class="fl">1.05</span>,<span class="fl">1.16</span>],[<span class="fl">1.55</span>,<span class="fl">1.25</span>,<span class="fl">1.13</span>,<span class="fl">1.2</span>]])</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">5</span>,<span class="dv">4</span>))<span class="op">;</span>im<span class="op">=</span>ax.imshow(z,cmap<span class="op">=</span><span class="st">"viridis"</span>)<span class="op">;</span>ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),t)<span class="op">;</span>ax.set_yticks(<span class="bu">range</span>(<span class="dv">4</span>),p)<span class="op">;</span>ax.set_xlabel(<span class="st">"token allocation"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"parameter allocation"</span>)<span class="op">;</span>fig.colorbar(im,label<span class="op">=</span><span class="st">"illustrative loss"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>])<span class="op">;</span>t<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>])<span class="op">;</span>z<span class="op">=</span>np.array([[<span class="fl">1.8</span>,<span class="fl">1.5</span>,<span class="fl">1.4</span>,<span class="fl">1.5</span>],[<span class="fl">1.6</span>,<span class="fl">1.3</span>,<span class="fl">1.15</span>,<span class="fl">1.25</span>],[<span class="fl">1.5</span>,<span class="fl">1.18</span>,<span class="fl">1.05</span>,<span class="fl">1.16</span>],[<span class="fl">1.55</span>,<span class="fl">1.25</span>,<span class="fl">1.13</span>,<span class="fl">1.2</span>]])</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">5</span>,<span class="dv">4</span>))<span class="op">;</span>im<span class="op">=</span>ax.imshow(z,cmap<span class="op">=</span><span class="st">"viridis"</span>)<span class="op">;</span>ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),t)<span class="op">;</span>ax.set_yticks(<span class="bu">range</span>(<span class="dv">4</span>),p)<span class="op">;</span>ax.set_xlabel(<span class="st">"token allocation"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"parameter allocation"</span>)<span class="op">;</span>fig.colorbar(im,label<span class="op">=</span><span class="st">"illustrative loss"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-allocation-grid" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A grid of parameter and token allocations highlights a low-loss region under an illustrative fixed budget.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-allocation-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="47-scaling-laws-and-compute_files/figure-html/fig-allocation-grid-output-1.png" class="img-fluid figure-img" alt="A grid of parameter and token allocations highlights a low-loss region under an illustrative fixed budget.">
+<img src="47-scaling-laws-and-compute_files/figure-html/fig-allocation-grid-output-1.png" alt="A grid of parameter and token allocations highlights a low-loss region under an illustrative fixed budget." width="450" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-allocation-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;48.2: A fixed compute budget requires an allocation across model parameters and training tokens; different allocations can have different measured loss.
@@ -653,11 +618,11 @@ Figure&nbsp;48.2: A fixed compute budget requires an allocation across model par
 <h3 class="anchored" data-anchor-id="allocation-is-a-constrained-decision">Allocation is a constrained decision</h3>
 <p>Start with a fixed budget and a declared objective. A research run may prioritise held-out loss; a service may require a maximum latency, a memory limit, a language mix, or an evaluation threshold for a particular task. Generate candidate allocations over parameters, tokens, steps, sequence length, and data cleaning. Train enough points to identify whether the proposed optimum is stable. Then test the selected allocation with the intended adaptation and serving configuration. A pretraining-only comparison cannot settle a deployment allocation.</p>
 <p>Token count also has a quality dimension. Tokens from a duplicated, narrow, or poorly documented mixture do not provide the same evidence as tokens from a broader, curated mixture. Report source categories, language and domain proportions, filtering, deduplication method, cutoff dates, and known gaps. This record makes clear whether a scaling gain came from more computation, a changed data distribution, or both.</p>
-<div id="7ddaf704" class="cell" data-execution_count="4">
+<div id="8a7e22e4" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"parameters"</span>:<span class="st">"small"</span>,<span class="st">"tokens"</span>:<span class="st">"high"</span>,<span class="st">"loss"</span>:<span class="fl">1.18</span>,<span class="st">"p95_ms"</span>:<span class="dv">45</span>},{<span class="st">"parameters"</span>:<span class="st">"large"</span>,<span class="st">"tokens"</span>:<span class="st">"medium"</span>,<span class="st">"loss"</span>:<span class="fl">1.12</span>,<span class="st">"p95_ms"</span>:<span class="dv">180</span>}]</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> candidate <span class="kw">in</span> candidates: <span class="bu">print</span>(candidate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"parameters"</span>:<span class="st">"small"</span>,<span class="st">"tokens"</span>:<span class="st">"high"</span>,<span class="st">"loss"</span>:<span class="fl">1.18</span>,<span class="st">"p95_ms"</span>:<span class="dv">45</span>},{<span class="st">"parameters"</span>:<span class="st">"large"</span>,<span class="st">"tokens"</span>:<span class="st">"medium"</span>,<span class="st">"loss"</span>:<span class="fl">1.12</span>,<span class="st">"p95_ms"</span>:<span class="dv">180</span>}]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> candidate <span class="kw">in</span> candidates: <span class="bu">print</span>(candidate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'parameters': 'small', 'tokens': 'high', 'loss': 1.18, 'p95_ms': 45}
@@ -667,13 +632,13 @@ Figure&nbsp;48.2: A fixed compute budget requires an allocation across model par
 <div id="cell-fig-compute-record" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">70</span>],label<span class="op">=</span><span class="st">"training"</span>,color<span class="op">=</span><span class="st">"#24527a"</span>)<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">12</span>],bottom<span class="op">=</span>[<span class="dv">70</span>],label<span class="op">=</span><span class="st">"communication"</span>,color<span class="op">=</span><span class="st">"#7655a6"</span>)<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">8</span>],bottom<span class="op">=</span>[<span class="dv">82</span>],label<span class="op">=</span><span class="st">"evaluation"</span>,color<span class="op">=</span><span class="st">"#d97745"</span>)<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">10</span>],bottom<span class="op">=</span>[<span class="dv">90</span>],label<span class="op">=</span><span class="st">"inference"</span>,color<span class="op">=</span><span class="st">"#3a9188"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative compute share"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="fl">3.6</span>))<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">70</span>],label<span class="op">=</span><span class="st">"training"</span>,color<span class="op">=</span><span class="st">"#24527a"</span>)<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">12</span>],bottom<span class="op">=</span>[<span class="dv">70</span>],label<span class="op">=</span><span class="st">"communication"</span>,color<span class="op">=</span><span class="st">"#7655a6"</span>)<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">8</span>],bottom<span class="op">=</span>[<span class="dv">82</span>],label<span class="op">=</span><span class="st">"evaluation"</span>,color<span class="op">=</span><span class="st">"#d97745"</span>)<span class="op">;</span>ax.bar([<span class="st">"project"</span>],[<span class="dv">10</span>],bottom<span class="op">=</span>[<span class="dv">90</span>],label<span class="op">=</span><span class="st">"inference"</span>,color<span class="op">=</span><span class="st">"#3a9188"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_ylabel(<span class="st">"illustrative compute share"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-compute-record" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A stacked bar decomposes an illustrative project compute budget into training, communication, evaluation, and inference.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-compute-record-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="47-scaling-laws-and-compute_files/figure-html/fig-compute-record-output-1.png" class="img-fluid figure-img" alt="A stacked bar decomposes an illustrative project compute budget into training, communication, evaluation, and inference.">
+<img src="47-scaling-laws-and-compute_files/figure-html/fig-compute-record-output-1.png" alt="A stacked bar decomposes an illustrative project compute budget into training, communication, evaluation, and inference." width="567" height="336" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-compute-record-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;48.3: A scaling report separates parameter count, training tokens, optimisation compute, communication, evaluation, and inference budgets.
@@ -698,16 +663,16 @@ Figure&nbsp;48.3: A scaling report separates parameter count, training tokens, o
 <h3 class="anchored" data-anchor-id="what-a-scaling-experiment-estimates">What a scaling experiment estimates</h3>
 <p>A scaling experiment does not observe an abstract relation between intelligence and resources. It observes the outcomes of a particular family of training runs. The family includes an architecture, tokenizer, data pipeline, optimiser, curriculum, sequence length, precision policy, checkpoint criterion, and held-out loss. If several of those components change as compute increases, the fitted relation describes the bundled programme rather than parameter or token scaling alone.</p>
 <p>This is why a run table should precede a fitted exponent. For every point, report the random seed, parameter accounting convention, active versus total parameters where sparse models are used, training and validation token counts, source mixture, update count, batch size, learning-rate schedule, precision, hardware, wall-clock time, and any restart or exclusion. If a point failed, record the failure and its cause. Removing divergent or undertrained runs can be appropriate, but a reader needs to see the rule used to remove them.</p>
-<div id="338b31ff" class="cell" data-execution_count="6">
+<div id="7d0e98eb" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>run_table<span class="op">=</span>[</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>run_table<span class="op">=</span>[</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a> {<span class="st">"params_m"</span>:<span class="dv">120</span>,<span class="st">"tokens_b"</span>:<span class="dv">3</span>,<span class="st">"updates_k"</span>:<span class="dv">45</span>,<span class="st">"loss"</span>:<span class="fl">1.84</span>,<span class="st">"status"</span>:<span class="st">"complete"</span>},</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a> {<span class="st">"params_m"</span>:<span class="dv">360</span>,<span class="st">"tokens_b"</span>:<span class="dv">9</span>,<span class="st">"updates_k"</span>:<span class="dv">90</span>,<span class="st">"loss"</span>:<span class="fl">1.54</span>,<span class="st">"status"</span>:<span class="st">"complete"</span>},</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a> {<span class="st">"params_m"</span>:<span class="dv">1000</span>,<span class="st">"tokens_b"</span>:<span class="dv">18</span>,<span class="st">"updates_k"</span>:<span class="dv">120</span>,<span class="st">"loss"</span>:<span class="fl">1.37</span>,<span class="st">"status"</span>:<span class="st">"complete"</span>},</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a> {<span class="st">"params_m"</span>:<span class="dv">3000</span>,<span class="st">"tokens_b"</span>:<span class="dv">18</span>,<span class="st">"updates_k"</span>:<span class="dv">70</span>,<span class="st">"loss"</span>:<span class="va">None</span>,<span class="st">"status"</span>:<span class="st">"unstable"</span>},</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> run <span class="kw">in</span> run_table: <span class="bu">print</span>(run)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> run <span class="kw">in</span> run_table: <span class="bu">print</span>(run)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'params_m': 120, 'tokens_b': 3, 'updates_k': 45, 'loss': 1.84, 'status': 'complete'}
@@ -736,11 +701,11 @@ Figure&nbsp;48.3: A scaling report separates parameter count, training tokens, o
 <h3 class="anchored" data-anchor-id="data-quality-changes-the-scaling-input">Data quality changes the scaling input</h3>
 <p>Token counts are often reported with a precision that the underlying data record cannot support. Text may be duplicated across sources, translated versions may be near duplicates, documents may be truncated, and source proportions may change over time. Data cleaning can improve a measured loss at the same nominal token count; it can also narrow language or domain coverage. Treat data mixture as an allocation dimension alongside parameters and FLOPs.</p>
 <p>Maintain source, licence, language, domain, date, deduplication, and quality-filtering records. Test scaling curves on separate validation slices to see whether the observed gain is concentrated in one source type. If a larger run improves an aggregate loss while degrading a low-resource language or long-context slice, the allocation decision should state that trade-off. It is not enough to report the mean.</p>
-<div id="a13b640e" class="cell" data-execution_count="7">
+<div id="57d8d33a" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>slices<span class="op">=</span>{<span class="st">"general web"</span>:<span class="fl">1.21</span>,<span class="st">"technical"</span>:<span class="fl">1.34</span>,<span class="st">"long context"</span>:<span class="fl">1.59</span>,<span class="st">"low-resource language"</span>:<span class="fl">1.72</span>}</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,loss <span class="kw">in</span> slices.items(): <span class="bu">print</span>(name,loss)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>slices<span class="op">=</span>{<span class="st">"general web"</span>:<span class="fl">1.21</span>,<span class="st">"technical"</span>:<span class="fl">1.34</span>,<span class="st">"long context"</span>:<span class="fl">1.59</span>,<span class="st">"low-resource language"</span>:<span class="fl">1.72</span>}</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,loss <span class="kw">in</span> slices.items(): <span class="bu">print</span>(name,loss)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>general web 1.21
@@ -759,12 +724,12 @@ low-resource language 1.72</code></pre>
 <h3 class="anchored" data-anchor-id="extrapolation-has-a-range-and-an-error">Extrapolation has a range and an error</h3>
 <p>Interpolation uses observed points within the range of the experiment. Extrapolation predicts beyond that range. The second claim is usually more valuable for planning and less directly supported by evidence. A power-law fit can appear stable over several orders of magnitude and then change when the data mixture, architecture, optimiser, hardware, or loss floor changes. The uncertainty is not eliminated by reporting more decimal places in the exponent.</p>
 <p>An extrapolation report should name the lowest and highest observed budget, the proposed new budget, the prediction interval, and the assumptions that must remain fixed. It should also identify the first evidence that would cause the plan to stop or change: a larger residual than expected, a failure to reach an optimisation threshold, a data shortage, a serving constraint, or an independent capability regression. This turns extrapolation into a testable planning hypothesis.</p>
-<div id="cccc08d9" class="cell" data-execution_count="8">
+<div id="7449ec83" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>forecast<span class="op">=</span>{<span class="st">"observed_compute_range"</span>:<span class="st">"1e18–1e21 FLOPs"</span>,<span class="st">"proposed"</span>:<span class="st">"3e21 FLOPs"</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>forecast<span class="op">=</span>{<span class="st">"observed_compute_range"</span>:<span class="st">"1e18–1e21 FLOPs"</span>,<span class="st">"proposed"</span>:<span class="st">"3e21 FLOPs"</span>,</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">"predicted_loss"</span>:<span class="fl">1.18</span>,<span class="st">"acceptable_error"</span>:<span class="fl">.04</span>,<span class="st">"stop_if"</span>:<span class="st">"held-out loss exceeds 1.22"</span>}</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(forecast)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(forecast)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'observed_compute_range': '1e18–1e21 FLOPs', 'proposed': '3e21 FLOPs', 'predicted_loss': 1.18, 'acceptable_error': 0.04, 'stop_if': 'held-out loss exceeds 1.22'}</code></pre>
@@ -775,15 +740,15 @@ low-resource language 1.72</code></pre>
 <h3 class="anchored" data-anchor-id="capability-tests-have-their-own-scaling-curves">Capability tests have their own scaling curves</h3>
 <p>Suppose a model family is evaluated on document extraction, code generation, multilingual retrieval, or reasoning with a verifier. Each task has its own population, prompt or interface, scoring rule, and failure cost. Plot task performance against the same training budget, but do not assume the curve follows the loss exponent. A task may show a threshold-like change, saturate early, depend heavily on prompt policy, or be limited by missing context rather than model capacity.</p>
 <p>Use fixed and refreshed evaluation sets. Fixed sets permit comparison across checkpoints but can become development resources or be contaminated. Refreshed tasks test transfer but require a documented generator or sampling frame. Record both where possible. Analyse errors by task slice and inspect the cases that change between scale levels. The aim is to identify what additional compute changed in the model’s observed behaviour, not to attach a broad capability label to one score.</p>
-<div id="16fcceca" class="cell" data-execution_count="9">
+<div id="5a7d1c04" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>capability_curve<span class="op">=</span>[</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>capability_curve<span class="op">=</span>[</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a> {<span class="st">"compute"</span>:<span class="dv">1</span>,<span class="st">"loss"</span>:<span class="fl">1.72</span>,<span class="st">"structured_extraction"</span>:<span class="fl">.51</span>,<span class="st">"multilingual_retrieval"</span>:<span class="fl">.42</span>},</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a> {<span class="st">"compute"</span>:<span class="dv">3</span>,<span class="st">"loss"</span>:<span class="fl">1.49</span>,<span class="st">"structured_extraction"</span>:<span class="fl">.62</span>,<span class="st">"multilingual_retrieval"</span>:<span class="fl">.44</span>},</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a> {<span class="st">"compute"</span>:<span class="dv">10</span>,<span class="st">"loss"</span>:<span class="fl">1.32</span>,<span class="st">"structured_extraction"</span>:<span class="fl">.71</span>,<span class="st">"multilingual_retrieval"</span>:<span class="fl">.50</span>},</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> point <span class="kw">in</span> capability_curve: <span class="bu">print</span>(point)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> point <span class="kw">in</span> capability_curve: <span class="bu">print</span>(point)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'compute': 1, 'loss': 1.72, 'structured_extraction': 0.51, 'multilingual_retrieval': 0.42}
@@ -811,13 +776,13 @@ low-resource language 1.72</code></pre>
 <h3 class="anchored" data-anchor-id="designing-a-small-scaling-study">Designing a small scaling study</h3>
 <p>An educational scaling study can use a modest model family and a controlled corpus. Choose two or three parameter sizes, two token budgets, and a common optimiser policy. Hold tokenisation, validation data, sequence length, and evaluation code fixed. Train enough seeds to show whether differences exceed run-to-run variation. Plot training and validation loss, then report a task score only for a predeclared held-out task. The point is not to recover a frontier exponent; it is to learn how many assumptions sit behind a curve.</p>
 <p>The study should include a deliberately mismatched allocation. A large model trained on too little data or stopped too early illustrates why parameter count alone is not a result. A smaller model trained longer can illustrate the opposite trade-off. Record the actual tokens and updates rather than describing one run as “larger” and the other as “smaller”. Readers should be able to identify the allocation, not infer it from a graph legend.</p>
-<div id="37ec8b2b" class="cell" data-execution_count="10">
+<div id="8d796650" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>study_design<span class="op">=</span>{<span class="st">"sizes_m"</span>:[<span class="dv">30</span>,<span class="dv">90</span>,<span class="dv">270</span>],<span class="st">"tokens_m"</span>:[<span class="dv">60</span>,<span class="dv">180</span>],<span class="st">"seeds"</span>:[<span class="dv">1</span>,<span class="dv">2</span>],</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>study_design<span class="op">=</span>{<span class="st">"sizes_m"</span>:[<span class="dv">30</span>,<span class="dv">90</span>,<span class="dv">270</span>],<span class="st">"tokens_m"</span>:[<span class="dv">60</span>,<span class="dv">180</span>],<span class="st">"seeds"</span>:[<span class="dv">1</span>,<span class="dv">2</span>],</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>              <span class="st">"held_fixed"</span>:[<span class="st">"tokenizer"</span>,<span class="st">"validation set"</span>,<span class="st">"sequence length"</span>,<span class="st">"optimizer family"</span>],</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>              <span class="st">"outcome"</span>:<span class="st">"validation loss plus predeclared task score"</span>}</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(study_design)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(study_design)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'sizes_m': [30, 90, 270], 'tokens_m': [60, 180], 'seeds': [1, 2], 'held_fixed': ['tokenizer', 'validation set', 'sequence length', 'optimizer family'], 'outcome': 'validation loss plus predeclared task score'}</code></pre>
@@ -843,13 +808,13 @@ low-resource language 1.72</code></pre>
 <div id="cell-fig-extrapolation-boundary" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">7</span>)<span class="op">;</span>y<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="fl">1.7</span>,<span class="fl">1.5</span>,<span class="fl">1.38</span>,<span class="fl">1.3</span>,<span class="fl">1.24</span>])<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot(x[:<span class="dv">4</span>],y[:<span class="dv">4</span>],marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span><span class="st">"#24527a"</span>,label<span class="op">=</span><span class="st">"observed"</span>)<span class="op">;</span>ax.plot(x[<span class="dv">3</span>:],y[<span class="dv">3</span>:],<span class="st">"--"</span>,color<span class="op">=</span><span class="st">"#d97745"</span>,label<span class="op">=</span><span class="st">"extrapolated"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_xlabel(<span class="st">"log compute level"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"loss"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">7</span>)<span class="op">;</span>y<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="fl">1.7</span>,<span class="fl">1.5</span>,<span class="fl">1.38</span>,<span class="fl">1.3</span>,<span class="fl">1.24</span>])<span class="op">;</span>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot(x[:<span class="dv">4</span>],y[:<span class="dv">4</span>],marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span><span class="st">"#24527a"</span>,label<span class="op">=</span><span class="st">"observed"</span>)<span class="op">;</span>ax.plot(x[<span class="dv">3</span>:],y[<span class="dv">3</span>:],<span class="st">"--"</span>,color<span class="op">=</span><span class="st">"#d97745"</span>,label<span class="op">=</span><span class="st">"extrapolated"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>ax.set_xlabel(<span class="st">"log compute level"</span>)<span class="op">;</span>ax.set_ylabel(<span class="st">"loss"</span>)<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-extrapolation-boundary" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A curve has solid points within an observed range and a dashed uncertain extension beyond it.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-extrapolation-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="47-scaling-laws-and-compute_files/figure-html/fig-extrapolation-boundary-output-1.png" class="img-fluid figure-img" alt="A curve has solid points within an observed range and a dashed uncertain extension beyond it.">
+<img src="47-scaling-laws-and-compute_files/figure-html/fig-extrapolation-boundary-output-1.png" alt="A curve has solid points within an observed range and a dashed uncertain extension beyond it." width="615" height="326" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-extrapolation-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;48.4: Observed scaling data support interpolation within a measured range more directly than extrapolation beyond changed data, hardware, or model conditions.
@@ -861,13 +826,13 @@ Figure&nbsp;48.4: Observed scaling data support interpolation within a measured 
 <div id="cell-fig-loss-capability" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">1.8</span>,<span class="fl">1.5</span>,<span class="fl">1.35</span>,<span class="fl">1.25</span>],label<span class="op">=</span><span class="st">"loss"</span>,color<span class="op">=</span><span class="st">"#24527a"</span>)<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.42</span>,<span class="fl">.49</span>,<span class="fl">.55</span>,<span class="fl">.54</span>],label<span class="op">=</span><span class="st">"task score"</span>,color<span class="op">=</span><span class="st">"#d97745"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>,<span class="fl">3.5</span>))<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">1.8</span>,<span class="fl">1.5</span>,<span class="fl">1.35</span>,<span class="fl">1.25</span>],label<span class="op">=</span><span class="st">"loss"</span>,color<span class="op">=</span><span class="st">"#24527a"</span>)<span class="op">;</span>ax.plot([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>],[<span class="fl">.42</span>,<span class="fl">.49</span>,<span class="fl">.55</span>,<span class="fl">.54</span>],label<span class="op">=</span><span class="st">"task score"</span>,color<span class="op">=</span><span class="st">"#d97745"</span>)<span class="op">;</span>ax.legend()<span class="op">;</span>plt.tight_layout()<span class="op">;</span>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-loss-capability" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two separate lines show steadily lower loss and a task score that requires its own measurement.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-loss-capability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="47-scaling-laws-and-compute_files/figure-html/fig-loss-capability-output-1.png" class="img-fluid figure-img" alt="Two separate lines show steadily lower loss and a task score that requires its own measurement.">
+<img src="47-scaling-laws-and-compute_files/figure-html/fig-loss-capability-output-1.png" alt="Two separate lines show steadily lower loss and a task score that requires its own measurement." width="616" height="326" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-loss-capability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;48.5: A loss improvement and a task capability result are related empirical measurements, not interchangeable claims.
@@ -909,17 +874,17 @@ Figure&nbsp;48.5: A loss improvement and a task capability result are related em
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Empirical language-model scaling laws are reported by <span class="citation" data-cites="kaplan2020scaling">Kaplan et al. (<a href="#ref-kaplan2020scaling" role="doc-biblioref">2020</a>)</span>; compute-optimal token and parameter allocation is reconsidered by <span class="citation" data-cites="hoffmann2022chinchilla">Hoffmann et al. (<a href="#ref-hoffmann2022chinchilla" role="doc-biblioref">2022</a>)</span>.</p>
+<p>Empirical language-model scaling laws are reported by <span class="citation" data-cites="kaplan2020scaling"><span class="nocase">Kaplan et al.</span> (<a href="#ref-kaplan2020scaling" role="doc-biblioref">2020</a>)</span>; compute-optimal token and parameter allocation is reconsidered by <span class="citation" data-cites="hoffmann2022chinchilla"><span class="nocase">Hoffmann et al.</span> (<a href="#ref-hoffmann2022chinchilla" role="doc-biblioref">2022</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-hoffmann2022chinchilla" class="csl-entry" role="listitem">
-Hoffmann, Jordan, Sebastian Borgeaud, Arthur Mensch, et al. 2022. <span>“Training Compute-Optimal Large Language Models.”</span> <em>arXiv Preprint arXiv:2203.15556</em>. <a href="https://arxiv.org/abs/2203.15556">https://arxiv.org/abs/2203.15556</a>.
+<span class="nocase">Hoffmann, Jordan, Sebastian Borgeaud, Arthur Mensch, et al.</span> 2022. <span>“Training Compute-Optimal Large Language Models.”</span> <em>arXiv Preprint arXiv:2203.15556</em>. <a href="https://arxiv.org/abs/2203.15556">https://arxiv.org/abs/2203.15556</a>.
 </div>
 <div id="ref-kaplan2020scaling" class="csl-entry" role="listitem">
-Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws for Neural Language Models.”</span> <em>arXiv Preprint arXiv:2001.08361</em>. <a href="https://arxiv.org/abs/2001.08361">https://arxiv.org/abs/2001.08361</a>.
+<span class="nocase">Kaplan, Jared, Sam McCandlish, Tom Henighan, et al.</span> 2020. <span>“Scaling Laws for Neural Language Models.”</span> <em>arXiv Preprint arXiv:2001.08361</em>. <a href="https://arxiv.org/abs/2001.08361">https://arxiv.org/abs/2001.08361</a>.
 </div>
 </div>
 </section>
@@ -976,13 +941,14 @@ Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws 
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1016,16 +982,16 @@ Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws 
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1387,7 +1353,7 @@ Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws 
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Scaling Laws and Compute"</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Empirical loss curves, compute allocation, and limits to extrapolation"</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1651,7 +1617,7 @@ Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws 
 <span id="cb20-286"><a href="#cb20-286" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb20-287"><a href="#cb20-287" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-288"><a href="#cb20-288" aria-hidden="true" tabindex="-1"></a>Empirical language-model scaling laws are reported by @kaplan2020scaling; compute-optimal token and parameter allocation is reconsidered by @hoffmann2022chinchilla.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>GRPO and Related Training Methods – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -605,7 +570,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-grpo-group" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -615,13 +580,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,r <span class="kw">in</span> <span class="bu">enumerate</span>([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]):</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">2.1</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.15</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.4</span>),<span class="fl">.9</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>teal <span class="cf">if</span> r <span class="cf">else</span> orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">1.67</span>,<span class="ss">f"r=</span><span class="sc">{</span>r<span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">6.85</span>,<span class="fl">1.67</span>),(<span class="fl">7.65</span>,<span class="fl">1.67</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">7.75</span>,<span class="fl">1.4</span>),<span class="fl">1.3</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">8.4</span>,<span class="fl">1.67</span>,<span class="st">"advantages"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.7</span>,<span class="fl">.55</span>,<span class="st">"Each rollout's reward is interpreted relative to its prompt-specific group."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.4</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.7</span>,<span class="fl">.55</span>,<span class="st">"Each rollout's reward is interpreted relative to its prompt-specific group."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.4</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-grpo-group" class="quarto-float quarto-figure quarto-figure-center anchored" alt="One prompt branches to four rollouts with rewards, then a group-normalisation step and policy update.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-grpo-group-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="40-grpo-and-related-training-methods_files/figure-html/fig-grpo-group-output-1.png" class="img-fluid figure-img" alt="One prompt branches to four rollouts with rewards, then a group-normalisation step and policy update.">
+<img src="40-grpo-and-related-training-methods_files/figure-html/fig-grpo-group-output-1.png" alt="One prompt branches to four rollouts with rewards, then a group-normalisation step and policy update." width="726" height="278" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-grpo-group-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;41.1: GRPO samples several rollouts for one prompt, evaluates their rewards, computes within-group advantages, and updates the policy relative to a reference.
@@ -640,13 +605,13 @@ Figure&nbsp;41.1: GRPO samples several rollouts for one prompt, evaluates their 
 <section id="relative-rewards-provide-a-local-comparison" class="level3">
 <h3 class="anchored" data-anchor-id="relative-rewards-provide-a-local-comparison">Relative rewards provide a local comparison</h3>
 <p>For a prompt with several rollouts, GRPO gives positive advantage to rewards above the group average and negative advantage to rewards below it. If one candidate is verifier-correct and others are not, the update favours the successful candidate. The signal is prompt-specific: a reward of one can be excellent in a difficult group and uninformative in a group where every rollout succeeds.</p>
-<div id="e34df65c" class="cell" data-execution_count="2">
+<div id="b33a29b1" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rewards<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">1.</span>,<span class="fl">0.</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rewards<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">1.</span>,<span class="fl">0.</span>])</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mean<span class="op">=</span>rewards.mean()<span class="op">;</span> std<span class="op">=</span>rewards.std()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>advantages<span class="op">=</span>(rewards<span class="op">-</span>mean)<span class="op">/</span>(std<span class="op">+</span><span class="fl">1e-8</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"mean"</span>,mean,<span class="st">"advantages"</span>,np.<span class="bu">round</span>(advantages,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"mean"</span>,mean,<span class="st">"advantages"</span>,np.<span class="bu">round</span>(advantages,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>mean 0.5 advantages [ 1. -1.  1. -1.]</code></pre>
@@ -667,13 +632,13 @@ Figure&nbsp;41.1: GRPO samples several rollouts for one prompt, evaluates their 
 <div id="cell-fig-advantages" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">-</span><span class="fl">.18</span>,rewards,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"reward"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">+</span><span class="fl">.18</span>,advantages,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"advantage"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"rollout 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Group-relative rewards"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">-</span><span class="fl">.18</span>,rewards,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"reward"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.bar(np.arange(<span class="dv">4</span>)<span class="op">+</span><span class="fl">.18</span>,advantages,<span class="fl">.35</span>,label<span class="op">=</span><span class="st">"advantage"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.axhline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">4</span>),[<span class="st">"rollout 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Group-relative rewards"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-advantages" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart compares four rewards with their corresponding normalised advantages.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-advantages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="40-grpo-and-related-training-methods_files/figure-html/fig-advantages-output-1.png" class="img-fluid figure-img" alt="A bar chart compares four rewards with their corresponding normalised advantages.">
+<img src="40-grpo-and-related-training-methods_files/figure-html/fig-advantages-output-1.png" alt="A bar chart compares four rewards with their corresponding normalised advantages." width="664" height="355" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-advantages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;41.2: Within a rollout group, rewards above the group mean receive positive advantages and rewards below it receive negative advantages.
@@ -683,11 +648,11 @@ Figure&nbsp;41.2: Within a rollout group, rewards above the group mean receive p
 </div>
 </div>
 <p>When every reward is identical, the standard deviation is zero and the group contains no relative learning signal. Adding a small epsilon prevents numerical failure but does not create information. The data pipeline should record such groups and the policy used for skipping or handling them.</p>
-<div id="b8b90f9e" class="cell" data-execution_count="4">
+<div id="5a55726c" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>flat<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>])</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"flat-group advantages:"</span>,(flat<span class="op">-</span>flat.mean())<span class="op">/</span>(flat.std()<span class="op">+</span><span class="fl">1e-8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>flat<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"flat-group advantages:"</span>,(flat<span class="op">-</span>flat.mean())<span class="op">/</span>(flat.std()<span class="op">+</span><span class="fl">1e-8</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>flat-group advantages: [0. 0. 0. 0.]</code></pre>
@@ -702,18 +667,18 @@ Figure&nbsp;41.2: Within a rollout group, rewards above the group mean receive p
 <div id="cell-fig-group-signal" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>groups<span class="op">=</span>[np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]),np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>]),np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>groups<span class="op">=</span>[np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]),np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>]),np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>])]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>titles<span class="op">=</span>[<span class="st">"mixed rewards"</span>,<span class="st">"all accepted"</span>,<span class="st">"all rejected"</span>]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,g,title <span class="kw">in</span> <span class="bu">zip</span>(axes,groups,titles):</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    ax.bar(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),g,color<span class="op">=</span>[teal <span class="cf">if</span> r <span class="cf">else</span> orange <span class="cf">for</span> r <span class="kw">in</span> g])<span class="op">;</span> ax.set_title(title)<span class="op">;</span> ax.set_xticks(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>))<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">1.15</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"verifier reward"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"verifier reward"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-group-signal" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three small bar charts show mixed, all-correct, and all-incorrect reward groups, with only the mixed group displaying variation.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-group-signal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="40-grpo-and-related-training-methods_files/figure-html/fig-group-signal-output-1.png" class="img-fluid figure-img" alt="Three small bar charts show mixed, all-correct, and all-incorrect reward groups, with only the mixed group displaying variation.">
+<img src="40-grpo-and-related-training-methods_files/figure-html/fig-group-signal-output-1.png" alt="Three small bar charts show mixed, all-correct, and all-incorrect reward groups, with only the mixed group displaying variation." width="855" height="278" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-group-signal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;41.3: Groups with mixed rewards provide relative learning signal, whereas uniformly accepted or rejected groups have near-zero group-relative advantages.
@@ -734,13 +699,13 @@ Figure&nbsp;41.3: Groups with mixed rewards provide relative learning signal, wh
 <section id="updates-are-constrained-relative-to-a-reference" class="level3">
 <h3 class="anchored" data-anchor-id="updates-are-constrained-relative-to-a-reference">Updates are constrained relative to a reference</h3>
 <p>The policy probability ratio compares the updated policy with the rollout or reference policy. Clipping or a KL-style penalty limits large changes that could exploit finite rewards or destabilise training. These controls do not validate the reward; they limit the size of a policy move under a chosen measure.</p>
-<div id="c0df6bdb" class="cell" data-execution_count="6">
+<div id="07fee63d" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>old_prob<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>])<span class="op">;</span> new_prob<span class="op">=</span>np.array([<span class="fl">.35</span>,<span class="fl">.15</span>,<span class="fl">.35</span>,<span class="fl">.15</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>old_prob<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>])<span class="op">;</span> new_prob<span class="op">=</span>np.array([<span class="fl">.35</span>,<span class="fl">.15</span>,<span class="fl">.35</span>,<span class="fl">.15</span>])</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ratio<span class="op">=</span>new_prob<span class="op">/</span>old_prob</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>clipped<span class="op">=</span>np.clip(ratio,<span class="fl">.8</span>,<span class="fl">1.2</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ratio"</span>,ratio,<span class="st">"clipped"</span>,clipped)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ratio"</span>,ratio,<span class="st">"clipped"</span>,clipped)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>ratio [1.4 0.6 1.4 0.6] clipped [1.2 0.8 1.2 0.8]</code></pre>
@@ -754,13 +719,13 @@ Figure&nbsp;41.3: Groups with mixed rewards provide relative learning signal, wh
 <div id="cell-fig-clipping" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.linspace(<span class="fl">.4</span>,<span class="fl">1.8</span>,<span class="dv">100</span>)<span class="op">;</span> fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.plot(x,x,label<span class="op">=</span><span class="st">"raw ratio"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.plot(x,np.clip(x,<span class="fl">.8</span>,<span class="fl">1.2</span>),label<span class="op">=</span><span class="st">"clipped"</span>,color<span class="op">=</span>orange)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_xlabel(<span class="st">"raw probability ratio"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"update ratio"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative clipping constraint"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.linspace(<span class="fl">.4</span>,<span class="fl">1.8</span>,<span class="dv">100</span>)<span class="op">;</span> fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.plot(x,x,label<span class="op">=</span><span class="st">"raw ratio"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.plot(x,np.clip(x,<span class="fl">.8</span>,<span class="fl">1.2</span>),label<span class="op">=</span><span class="st">"clipped"</span>,color<span class="op">=</span>orange)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_xlabel(<span class="st">"raw probability ratio"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"update ratio"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative clipping constraint"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-clipping" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A line plots raw probability ratio against a clipped ratio between 0.8 and 1.2.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-clipping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="40-grpo-and-related-training-methods_files/figure-html/fig-clipping-output-1.png" class="img-fluid figure-img" alt="A line plots raw probability ratio against a clipped ratio between 0.8 and 1.2.">
+<img src="40-grpo-and-related-training-methods_files/figure-html/fig-clipping-output-1.png" alt="A line plots raw probability ratio against a clipped ratio between 0.8 and 1.2." width="644" height="345" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clipping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;41.4: A clipped policy ratio limits the update contribution of a rollout whose probability changes too far from the reference behaviour.
@@ -777,18 +742,18 @@ Figure&nbsp;41.4: A clipped policy ratio limits the update contribution of a rol
 <div id="cell-fig-grpo-update-directions" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>advantages<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>,<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>])<span class="op">;</span> ratios<span class="op">=</span>np.array([<span class="fl">1.15</span>,<span class="fl">.88</span>,<span class="fl">1.12</span>,<span class="fl">.90</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>advantages<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>,<span class="fl">1.</span>,<span class="op">-</span><span class="fl">1.</span>])<span class="op">;</span> ratios<span class="op">=</span>np.array([<span class="fl">1.15</span>,<span class="fl">.88</span>,<span class="fl">1.12</span>,<span class="fl">.90</span>])</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.4</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axhspan(<span class="fl">.8</span>,<span class="fl">1.2</span>,color<span class="op">=</span><span class="st">"#e7edf1"</span>,label<span class="op">=</span><span class="st">"clipping region"</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>ax.scatter(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),ratios,s<span class="op">=</span><span class="dv">120</span>,c<span class="op">=</span>[teal <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> orange <span class="cf">for</span> a <span class="kw">in</span> advantages])</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(a,r) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(advantages,ratios),<span class="dv">1</span>): ax.annotate(<span class="st">"increase"</span> <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">"decrease"</span>,(i,r),xytext<span class="op">=</span>(<span class="dv">0</span>,<span class="dv">10</span> <span class="cf">if</span> a<span class="op">&gt;</span><span class="dv">0</span> <span class="cf">else</span> <span class="op">-</span><span class="dv">15</span>),textcoords<span class="op">=</span><span class="st">"offset points"</span>,ha<span class="op">=</span><span class="st">"center"</span>)</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">5</span>),[<span class="st">"rollout 1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>])<span class="op">;</span> ax.set_ylabel(<span class="st">"new / old probability ratio"</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.7</span>,<span class="fl">1.3</span>)<span class="op">;</span> ax.legend(loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative constrained update directions"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative constrained update directions"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-grpo-update-directions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four points show two accepted rollouts increasing in probability and two rejected rollouts decreasing, bounded by a clipping region.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-grpo-update-directions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="40-grpo-and-related-training-methods_files/figure-html/fig-grpo-update-directions-output-1.png" class="img-fluid figure-img" alt="Four points show two accepted rollouts increasing in probability and two rejected rollouts decreasing, bounded by a clipping region.">
+<img src="40-grpo-and-related-training-methods_files/figure-html/fig-grpo-update-directions-output-1.png" alt="Four points show two accepted rollouts increasing in probability and two rejected rollouts decreasing, bounded by a clipping region." width="700" height="355" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-grpo-update-directions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;41.5: Positive and negative group-relative advantages push rollout probabilities in opposite directions, subject to the policy-ratio constraint.
@@ -818,12 +783,12 @@ Figure&nbsp;41.5: Positive and negative group-relative advantages push rollout p
 <p>The evaluation should include component ablations. Hold prompts, rollout counts, reward, and independent task scorer fixed while removing group normalisation, changing group size, or varying the reference constraint one at a time. Compare the resulting policy checkpoints under the same inference budget. These comparisons do not prove that one method is universally preferable; they show which component explains the measured change in the declared training setting.</p>
 <p>Report the checkpoint-selection rule before comparing ablations. Selecting the highest result from each run on the same small development set can turn optimisation noise into a method claim.</p>
 <p>For any sample-efficiency claim, report total rollouts, accepted groups, discarded groups, update steps, and the complete evaluation budget alongside the final outcome.</p>
-<div id="e9726d5f" class="cell" data-execution_count="9">
+<div id="156ddfa6" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"group_size"</span>:<span class="dv">4</span>,<span class="st">"reward"</span>:<span class="st">"exact verifier"</span>,<span class="st">"epsilon"</span>:<span class="fl">1e-8</span>,<span class="st">"ratio_clip"</span>:<span class="fl">.2</span>,<span class="st">"reference"</span>:<span class="st">"policy-v1"</span>,<span class="st">"flat_groups"</span>:<span class="st">"skip"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"group_size"</span>:<span class="dv">4</span>,<span class="st">"reward"</span>:<span class="st">"exact verifier"</span>,<span class="st">"epsilon"</span>:<span class="fl">1e-8</span>,<span class="st">"ratio_clip"</span>:<span class="fl">.2</span>,<span class="st">"reference"</span>:<span class="st">"policy-v1"</span>,<span class="st">"flat_groups"</span>:<span class="st">"skip"</span>}</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"group_size"</span>,<span class="st">"reward"</span>,<span class="st">"reference"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"GRPO record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"GRPO record complete"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>GRPO record complete</code></pre>
@@ -877,17 +842,17 @@ Figure&nbsp;41.5: Positive and negative group-relative advantages push rollout p
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>GRPO is introduced in DeepSeekMath <span class="citation" data-cites="sha2024deepseekmath">(<a href="#ref-sha2024deepseekmath" role="doc-biblioref">Shao et al. 2024</a>)</span>. PPO provides a related clipped policy-update background <span class="citation" data-cites="schulman2017proximal">(<a href="#ref-schulman2017proximal" role="doc-biblioref">Schulman et al. 2017</a>)</span>.</p>
+<p>GRPO is introduced in DeepSeekMath <span class="citation" data-cites="sha2024deepseekmath">(<a href="#ref-sha2024deepseekmath" role="doc-biblioref"><span class="nocase">Shao et al.</span> 2024</a>)</span>. PPO provides a related clipped policy-update background <span class="citation" data-cites="schulman2017proximal">(<a href="#ref-schulman2017proximal" role="doc-biblioref">Schulman et al. 2017</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-schulman2017proximal" class="csl-entry" role="listitem">
 Schulman, John, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. 2017. <span>“Proximal Policy Optimization Algorithms.”</span> <em>arXiv Preprint arXiv:1707.06347</em>. <a href="https://arxiv.org/abs/1707.06347">https://arxiv.org/abs/1707.06347</a>.
 </div>
 <div id="ref-sha2024deepseekmath" class="csl-entry" role="listitem">
-Shao, Zhihong, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang, et al. 2024. <span>“DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models.”</span> <em>arXiv Preprint arXiv:2402.03300</em>. <a href="https://arxiv.org/abs/2402.03300">https://arxiv.org/abs/2402.03300</a>.
+<span class="nocase">Shao, Zhihong, Peiyi Wang, Qihao Zhu, et al.</span> 2024. <span>“DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models.”</span> <em>arXiv Preprint arXiv:2402.03300</em>. <a href="https://arxiv.org/abs/2402.03300">https://arxiv.org/abs/2402.03300</a>.
 </div>
 </div>
 </section>
@@ -944,13 +909,14 @@ Shao, Zhihong, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Z
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -984,16 +950,16 @@ Shao, Zhihong, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Z
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1355,7 +1321,7 @@ Shao, Zhihong, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Z
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "GRPO and Related Training Methods"</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Group-relative advantages for reasoning rollouts"</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1588,7 +1554,7 @@ Shao, Zhihong, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Z
 <span id="cb14-249"><a href="#cb14-249" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb14-250"><a href="#cb14-250" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-251"><a href="#cb14-251" aria-hidden="true" tabindex="-1"></a>GRPO is introduced in DeepSeekMath <span class="co">[</span><span class="ot">@sha2024deepseekmath</span><span class="co">]</span>. PPO provides a related clipped policy-update background <span class="co">[</span><span class="ot">@schulman2017proximal</span><span class="co">]</span>.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

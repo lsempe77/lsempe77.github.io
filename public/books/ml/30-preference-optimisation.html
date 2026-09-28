@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Preference Optimisation – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -606,7 +571,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-preference-pair" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -615,13 +580,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="fl">.3</span>,<span class="fl">1.45</span>,<span class="fl">1.7</span>,<span class="fl">.58</span>,<span class="st">"prompt"</span>,blue),(<span class="fl">3.1</span>,<span class="fl">2.3</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,<span class="st">"chosen response"</span>,teal),(<span class="fl">3.1</span>,<span class="fl">.7</span>,<span class="fl">2.1</span>,<span class="fl">.58</span>,<span class="st">"rejected response"</span>,orange),(<span class="fl">6.4</span>,<span class="fl">1.45</span>,<span class="fl">1.8</span>,<span class="fl">.58</span>,<span class="st">"preference</span><span class="ch">\n</span><span class="st">record"</span>,purple)]</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,w,h,label,c <span class="kw">in</span> items: ax.add_patch(Rectangle((x,y),w,h,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,y<span class="op">+</span>h<span class="op">/</span><span class="dv">2</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a,b <span class="kw">in</span> [((<span class="fl">2.05</span>,<span class="fl">1.74</span>),(<span class="fl">3.05</span>,<span class="fl">2.55</span>)),((<span class="fl">2.05</span>,<span class="fl">1.74</span>),(<span class="fl">3.05</span>,<span class="fl">.95</span>)),((<span class="fl">5.25</span>,<span class="fl">2.55</span>),(<span class="fl">6.35</span>,<span class="fl">1.74</span>)),((<span class="fl">5.25</span>,<span class="fl">.95</span>),(<span class="fl">6.35</span>,<span class="fl">1.74</span>))]: ax.add_patch(FancyArrowPatch(a,b,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-preference-pair" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A prompt box branches to chosen and rejected response boxes, which feed into a recorded preference label.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-preference-pair-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="30-preference-optimisation_files/figure-html/fig-preference-pair-output-1.png" class="img-fluid figure-img" alt="A prompt box branches to chosen and rejected response boxes, which feed into a recorded preference label.">
+<img src="30-preference-optimisation_files/figure-html/fig-preference-pair-output-1.png" alt="A prompt box branches to chosen and rejected response boxes, which feed into a recorded preference label." width="689" height="278" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-preference-pair-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;31.1: Preference data compare a chosen and rejected response for the same prompt under a declared judging procedure.
@@ -641,11 +606,11 @@ Figure&nbsp;31.1: Preference data compare a chosen and rejected response for the
 <h3 class="anchored" data-anchor-id="comparisons-add-a-different-kind-of-supervision">Comparisons add a different kind of supervision</h3>
 <p>For an instruction such as “summarise this report”, two responses can both be grammatical and relevant while one is judged clearer, more complete, or better supported. A pairwise label records that relative judgement. It does not require the preferred response to be perfect, and it does not state how large the difference is unless the data include that information.</p>
 <p>Preference datasets can be created by people, expert judges, rule-based procedures, or model-based judges. The source matters because it defines what the label represents. A preference for a concise answer differs from a preference for a medically accurate answer; an aggregate label can conceal disagreement among judges or a criterion that favours stylistic features over evidence.</p>
-<div id="7e7c2353" class="cell" data-execution_count="2">
+<div id="68935805" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pair<span class="op">=</span>{<span class="st">"prompt"</span>:<span class="st">"Summarise the record"</span>,<span class="st">"chosen"</span>:<span class="st">"States the evidence and limit"</span>,<span class="st">"rejected"</span>:<span class="st">"Adds unsupported detail"</span>,<span class="st">"criterion"</span>:<span class="st">"support and relevance"</span>}</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> key,value <span class="kw">in</span> pair.items(): <span class="bu">print</span>(key<span class="op">+</span><span class="st">":"</span>,value)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pair<span class="op">=</span>{<span class="st">"prompt"</span>:<span class="st">"Summarise the record"</span>,<span class="st">"chosen"</span>:<span class="st">"States the evidence and limit"</span>,<span class="st">"rejected"</span>:<span class="st">"Adds unsupported detail"</span>,<span class="st">"criterion"</span>:<span class="st">"support and relevance"</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> key,value <span class="kw">in</span> pair.items(): <span class="bu">print</span>(key<span class="op">+</span><span class="st">":"</span>,value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>prompt: Summarise the record
@@ -666,14 +631,14 @@ criterion: support and relevance</code></pre>
 <section id="a-reward-model-turns-responses-into-scores" class="level3">
 <h3 class="anchored" data-anchor-id="a-reward-model-turns-responses-into-scores">A reward model turns responses into scores</h3>
 <p>A reward model assigns a scalar (r(x,y)) to a prompt (x) and response (y). Under a Bradley-Terry model, the probability that chosen response (y^+) is preferred to rejected response (y^-) is</p>
-<p>[ P(y^+ y<sup>-x)=(r(x,y</sup>+)-r(x,y^-)). ]</p>
+<p>[ P(y^+ y^-x)=(r(x,y<sup>+)-r(x,y</sup>-)). ]</p>
 <p>Training raises this probability for observed comparisons. Only score differences matter: adding the same constant to both rewards leaves the pairwise probability unchanged.</p>
-<div id="cc6fd3c0" class="cell" data-execution_count="3">
+<div id="5de6f0b4" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sigmoid(x): <span class="cf">return</span> <span class="dv">1</span><span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>np.exp(<span class="op">-</span>x))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sigmoid(x): <span class="cf">return</span> <span class="dv">1</span><span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>np.exp(<span class="op">-</span>x))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>chosen_reward,rejected_reward<span class="op">=</span><span class="fl">1.4</span>,<span class="fl">.3</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"preference probability:"</span>,<span class="bu">round</span>(sigmoid(chosen_reward<span class="op">-</span>rejected_reward),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"preference probability:"</span>,<span class="bu">round</span>(sigmoid(chosen_reward<span class="op">-</span>rejected_reward),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>preference probability: 0.75</code></pre>
@@ -682,14 +647,14 @@ criterion: support and relevance</code></pre>
 <div id="cell-fig-reward-difference" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>differences<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">200</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(differences,sigmoid(differences),color<span class="op">=</span>teal,lw<span class="op">=</span><span class="fl">2.5</span>)<span class="op">;</span> ax.axvline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"chosen reward minus rejected reward"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"preference probability"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Pairwise preference model"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>differences<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">200</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(differences,sigmoid(differences),color<span class="op">=</span>teal,lw<span class="op">=</span><span class="fl">2.5</span>)<span class="op">;</span> ax.axvline(<span class="dv">0</span>,color<span class="op">=</span>grey,lw<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"chosen reward minus rejected reward"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"preference probability"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Pairwise preference model"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-reward-difference" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A sigmoid curve plots probability of preferring the chosen response against the reward-score difference.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reward-difference-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="30-preference-optimisation_files/figure-html/fig-reward-difference-output-1.png" class="img-fluid figure-img" alt="A sigmoid curve plots probability of preferring the chosen response against the reward-score difference.">
+<img src="30-preference-optimisation_files/figure-html/fig-reward-difference-output-1.png" alt="A sigmoid curve plots probability of preferring the chosen response against the reward-score difference." width="711" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reward-difference-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;31.2: A Bradley-Terry preference probability depends on the difference between chosen and rejected reward scores.
@@ -706,17 +671,17 @@ Figure&nbsp;31.2: A Bradley-Terry preference probability depends on the differen
 <div id="cell-fig-preference-routes" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"preference</span><span class="ch">\n</span><span class="st">pairs"</span>,blue),(<span class="fl">2.2</span>,<span class="st">"reward</span><span class="ch">\n</span><span class="st">model"</span>,teal),(<span class="fl">4.15</span>,<span class="st">"RL policy</span><span class="ch">\n</span><span class="st">update"</span>,orange),(<span class="fl">6.65</span>,<span class="st">"reference +</span><span class="ch">\n</span><span class="st">pairs"</span>,purple),(<span class="fl">8.55</span>,<span class="st">"direct policy</span><span class="ch">\n</span><span class="st">objective"</span>,teal)]:</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.35</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.675</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.62</span>,<span class="fl">3.58</span>,<span class="fl">8.05</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.56</span>),(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.56</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.0</span>,<span class="fl">.55</span>,<span class="st">"reward-model route"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange)<span class="op">;</span> ax.text(<span class="fl">8.1</span>,<span class="fl">.55</span>,<span class="st">"direct-preference route"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.0</span>,<span class="fl">.55</span>,<span class="st">"reward-model route"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange)<span class="op">;</span> ax.text(<span class="fl">8.1</span>,<span class="fl">.55</span>,<span class="st">"direct-preference route"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-preference-routes" class="quarto-float quarto-figure quarto-figure-center anchored" alt="One flow runs preference pairs to reward model to policy optimisation; another runs pairs and a reference policy directly to a policy objective.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-preference-routes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="30-preference-optimisation_files/figure-html/fig-preference-routes-output-1.png" class="img-fluid figure-img" alt="One flow runs preference pairs to reward model to policy optimisation; another runs pairs and a reference policy directly to a policy objective.">
+<img src="30-preference-optimisation_files/figure-html/fig-preference-routes-output-1.png" alt="One flow runs preference pairs to reward model to policy optimisation; another runs pairs and a reference policy directly to a policy objective." width="763" height="256" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-preference-routes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;31.3: Preference optimisation can use a learned reward followed by policy optimisation or a direct objective that compares policy probabilities for chosen and rejected responses.
@@ -732,13 +697,13 @@ Figure&nbsp;31.3: Preference optimisation can use a learned reward followed by p
 <section id="direct-preference-objectives-compare-log-probabilities" class="level3">
 <h3 class="anchored" data-anchor-id="direct-preference-objectives-compare-log-probabilities">Direct preference objectives compare log probabilities</h3>
 <p>For each pair, DPO encourages the tuned policy to increase the relative log probability of the chosen response over the rejected response, compared with a reference policy. The reference is commonly the supervised model before preference training. The exact objective includes a temperature-like coefficient that sets the strength of the change. It is a policy objective built from pairwise labels, not a claim that the chosen sequence is the only correct continuation.</p>
-<div id="48c6db80" class="cell" data-execution_count="6">
+<div id="04401ddb" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>logp_chosen,logp_rejected<span class="op">=-</span><span class="fl">2.0</span>,<span class="op">-</span><span class="fl">3.1</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>logp_chosen,logp_rejected<span class="op">=-</span><span class="fl">2.0</span>,<span class="op">-</span><span class="fl">3.1</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>logref_chosen,logref_rejected<span class="op">=-</span><span class="fl">2.2</span>,<span class="op">-</span><span class="fl">2.8</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>relative<span class="op">=</span>(logp_chosen<span class="op">-</span>logp_rejected)<span class="op">-</span>(logref_chosen<span class="op">-</span>logref_rejected)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"relative chosen advantage over reference:"</span>,<span class="bu">round</span>(relative,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"relative chosen advantage over reference:"</span>,<span class="bu">round</span>(relative,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>relative chosen advantage over reference: 0.5</code></pre>
@@ -749,11 +714,11 @@ Figure&nbsp;31.3: Preference optimisation can use a learned reward followed by p
 <section id="judge-disagreement-is-evidence-not-noise-to-hide" class="level3">
 <h3 class="anchored" data-anchor-id="judge-disagreement-is-evidence-not-noise-to-hide">Judge disagreement is evidence, not noise to hide</h3>
 <p>When several judges compare a pair, disagreement can reveal ambiguous prompts, competing criteria, poor candidate quality, or a population difference that an aggregate majority label conceals. A pipeline may aggregate labels, retain ties, collect rationales, or route sensitive cases to experts. The choice affects the supervised signal and should be reported.</p>
-<div id="f6888fe6" class="cell" data-execution_count="7">
+<div id="17304c2c" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>votes<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]) <span class="co"># 1 means candidate A preferred</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"A share:"</span>,votes.mean(),<span class="st">"disagreement rate:"</span>,<span class="bu">min</span>(votes.mean(),<span class="dv">1</span><span class="op">-</span>votes.mean()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>votes<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>]) <span class="co"># 1 means candidate A preferred</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"A share:"</span>,votes.mean(),<span class="st">"disagreement rate:"</span>,<span class="bu">min</span>(votes.mean(),<span class="dv">1</span><span class="op">-</span>votes.mean()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>A share: 0.6 disagreement rate: 0.4</code></pre>
@@ -767,16 +732,16 @@ Figure&nbsp;31.3: Preference optimisation can use a learned reward followed by p
 <div id="cell-fig-candidate-boundary" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="fl">1.35</span>,<span class="st">"prompt"</span>,blue),(<span class="fl">2.0</span>,<span class="fl">2.2</span>,<span class="st">"policy A</span><span class="ch">\n</span><span class="st">candidates"</span>,teal),(<span class="fl">2.0</span>,<span class="fl">.5</span>,<span class="st">"policy B</span><span class="ch">\n</span><span class="st">candidates"</span>,orange),(<span class="fl">5.0</span>,<span class="fl">1.35</span>,<span class="st">"judge</span><span class="ch">\n</span><span class="st">criterion"</span>,purple),(<span class="fl">7.1</span>,<span class="fl">1.35</span>,<span class="st">"recorded</span><span class="ch">\n</span><span class="st">pair"</span>,teal)]: ax.add_patch(Rectangle((x,y),<span class="fl">1.45</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,y<span class="op">+</span><span class="fl">.29</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a,b <span class="kw">in</span> [((<span class="fl">1.7</span>,<span class="fl">1.64</span>),(<span class="fl">1.95</span>,<span class="fl">2.48</span>)),((<span class="fl">1.7</span>,<span class="fl">1.64</span>),(<span class="fl">1.95</span>,<span class="fl">.78</span>)),((<span class="fl">3.45</span>,<span class="fl">2.48</span>),(<span class="fl">4.95</span>,<span class="fl">1.64</span>)),((<span class="fl">3.45</span>,<span class="fl">.78</span>),(<span class="fl">4.95</span>,<span class="fl">1.64</span>)),((<span class="fl">6.45</span>,<span class="fl">1.64</span>),(<span class="fl">7.05</span>,<span class="fl">1.64</span>))]: ax.add_patch(FancyArrowPatch(a,b,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="dv">3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="dv">3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-candidate-boundary" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A prompt feeds through two candidate-generation policies into different pairs for the same judge criterion.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-candidate-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="30-preference-optimisation_files/figure-html/fig-candidate-boundary-output-1.png" class="img-fluid figure-img" alt="A prompt feeds through two candidate-generation policies into different pairs for the same judge criterion.">
+<img src="30-preference-optimisation_files/figure-html/fig-candidate-boundary-output-1.png" alt="A prompt feeds through two candidate-generation policies into different pairs for the same judge criterion." width="689" height="256" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-candidate-boundary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;31.4: A preference label depends on the candidates presented to judges; changing candidate generation changes the comparison distribution.
@@ -795,12 +760,12 @@ Figure&nbsp;31.4: A preference label depends on the candidates presented to judg
 <h3 class="anchored" data-anchor-id="preference-labels-need-a-population-and-a-decision-rule">Preference labels need a population and a decision rule</h3>
 <p>Judges do not supply preferences in the abstract. They evaluate candidates under instructions, time constraints, information access, and a particular population of prompts. Expert review can be needed when an answer requires domain knowledge; general raters can still be appropriate for readability or instruction compliance if that is the criterion. The report should name the criterion rather than treating all labels as one measure of helpfulness.</p>
 <p>Pair construction also determines whether a preference is informative. Pairs that differ in only punctuation can estimate a narrow formatting preference. Pairs with one malformed candidate can make the task trivial. Difficult pairs near a decision boundary can reveal disagreement and evaluator limitations, but they also require a policy for ties and uncertainty. Keeping the unaggregated labels supports later analysis of those differences.</p>
-<div id="dd2272b8" class="cell" data-execution_count="9">
+<div id="474a4f34" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pair_types<span class="op">=</span>{<span class="st">"trivial malformed alternative"</span>:<span class="dv">40</span>,<span class="st">"format trade-off"</span>:<span class="dv">35</span>,<span class="st">"evidence trade-off"</span>:<span class="dv">25</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pair_types<span class="op">=</span>{<span class="st">"trivial malformed alternative"</span>:<span class="dv">40</span>,<span class="st">"format trade-off"</span>:<span class="dv">35</span>,<span class="st">"evidence trade-off"</span>:<span class="dv">25</span>}</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pair_types)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"A preference dataset should report how its pair types were sampled and judged."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"A preference dataset should report how its pair types were sampled and judged."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'trivial malformed alternative': 40, 'format trade-off': 35, 'evidence trade-off': 25}
@@ -817,16 +782,16 @@ A preference dataset should report how its pair types were sampled and judged.</
 <div id="cell-fig-reward-audit" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.7</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.7</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="fl">1.45</span>,<span class="st">"policy</span><span class="ch">\n</span><span class="st">update"</span>,blue),(<span class="fl">2.45</span>,<span class="fl">1.45</span>,<span class="st">"learned</span><span class="ch">\n</span><span class="st">reward"</span>,orange),(<span class="fl">5.0</span>,<span class="fl">2.35</span>,<span class="st">"task</span><span class="ch">\n</span><span class="st">evaluation"</span>,teal),(<span class="fl">5.0</span>,<span class="fl">.55</span>,<span class="st">"independent</span><span class="ch">\n</span><span class="st">review"</span>,purple)]: ax.add_patch(Rectangle((x,y),<span class="fl">1.45</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,y<span class="op">+</span><span class="fl">.29</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a,b <span class="kw">in</span> [((<span class="fl">1.78</span>,<span class="fl">1.74</span>),(<span class="fl">2.4</span>,<span class="fl">1.74</span>)),((<span class="fl">3.9</span>,<span class="fl">1.74</span>),(<span class="fl">4.95</span>,<span class="fl">2.64</span>)),((<span class="fl">3.9</span>,<span class="fl">1.74</span>),(<span class="fl">4.95</span>,<span class="fl">.84</span>))]: ax.add_patch(FancyArrowPatch(a,b,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-reward-audit" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A policy update leads to high learned reward, then branches to independent task evaluation and held-out human review.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reward-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="30-preference-optimisation_files/figure-html/fig-reward-audit-output-1.png" class="img-fluid figure-img" alt="A policy update leads to high learned reward, then branches to independent task evaluation and held-out human review.">
+<img src="30-preference-optimisation_files/figure-html/fig-reward-audit-output-1.png" alt="A policy update leads to high learned reward, then branches to independent task evaluation and held-out human review." width="666" height="271" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reward-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;31.5: A preference-optimised policy can improve its learned reward while requiring separate checks against independent task and human criteria.
@@ -839,12 +804,12 @@ Figure&nbsp;31.5: A preference-optimised policy can improve its learned reward w
 <section id="a-preference-record-supports-interpretation" class="level3">
 <h3 class="anchored" data-anchor-id="a-preference-record-supports-interpretation">A preference record supports interpretation</h3>
 <p>An audit should retain base and reference checkpoints; prompt and template versions; candidate-generation policy and decoding settings; chosen and rejected token sequences; judge population, instructions, information access, and aggregation rule; reward-model architecture and validation where used; objective parameters; training schedule; target and regression evaluations; and representative disagreements or failures. This record allows a reviewer to identify whether a change came from candidates, judges, the objective, or the serving interface.</p>
-<div id="e132f86d" class="cell" data-execution_count="11">
+<div id="0667f4d8" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"reference"</span>:<span class="st">"instruction checkpoint"</span>,<span class="st">"pairs"</span>:<span class="st">"versioned"</span>,<span class="st">"judges"</span>:<span class="st">"documented instructions"</span>,<span class="st">"objective"</span>:<span class="st">"DPO-like"</span>,<span class="st">"evaluation"</span>:<span class="st">"independent"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"reference"</span>:<span class="st">"instruction checkpoint"</span>,<span class="st">"pairs"</span>:<span class="st">"versioned"</span>,<span class="st">"judges"</span>:<span class="st">"documented instructions"</span>,<span class="st">"objective"</span>:<span class="st">"DPO-like"</span>,<span class="st">"evaluation"</span>:<span class="st">"independent"</span>}</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"reference"</span>,<span class="st">"pairs"</span>,<span class="st">"judges"</span>,<span class="st">"objective"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"preference audit record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"preference audit record complete"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>preference audit record complete</code></pre>
@@ -900,12 +865,12 @@ Figure&nbsp;31.5: A preference-optimised policy can improve its learned reward w
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-christiano2017deep" class="csl-entry" role="listitem">
-Christiano, Paul F., Jan Leike, Tom B. Brown, Miljan Martic, Shane Legg, and Dario Amodei. 2017. <span>“Deep Reinforcement Learning from Human Preferences.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 30. <a href="https://arxiv.org/abs/1706.03741">https://arxiv.org/abs/1706.03741</a>.
+Christiano, Paul F., Jan Leike, Tom B. Brown, Miljan Martic, Shane Legg, and Dario Amodei. 2017. <span>“Deep Reinforcement Learning from Human Preferences.”</span> <em>Advances in Neural Information Processing Systems</em> 30. <a href="https://arxiv.org/abs/1706.03741">https://arxiv.org/abs/1706.03741</a>.
 </div>
 <div id="ref-ouyang2022training" class="csl-entry" role="listitem">
-Ouyang, Long, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang, et al. 2022. <span>“Training Language Models to Follow Instructions with Human Feedback.”</span> <em>Advances in Neural Information Processing Systems</em> 35: 27730–44. <a href="https://arxiv.org/abs/2203.02155">https://arxiv.org/abs/2203.02155</a>.
+Ouyang, Long, Jeffrey Wu, Xu Jiang, et al. 2022. <span>“Training Language Models to Follow Instructions with Human Feedback.”</span> <em>Advances in Neural Information Processing Systems</em> 35: 27730–44. <a href="https://arxiv.org/abs/2203.02155">https://arxiv.org/abs/2203.02155</a>.
 </div>
 <div id="ref-rafailov2023direct" class="csl-entry" role="listitem">
 Rafailov, Rafael, Archit Sharma, Eric Mitchell, Christopher D. Manning, Stefano Ermon, and Chelsea Finn. 2023. <span>“Direct Preference Optimization: Your Language Model Is Secretly a Reward Model.”</span> <em>Advances in Neural Information Processing Systems</em> 36: 53728–41. <a href="https://arxiv.org/abs/2305.18290">https://arxiv.org/abs/2305.18290</a>.
@@ -965,13 +930,14 @@ Rafailov, Rafael, Archit Sharma, Eric Mitchell, Christopher D. Manning, Stefano 
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1005,16 +971,16 @@ Rafailov, Rafael, Archit Sharma, Eric Mitchell, Christopher D. Manning, Stefano 
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1376,7 +1342,7 @@ Rafailov, Rafael, Archit Sharma, Eric Mitchell, Christopher D. Manning, Stefano 
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Preference Optimisation"</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Learning from comparisons between candidate responses"</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1612,7 +1578,7 @@ Rafailov, Rafael, Archit Sharma, Eric Mitchell, Christopher D. Manning, Stefano 
 <span id="cb18-256"><a href="#cb18-256" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb18-257"><a href="#cb18-257" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-258"><a href="#cb18-258" aria-hidden="true" tabindex="-1"></a>Learning from human preferences is introduced by @christiano2017deep. DPO is developed by @rafailov2023direct. InstructGPT documents a reward-model and policy-optimisation alignment pipeline <span class="co">[</span><span class="ot">@ouyang2022training</span><span class="co">]</span>.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

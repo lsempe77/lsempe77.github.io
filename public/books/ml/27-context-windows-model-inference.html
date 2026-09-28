@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Context Windows and Model Inference – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,86 +130,75 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="book-navigation.css">
@@ -520,33 +514,31 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <li><a href="#the-problem" id="toc-the-problem" class="nav-link active" data-scroll-target="#the-problem">The problem</a>
   <ul class="collapse">
-  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
-  <li><a href="#running-sequence" id="toc-running-sequence" class="nav-link" data-scroll-target="#running-sequence">Running sequence</a></li>
+  <li><a href="#a-sliding-window-makes-the-boundary-visible" id="toc-a-sliding-window-makes-the-boundary-visible" class="nav-link" data-scroll-target="#a-sliding-window-makes-the-boundary-visible">A sliding window makes the boundary visible</a></li>
   </ul></li>
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
   <li><a href="#a-context-window-is-an-information-boundary" id="toc-a-context-window-is-an-information-boundary" class="nav-link" data-scroll-target="#a-context-window-is-an-information-boundary">A context window is an information boundary</a></li>
   <li><a href="#prompt-processing-and-generation-are-different-phases" id="toc-prompt-processing-and-generation-are-different-phases" class="nav-link" data-scroll-target="#prompt-processing-and-generation-are-different-phases">Prompt processing and generation are different phases</a></li>
   </ul></li>
-  <li><a href="#level-2---cache-mechanics" id="toc-level-2---cache-mechanics" class="nav-link" data-scroll-target="#level-2---cache-mechanics">Level 2 - Cache mechanics</a>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
   <ul class="collapse">
   <li><a href="#why-naive-decoding-repeats-work" id="toc-why-naive-decoding-repeats-work" class="nav-link" data-scroll-target="#why-naive-decoding-repeats-work">Why naive decoding repeats work</a></li>
   <li><a href="#cache-shape-and-memory" id="toc-cache-shape-and-memory" class="nav-link" data-scroll-target="#cache-shape-and-memory">Cache shape and memory</a></li>
   <li><a href="#cache-correctness-is-a-model-test" id="toc-cache-correctness-is-a-model-test" class="nav-link" data-scroll-target="#cache-correctness-is-a-model-test">Cache correctness is a model test</a></li>
   </ul></li>
-  <li><a href="#level-3---long-context-use" id="toc-level-3---long-context-use" class="nav-link" data-scroll-target="#level-3---long-context-use">Level 3 - Long-context use</a>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
   <ul class="collapse">
   <li><a href="#cost-grows-before-the-cache-is-available" id="toc-cost-grows-before-the-cache-is-available" class="nav-link" data-scroll-target="#cost-grows-before-the-cache-is-available">Cost grows before the cache is available</a></li>
   <li><a href="#retrieval-is-not-identical-to-longer-context" id="toc-retrieval-is-not-identical-to-longer-context" class="nav-link" data-scroll-target="#retrieval-is-not-identical-to-longer-context">Retrieval is not identical to longer context</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
   <li><a href="#context-extension-needs-an-explicit-comparison" id="toc-context-extension-needs-an-explicit-comparison" class="nav-link" data-scroll-target="#context-extension-needs-an-explicit-comparison">Context extension needs an explicit comparison</a></li>
   <li><a href="#serving-constraints-change-the-available-context-per-request" id="toc-serving-constraints-change-the-available-context-per-request" class="nav-link" data-scroll-target="#serving-constraints-change-the-available-context-per-request">Serving constraints change the available context per request</a></li>
   <li><a href="#long-context-errors-require-traces-not-only-accuracy-totals" id="toc-long-context-errors-require-traces-not-only-accuracy-totals" class="nav-link" data-scroll-target="#long-context-errors-require-traces-not-only-accuracy-totals">Long-context errors require traces, not only accuracy totals</a></li>
-  </ul></li>
-  <li><a href="#level-4---audit-and-reporting" id="toc-level-4---audit-and-reporting" class="nav-link" data-scroll-target="#level-4---audit-and-reporting">Level 4 - Audit and reporting</a>
-  <ul class="collapse">
   <li><a href="#length-claims-need-tests-that-control-position-and-distraction" id="toc-length-claims-need-tests-that-control-position-and-distraction" class="nav-link" data-scroll-target="#length-claims-need-tests-that-control-position-and-distraction">Length claims need tests that control position and distraction</a></li>
   <li><a href="#an-inference-record-separates-capacity-from-service-quality" id="toc-an-inference-record-separates-capacity-from-service-quality" class="nav-link" data-scroll-target="#an-inference-record-separates-capacity-from-service-quality">An inference record separates capacity from service quality</a></li>
   </ul></li>
@@ -581,33 +573,18 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 </header>
 
 
-<section id="chapter-orientation" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
-<section id="why-this-chapter-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
-<p>A decoder language model predicts the next token from a finite permitted prefix. The maximum number of tokens it can process is the context window. This limit affects what evidence is available to a prediction, the memory required by attention, the latency of generation, and the interpretation of claims that a model has “read” a long document.</p>
-<p>Inference is also sequential. A generated token becomes part of the next prefix. Key-value caching avoids recomputing the representations of earlier tokens at every step, but it retains an expanding memory state. This chapter defines these mechanics and the evidence needed to assess long-context use. Chapter 28 treats how tokens are selected from the next-token distribution.</p>
-</section>
-<section id="learning-objectives" class="level3">
-<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
-<p>By the end of this chapter, you should be able to:</p>
-<ul>
-<li>distinguish context length, generated length, and total sequence length;</li>
-<li>explain why causal decoding is sequential even when prompt processing is parallel;</li>
-<li>calculate the shape and approximate storage of a key-value cache;</li>
-<li>compare full-prefix recomputation with cached decoding;</li>
-<li>identify the difference between fitting text into a context and using relevant information from it;</li>
-<li>state common long-context evaluation failures; and</li>
-<li>specify an inference record that makes latency and length claims interpretable.</li>
-</ul>
-</section>
-<section id="running-sequence" class="level3">
-<h3 class="anchored" data-anchor-id="running-sequence">Running sequence</h3>
-<p>We use a prompt of five token IDs and generate three new IDs. A maximum context of six means that a later prediction cannot retain every original prompt token if the system uses a sliding window.</p>
+<section id="the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
+<p>Chapter 26 produced a base-model checkpoint fitted to a constructed token stream under a finite training budget. Serving that checkpoint confronts a different constraint. A decoder language model predicts the next token from a finite permitted prefix, and the maximum number of tokens it can process in one request is the context window. That limit affects what evidence is available to a prediction, the memory required by attention, the latency of generation, and the interpretation of claims that a model has “read” a long document.</p>
+<p>Inference is also sequential: a generated token becomes part of the next prefix. Key-value caching avoids recomputing the representations of earlier tokens at every step, but it retains an expanding memory state. This chapter defines those mechanics and the evidence needed to assess long-context use. Chapter 28 treats how tokens are selected from the next-token distribution.</p>
+<section id="a-sliding-window-makes-the-boundary-visible" class="level3">
+<h3 class="anchored" data-anchor-id="a-sliding-window-makes-the-boundary-visible">A sliding window makes the boundary visible</h3>
+<p>The running sequence uses a prompt of five token IDs and generates three new IDs. A maximum context of six means that a later prediction cannot retain every original prompt token if the system uses a sliding window.</p>
+<p>The first diagram shows the whole sequence and the retained window. The blue boxes are prompt tokens and the orange boxes are generated tokens; the outlined span is the six-token context available when the model predicts the final token. Notice that <code>p1</code> and <code>p2</code> have left the window: they influenced earlier predictions, but they are no longer available to this one.</p>
 <div id="cell-fig-context-window" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -618,13 +595,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.15</span><span class="op">;</span> c<span class="op">=</span>blue <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">5</span> <span class="cf">else</span> orange</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">.9</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">1.5</span>,t,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">2.55</span>,<span class="fl">1.02</span>),<span class="fl">6.85</span>,<span class="fl">.95</span>,fill<span class="op">=</span><span class="va">False</span>,edgecolor<span class="op">=</span>teal,lw<span class="op">=</span><span class="dv">2</span>))<span class="op">;</span> ax.text(<span class="fl">5.98</span>,<span class="fl">.65</span>,<span class="st">"retained six-token context for g3"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>teal)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-context-window" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A sequence of eight token boxes has a highlighted six-token window that shifts right as new tokens are generated.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-context-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="27-context-windows-model-inference_files/figure-html/fig-context-window-output-1.png" class="img-fluid figure-img" alt="A sequence of eight token boxes has a highlighted six-token window that shifts right as new tokens are generated.">
+<img src="27-context-windows-model-inference_files/figure-html/fig-context-window-output-1.png" alt="A sequence of eight token boxes has a highlighted six-token window that shifts right as new tokens are generated." width="763" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-context-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;28.1: A finite causal context makes each prediction depend on the retained prefix, not necessarily the complete earlier document.
@@ -633,6 +610,7 @@ Figure&nbsp;28.1: A finite causal context makes each prediction depend on the re
 </div>
 </div>
 </div>
+<p>The window is a token limit, not a summary of what the model used: everything inside it is available in principle, and everything outside it is gone. The rest of the chapter separates that capacity from the cost of filling it and from the evidence that a model actually uses what fits.</p>
 <div id="concept-context-window" class="concept-box concept-core" data-term="Context window and key-value cache" data-domain="Large language models">
 <p><strong>Context window and key-value cache.</strong> The context window is the finite token prefix a model can condition on in one request. A key-value cache stores prior attention states during decoding to avoid recomputation, while consuming memory that grows with active context.</p>
 </div>
@@ -645,19 +623,19 @@ Figure&nbsp;28.1: A finite causal context makes each prediction depend on the re
 <h2 class="anchored" data-anchor-id="level-1---intuition">Level 1 - Intuition</h2>
 <section id="a-context-window-is-an-information-boundary" class="level3">
 <h3 class="anchored" data-anchor-id="a-context-window-is-an-information-boundary">A context window is an information boundary</h3>
-<p>The context window is a token limit, not a guarantee that every retained token affects an answer. A token outside the window cannot be attended to by an ordinary finite-context decoder. A token inside it is available in principle, but the model may assign it little attention, fail to retrieve it among distractors, or use it incorrectly. “Supports 32,000 tokens” therefore describes an input capacity, not a measured ability to answer questions about every position in a 32,000-token document.</p>
-<p>The boundary is measured after tokenisation. A page, a word count, or a character count has no fixed conversion because language, formatting, code, and tokeniser affect the number of IDs. Prompts also consume the same budget as generated output in most interfaces. A requested answer can fail because the prompt plus reserved output exceeds the configured total length.</p>
+<p>The context window is a token limit, not a guarantee that every retained token affects an answer. A token outside the window cannot be attended to by an ordinary finite-context decoder. A token inside it is available in principle, but the model may assign it little attention, fail to retrieve it among distractors, or use it incorrectly. â€œSupports 32,000 tokensâ€ therefore describes an input capacity, not a measured ability to answer questions about every position in a 32,000-token document.</p>
+<p>The boundary is measured after tokenisation. A page, a word count, or a character count has no fixed conversion because language, formatting, code, and tokenizer affect the number of IDs. Prompts also consume the same budget as generated output in most interfaces. A requested answer can fail because the prompt plus reserved output exceeds the configured total length.</p>
 <div id="cell-fig-length-budget" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>limit<span class="op">=</span><span class="dv">100</span><span class="op">;</span> prompt<span class="op">=</span><span class="dv">62</span><span class="op">;</span> reserve<span class="op">=</span><span class="dv">25</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.7</span>))<span class="op">;</span> ax.barh([<span class="dv">0</span>],[prompt],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"prompt"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[reserve],left<span class="op">=</span>[prompt],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"reserved output"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[limit<span class="op">-</span>prompt<span class="op">-</span>reserve],left<span class="op">=</span>[prompt<span class="op">+</span>reserve],color<span class="op">=</span>grey,label<span class="op">=</span><span class="st">"unused"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,limit)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"tokens"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">3</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"A configured maximum length is shared"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>limit<span class="op">=</span><span class="dv">100</span><span class="op">;</span> prompt<span class="op">=</span><span class="dv">62</span><span class="op">;</span> reserve<span class="op">=</span><span class="dv">25</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.7</span>))<span class="op">;</span> ax.barh([<span class="dv">0</span>],[prompt],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"prompt"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[reserve],left<span class="op">=</span>[prompt],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"reserved output"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[limit<span class="op">-</span>prompt<span class="op">-</span>reserve],left<span class="op">=</span>[prompt<span class="op">+</span>reserve],color<span class="op">=</span>grey,label<span class="op">=</span><span class="st">"unused"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,limit)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"tokens"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">3</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"A configured maximum length is shared"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-length-budget" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A horizontal capacity bar is divided into prompt, generated output, and unused token capacity.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-length-budget-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="27-context-windows-model-inference_files/figure-html/fig-length-budget-output-1.png" class="img-fluid figure-img" alt="A horizontal capacity bar is divided into prompt, generated output, and unused token capacity.">
+<img src="27-context-windows-model-inference_files/figure-html/fig-length-budget-output-1.png" alt="A horizontal capacity bar is divided into prompt, generated output, and unused token capacity." width="759" height="249" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-length-budget-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;28.2: Prompt tokens and generated tokens share a finite total sequence budget.
@@ -669,15 +647,15 @@ Figure&nbsp;28.2: Prompt tokens and generated tokens share a finite total sequen
 </section>
 <section id="prompt-processing-and-generation-are-different-phases" class="level3">
 <h3 class="anchored" data-anchor-id="prompt-processing-and-generation-are-different-phases">Prompt processing and generation are different phases</h3>
-<p>During prompt processing, a causal Transformer can compute representations for supplied positions in parallel under its causal mask. This is commonly called prefill. Once generation begins, token (t+1) cannot be selected until the model has processed the selected token (t). Output is therefore sequential even on highly parallel hardware.</p>
+<p>During prompt processing, a causal Transformer can compute representations for supplied positions in parallel under its causal mask. This is commonly called prefill. Once generation begins, token <span class="math inline">\(t+1\)</span> cannot be selected until the model has processed the selected token <span class="math inline">\(t\)</span>. Output is therefore sequential even on highly parallel hardware.</p>
 <p>The difference helps interpret latency. A long prompt can create a substantial initial wait before the first new token. A long generated answer can be slow because it requires repeated decode steps. Reporting only total tokens per second mixes these phases and obscures the user-facing bottleneck.</p>
-<div id="e8eec7fd" class="cell" data-execution_count="3">
+<div id="66f20f04" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prompt<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">11</span>,<span class="dv">34</span>,<span class="dv">58</span>,<span class="dv">3</span>])<span class="op">;</span> generated<span class="op">=</span>[]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prompt<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">11</span>,<span class="dv">34</span>,<span class="dv">58</span>,<span class="dv">3</span>])<span class="op">;</span> generated<span class="op">=</span>[]</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chosen <span class="kw">in</span> [<span class="dv">17</span>,<span class="dv">29</span>,<span class="dv">3</span>]:</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"prefix length before selection:"</span>,<span class="bu">len</span>(prompt)<span class="op">+</span><span class="bu">len</span>(generated),<span class="st">"choose:"</span>,chosen)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    generated.append(chosen)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    generated.append(chosen)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>prefix length before selection: 5 choose: 17
@@ -685,31 +663,32 @@ prefix length before selection: 6 choose: 29
 prefix length before selection: 7 choose: 3</code></pre>
 </div>
 </div>
+<p>Level 1 identified the window as an information boundary and the two phases of a request. Level 2 follows the cache that makes sequential generation affordable: why naive decoding repeats work, what the cache stores, and how its correctness is tested.</p>
 </section>
 </section>
-<section id="level-2---cache-mechanics" class="level2">
-<h2 class="anchored" data-anchor-id="level-2---cache-mechanics">Level 2 - Cache mechanics</h2>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
 <section id="why-naive-decoding-repeats-work" class="level3">
 <h3 class="anchored" data-anchor-id="why-naive-decoding-repeats-work">Why naive decoding repeats work</h3>
-<p>Without a cache, generating each new token recomputes attention projections for the full prefix. For a prefix length (L), the next step uses length (L+1), then (L+2), and so on. Earlier tokens are repeatedly projected even though their keys and values do not change in a causal decoder.</p>
+<p>Without a cache, generating each new token recomputes attention projections for the full prefix. For a prefix length <span class="math inline">\(L\)</span>, the next step uses length <span class="math inline">\(L+1\)</span>, then <span class="math inline">\(L+2\)</span>, and so on. Earlier tokens are repeatedly projected even though their keys and values do not change in a causal decoder.</p>
 <p>A key-value cache stores the key and value tensors produced at each layer for earlier positions. At the next step, the new query attends to stored keys and values plus the new token’s key and value. The cache does not make generation parallel, but it avoids repeatedly rebuilding the earlier prefix.</p>
 <div id="cell-fig-cache-growth" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.65</span><span class="op">-</span>layer<span class="op">*</span><span class="fl">.8</span><span class="op">;</span> ax.text(<span class="fl">.15</span>,y<span class="op">+</span><span class="fl">.2</span>,<span class="ss">f"layer </span><span class="sc">{</span>layer<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>grey)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">1.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.92</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">.72</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.36</span>,y<span class="op">+</span><span class="fl">.19</span>,<span class="ss">f"K</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,y<span class="op">-</span><span class="fl">.4</span>),<span class="fl">.72</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.36</span>,y<span class="op">-</span><span class="fl">.21</span>,<span class="ss">f"V</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">6.25</span>,<span class="fl">1.45</span>),(<span class="fl">7.45</span>,<span class="fl">1.45</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>orange,mutation_scale<span class="op">=</span><span class="dv">14</span>))<span class="op">;</span> ax.text(<span class="fl">8.05</span>,<span class="fl">1.45</span>,<span class="st">"append K,V</span><span class="ch">\n</span><span class="st">for new token"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.35</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.35</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-cache-growth" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three cache blocks, one per layer, extend by one key and one value column when a new token is generated.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-cache-growth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="27-context-windows-model-inference_files/figure-html/fig-cache-growth-output-1.png" class="img-fluid figure-img" alt="Three cache blocks, one per layer, extend by one key and one value column when a new token is generated.">
+<img src="27-context-windows-model-inference_files/figure-html/fig-cache-growth-output-1.png" alt="Three cache blocks, one per layer, extend by one key and one value column when a new token is generated." width="689" height="278" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cache-growth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;28.3: A key-value cache retains keys and values for each layer and each generated prefix position, growing with sequence length.
@@ -721,15 +700,17 @@ Figure&nbsp;28.3: A key-value cache retains keys and values for each layer and e
 </section>
 <section id="cache-shape-and-memory" class="level3">
 <h3 class="anchored" data-anchor-id="cache-shape-and-memory">Cache shape and memory</h3>
-<p>For batch size (B), layers (n_l), key-value heads (n_{kv}), head width (d_h), and cached length (L), keys and values require approximately</p>
-<p>[ 2B n_l n_{kv} L d_h ]</p>
-<p>stored numbers. Multiply by bytes per number to obtain a rough memory estimate. Multi-query and grouped-query attention reduce (n_{kv}) relative to the number of query heads, lowering cache memory without changing the causal sequence rule.</p>
-<div id="a7a74809" class="cell" data-execution_count="5">
+<p>For batch size <span class="math inline">\(B\)</span>, layers <span class="math inline">\(n_l\)</span>, key-value heads <span class="math inline">\(n_{kv}\)</span>, head width <span class="math inline">\(d_h\)</span>, and cached length <span class="math inline">\(L\)</span>, keys and values require approximately</p>
+<p><span class="math display">\[
+2B n_l n_{kv} L d_h
+\]</span></p>
+<p>stored numbers. Multiply by bytes per number to obtain a rough memory estimate. Multi-query and grouped-query attention reduce <span class="math inline">\(n_{kv}\)</span> relative to the number of query heads, lowering cache memory without changing the causal sequence rule.</p>
+<div id="387730a5" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>B,layers,kv_heads,length,head_dim,bytes_per<span class="op">=</span><span class="dv">1</span>,<span class="dv">32</span>,<span class="dv">8</span>,<span class="dv">8192</span>,<span class="dv">128</span>,<span class="dv">2</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>B,layers,kv_heads,length,head_dim,bytes_per<span class="op">=</span><span class="dv">1</span>,<span class="dv">32</span>,<span class="dv">8</span>,<span class="dv">8192</span>,<span class="dv">128</span>,<span class="dv">2</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cache_bytes<span class="op">=</span><span class="dv">2</span><span class="op">*</span>B<span class="op">*</span>layers<span class="op">*</span>kv_heads<span class="op">*</span>length<span class="op">*</span>head_dim<span class="op">*</span>bytes_per</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"KV cache: </span><span class="sc">{</span>cache_bytes<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span><span class="sc">:.2f}</span><span class="ss"> GiB"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"KV cache: </span><span class="sc">{</span>cache_bytes<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span><span class="sc">:.2f}</span><span class="ss"> GiB"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>KV cache: 1.00 GiB</code></pre>
@@ -740,36 +721,37 @@ Figure&nbsp;28.3: A key-value cache retains keys and values for each layer and e
 <section id="cache-correctness-is-a-model-test" class="level3">
 <h3 class="anchored" data-anchor-id="cache-correctness-is-a-model-test">Cache correctness is a model test</h3>
 <p>Cached decoding should agree with full-prefix decoding for the same model, tokens, position treatment, masks, and numerical precision within an explicit tolerance. Disagreement can arise from wrong cache positions, stale entries, incorrect padding handling, rotary-position implementation, or an inconsistency between prefill and decode code paths.</p>
-<div id="2f3ca601" class="cell" data-execution_count="6">
+<div id="d83c2965" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>full_prefix_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>full_prefix_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>cached_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(full_prefix_logits,cached_logits,atol<span class="op">=</span><span class="fl">1e-6</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cached and full-prefix reference outputs agree"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cached and full-prefix reference outputs agree"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>cached and full-prefix reference outputs agree</code></pre>
 </div>
 </div>
+<p>Level 2 specified what the cache stores and how its correctness is tested. Level 3 states the cost relations formally: what prefill costs before any cache exists, and how retrieval differs from a longer window.</p>
 </section>
 </section>
-<section id="level-3---long-context-use" class="level2">
-<h2 class="anchored" data-anchor-id="level-3---long-context-use">Level 3 - Long-context use</h2>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
 <section id="cost-grows-before-the-cache-is-available" class="level3">
 <h3 class="anchored" data-anchor-id="cost-grows-before-the-cache-is-available">Cost grows before the cache is available</h3>
 <p>The cache improves repeated decoding but does not remove the cost of processing a long initial prompt. Standard dense self-attention forms score relations among positions during prefill, so the attention component grows quadratically with sequence length. Chapter 20 derived this relation. Implementation methods can reduce memory traffic and avoid materialising the full score matrix, but they do not make every long prompt free.</p>
 <div id="cell-fig-prefill-quadratic" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>np.arange(<span class="dv">256</span>,<span class="dv">8193</span>,<span class="dv">256</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(lengths,(lengths<span class="op">/</span><span class="dv">256</span>)<span class="op">**</span><span class="dv">2</span>,color<span class="op">=</span>purple,label<span class="op">=</span><span class="st">"relative dense score relations"</span>)<span class="op">;</span> ax.plot(lengths,lengths<span class="op">/</span><span class="dv">256</span>,color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"relative cache length"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"prompt length"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"relative quantity"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Prefill and cached state scale differently"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>np.arange(<span class="dv">256</span>,<span class="dv">8193</span>,<span class="dv">256</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(lengths,(lengths<span class="op">/</span><span class="dv">256</span>)<span class="op">**</span><span class="dv">2</span>,color<span class="op">=</span>purple,label<span class="op">=</span><span class="st">"relative dense score relations"</span>)<span class="op">;</span> ax.plot(lengths,lengths<span class="op">/</span><span class="dv">256</span>,color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"relative cache length"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"prompt length"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"relative quantity"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Prefill and cached state scale differently"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-prefill-quadratic" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A curve shows quadratic relative score entries with prompt length, alongside a linear cache-size line.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-prefill-quadratic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="27-context-windows-model-inference_files/figure-html/fig-prefill-quadratic-output-1.png" class="img-fluid figure-img" alt="A curve shows quadratic relative score entries with prompt length, alongside a linear cache-size line.">
+<img src="27-context-windows-model-inference_files/figure-html/fig-prefill-quadratic-output-1.png" alt="A curve shows quadratic relative score entries with prompt length, alongside a linear cache-size line." width="712" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prefill-quadratic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;28.4: Dense attention score relations during prompt processing grow quadratically with sequence length, while cached decoding appends one position at a time.
@@ -783,19 +765,23 @@ Figure&nbsp;28.4: Dense attention score relations during prompt processing grow 
 <section id="retrieval-is-not-identical-to-longer-context" class="level3">
 <h3 class="anchored" data-anchor-id="retrieval-is-not-identical-to-longer-context">Retrieval is not identical to longer context</h3>
 <p>Retrieval can reduce the prompt to passages selected from a larger collection. It changes the inference problem from attending over all supplied text to selecting and using evidence. A large window may contain an entire document; it still must locate and apply the relevant information. Chapter 33 will examine retrieval-augmented generation as a complete system, including indexing and evaluation.</p>
-<div id="2cf298cd" class="cell" data-execution_count="8">
+<div id="ba9ef20a" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>document_tokens<span class="op">=</span><span class="dv">20_000</span><span class="op">;</span> retrieved_tokens<span class="op">=</span><span class="dv">1_500</span><span class="op">;</span> window<span class="op">=</span><span class="dv">4_096</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>document_tokens<span class="op">=</span><span class="dv">20_000</span><span class="op">;</span> retrieved_tokens<span class="op">=</span><span class="dv">1_500</span><span class="op">;</span> window<span class="op">=</span><span class="dv">4_096</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"full document fits window:"</span>,document_tokens<span class="op">&lt;=</span>window)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"retrieved subset fits window:"</span>,retrieved_tokens<span class="op">&lt;=</span>window)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"retrieved subset fits window:"</span>,retrieved_tokens<span class="op">&lt;=</span>window)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>full document fits window: False
 retrieved subset fits window: True</code></pre>
 </div>
 </div>
+<p>Level 3 stated the prefill cost relation and the retrieval distinction. Level 4 examines the operational evidence: context extension, serving constraints, failure traces, and the records that make length and latency claims interpretable.</p>
 </section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
 <section id="context-extension-needs-an-explicit-comparison" class="level3">
 <h3 class="anchored" data-anchor-id="context-extension-needs-an-explicit-comparison">Context extension needs an explicit comparison</h3>
 <p>A model may be trained at one maximum length and served at another. Position representations, training examples, attention kernels, and optimisation all affect whether behaviour transfers beyond the length distribution seen during training. A larger configured limit therefore requires a comparison with a stated baseline: the same task at the original and extended lengths, evidence placed across positions, and a record of any change to position handling or continued training.</p>
@@ -803,20 +789,20 @@ retrieved subset fits window: True</code></pre>
 <div id="cell-fig-sliding-window" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">10</span>))<span class="op">;</span> limit<span class="op">=</span><span class="dv">5</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">10</span>))<span class="op">;</span> limit<span class="op">=</span><span class="dv">5</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.8</span>))</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,end <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>]):</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    window_tokens<span class="op">=</span>sequence[<span class="bu">max</span>(<span class="dv">0</span>,end<span class="op">-</span>limit):end]</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,<span class="ss">f"step </span><span class="sc">{</span>end<span class="sc">}</span><span class="ss">"</span>,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(window_tokens):</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">.18</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.13</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.22</span>),<span class="fl">.105</span>,<span class="fl">.56</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.052</span>,<span class="fl">.5</span>,<span class="bu">str</span>(t),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-sliding-window" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three successive windows over a token sequence show the leftmost token dropping as a new token arrives.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-sliding-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="27-context-windows-model-inference_files/figure-html/fig-sliding-window-output-1.png" class="img-fluid figure-img" alt="Three successive windows over a token sequence show the leftmost token dropping as a new token arrives.">
+<img src="27-context-windows-model-inference_files/figure-html/fig-sliding-window-output-1.png" alt="Three successive windows over a token sequence show the leftmost token dropping as a new token arrives." width="806" height="355" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sliding-window-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding older positions once the configured context limit is reached.
@@ -825,18 +811,18 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 </div>
 </div>
 </div>
-<p>The policy should distinguish discarded context from an intentional summary or retrieved representation. A summary is new model-generated text that may omit or distort facts. Retrieval is selected external evidence. Cached tokens are exact retained activations for previous IDs. These mechanisms can be combined, but their information properties differ and they should not be described by one generic claim of “memory”.</p>
+<p>The policy should distinguish discarded context from an intentional summary or retrieved representation. A summary is new model-generated text that may omit or distort facts. Retrieval is selected external evidence. Cached tokens are exact retained activations for previous IDs. These mechanisms can be combined, but their information properties differ and they should not be described by one generic claim of â€œmemoryâ€.</p>
 </section>
 <section id="serving-constraints-change-the-available-context-per-request" class="level3">
 <h3 class="anchored" data-anchor-id="serving-constraints-change-the-available-context-per-request">Serving constraints change the available context per request</h3>
 <p>At deployment, many requests may share accelerator memory. Each active sequence has a cache length, and a serving scheduler chooses batching, admission, eviction, and output limits. A context limit that fits one request can reduce concurrency or exceed memory under a busy workload. Conversely, aggressively capping prompts can improve latency while discarding evidence needed for a task. These are operating choices that should be measured against the task and service requirement.</p>
-<div id="d10cc71f" class="cell" data-execution_count="10">
+<div id="503d4ee5" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cache_per_request_gib<span class="op">=</span><span class="fl">1.0</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cache_per_request_gib<span class="op">=</span><span class="fl">1.0</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>available_gib<span class="op">=</span><span class="dv">24</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> active <span class="kw">in</span> [<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">24</span>]:</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(active,<span class="st">"active requests require"</span>,active<span class="op">*</span>cache_per_request_gib,<span class="st">"GiB of cache"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(active,<span class="st">"active requests require"</span>,active<span class="op">*</span>cache_per_request_gib,<span class="st">"GiB of cache"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>1 active requests require 1.0 GiB of cache
@@ -850,11 +836,11 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 <section id="long-context-errors-require-traces-not-only-accuracy-totals" class="level3">
 <h3 class="anchored" data-anchor-id="long-context-errors-require-traces-not-only-accuracy-totals">Long-context errors require traces, not only accuracy totals</h3>
 <p>When a model misses evidence in a long prompt, a useful diagnostic records the original document, tokenised length, retained window, evidence span, retrieval or packing decision, generated tokens, and scoring rule. This can separate an error caused by truncation from one caused by poor retrieval, position sensitivity, or an incorrect answer despite available evidence. Aggregate accuracy remains useful, but it cannot make these failure modes distinguishable.</p>
-<div id="25642a18" class="cell" data-execution_count="11">
+<div id="ab328562" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"document_tokens"</span>:<span class="dv">9100</span>,<span class="st">"retained_tokens"</span>:<span class="dv">8192</span>,<span class="st">"evidence_position"</span>:<span class="dv">7800</span>,<span class="st">"truncated"</span>:<span class="va">False</span>,<span class="st">"answer_correct"</span>:<span class="va">False</span>}</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"document_tokens"</span>:<span class="dv">9100</span>,<span class="st">"retained_tokens"</span>:<span class="dv">8192</span>,<span class="st">"evidence_position"</span>:<span class="dv">7800</span>,<span class="st">"truncated"</span>:<span class="va">False</span>,<span class="st">"answer_correct"</span>:<span class="va">False</span>}</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'document_tokens': 9100, 'retained_tokens': 8192, 'evidence_position': 7800, 'truncated': False, 'answer_correct': False}</code></pre>
@@ -862,19 +848,16 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 </div>
 <p>Position and distraction controls should vary one feature at a time. For example, hold the question and answer constant while moving evidence from early to middle and late positions; then add unrelated material while keeping the evidence position fixed. These comparisons reveal whether a score changes with length, location, or competing content. They provide stronger evidence than a single long document with a single successful answer.</p>
 </section>
-</section>
-<section id="level-4---audit-and-reporting" class="level2">
-<h2 class="anchored" data-anchor-id="level-4---audit-and-reporting">Level 4 - Audit and reporting</h2>
 <section id="length-claims-need-tests-that-control-position-and-distraction" class="level3">
 <h3 class="anchored" data-anchor-id="length-claims-need-tests-that-control-position-and-distraction">Length claims need tests that control position and distraction</h3>
 <p>A useful long-context evaluation places known evidence at several positions, asks a defined question, and compares performance across lengths and numbers of distractors. It should distinguish exact retrieval of a stated item from multi-step use of several items. Repeating a short fact many times, testing only the beginning of a prompt, or scoring a single favourable example cannot establish broad long-context use.</p>
-<p>The evaluation should also record tokeniser, actual valid lengths, truncation and packing policy, prompt template, generation limit, sampling rule, and whether the answer was checked automatically or by people. Changing any of these can change the test. An answer that fails may reflect missing evidence, truncation, retrieval failure, cache error, decoding variation, or the model’s conditional distribution; the trace should make those possibilities distinguishable.</p>
-<div id="65751e0f" class="cell" data-execution_count="12">
+<p>The evaluation should also record tokenizer, actual valid lengths, truncation and packing policy, prompt template, generation limit, sampling rule, and whether the answer was checked automatically or by people. Changing any of these can change the test. An answer that fails may reflect missing evidence, truncation, retrieval failure, cache error, decoding variation, or the model’s conditional distribution; the trace should make those possibilities distinguishable.</p>
+<div id="820d17f9" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>[<span class="dv">128</span>,<span class="dv">1024</span>,<span class="dv">4096</span>,<span class="dv">7168</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>[<span class="dv">128</span>,<span class="dv">1024</span>,<span class="dv">4096</span>,<span class="dv">7168</span>]</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{p:<span class="va">None</span> <span class="cf">for</span> p <span class="kw">in</span> positions}</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"record evidence position and outcome:"</span>,results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"record evidence position and outcome:"</span>,results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>record evidence position and outcome: {128: None, 1024: None, 4096: None, 7168: None}</code></pre>
@@ -884,13 +867,13 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 <section id="an-inference-record-separates-capacity-from-service-quality" class="level3">
 <h3 class="anchored" data-anchor-id="an-inference-record-separates-capacity-from-service-quality">An inference record separates capacity from service quality</h3>
 <p>An inference report should include model and tokenizer version, context limit, maximum output length, prompt and output token distributions, prefill latency, decode latency or tokens per second, cache precision and layout, batch policy, hardware, concurrency, truncation behaviour, and failure policy. At least one cache-equivalence test and one boundary test at the configured maximum length should be retained.</p>
-<p>The record supports operational decisions. It can show whether a system is limited by long-prompt prefill, by per-token decode latency, by memory available for concurrent caches, or by a context policy that discards needed evidence. A model card that says only “long context” cannot answer those questions.</p>
-<div id="d8a0fd32" class="cell" data-execution_count="13">
+<p>The record supports operational decisions. It can show whether a system is limited by long-prompt prefill, by per-token decode latency, by memory available for concurrent caches, or by a context policy that discards needed evidence. A model card that says only â€œlong contextâ€ cannot answer those questions.</p>
+<div id="990d093c" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>inference_record<span class="op">=</span>{<span class="st">"context_limit"</span>:<span class="dv">8192</span>,<span class="st">"prompt_tokens"</span>:<span class="dv">6200</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">512</span>,<span class="st">"prefill_ms"</span>:<span class="dv">740</span>,<span class="st">"decode_tokens_per_second"</span>:<span class="dv">55</span>,<span class="st">"cache_dtype"</span>:<span class="st">"float16"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>inference_record<span class="op">=</span>{<span class="st">"context_limit"</span>:<span class="dv">8192</span>,<span class="st">"prompt_tokens"</span>:<span class="dv">6200</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">512</span>,<span class="st">"prefill_ms"</span>:<span class="dv">740</span>,<span class="st">"decode_tokens_per_second"</span>:<span class="dv">55</span>,<span class="st">"cache_dtype"</span>:<span class="st">"float16"</span>}</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> inference_record[<span class="st">"prompt_tokens"</span>]<span class="op">+</span>inference_record[<span class="st">"max_new_tokens"</span>]<span class="op">&lt;=</span>inference_record[<span class="st">"context_limit"</span>]</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"length-budget check passed"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"length-budget check passed"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>length-budget check passed</code></pre>
@@ -940,17 +923,17 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>The original Transformer architecture and its attention cost are specified by <span class="citation" data-cites="vaswani2017">Vaswani et al. (<a href="#ref-vaswani2017" role="doc-biblioref">2017</a>)</span>. FlashAttention describes an IO-aware exact attention implementation that changes practical memory behaviour without changing the attention result <span class="citation" data-cites="dao2022flashattention">(<a href="#ref-dao2022flashattention" role="doc-biblioref">Dao et al. 2022</a>)</span>.</p>
+<p>The original Transformer architecture and its attention cost are specified by <span class="citation" data-cites="vaswani2017"><span class="nocase">Vaswani et al.</span> (<a href="#ref-vaswani2017" role="doc-biblioref">2017</a>)</span>. FlashAttention describes an IO-aware exact attention implementation that changes practical memory behaviour without changing the attention result <span class="citation" data-cites="dao2022flashattention">(<a href="#ref-dao2022flashattention" role="doc-biblioref">Dao et al. 2022</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-dao2022flashattention" class="csl-entry" role="listitem">
 Dao, Tri, Daniel Y. Fu, Stefano Ermon, Atri Rudra, and Christopher Ré. 2022. <span>“FlashAttention: Fast and Memory-Efficient Exact Attention with <span>IO</span>-Awareness.”</span> <em>Advances in Neural Information Processing Systems</em> 35: 16344–59. <a href="https://arxiv.org/abs/2205.14135">https://arxiv.org/abs/2205.14135</a>.
 </div>
 <div id="ref-vaswani2017" class="csl-entry" role="listitem">
-Vaswani, Ashish et al. 2017. <span>“Attention Is All You Need.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 30.
+<span class="nocase">Vaswani, Ashish et al.</span> 2017. <span>“Attention Is All You Need.”</span> <em>Advances in Neural Information Processing Systems</em> 30.
 </div>
 </div>
 </section>
@@ -1007,13 +990,14 @@ Vaswani, Ashish et al. 2017. <span>“Attention Is All You Need.”</span> In <e
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1047,16 +1031,16 @@ Vaswani, Ashish et al. 2017. <span>“Attention Is All You Need.”</span> In <e
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1418,280 +1402,276 @@ Vaswani, Ashish et al. 2017. <span>“Attention Is All You Need.”</span> In <e
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Context Windows and Model Inference"</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Finite prefixes, cached states, and the limits of long-context generation"</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>Chapter 26 produced a base-model checkpoint fitted to a constructed token stream under a finite training budget. Serving that checkpoint confronts a different constraint. A decoder language model predicts the next token from a finite permitted prefix, and the maximum number of tokens it can process in one request is the context window. That limit affects what evidence is available to a prediction, the memory required by attention, the latency of generation, and the interpretation of claims that a model has "read" a long document.</span>
 <span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>A decoder language model predicts the next token from a finite permitted prefix. The maximum number of tokens it can process is the context window. This limit affects what evidence is available to a prediction, the memory required by attention, the latency of generation, and the interpretation of claims that a model has “read” a long document.</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>Inference is also sequential: a generated token becomes part of the next prefix. Key-value caching avoids recomputing the representations of earlier tokens at every step, but it retains an expanding memory state. This chapter defines those mechanics and the evidence needed to assess long-context use. Chapter 28 treats how tokens are selected from the next-token distribution.</span>
 <span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>Inference is also sequential. A generated token becomes part of the next prefix. Key-value caching avoids recomputing the representations of earlier tokens at every step, but it retains an expanding memory state. This chapter defines these mechanics and the evidence needed to assess long-context use. Chapter 28 treats how tokens are selected from the next-token distribution.</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A sliding window makes the boundary visible</span></span>
 <span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>The running sequence uses a prompt of five token IDs and generates three new IDs. A maximum context of six means that a later prediction cannot retain every original prompt token if the system uses a sliding window.</span>
 <span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>The first diagram shows the whole sequence and the retained window. The blue boxes are prompt tokens and the orange boxes are generated tokens; the outlined span is the six-token context available when the model predicts the final token. Notice that <span class="in">`p1`</span> and <span class="in">`p2`</span> have left the window: they influenced earlier predictions, but they are no longer available to this one.</span>
 <span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish context length, generated length, and total sequence length;</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why causal decoding is sequential even when prompt processing is parallel;</span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>calculate the shape and approximate storage of a key-value cache;</span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>compare full-prefix recomputation with cached decoding;</span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify the difference between fitting text into a context and using relevant information from it;</span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>state common long-context evaluation failures; and</span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify an inference record that makes latency and length claims interpretable.</span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running sequence</span></span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>We use a prompt of five token IDs and generate three new IDs. A maximum context of six means that a later prediction cannot retain every original prompt token if the system uses a sliding window.</span>
-<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-context-window</span></span>
-<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A finite causal context makes each prediction depend on the retained prefix, not necessarily the complete earlier document."</span></span>
-<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A sequence of eight token boxes has a highlighted six-token window that shifts right as new tokens are generated."</span></span>
-<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
-<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
-<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[<span class="st">"p1"</span>,<span class="st">"p2"</span>,<span class="st">"p3"</span>,<span class="st">"p4"</span>,<span class="st">"p5"</span>,<span class="st">"g1"</span>,<span class="st">"g2"</span>,<span class="st">"g3"</span>]</span>
-<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
-<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.15</span><span class="op">;</span> c<span class="op">=</span>blue <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">5</span> <span class="cf">else</span> orange</span>
-<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">.9</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">1.5</span>,t,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">2.55</span>,<span class="fl">1.02</span>),<span class="fl">6.85</span>,<span class="fl">.95</span>,fill<span class="op">=</span><span class="va">False</span>,edgecolor<span class="op">=</span>teal,lw<span class="op">=</span><span class="dv">2</span>))<span class="op">;</span> ax.text(<span class="fl">5.98</span>,<span class="fl">.65</span>,<span class="st">"retained six-token context for g3"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>teal)</span>
-<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-context-window</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A finite causal context makes each prediction depend on the retained prefix, not necessarily the complete earlier document."</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A sequence of eight token boxes has a highlighted six-token window that shifts right as new tokens are generated."</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>tokens<span class="op">=</span>[<span class="st">"p1"</span>,<span class="st">"p2"</span>,<span class="st">"p3"</span>,<span class="st">"p4"</span>,<span class="st">"p5"</span>,<span class="st">"g1"</span>,<span class="st">"g2"</span>,<span class="st">"g3"</span>]</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(tokens):</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.15</span><span class="op">;</span> c<span class="op">=</span>blue <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">5</span> <span class="cf">else</span> orange</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">.9</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.45</span>,<span class="fl">1.5</span>,t,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">2.55</span>,<span class="fl">1.02</span>),<span class="fl">6.85</span>,<span class="fl">.95</span>,fill<span class="op">=</span><span class="va">False</span>,edgecolor<span class="op">=</span>teal,lw<span class="op">=</span><span class="dv">2</span>))<span class="op">;</span> ax.text(<span class="fl">5.98</span>,<span class="fl">.65</span>,<span class="st">"retained six-token context for g3"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>teal)</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>The window is a token limit, not a summary of what the model used: everything inside it is available in principle, and everything outside it is gone. The rest of the chapter separates that capacity from the cost of filling it and from the evidence that a model actually uses what fits.</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-context-window data-term="Context window and key-value cache" data-domain="Large language models"}</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>**Context window and key-value cache.** The context window is the finite token prefix a model can condition on in one request. A key-value cache stores prior attention states during decoding to avoid recomputation, while consuming memory that grows with active context.</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-context-limit-supported-length data-term="Configured context limit and supported length" data-domain="Large language models"}</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>**Configured context limit and supported length.** A configured limit is the maximum length an implementation accepts. Supported length is the range over which task performance has been evaluated. The first is a setting; the second is an evidence claim.</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
 <span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-context-window data-term="Context window and key-value cache" data-domain="Large language models"}</span>
-<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>**Context window and key-value cache.** The context window is the finite token prefix a model can condition on in one request. A key-value cache stores prior attention states during decoding to avoid recomputation, while consuming memory that grows with active context.</span>
-<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a><span class="fu">### A context window is an information boundary</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>The context window is a token limit, not a guarantee that every retained token affects an answer. A token outside the window cannot be attended to by an ordinary finite-context decoder. A token inside it is available in principle, but the model may assign it little attention, fail to retrieve it among distractors, or use it incorrectly. â€œSupports 32,000 tokensâ€ therefore describes an input capacity, not a measured ability to answer questions about every position in a 32,000-token document.</span>
 <span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-context-limit-supported-length data-term="Configured context limit and supported length" data-domain="Large language models"}</span>
-<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>**Configured context limit and supported length.** A configured limit is the maximum length an implementation accepts. Supported length is the range over which task performance has been evaluated. The first is a setting; the second is an evidence claim.</span>
-<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a><span class="fu">### A context window is an information boundary</span></span>
-<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>The context window is a token limit, not a guarantee that every retained token affects an answer. A token outside the window cannot be attended to by an ordinary finite-context decoder. A token inside it is available in principle, but the model may assign it little attention, fail to retrieve it among distractors, or use it incorrectly. “Supports 32,000 tokens” therefore describes an input capacity, not a measured ability to answer questions about every position in a 32,000-token document.</span>
-<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a>The boundary is measured after tokenisation. A page, a word count, or a character count has no fixed conversion because language, formatting, code, and tokeniser affect the number of IDs. Prompts also consume the same budget as generated output in most interfaces. A requested answer can fail because the prompt plus reserved output exceeds the configured total length.</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>The boundary is measured after tokenisation. A page, a word count, or a character count has no fixed conversion because language, formatting, code, and tokenizer affect the number of IDs. Prompts also consume the same budget as generated output in most interfaces. A requested answer can fail because the prompt plus reserved output exceeds the configured total length.</span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-length-budget</span></span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Prompt tokens and generated tokens share a finite total sequence budget."</span></span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A horizontal capacity bar is divided into prompt, generated output, and unused token capacity."</span></span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>limit<span class="op">=</span><span class="dv">100</span><span class="op">;</span> prompt<span class="op">=</span><span class="dv">62</span><span class="op">;</span> reserve<span class="op">=</span><span class="dv">25</span></span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.7</span>))<span class="op">;</span> ax.barh([<span class="dv">0</span>],[prompt],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"prompt"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[reserve],left<span class="op">=</span>[prompt],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"reserved output"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[limit<span class="op">-</span>prompt<span class="op">-</span>reserve],left<span class="op">=</span>[prompt<span class="op">+</span>reserve],color<span class="op">=</span>grey,label<span class="op">=</span><span class="st">"unused"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,limit)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"tokens"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">3</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"A configured maximum length is shared"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-length-budget</span></span>
-<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Prompt tokens and generated tokens share a finite total sequence budget."</span></span>
-<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A horizontal capacity bar is divided into prompt, generated output, and unused token capacity."</span></span>
-<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a>limit<span class="op">=</span><span class="dv">100</span><span class="op">;</span> prompt<span class="op">=</span><span class="dv">62</span><span class="op">;</span> reserve<span class="op">=</span><span class="dv">25</span></span>
-<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="fl">2.7</span>))<span class="op">;</span> ax.barh([<span class="dv">0</span>],[prompt],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"prompt"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[reserve],left<span class="op">=</span>[prompt],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"reserved output"</span>)<span class="op">;</span> ax.barh([<span class="dv">0</span>],[limit<span class="op">-</span>prompt<span class="op">-</span>reserve],left<span class="op">=</span>[prompt<span class="op">+</span>reserve],color<span class="op">=</span>grey,label<span class="op">=</span><span class="st">"unused"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,limit)<span class="op">;</span> ax.set_yticks([])<span class="op">;</span> ax.set_xlabel(<span class="st">"tokens"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">3</span>,loc<span class="op">=</span><span class="st">"upper center"</span>)<span class="op">;</span> ax.set_title(<span class="st">"A configured maximum length is shared"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a><span class="fu">### Prompt processing and generation are different phases</span></span>
-<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a>During prompt processing, a causal Transformer can compute representations for supplied positions in parallel under its causal mask. This is commonly called prefill. Once generation begins, token <span class="sc">\(</span>t+1<span class="sc">\)</span> cannot be selected until the model has processed the selected token <span class="sc">\(</span>t<span class="sc">\)</span>. Output is therefore sequential even on highly parallel hardware.</span>
-<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a>The difference helps interpret latency. A long prompt can create a substantial initial wait before the first new token. A long generated answer can be slow because it requires repeated decode steps. Reporting only total tokens per second mixes these phases and obscures the user-facing bottleneck.</span>
-<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a>prompt<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">11</span>,<span class="dv">34</span>,<span class="dv">58</span>,<span class="dv">3</span>])<span class="op">;</span> generated<span class="op">=</span>[]</span>
-<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chosen <span class="kw">in</span> [<span class="dv">17</span>,<span class="dv">29</span>,<span class="dv">3</span>]:</span>
-<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"prefix length before selection:"</span>,<span class="bu">len</span>(prompt)<span class="op">+</span><span class="bu">len</span>(generated),<span class="st">"choose:"</span>,chosen)</span>
-<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a>    generated.append(chosen)</span>
-<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### Prompt processing and generation are different phases</span></span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>During prompt processing, a causal Transformer can compute representations for supplied positions in parallel under its causal mask. This is commonly called prefill. Once generation begins, token $t+1$ cannot be selected until the model has processed the selected token $t$. Output is therefore sequential even on highly parallel hardware.</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>The difference helps interpret latency. A long prompt can create a substantial initial wait before the first new token. A long generated answer can be slow because it requires repeated decode steps. Reporting only total tokens per second mixes these phases and obscures the user-facing bottleneck.</span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a>prompt<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">11</span>,<span class="dv">34</span>,<span class="dv">58</span>,<span class="dv">3</span>])<span class="op">;</span> generated<span class="op">=</span>[]</span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chosen <span class="kw">in</span> [<span class="dv">17</span>,<span class="dv">29</span>,<span class="dv">3</span>]:</span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"prefix length before selection:"</span>,<span class="bu">len</span>(prompt)<span class="op">+</span><span class="bu">len</span>(generated),<span class="st">"choose:"</span>,chosen)</span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a>    generated.append(chosen)</span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a>Level 1 identified the window as an information boundary and the two phases of a request. Level 2 follows the cache that makes sequential generation affordable: why naive decoding repeats work, what the cache stores, and how its correctness is tested.</span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why naive decoding repeats work</span></span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a>Without a cache, generating each new token recomputes attention projections for the full prefix. For a prefix length $L$, the next step uses length $L+1$, then $L+2$, and so on. Earlier tokens are repeatedly projected even though their keys and values do not change in a causal decoder.</span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a>A key-value cache stores the key and value tensors produced at each layer for earlier positions. At the next step, the new query attends to stored keys and values plus the new token's key and value. The cache does not make generation parallel, but it avoids repeatedly rebuilding the earlier prefix.</span>
 <span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Cache mechanics</span></span>
-<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why naive decoding repeats work</span></span>
-<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a>Without a cache, generating each new token recomputes attention projections for the full prefix. For a prefix length <span class="sc">\(</span>L<span class="sc">\)</span>, the next step uses length <span class="sc">\(</span>L+1<span class="sc">\)</span>, then <span class="sc">\(</span>L+2<span class="sc">\)</span>, and so on. Earlier tokens are repeatedly projected even though their keys and values do not change in a causal decoder.</span>
-<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a>A key-value cache stores the key and value tensors produced at each layer for earlier positions. At the next step, the new query attends to stored keys and values plus the new token's key and value. The cache does not make generation parallel, but it avoids repeatedly rebuilding the earlier prefix.</span>
-<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-cache-growth</span></span>
-<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A key-value cache retains keys and values for each layer and each generated prefix position, growing with sequence length."</span></span>
-<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three cache blocks, one per layer, extend by one key and one value column when a new token is generated."</span></span>
-<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
-<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.65</span><span class="op">-</span>layer<span class="op">*</span><span class="fl">.8</span><span class="op">;</span> ax.text(<span class="fl">.15</span>,y<span class="op">+</span><span class="fl">.2</span>,<span class="ss">f"layer </span><span class="sc">{</span>layer<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>grey)</span>
-<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
-<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">1.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.92</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">.72</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.36</span>,y<span class="op">+</span><span class="fl">.19</span>,<span class="ss">f"K</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,y<span class="op">-</span><span class="fl">.4</span>),<span class="fl">.72</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.36</span>,y<span class="op">-</span><span class="fl">.21</span>,<span class="ss">f"V</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">6.25</span>,<span class="fl">1.45</span>),(<span class="fl">7.45</span>,<span class="fl">1.45</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>orange,mutation_scale<span class="op">=</span><span class="dv">14</span>))<span class="op">;</span> ax.text(<span class="fl">8.05</span>,<span class="fl">1.45</span>,<span class="st">"append K,V</span><span class="ch">\n</span><span class="st">for new token"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange)</span>
-<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.35</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-cache-growth</span></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A key-value cache retains keys and values for each layer and each generated prefix position, growing with sequence length."</span></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three cache blocks, one per layer, extend by one key and one value column when a new token is generated."</span></span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.65</span><span class="op">-</span>layer<span class="op">*</span><span class="fl">.8</span><span class="op">;</span> ax.text(<span class="fl">.15</span>,y<span class="op">+</span><span class="fl">.2</span>,<span class="ss">f"layer </span><span class="sc">{</span>layer<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,color<span class="op">=</span>grey)</span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">1.35</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.92</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">.72</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.36</span>,y<span class="op">+</span><span class="fl">.19</span>,<span class="ss">f"K</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((x,y<span class="op">-</span><span class="fl">.4</span>),<span class="fl">.72</span>,<span class="fl">.38</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.36</span>,y<span class="op">-</span><span class="fl">.21</span>,<span class="ss">f"V</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">6.25</span>,<span class="fl">1.45</span>),(<span class="fl">7.45</span>,<span class="fl">1.45</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>orange,mutation_scale<span class="op">=</span><span class="dv">14</span>))<span class="op">;</span> ax.text(<span class="fl">8.05</span>,<span class="fl">1.45</span>,<span class="st">"append K,V</span><span class="ch">\n</span><span class="st">for new token"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange)</span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.35</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cache shape and memory</span></span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>For batch size $B$, layers $n_l$, key-value heads $n_{kv}$, head width $d_h$, and cached length $L$, keys and values require approximately</span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a>2B n_l n_{kv} L d_h</span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cache shape and memory</span></span>
+<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a>stored numbers. Multiply by bytes per number to obtain a rough memory estimate. Multi-query and grouped-query attention reduce $n_{kv}$ relative to the number of query heads, lowering cache memory without changing the causal sequence rule.</span>
 <span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a>For batch size <span class="sc">\(</span>B<span class="sc">\)</span>, layers <span class="sc">\(</span>n_l<span class="sc">\)</span>, key-value heads <span class="sc">\(</span>n_{kv}<span class="sc">\)</span>, head width <span class="sc">\(</span>d_h<span class="sc">\)</span>, and cached length <span class="sc">\(</span>L<span class="sc">\)</span>, keys and values require approximately</span>
-<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a><span class="sc">\[</span></span>
-<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a>2B n_l n_{kv} L d_h</span>
-<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a><span class="sc">\]</span></span>
-<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a>stored numbers. Multiply by bytes per number to obtain a rough memory estimate. Multi-query and grouped-query attention reduce <span class="sc">\(</span>n_{kv}<span class="sc">\)</span> relative to the number of query heads, lowering cache memory without changing the causal sequence rule.</span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a>B,layers,kv_heads,length,head_dim,bytes_per<span class="op">=</span><span class="dv">1</span>,<span class="dv">32</span>,<span class="dv">8</span>,<span class="dv">8192</span>,<span class="dv">128</span>,<span class="dv">2</span></span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a>cache_bytes<span class="op">=</span><span class="dv">2</span><span class="op">*</span>B<span class="op">*</span>layers<span class="op">*</span>kv_heads<span class="op">*</span>length<span class="op">*</span>head_dim<span class="op">*</span>bytes_per</span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"KV cache: </span><span class="sc">{</span>cache_bytes<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span><span class="sc">:.2f}</span><span class="ss"> GiB"</span>)</span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a>B,layers,kv_heads,length,head_dim,bytes_per<span class="op">=</span><span class="dv">1</span>,<span class="dv">32</span>,<span class="dv">8</span>,<span class="dv">8192</span>,<span class="dv">128</span>,<span class="dv">2</span></span>
-<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a>cache_bytes<span class="op">=</span><span class="dv">2</span><span class="op">*</span>B<span class="op">*</span>layers<span class="op">*</span>kv_heads<span class="op">*</span>length<span class="op">*</span>head_dim<span class="op">*</span>bytes_per</span>
-<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"KV cache: </span><span class="sc">{</span>cache_bytes<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span><span class="sc">:.2f}</span><span class="ss"> GiB"</span>)</span>
-<span id="cb22-131"><a href="#cb22-131" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb22-132"><a href="#cb22-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a>The estimate excludes model weights, activations required by the serving system, allocator overhead, metadata, and temporary attention buffers. It is useful for identifying linear growth with context length, not for replacing a measured memory profile.</span>
-<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cache correctness is a model test</span></span>
-<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a>Cached decoding should agree with full-prefix decoding for the same model, tokens, position treatment, masks, and numerical precision within an explicit tolerance. Disagreement can arise from wrong cache positions, stale entries, incorrect padding handling, rotary-position implementation, or an inconsistency between prefill and decode code paths.</span>
-<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a>full_prefix_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
-<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a>cached_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
-<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(full_prefix_logits,cached_logits,atol<span class="op">=</span><span class="fl">1e-6</span>)</span>
-<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cached and full-prefix reference outputs agree"</span>)</span>
-<span id="cb22-146"><a href="#cb22-146" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a>The estimate excludes model weights, activations required by the serving system, allocator overhead, metadata, and temporary attention buffers. It is useful for identifying linear growth with context length, not for replacing a measured memory profile.</span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cache correctness is a model test</span></span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a>Cached decoding should agree with full-prefix decoding for the same model, tokens, position treatment, masks, and numerical precision within an explicit tolerance. Disagreement can arise from wrong cache positions, stale entries, incorrect padding handling, rotary-position implementation, or an inconsistency between prefill and decode code paths.</span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a>full_prefix_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
+<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a>cached_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(full_prefix_logits,cached_logits,atol<span class="op">=</span><span class="fl">1e-6</span>)</span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"cached and full-prefix reference outputs agree"</span>)</span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a>Level 2 specified what the cache stores and how its correctness is tested. Level 3 states the cost relations formally: what prefill costs before any cache exists, and how retrieval differs from a longer window.</span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cost grows before the cache is available</span></span>
+<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-146"><a href="#cb22-146" aria-hidden="true" tabindex="-1"></a>The cache improves repeated decoding but does not remove the cost of processing a long initial prompt. Standard dense self-attention forms score relations among positions during prefill, so the attention component grows quadratically with sequence length. Chapter 20 derived this relation. Implementation methods can reduce memory traffic and avoid materialising the full score matrix, but they do not make every long prompt free.</span>
 <span id="cb22-147"><a href="#cb22-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Long-context use</span></span>
-<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cost grows before the cache is available</span></span>
-<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a>The cache improves repeated decoding but does not remove the cost of processing a long initial prompt. Standard dense self-attention forms score relations among positions during prefill, so the attention component grows quadratically with sequence length. Chapter 20 derived this relation. Implementation methods can reduce memory traffic and avoid materialising the full score matrix, but they do not make every long prompt free.</span>
-<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-prefill-quadratic</span></span>
-<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Dense attention score relations during prompt processing grow quadratically with sequence length, while cached decoding appends one position at a time."</span></span>
-<span id="cb22-159"><a href="#cb22-159" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A curve shows quadratic relative score entries with prompt length, alongside a linear cache-size line."</span></span>
-<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>np.arange(<span class="dv">256</span>,<span class="dv">8193</span>,<span class="dv">256</span>)</span>
-<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(lengths,(lengths<span class="op">/</span><span class="dv">256</span>)<span class="op">**</span><span class="dv">2</span>,color<span class="op">=</span>purple,label<span class="op">=</span><span class="st">"relative dense score relations"</span>)<span class="op">;</span> ax.plot(lengths,lengths<span class="op">/</span><span class="dv">256</span>,color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"relative cache length"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"prompt length"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"relative quantity"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Prefill and cached state scale differently"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-prefill-quadratic</span></span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Dense attention score relations during prompt processing grow quadratically with sequence length, while cached decoding appends one position at a time."</span></span>
+<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A curve shows quadratic relative score entries with prompt length, alongside a linear cache-size line."</span></span>
+<span id="cb22-154"><a href="#cb22-154" aria-hidden="true" tabindex="-1"></a>lengths<span class="op">=</span>np.arange(<span class="dv">256</span>,<span class="dv">8193</span>,<span class="dv">256</span>)</span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(lengths,(lengths<span class="op">/</span><span class="dv">256</span>)<span class="op">**</span><span class="dv">2</span>,color<span class="op">=</span>purple,label<span class="op">=</span><span class="st">"relative dense score relations"</span>)<span class="op">;</span> ax.plot(lengths,lengths<span class="op">/</span><span class="dv">256</span>,color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"relative cache length"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"prompt length"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"relative quantity"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Prefill and cached state scale differently"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-158"><a href="#cb22-158" aria-hidden="true" tabindex="-1"></a>Long-context systems may modify the architecture, position method, attention pattern, cache representation, or retrieval pipeline. These choices create different failure modes. A sparse attention pattern restricts which positions can interact directly. A position method may be trained or extrapolated over a limited range. Retrieval can select a subset of external documents, but it does not prove that omitted text was irrelevant. Each mechanism needs evaluation at the position, length, and document structure for which it will be used.</span>
+<span id="cb22-159"><a href="#cb22-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a><span class="fu">### Retrieval is not identical to longer context</span></span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a>Retrieval can reduce the prompt to passages selected from a larger collection. It changes the inference problem from attending over all supplied text to selecting and using evidence. A large window may contain an entire document; it still must locate and apply the relevant information. Chapter 33 will examine retrieval-augmented generation as a complete system, including indexing and evaluation.</span>
 <span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a>Long-context systems may modify the architecture, position method, attention pattern, cache representation, or retrieval pipeline. These choices create different failure modes. A sparse attention pattern restricts which positions can interact directly. A position method may be trained or extrapolated over a limited range. Retrieval can select a subset of external documents, but it does not prove that omitted text was irrelevant. Each mechanism needs evaluation at the position, length, and document structure for which it will be used.</span>
-<span id="cb22-165"><a href="#cb22-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-166"><a href="#cb22-166" aria-hidden="true" tabindex="-1"></a><span class="fu">### Retrieval is not identical to longer context</span></span>
-<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a>Retrieval can reduce the prompt to passages selected from a larger collection. It changes the inference problem from attending over all supplied text to selecting and using evidence. A large window may contain an entire document; it still must locate and apply the relevant information. Chapter 33 will examine retrieval-augmented generation as a complete system, including indexing and evaluation.</span>
-<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a>document_tokens<span class="op">=</span><span class="dv">20_000</span><span class="op">;</span> retrieved_tokens<span class="op">=</span><span class="dv">1_500</span><span class="op">;</span> window<span class="op">=</span><span class="dv">4_096</span></span>
-<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"full document fits window:"</span>,document_tokens<span class="op">&lt;=</span>window)</span>
-<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"retrieved subset fits window:"</span>,retrieved_tokens<span class="op">&lt;=</span>window)</span>
-<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-166"><a href="#cb22-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a>document_tokens<span class="op">=</span><span class="dv">20_000</span><span class="op">;</span> retrieved_tokens<span class="op">=</span><span class="dv">1_500</span><span class="op">;</span> window<span class="op">=</span><span class="dv">4_096</span></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"full document fits window:"</span>,document_tokens<span class="op">&lt;=</span>window)</span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"retrieved subset fits window:"</span>,retrieved_tokens<span class="op">&lt;=</span>window)</span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-171"><a href="#cb22-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a>Level 3 stated the prefill cost relation and the retrieval distinction. Level 4 examines the operational evidence: context extension, serving constraints, failure traces, and the records that make length and latency claims interpretable.</span>
+<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a><span class="fu">### Context extension needs an explicit comparison</span></span>
 <span id="cb22-177"><a href="#cb22-177" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a><span class="fu">### Context extension needs an explicit comparison</span></span>
+<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a>A model may be trained at one maximum length and served at another. Position representations, training examples, attention kernels, and optimisation all affect whether behaviour transfers beyond the length distribution seen during training. A larger configured limit therefore requires a comparison with a stated baseline: the same task at the original and extended lengths, evidence placed across positions, and a record of any change to position handling or continued training.</span>
 <span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a>A model may be trained at one maximum length and served at another. Position representations, training examples, attention kernels, and optimisation all affect whether behaviour transfers beyond the length distribution seen during training. A larger configured limit therefore requires a comparison with a stated baseline: the same task at the original and extended lengths, evidence placed across positions, and a record of any change to position handling or continued training.</span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a>Long inputs can also conceal a simpler problem: the relevant evidence may be absent from the retained prefix. Sliding-window policies remove older tokens; fixed prompt templates may reserve too little output; and document conversion can add headings, markup, or duplicated material that consumes capacity. The input trace should retain token counts before and after formatting, the truncation decision, and the final token positions supplied to the model.</span>
 <span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-182"><a href="#cb22-182" aria-hidden="true" tabindex="-1"></a>Long inputs can also conceal a simpler problem: the relevant evidence may be absent from the retained prefix. Sliding-window policies remove older tokens; fixed prompt templates may reserve too little output; and document conversion can add headings, markup, or duplicated material that consumes capacity. The input trace should retain token counts before and after formatting, the truncation decision, and the final token positions supplied to the model.</span>
-<span id="cb22-183"><a href="#cb22-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-sliding-window</span></span>
-<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A sliding-window policy retains recent tokens while discarding older positions once the configured context limit is reached."</span></span>
-<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three successive windows over a token sequence show the leftmost token dropping as a new token arrives."</span></span>
-<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">10</span>))<span class="op">;</span> limit<span class="op">=</span><span class="dv">5</span></span>
-<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.8</span>))</span>
-<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,end <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>]):</span>
-<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a>    window_tokens<span class="op">=</span>sequence[<span class="bu">max</span>(<span class="dv">0</span>,end<span class="op">-</span>limit):end]</span>
-<span id="cb22-194"><a href="#cb22-194" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,<span class="ss">f"step </span><span class="sc">{</span>end<span class="sc">}</span><span class="ss">"</span>,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
-<span id="cb22-195"><a href="#cb22-195" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(window_tokens):</span>
-<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">.18</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.13</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.22</span>),<span class="fl">.105</span>,<span class="fl">.56</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.052</span>,<span class="fl">.5</span>,<span class="bu">str</span>(t),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-sliding-window</span></span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A sliding-window policy retains recent tokens while discarding older positions once the configured context limit is reached."</span></span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three successive windows over a token sequence show the leftmost token dropping as a new token arrives."</span></span>
+<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span><span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">10</span>))<span class="op">;</span> limit<span class="op">=</span><span class="dv">5</span></span>
+<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="fl">3.8</span>))</span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,end <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">9</span>]):</span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a>    window_tokens<span class="op">=</span>sequence[<span class="bu">max</span>(<span class="dv">0</span>,end<span class="op">-</span>limit):end]</span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,<span class="ss">f"step </span><span class="sc">{</span>end<span class="sc">}</span><span class="ss">"</span>,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
+<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,t <span class="kw">in</span> <span class="bu">enumerate</span>(window_tokens):</span>
+<span id="cb22-194"><a href="#cb22-194" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">.18</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.13</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.22</span>),<span class="fl">.105</span>,<span class="fl">.56</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.052</span>,<span class="fl">.5</span>,<span class="bu">str</span>(t),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb22-195"><a href="#cb22-195" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a>The policy should distinguish discarded context from an intentional summary or retrieved representation. A summary is new model-generated text that may omit or distort facts. Retrieval is selected external evidence. Cached tokens are exact retained activations for previous IDs. These mechanisms can be combined, but their information properties differ and they should not be described by one generic claim of â€œmemoryâ€.</span>
 <span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a>The policy should distinguish discarded context from an intentional summary or retrieved representation. A summary is new model-generated text that may omit or distort facts. Retrieval is selected external evidence. Cached tokens are exact retained activations for previous IDs. These mechanisms can be combined, but their information properties differ and they should not be described by one generic claim of “memory”.</span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a><span class="fu">### Serving constraints change the available context per request</span></span>
 <span id="cb22-201"><a href="#cb22-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a><span class="fu">### Serving constraints change the available context per request</span></span>
+<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a>At deployment, many requests may share accelerator memory. Each active sequence has a cache length, and a serving scheduler chooses batching, admission, eviction, and output limits. A context limit that fits one request can reduce concurrency or exceed memory under a busy workload. Conversely, aggressively capping prompts can improve latency while discarding evidence needed for a task. These are operating choices that should be measured against the task and service requirement.</span>
 <span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a>At deployment, many requests may share accelerator memory. Each active sequence has a cache length, and a serving scheduler chooses batching, admission, eviction, and output limits. A context limit that fits one request can reduce concurrency or exceed memory under a busy workload. Conversely, aggressively capping prompts can improve latency while discarding evidence needed for a task. These are operating choices that should be measured against the task and service requirement.</span>
-<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a>cache_per_request_gib<span class="op">=</span><span class="fl">1.0</span></span>
-<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a>available_gib<span class="op">=</span><span class="dv">24</span></span>
-<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> active <span class="kw">in</span> [<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">24</span>]:</span>
-<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(active,<span class="st">"active requests require"</span>,active<span class="op">*</span>cache_per_request_gib,<span class="st">"GiB of cache"</span>)</span>
-<span id="cb22-213"><a href="#cb22-213" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a>cache_per_request_gib<span class="op">=</span><span class="fl">1.0</span></span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a>available_gib<span class="op">=</span><span class="dv">24</span></span>
+<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> active <span class="kw">in</span> [<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">24</span>]:</span>
+<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(active,<span class="st">"active requests require"</span>,active<span class="op">*</span>cache_per_request_gib,<span class="st">"GiB of cache"</span>)</span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-213"><a href="#cb22-213" aria-hidden="true" tabindex="-1"></a>The calculation is deliberately incomplete because weights, temporary buffers, and allocator behaviour also occupy memory. It makes one relationship visible: higher concurrency, longer retained prefixes, and larger cache representations compete for the same hardware capacity. A serving result should specify whether its reported throughput is for isolated or concurrent requests, along with the prompt-length distribution.</span>
 <span id="cb22-214"><a href="#cb22-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a>The calculation is deliberately incomplete because weights, temporary buffers, and allocator behaviour also occupy memory. It makes one relationship visible: higher concurrency, longer retained prefixes, and larger cache representations compete for the same hardware capacity. A serving result should specify whether its reported throughput is for isolated or concurrent requests, along with the prompt-length distribution.</span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a><span class="fu">### Long-context errors require traces, not only accuracy totals</span></span>
 <span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a><span class="fu">### Long-context errors require traces, not only accuracy totals</span></span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a>When a model misses evidence in a long prompt, a useful diagnostic records the original document, tokenised length, retained window, evidence span, retrieval or packing decision, generated tokens, and scoring rule. This can separate an error caused by truncation from one caused by poor retrieval, position sensitivity, or an incorrect answer despite available evidence. Aggregate accuracy remains useful, but it cannot make these failure modes distinguishable.</span>
 <span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a>When a model misses evidence in a long prompt, a useful diagnostic records the original document, tokenised length, retained window, evidence span, retrieval or packing decision, generated tokens, and scoring rule. This can separate an error caused by truncation from one caused by poor retrieval, position sensitivity, or an incorrect answer despite available evidence. Aggregate accuracy remains useful, but it cannot make these failure modes distinguishable.</span>
-<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"document_tokens"</span>:<span class="dv">9100</span>,<span class="st">"retained_tokens"</span>:<span class="dv">8192</span>,<span class="st">"evidence_position"</span>:<span class="dv">7800</span>,<span class="st">"truncated"</span>:<span class="va">False</span>,<span class="st">"answer_correct"</span>:<span class="va">False</span>}</span>
-<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span>
-<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"document_tokens"</span>:<span class="dv">9100</span>,<span class="st">"retained_tokens"</span>:<span class="dv">8192</span>,<span class="st">"evidence_position"</span>:<span class="dv">7800</span>,<span class="st">"truncated"</span>:<span class="va">False</span>,<span class="st">"answer_correct"</span>:<span class="va">False</span>}</span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a>Position and distraction controls should vary one feature at a time. For example, hold the question and answer constant while moving evidence from early to middle and late positions; then add unrelated material while keeping the evidence position fixed. These comparisons reveal whether a score changes with length, location, or competing content. They provide stronger evidence than a single long document with a single successful answer.</span>
 <span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a>Position and distraction controls should vary one feature at a time. For example, hold the question and answer constant while moving evidence from early to middle and late positions; then add unrelated material while keeping the evidence position fixed. These comparisons reveal whether a score changes with length, location, or competing content. They provide stronger evidence than a single long document with a single successful answer.</span>
+<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a><span class="fu">### Length claims need tests that control position and distraction</span></span>
 <span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and reporting</span></span>
+<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a>A useful long-context evaluation places known evidence at several positions, asks a defined question, and compares performance across lengths and numbers of distractors. It should distinguish exact retrieval of a stated item from multi-step use of several items. Repeating a short fact many times, testing only the beginning of a prompt, or scoring a single favourable example cannot establish broad long-context use.</span>
 <span id="cb22-231"><a href="#cb22-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a><span class="fu">### Length claims need tests that control position and distraction</span></span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a>The evaluation should also record tokenizer, actual valid lengths, truncation and packing policy, prompt template, generation limit, sampling rule, and whether the answer was checked automatically or by people. Changing any of these can change the test. An answer that fails may reflect missing evidence, truncation, retrieval failure, cache error, decoding variation, or the model's conditional distribution; the trace should make those possibilities distinguishable.</span>
 <span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a>A useful long-context evaluation places known evidence at several positions, asks a defined question, and compares performance across lengths and numbers of distractors. It should distinguish exact retrieval of a stated item from multi-step use of several items. Repeating a short fact many times, testing only the beginning of a prompt, or scoring a single favourable example cannot establish broad long-context use.</span>
-<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a>The evaluation should also record tokeniser, actual valid lengths, truncation and packing policy, prompt template, generation limit, sampling rule, and whether the answer was checked automatically or by people. Changing any of these can change the test. An answer that fails may reflect missing evidence, truncation, retrieval failure, cache error, decoding variation, or the model's conditional distribution; the trace should make those possibilities distinguishable.</span>
-<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>[<span class="dv">128</span>,<span class="dv">1024</span>,<span class="dv">4096</span>,<span class="dv">7168</span>]</span>
-<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{p:<span class="va">None</span> <span class="cf">for</span> p <span class="kw">in</span> positions}</span>
-<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"record evidence position and outcome:"</span>,results)</span>
-<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>[<span class="dv">128</span>,<span class="dv">1024</span>,<span class="dv">4096</span>,<span class="dv">7168</span>]</span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{p:<span class="va">None</span> <span class="cf">for</span> p <span class="kw">in</span> positions}</span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"record evidence position and outcome:"</span>,results)</span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a><span class="fu">### An inference record separates capacity from service quality</span></span>
+<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a>An inference report should include model and tokenizer version, context limit, maximum output length, prompt and output token distributions, prefill latency, decode latency or tokens per second, cache precision and layout, batch policy, hardware, concurrency, truncation behaviour, and failure policy. At least one cache-equivalence test and one boundary test at the configured maximum length should be retained.</span>
 <span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a><span class="fu">### An inference record separates capacity from service quality</span></span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a>The record supports operational decisions. It can show whether a system is limited by long-prompt prefill, by per-token decode latency, by memory available for concurrent caches, or by a context policy that discards needed evidence. A model card that says only â€œlong contextâ€ cannot answer those questions.</span>
 <span id="cb22-247"><a href="#cb22-247" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-248"><a href="#cb22-248" aria-hidden="true" tabindex="-1"></a>An inference report should include model and tokenizer version, context limit, maximum output length, prompt and output token distributions, prefill latency, decode latency or tokens per second, cache precision and layout, batch policy, hardware, concurrency, truncation behaviour, and failure policy. At least one cache-equivalence test and one boundary test at the configured maximum length should be retained.</span>
-<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a>The record supports operational decisions. It can show whether a system is limited by long-prompt prefill, by per-token decode latency, by memory available for concurrent caches, or by a context policy that discards needed evidence. A model card that says only “long context” cannot answer those questions.</span>
-<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a>inference_record<span class="op">=</span>{<span class="st">"context_limit"</span>:<span class="dv">8192</span>,<span class="st">"prompt_tokens"</span>:<span class="dv">6200</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">512</span>,<span class="st">"prefill_ms"</span>:<span class="dv">740</span>,<span class="st">"decode_tokens_per_second"</span>:<span class="dv">55</span>,<span class="st">"cache_dtype"</span>:<span class="st">"float16"</span>}</span>
-<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> inference_record[<span class="st">"prompt_tokens"</span>]<span class="op">+</span>inference_record[<span class="st">"max_new_tokens"</span>]<span class="op">&lt;=</span>inference_record[<span class="st">"context_limit"</span>]</span>
-<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"length-budget check passed"</span>)</span>
-<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-260"><a href="#cb22-260" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb22-261"><a href="#cb22-261" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A context limit is a guarantee of long-document reasoning.** It specifies input capacity, not measured use of every position.</span>
-<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Caching makes generation parallel.** It removes repeated prefix computation but each selected token still conditions the next step.</span>
-<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**The cache stores the whole model state at no cost.** It grows with layers, batch size, key-value heads, head width, and length.</span>
-<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A document fits in context, so no truncation policy is needed.** Prompt templates and reserved output also consume the total budget.</span>
-<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Retrieval and a longer window solve the same problem.** Retrieval selects evidence; a window determines available token capacity.</span>
-<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish context length, prompt length, output length, and total length.</span>
-<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate the available output budget for a stated maximum context and prompt.</span>
-<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why prefill can run in parallel while decoding is sequential.</span>
-<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Derive the key-value cache element count for stated dimensions.</span>
-<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Estimate cache memory in bytes for float16 and float32.</span>
-<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Write a cache-equivalence test for a small causal model.</span>
-<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>State one source of disagreement between cached and full-prefix decoding.</span>
-<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare the growth of dense prefill attention and cache storage with length.</span>
-<span id="cb22-278"><a href="#cb22-278" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Design a position-controlled long-context retrieval test.</span>
-<span id="cb22-279"><a href="#cb22-279" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Explain why a fact at the first position is an incomplete long-context test.</span>
-<span id="cb22-280"><a href="#cb22-280" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>List metadata needed to interpret a tokens-per-second claim.</span>
-<span id="cb22-281"><a href="#cb22-281" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Describe a truncation policy for a prompt that exceeds the configured window.</span>
-<span id="cb22-282"><a href="#cb22-282" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Explain how grouped-query attention changes cache memory.</span>
-<span id="cb22-283"><a href="#cb22-283" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why token count is not equivalent to a page count.</span>
-<span id="cb22-284"><a href="#cb22-284" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Separate a retrieval failure from a generation failure in an evaluation trace.</span>
-<span id="cb22-285"><a href="#cb22-285" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that compares decoding and sampling policies.</span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a>inference_record<span class="op">=</span>{<span class="st">"context_limit"</span>:<span class="dv">8192</span>,<span class="st">"prompt_tokens"</span>:<span class="dv">6200</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">512</span>,<span class="st">"prefill_ms"</span>:<span class="dv">740</span>,<span class="st">"decode_tokens_per_second"</span>:<span class="dv">55</span>,<span class="st">"cache_dtype"</span>:<span class="st">"float16"</span>}</span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> inference_record[<span class="st">"prompt_tokens"</span>]<span class="op">+</span>inference_record[<span class="st">"max_new_tokens"</span>]<span class="op">&lt;=</span>inference_record[<span class="st">"context_limit"</span>]</span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"length-budget check passed"</span>)</span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A context limit is a guarantee of long-document reasoning.** It specifies input capacity, not measured use of every position.</span>
+<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Caching makes generation parallel.** It removes repeated prefix computation but each selected token still conditions the next step.</span>
+<span id="cb22-260"><a href="#cb22-260" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**The cache stores the whole model state at no cost.** It grows with layers, batch size, key-value heads, head width, and length.</span>
+<span id="cb22-261"><a href="#cb22-261" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A document fits in context, so no truncation policy is needed.** Prompt templates and reserved output also consume the total budget.</span>
+<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Retrieval and a longer window solve the same problem.** Retrieval selects evidence; a window determines available token capacity.</span>
+<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish context length, prompt length, output length, and total length.</span>
+<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Calculate the available output budget for a stated maximum context and prompt.</span>
+<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Explain why prefill can run in parallel while decoding is sequential.</span>
+<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Derive the key-value cache element count for stated dimensions.</span>
+<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Estimate cache memory in bytes for float16 and float32.</span>
+<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Write a cache-equivalence test for a small causal model.</span>
+<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>State one source of disagreement between cached and full-prefix decoding.</span>
+<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare the growth of dense prefill attention and cache storage with length.</span>
+<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Design a position-controlled long-context retrieval test.</span>
+<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Explain why a fact at the first position is an incomplete long-context test.</span>
+<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>List metadata needed to interpret a tokens-per-second claim.</span>
+<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Describe a truncation policy for a prompt that exceeds the configured window.</span>
+<span id="cb22-278"><a href="#cb22-278" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Explain how grouped-query attention changes cache memory.</span>
+<span id="cb22-279"><a href="#cb22-279" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why token count is not equivalent to a page count.</span>
+<span id="cb22-280"><a href="#cb22-280" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>Separate a retrieval failure from a generation failure in an evaluation trace.</span>
+<span id="cb22-281"><a href="#cb22-281" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that compares decoding and sampling policies.</span>
+<span id="cb22-282"><a href="#cb22-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-283"><a href="#cb22-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb22-284"><a href="#cb22-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-285"><a href="#cb22-285" aria-hidden="true" tabindex="-1"></a>Context windows define a finite token-level information boundary. Long prompts create prefill cost, and sequential generation requires one conditional decision after another. Key-value caches avoid repeated projection of earlier tokens but grow linearly with retained sequence length and must be tested against full-prefix decoding.</span>
 <span id="cb22-286"><a href="#cb22-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-287"><a href="#cb22-287" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb22-287"><a href="#cb22-287" aria-hidden="true" tabindex="-1"></a>Capacity, retrieval, and demonstrated long-context use are distinct claims. <span class="co">[</span><span class="ot">Chapter 28</span><span class="co">](28-decoding-generation.qmd)</span> compares the policies that select tokens from a next-token distribution; Chapter 33 examines retrieval-augmented generation as a complete pipeline.</span>
 <span id="cb22-288"><a href="#cb22-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-289"><a href="#cb22-289" aria-hidden="true" tabindex="-1"></a>Context windows define a finite token-level information boundary. Long prompts create prefill cost, and sequential generation requires one conditional decision after another. Key-value caches avoid repeated projection of earlier tokens but grow linearly with retained sequence length and must be tested against full-prefix decoding.</span>
+<span id="cb22-289"><a href="#cb22-289" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
 <span id="cb22-290"><a href="#cb22-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-291"><a href="#cb22-291" aria-hidden="true" tabindex="-1"></a>Capacity, retrieval, and demonstrated long-context use are distinct claims. <span class="co">[</span><span class="ot">Chapter 28</span><span class="co">](28-decoding-generation.qmd)</span> compares the policies that select tokens from a next-token distribution; Chapter 33 examines retrieval-augmented generation as a complete pipeline.</span>
+<span id="cb22-291"><a href="#cb22-291" aria-hidden="true" tabindex="-1"></a>The context window and cache determine which prefix the model can condition on and the cost of extending it. <span class="co">[</span><span class="ot">Chapter 28</span><span class="co">](28-decoding-generation.qmd)</span> examines the further policy that turns each next-token distribution into an emitted sequence.</span>
 <span id="cb22-292"><a href="#cb22-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-293"><a href="#cb22-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb22-293"><a href="#cb22-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb22-294"><a href="#cb22-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-295"><a href="#cb22-295" aria-hidden="true" tabindex="-1"></a>The context window and cache determine which prefix the model can condition on and the cost of extending it. <span class="co">[</span><span class="ot">Chapter 28</span><span class="co">](28-decoding-generation.qmd)</span> examines the further policy that turns each next-token distribution into an emitted sequence.</span>
-<span id="cb22-296"><a href="#cb22-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-297"><a href="#cb22-297" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb22-298"><a href="#cb22-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-299"><a href="#cb22-299" aria-hidden="true" tabindex="-1"></a>The original Transformer architecture and its attention cost are specified by @vaswani2017. FlashAttention describes an IO-aware exact attention implementation that changes practical memory behaviour without changing the attention result <span class="co">[</span><span class="ot">@dao2022flashattention</span><span class="co">]</span>.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<span id="cb22-295"><a href="#cb22-295" aria-hidden="true" tabindex="-1"></a>The original Transformer architecture and its attention cost are specified by @vaswani2017. FlashAttention describes an IO-aware exact attention implementation that changes practical memory behaviour without changing the attention result <span class="co">[</span><span class="ot">@dao2022flashattention</span><span class="co">]</span>.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

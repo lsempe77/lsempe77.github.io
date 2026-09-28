@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Efficient Training Systems – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -624,7 +589,7 @@ window.Quarto = {
 <div id="cell-fig-resource-questions" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> FancyBboxPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -644,13 +609,13 @@ window.Quarto = {
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>,xy<span class="op">=</span>(x<span class="op">+</span><span class="fl">1.125</span>,<span class="fl">1.92</span>),xytext<span class="op">=</span>(x<span class="op">+</span><span class="fl">1.125</span>,<span class="fl">2.23</span>),arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey))</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    ax.annotate(<span class="st">""</span>,xy<span class="op">=</span>(x<span class="op">+</span><span class="fl">1.125</span>,<span class="fl">.82</span>),xytext<span class="op">=</span>(x<span class="op">+</span><span class="fl">1.125</span>,<span class="fl">1.13</span>),arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey))</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">.2</span>,<span class="fl">10.7</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">.1</span>,<span class="fl">3.2</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-resource-questions" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A four-column diagram links memory capacity, memory movement, arithmetic throughput, and communication to their observable symptoms and typical interventions.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-resource-questions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="15-efficient-training-systems_files/figure-html/fig-resource-questions-output-1.png" class="img-fluid figure-img" alt="A four-column diagram links memory capacity, memory movement, arithmetic throughput, and communication to their observable symptoms and typical interventions.">
+<img src="15-efficient-training-systems_files/figure-html/fig-resource-questions-output-1.png" alt="A four-column diagram links memory capacity, memory movement, arithmetic throughput, and communication to their observable symptoms and typical interventions." width="1142" height="384" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-resource-questions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;16.1: Training efficiency depends on which resource constrains the measured step.
@@ -674,7 +639,7 @@ Figure&nbsp;16.1: Training efficiency depends on which resource constrains the m
 <div id="cell-fig-memory-accounting" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>parameters<span class="op">=</span><span class="fl">1e9</span><span class="op">;</span> workers<span class="op">=</span><span class="dv">8</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>parameters<span class="op">=</span><span class="fl">1e9</span><span class="op">;</span> workers<span class="op">=</span><span class="dv">8</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>components<span class="op">=</span>{</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"FP16 parameters"</span>:np.array([<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span><span class="op">/</span>workers]),</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"FP16 gradients"</span>:np.array([<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span><span class="op">/</span>workers,<span class="dv">2</span><span class="op">/</span>workers]),</span>
@@ -690,13 +655,13 @@ Figure&nbsp;16.1: Training efficiency depends on which resource constrains the m
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Persistent model-state memory per worker (GB)"</span>)</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"One billion parameters, eight workers; activations excluded"</span>)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>ax.legend(ncol<span class="op">=</span><span class="dv">2</span>,fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">18</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-memory-accounting" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Stacked bars compare replicated mixed-precision Adam state with three ZeRO sharding stages across eight workers for a one-billion-parameter model.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-memory-accounting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="15-efficient-training-systems_files/figure-html/fig-memory-accounting-output-1.png" class="img-fluid figure-img" alt="Stacked bars compare replicated mixed-precision Adam state with three ZeRO sharding stages across eight workers for a one-billion-parameter model.">
+<img src="15-efficient-training-systems_files/figure-html/fig-memory-accounting-output-1.png" alt="Stacked bars compare replicated mixed-precision Adam state with three ZeRO sharding stages across eight workers for a one-billion-parameter model." width="903" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-memory-accounting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;16.2: Parameter sharding changes persistent model-state memory per worker, while activation memory remains a separate term.
@@ -737,7 +702,7 @@ M_{\text{activation}}=B\times S\times H\times q,
 <div id="cell-fig-precision-formats" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>formats<span class="op">=</span>[<span class="st">"FP16"</span>,<span class="st">"BF16"</span>,<span class="st">"FP32"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>formats<span class="op">=</span>[<span class="st">"FP16"</span>,<span class="st">"BF16"</span>,<span class="st">"FP32"</span>]</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>max_magnitude<span class="op">=</span>np.array([<span class="fl">6.55e4</span>,<span class="fl">3.39e38</span>,<span class="fl">3.40e38</span>])</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>decimal_digits<span class="op">=</span>np.array([<span class="fl">3.3</span>,<span class="fl">2.4</span>,<span class="fl">7.2</span>])</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.3</span>))</span>
@@ -746,13 +711,13 @@ M_{\text{activation}}=B\times S\times H\times q,
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar(formats,decimal_digits,color<span class="op">=</span>[orange,teal,blue])</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Approximate decimal precision digits"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Relative resolution"</span>)</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.grid(axis<span class="op">=</span><span class="st">"x"</span>,visible<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-precision-formats" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels compare approximate maximum finite magnitude and decimal precision for FP16, BF16, and FP32.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-precision-formats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="15-efficient-training-systems_files/figure-html/fig-precision-formats-output-1.png" class="img-fluid figure-img" alt="Two panels compare approximate maximum finite magnitude and decimal precision for FP16, BF16, and FP32.">
+<img src="15-efficient-training-systems_files/figure-html/fig-precision-formats-output-1.png" alt="Two panels compare approximate maximum finite magnitude and decimal precision for FP16, BF16, and FP32." width="999" height="403" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-precision-formats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;16.3: FP16 offers greater significand precision than BF16 but a much smaller dynamic range.
@@ -773,11 +738,11 @@ I=\frac{\text{FLOPs}}{\text{bytes transferred}}.
 <p><span class="math display">\[
 P\leq\min(P_{\text{peak}},\;B_{\text{memory}}I),
 \]</span></p>
-<p>where <span class="math inline">\(P\)</span> is attainable throughput, <span class="math inline">\(P_{\text{peak}}\)</span> peak arithmetic throughput, and <span class="math inline">\(B_{\text{memory}}\)</span> memory bandwidth <span class="citation" data-cites="williams2009roofline">(<a href="#ref-williams2009roofline" role="doc-biblioref">Williams, Waterman, and Patterson 2009</a>)</span>.</p>
+<p>where <span class="math inline">\(P\)</span> is attainable throughput, <span class="math inline">\(P_{\text{peak}}\)</span> peak arithmetic throughput, and <span class="math inline">\(B_{\text{memory}}\)</span> memory bandwidth <span class="citation" data-cites="williams2009roofline">(<a href="#ref-williams2009roofline" role="doc-biblioref">Williams et al. 2009</a>)</span>.</p>
 <div id="cell-fig-roofline" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>intensity<span class="op">=</span>np.logspace(<span class="op">-</span><span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">400</span>)<span class="op">;</span> bandwidth<span class="op">=</span><span class="fl">1.5</span><span class="op">;</span> peak<span class="op">=</span><span class="dv">300</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>intensity<span class="op">=</span>np.logspace(<span class="op">-</span><span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">400</span>)<span class="op">;</span> bandwidth<span class="op">=</span><span class="fl">1.5</span><span class="op">;</span> peak<span class="op">=</span><span class="dv">300</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ceiling<span class="op">=</span>np.minimum(bandwidth<span class="op">*</span>intensity,peak)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax.loglog(intensity,ceiling,color<span class="op">=</span>blue,linewidth<span class="op">=</span><span class="dv">3</span>,label<span class="op">=</span><span class="st">"simplified ceiling"</span>)</span>
@@ -787,13 +752,13 @@ P\leq\min(P_{\text{peak}},\;B_{\text{memory}}I),
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ax.axvline(peak<span class="op">/</span>bandwidth,color<span class="op">=</span>grey,linestyle<span class="op">=</span><span class="st">"--"</span>,label<span class="op">=</span><span class="st">"ridge point"</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Arithmetic intensity (FLOPs per byte)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Throughput (TFLOP/s)"</span>)</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Illustrative 300 TFLOP/s compute and 1.5 TB/s bandwidth ceilings"</span>)<span class="op">;</span> ax.legend()</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-roofline" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A log-log roofline chart rises with arithmetic intensity until reaching a horizontal compute ceiling; illustrative element-wise, normalisation, and matrix-multiplication points occupy different regions.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-roofline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="15-efficient-training-systems_files/figure-html/fig-roofline-output-1.png" class="img-fluid figure-img" alt="A log-log roofline chart rises with arithmetic intensity until reaching a horizontal compute ceiling; illustrative element-wise, normalisation, and matrix-multiplication points occupy different regions.">
+<img src="15-efficient-training-systems_files/figure-html/fig-roofline-output-1.png" alt="A log-log roofline chart rises with arithmetic intensity until reaching a horizontal compute ceiling; illustrative element-wise, normalisation, and matrix-multiplication points occupy different regions." width="854" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roofline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;16.4: A simplified roofline separates bandwidth-limited and compute-limited arithmetic intensities.
@@ -814,7 +779,7 @@ S(W)=\frac{T(1)}{T(W)},\qquad E(W)=\frac{S(W)}{W}.
 <div id="cell-fig-scaling-efficiency" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>workers<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>,<span class="dv">64</span>,<span class="dv">128</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>workers<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>,<span class="dv">64</span>,<span class="dv">128</span>])</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>compute<span class="op">=</span><span class="dv">1</span><span class="op">/</span>workers<span class="op">;</span> communication<span class="op">=</span><span class="fl">.012</span><span class="op">*</span>np.log2(workers)<span class="op">+</span><span class="fl">.0008</span><span class="op">*</span>(workers<span class="op">-</span><span class="dv">1</span>)<span class="op">;</span> step_time<span class="op">=</span>compute<span class="op">+</span>communication</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>speedup<span class="op">=</span>step_time[<span class="dv">0</span>]<span class="op">/</span>step_time<span class="op">;</span> efficiency<span class="op">=</span>speedup<span class="op">/</span>workers</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.3</span>))</span>
@@ -823,13 +788,13 @@ S(W)=\frac{T(1)}{T(W)},\qquad E(W)=\frac{S(W)}{W}.
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_xscale(<span class="st">"log"</span>,base<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_yscale(<span class="st">"log"</span>,base<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_xlabel(<span class="st">"Workers"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Speedup"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend()</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(workers,efficiency,color<span class="op">=</span>orange,marker<span class="op">=</span><span class="st">"o"</span>,linewidth<span class="op">=</span><span class="fl">2.4</span>)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>,base<span class="op">=</span><span class="dv">2</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylim(<span class="dv">0</span>,<span class="fl">1.05</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Workers"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Parallel efficiency"</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-scaling-efficiency" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels compare ideal and illustrative measured speedup across one to 128 workers and show parallel efficiency declining with worker count.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scaling-efficiency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="15-efficient-training-systems_files/figure-html/fig-scaling-efficiency-output-1.png" class="img-fluid figure-img" alt="Two panels compare ideal and illustrative measured speedup across one to 128 workers and show parallel efficiency declining with worker count.">
+<img src="15-efficient-training-systems_files/figure-html/fig-scaling-efficiency-output-1.png" alt="Two panels compare ideal and illustrative measured speedup across one to 128 workers and show parallel efficiency declining with worker count." width="998" height="403" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scaling-efficiency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;16.5: Communication and fixed overhead make data-parallel speedup sublinear as worker count grows.
@@ -847,7 +812,7 @@ Figure&nbsp;16.5: Communication and fixed overhead make data-parallel speedup su
 <div id="cell-fig-parallelism-map" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">4</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="dv">7</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">4</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="dv">7</span>))</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[<span class="st">"Data parallel"</span>,<span class="st">"Tensor parallel"</span>,<span class="st">"Pipeline parallel"</span>,<span class="st">"State sharding"</span>]</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title <span class="kw">in</span> <span class="bu">zip</span>(axes,rows): ax.set_title(title,loc<span class="op">=</span><span class="st">"left"</span>,fontsize<span class="op">=</span><span class="dv">10</span>,fontweight<span class="op">=</span><span class="st">"bold"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,c,t <span class="kw">in</span> [(<span class="dv">1</span>,blue,<span class="st">"batch A"</span>),(<span class="dv">6</span>,teal,<span class="st">"batch B"</span>)]:</span>
@@ -858,13 +823,13 @@ Figure&nbsp;16.5: Communication and fixed overhead make data-parallel speedup su
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">2</span>].add_patch(plt.Rectangle((x,<span class="fl">.2</span>),<span class="fl">2.3</span>,<span class="fl">.55</span>,color<span class="op">=</span>c,alpha<span class="op">=</span><span class="fl">.82</span>))<span class="op">;</span> axes[<span class="dv">2</span>].text(x<span class="op">+</span><span class="fl">1.15</span>,<span class="fl">.475</span>,t,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,c,t <span class="kw">in</span> [(<span class="dv">1</span>,blue,<span class="st">"model copy + state shard A"</span>),(<span class="fl">5.2</span>,purple,<span class="st">"model copy + state shard B"</span>)]:</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    axes[<span class="dv">3</span>].add_patch(plt.Rectangle((x,<span class="fl">.2</span>),<span class="fl">3.7</span>,<span class="fl">.55</span>,color<span class="op">=</span>c,alpha<span class="op">=</span><span class="fl">.8</span>))<span class="op">;</span> axes[<span class="dv">3</span>].text(x<span class="op">+</span><span class="fl">1.85</span>,<span class="fl">.475</span>,t,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-parallelism-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four horizontal schematics show replicated models with split data, a layer split across devices, sequential layer stages, and replicated computation with partitioned optimiser state.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-parallelism-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="15-efficient-training-systems_files/figure-html/fig-parallelism-map-output-1.png" class="img-fluid figure-img" alt="Four horizontal schematics show replicated models with split data, a layer split across devices, sequential layer stages, and replicated computation with partitioned optimiser state.">
+<img src="15-efficient-training-systems_files/figure-html/fig-parallelism-map-output-1.png" alt="Four horizontal schematics show replicated models with split data, a layer split across devices, sequential layer stages, and replicated computation with partitioned optimiser state." width="1046" height="662" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-parallelism-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;16.6: Data, tensor, pipeline, and state-sharded parallelism divide different objects and therefore communicate at different boundaries.
@@ -890,10 +855,10 @@ M_{\text{state}}=P(q_p+q_g+q_o).
 M_{\text{stage 3}}\approx\frac{P(q_p+q_g+q_o)}{W}.
 \]</span></p>
 <p>This excludes activations, temporary gathered parameters, communication buffers, fragmentation, and implementation metadata. It is a lower-level component of a peak-memory model, not a capacity guarantee.</p>
-<div id="5f5939d7" class="cell" data-execution_count="7">
+<div id="757e32a2" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> persistent_state_gb(parameters, workers<span class="op">=</span><span class="dv">1</span>, stage<span class="op">=</span><span class="dv">0</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> persistent_state_gb(parameters, workers<span class="op">=</span><span class="dv">1</span>, stage<span class="op">=</span><span class="dv">0</span>,</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                        parameter_bytes<span class="op">=</span><span class="dv">2</span>, gradient_bytes<span class="op">=</span><span class="dv">2</span>,</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                        master_bytes<span class="op">=</span><span class="dv">4</span>, moment_bytes<span class="op">=</span><span class="dv">8</span>):</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    parameter_factor <span class="op">=</span> workers <span class="cf">if</span> stage <span class="op">&gt;=</span> <span class="dv">3</span> <span class="cf">else</span> <span class="dv">1</span></span>
@@ -905,7 +870,7 @@ M_{\text{stage 3}}\approx\frac{P(q_p+q_g+q_o)}{W}.
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total<span class="op">/</span><span class="fl">1e9</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> stage <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"stage </span><span class="sc">{</span>stage<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>persistent_state_gb(<span class="dv">1_000_000_000</span>,<span class="dv">8</span>,stage)<span class="sc">:.2f}</span><span class="ss"> GB per worker"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"stage </span><span class="sc">{</span>stage<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>persistent_state_gb(<span class="dv">1_000_000_000</span>,<span class="dv">8</span>,stage)<span class="sc">:.2f}</span><span class="ss"> GB per worker"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>stage 0: 16.00 GB per worker
@@ -923,10 +888,10 @@ stage 3: 2.00 GB per worker</code></pre>
 T_{\text{step}}=T_{\text{compute}}+T_{\text{memory stalls}}+T_{\text{communication exposed}}+T_{\text{input exposed}}+T_{\text{other}}.
 \]</span></p>
 <p>“Exposed” means time that is not hidden behind other work. Communication can overlap backpropagation; data loading can overlap the previous step. Adding raw component durations can exceed wall-clock time when overlap exists.</p>
-<div id="3a4ff543" class="cell" data-execution_count="8">
+<div id="a14d97a5" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>activities<span class="op">=</span>[torch.profiler.ProfilerActivity.CPU]</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> torch.cuda.is_available(): activities.append(torch.profiler.ProfilerActivity.CUDA)</span>
@@ -936,7 +901,7 @@ T_{\text{step}}=T_{\text{compute}}+T_{\text{memory stalls}}+T_{\text{communicati
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        train_one_update()</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(profile.key_averages().table(sort_by<span class="op">=</span><span class="st">"self_cuda_time_total"</span>,row_limit<span class="op">=</span><span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(profile.key_averages().table(sort_by<span class="op">=</span><span class="st">"self_cuda_time_total"</span>,row_limit<span class="op">=</span><span class="dv">15</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>The example is not executed because it requires the model, input pipeline, and accelerator under investigation. A useful profile includes warm-up steps, representative shapes, synchronization at timing boundaries, and enough iterations to distinguish startup from steady state. Operator tables locate expensive kernels; a timeline is needed to see overlap, gaps, and collective waits.</p>
@@ -957,13 +922,13 @@ T_{\text{collective}}\approx\alpha f(W)+\frac{n}{b}g(W),
 U\approx\frac{m}{m+p-1}.
 \]</span></p>
 <p>For four stages, utilisation rises from <span class="math inline">\(25\%\)</span> with one micro-batch to about <span class="math inline">\(84\%\)</span> with sixteen. Training schedules include backward passes and can interleave them differently, so the exact bubble fraction depends on the schedule.</p>
-<div id="956583b7" class="cell" data-execution_count="9">
+<div id="83cb4e6b" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>stages<span class="op">=</span><span class="dv">4</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>stages<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> microbatches <span class="kw">in</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>]:</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    utilisation<span class="op">=</span>microbatches<span class="op">/</span>(microbatches<span class="op">+</span>stages<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>microbatches<span class="sc">:&gt;2}</span><span class="ss"> micro-batches: </span><span class="sc">{</span>utilisation<span class="sc">:.1%}</span><span class="ss"> forward-pipeline utilisation bound"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>microbatches<span class="sc">:&gt;2}</span><span class="ss"> micro-batches: </span><span class="sc">{</span>utilisation<span class="sc">:.1%}</span><span class="ss"> forward-pipeline utilisation bound"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> 1 micro-batches: 25.0% forward-pipeline utilisation bound
@@ -1070,29 +1035,29 @@ U\approx\frac{m}{m+p-1}.
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>The roofline model is developed by <span class="citation" data-cites="williams2009roofline">Williams, Waterman, and Patterson (<a href="#ref-williams2009roofline" role="doc-biblioref">2009</a>)</span>. Mixed-precision training is described by <span class="citation" data-cites="micikevicius2018">Micikevicius et al. (<a href="#ref-micikevicius2018" role="doc-biblioref">2018</a>)</span>, activation recomputation by <span class="citation" data-cites="chen2016checkpointing">Chen et al. (<a href="#ref-chen2016checkpointing" role="doc-biblioref">2016</a>)</span>, and distributed data parallelism by <span class="citation" data-cites="li2020ddp">Li et al. (<a href="#ref-li2020ddp" role="doc-biblioref">2020</a>)</span>. ZeRO state sharding is introduced by <span class="citation" data-cites="rajbhandari2020zero">Rajbhandari et al. (<a href="#ref-rajbhandari2020zero" role="doc-biblioref">2020</a>)</span>. Tensor parallelism is demonstrated by <span class="citation" data-cites="shoeybi2019">Shoeybi et al. (<a href="#ref-shoeybi2019" role="doc-biblioref">2019</a>)</span>, pipeline parallelism by <span class="citation" data-cites="huang2019gpipe">Huang et al. (<a href="#ref-huang2019gpipe" role="doc-biblioref">2019</a>)</span>, and combinations of data, tensor, and pipeline parallelism are analysed by <span class="citation" data-cites="narayanan2021megatron">Narayanan et al. (<a href="#ref-narayanan2021megatron" role="doc-biblioref">2021</a>)</span>.</p>
+<p>The roofline model is developed by <span class="citation" data-cites="williams2009roofline">Williams et al. (<a href="#ref-williams2009roofline" role="doc-biblioref">2009</a>)</span>. Mixed-precision training is described by <span class="citation" data-cites="micikevicius2018">Micikevicius et al. (<a href="#ref-micikevicius2018" role="doc-biblioref">2018</a>)</span>, activation recomputation by <span class="citation" data-cites="chen2016checkpointing">Chen et al. (<a href="#ref-chen2016checkpointing" role="doc-biblioref">2016</a>)</span>, and distributed data parallelism by <span class="citation" data-cites="li2020ddp">Li et al. (<a href="#ref-li2020ddp" role="doc-biblioref">2020</a>)</span>. ZeRO state sharding is introduced by <span class="citation" data-cites="rajbhandari2020zero">Rajbhandari et al. (<a href="#ref-rajbhandari2020zero" role="doc-biblioref">2020</a>)</span>. Tensor parallelism is demonstrated by <span class="citation" data-cites="shoeybi2019">Shoeybi et al. (<a href="#ref-shoeybi2019" role="doc-biblioref">2019</a>)</span>, pipeline parallelism by <span class="citation" data-cites="huang2019gpipe">Huang et al. (<a href="#ref-huang2019gpipe" role="doc-biblioref">2019</a>)</span>, and combinations of data, tensor, and pipeline parallelism are analysed by <span class="citation" data-cites="narayanan2021megatron">Narayanan et al. (<a href="#ref-narayanan2021megatron" role="doc-biblioref">2021</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-chen2016checkpointing" class="csl-entry" role="listitem">
 Chen, Tianqi, Bing Xu, Chiyuan Zhang, and Carlos Guestrin. 2016. <span>“Training Deep Nets with Sublinear Memory Cost.”</span> <em>arXiv Preprint arXiv:1604.06174</em>. <a href="https://arxiv.org/abs/1604.06174">https://arxiv.org/abs/1604.06174</a>.
 </div>
 <div id="ref-huang2019gpipe" class="csl-entry" role="listitem">
-Huang, Yanping, Youlong Cheng, Ankur Bapna, Orhan Firat, Mia Xu Chen, Dehao Chen, HyoukJoong Lee, et al. 2019. <span>“<span>GPipe</span>: Efficient Training of Giant Neural Networks Using Pipeline Parallelism.”</span> In <em>Advances in Neural Information Processing Systems</em>, 32:103–12. <a href="https://papers.neurips.cc/paper_files/paper/2019/hash/093f65e080a295f8076b1c5722a46aa2-Abstract.html">https://papers.neurips.cc/paper_files/paper/2019/hash/093f65e080a295f8076b1c5722a46aa2-Abstract.html</a>.
+Huang, Yanping, Youlong Cheng, Ankur Bapna, et al. 2019. <span>“<span>GPipe</span>: Efficient Training of Giant Neural Networks Using Pipeline Parallelism.”</span> <em>Advances in Neural Information Processing Systems</em> 32: 103–12. <a href="https://papers.neurips.cc/paper_files/paper/2019/hash/093f65e080a295f8076b1c5722a46aa2-Abstract.html">https://papers.neurips.cc/paper_files/paper/2019/hash/093f65e080a295f8076b1c5722a46aa2-Abstract.html</a>.
 </div>
 <div id="ref-li2020ddp" class="csl-entry" role="listitem">
-Li, Shen, Yanli Zhao, Rohan Varma, Omkar Salpekar, Pieter Noordhuis, Teng Li, Adam Paszke, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
+Li, Shen, Yanli Zhao, Rohan Varma, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
 </div>
 <div id="ref-micikevicius2018" class="csl-entry" role="listitem">
-Micikevicius, Paulius, Sharan Narang, Jonah Alben, Gregory Diamos, Erich Elsen, David Garcia, Boris Ginsburg, et al. 2018. <span>“Mixed Precision Training.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=r1gs9JgRZ">https://openreview.net/forum?id=r1gs9JgRZ</a>.
+Micikevicius, Paulius, Sharan Narang, Jonah Alben, et al. 2018. <span>“Mixed Precision Training.”</span> <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=r1gs9JgRZ">https://openreview.net/forum?id=r1gs9JgRZ</a>.
 </div>
 <div id="ref-narayanan2021megatron" class="csl-entry" role="listitem">
-Narayanan, Deepak, Mohammad Shoeybi, Jared Casper, Patrick LeGresley, Mostofa Patwary, Vijay Anand Korthikanti, Dmitri Vainbrand, et al. 2021. <span>“Efficient Large-Scale Language Model Training on <span>GPU</span> Clusters Using <span>Megatron-LM</span>.”</span> <em>arXiv Preprint arXiv:2104.04473</em>. <a href="https://arxiv.org/abs/2104.04473">https://arxiv.org/abs/2104.04473</a>.
+Narayanan, Deepak, Mohammad Shoeybi, Jared Casper, et al. 2021. <span>“Efficient Large-Scale Language Model Training on <span>GPU</span> Clusters Using <span>Megatron-LM</span>.”</span> <em>arXiv Preprint arXiv:2104.04473</em>. <a href="https://arxiv.org/abs/2104.04473">https://arxiv.org/abs/2104.04473</a>.
 </div>
 <div id="ref-rajbhandari2020zero" class="csl-entry" role="listitem">
-Rajbhandari, Samyam, Jeff Rasley, Olatunji Ruwase, and Yuxiong He. 2020. <span>“<span>ZeRO</span>: Memory Optimizations Toward Training Trillion Parameter Models.”</span> In <em>SC20: International Conference for High Performance Computing, Networking, Storage and Analysis</em>, 1–16. <a href="https://doi.org/10.1109/SC41405.2020.00024">https://doi.org/10.1109/SC41405.2020.00024</a>.
+Rajbhandari, Samyam, Jeff Rasley, Olatunji Ruwase, and Yuxiong He. 2020. <span>“<span>ZeRO</span>: Memory Optimizations Toward Training Trillion Parameter Models.”</span> <em>SC20: International Conference for High Performance Computing, Networking, Storage and Analysis</em>, 1–16. <a href="https://doi.org/10.1109/SC41405.2020.00024">https://doi.org/10.1109/SC41405.2020.00024</a>.
 </div>
 <div id="ref-shoeybi2019" class="csl-entry" role="listitem">
 Shoeybi, Mohammad, Mostofa Patwary, Raul Puri, Patrick LeGresley, Jared Casper, and Bryan Catanzaro. 2019. <span>“Megatron-LM: Training Multi-Billion Parameter Language Models Using Model Parallelism.”</span> <em>arXiv Preprint arXiv:1909.08053</em>. <a href="https://arxiv.org/abs/1909.08053">https://arxiv.org/abs/1909.08053</a>.
@@ -1155,13 +1120,14 @@ Williams, Samuel, Andrew Waterman, and David Patterson. 2009. <span>“Roofline:
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1195,16 +1161,16 @@ Williams, Samuel, Andrew Waterman, and David Patterson. 2009. <span>“Roofline:
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1566,7 +1532,7 @@ Williams, Samuel, Andrew Waterman, and David Patterson. 2009. <span>“Roofline:
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Efficient Training Systems"</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Matching computation, memory, and communication to the training workload"</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1981,7 +1947,7 @@ Williams, Samuel, Andrew Waterman, and David Patterson. 2009. <span>“Roofline:
 <span id="cb12-431"><a href="#cb12-431" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb12-432"><a href="#cb12-432" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-433"><a href="#cb12-433" aria-hidden="true" tabindex="-1"></a>The roofline model is developed by @williams2009roofline. Mixed-precision training is described by @micikevicius2018, activation recomputation by @chen2016checkpointing, and distributed data parallelism by @li2020ddp. ZeRO state sharding is introduced by @rajbhandari2020zero. Tensor parallelism is demonstrated by @shoeybi2019, pipeline parallelism by @huang2019gpipe, and combinations of data, tensor, and pipeline parallelism are analysed by @narayanan2021megatron.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

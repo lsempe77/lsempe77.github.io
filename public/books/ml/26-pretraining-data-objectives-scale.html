@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Pretraining Data, Objectives, and Scale – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,86 +130,75 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="book-navigation.css">
@@ -520,33 +514,31 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <li><a href="#the-problem" id="toc-the-problem" class="nav-link active" data-scroll-target="#the-problem">The problem</a>
   <ul class="collapse">
-  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
-  <li><a href="#running-example" id="toc-running-example" class="nav-link" data-scroll-target="#running-example">Running example</a></li>
+  <li><a href="#a-mixed-training-stream-makes-exposure-visible" id="toc-a-mixed-training-stream-makes-exposure-visible" class="nav-link" data-scroll-target="#a-mixed-training-stream-makes-exposure-visible">A mixed training stream makes exposure visible</a></li>
   </ul></li>
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
   <li><a href="#training-data-are-constructed-not-simply-collected" id="toc-training-data-are-constructed-not-simply-collected" class="nav-link" data-scroll-target="#training-data-are-constructed-not-simply-collected">Training data are constructed, not simply collected</a></li>
   <li><a href="#self-supervision-supplies-targets-from-text" id="toc-self-supervision-supplies-targets-from-text" class="nav-link" data-scroll-target="#self-supervision-supplies-targets-from-text">Self-supervision supplies targets from text</a></li>
   </ul></li>
-  <li><a href="#level-2---data-mechanics" id="toc-level-2---data-mechanics" class="nav-link" data-scroll-target="#level-2---data-mechanics">Level 2 - Data mechanics</a>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
   <ul class="collapse">
   <li><a href="#a-corpus-record-needs-more-than-a-headline-token-count" id="toc-a-corpus-record-needs-more-than-a-headline-token-count" class="nav-link" data-scroll-target="#a-corpus-record-needs-more-than-a-headline-token-count">A corpus record needs more than a headline token count</a></li>
   <li><a href="#tokens-batches-steps-and-epochs-count-different-things" id="toc-tokens-batches-steps-and-epochs-count-different-things" class="nav-link" data-scroll-target="#tokens-batches-steps-and-epochs-count-different-things">Tokens, batches, steps, and epochs count different things</a></li>
   </ul></li>
-  <li><a href="#level-3---objectives-and-scale" id="toc-level-3---objectives-and-scale" class="nav-link" data-scroll-target="#level-3---objectives-and-scale">Level 3 - Objectives and scale</a>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
   <ul class="collapse">
   <li><a href="#objective-choice-determines-the-prediction-task" id="toc-objective-choice-determines-the-prediction-task" class="nav-link" data-scroll-target="#objective-choice-determines-the-prediction-task">Objective choice determines the prediction task</a></li>
-  <li><a href="#scaling-laws-are-fitted-evidence-not-a-general-capability-law" id="toc-scaling-laws-are-fitted-evidence-not-a-general-capability-law" class="nav-link" data-scroll-target="#scaling-laws-are-fitted-evidence-not-a-general-capability-law">Scaling laws are fitted evidence, not a general capability law</a></li>
   <li><a href="#data-repetition-changes-the-meaning-of-a-token-budget" id="toc-data-repetition-changes-the-meaning-of-a-token-budget" class="nav-link" data-scroll-target="#data-repetition-changes-the-meaning-of-a-token-budget">Data repetition changes the meaning of a token budget</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
+  <li><a href="#scaling-laws-are-fitted-evidence-not-a-general-capability-law" id="toc-scaling-laws-are-fitted-evidence-not-a-general-capability-law" class="nav-link" data-scroll-target="#scaling-laws-are-fitted-evidence-not-a-general-capability-law">Scaling laws are fitted evidence, not a general capability law</a></li>
   <li><a href="#validation-needs-an-information-boundary-of-its-own" id="toc-validation-needs-an-information-boundary-of-its-own" class="nav-link" data-scroll-target="#validation-needs-an-information-boundary-of-its-own">Validation needs an information boundary of its own</a></li>
   <li><a href="#scale-has-several-bottlenecks" id="toc-scale-has-several-bottlenecks" class="nav-link" data-scroll-target="#scale-has-several-bottlenecks">Scale has several bottlenecks</a></li>
   <li><a href="#base-model-claims-need-proportionate-language" id="toc-base-model-claims-need-proportionate-language" class="nav-link" data-scroll-target="#base-model-claims-need-proportionate-language">Base-model claims need proportionate language</a></li>
-  </ul></li>
-  <li><a href="#level-4---audit-and-interpretation" id="toc-level-4---audit-and-interpretation" class="nav-link" data-scroll-target="#level-4---audit-and-interpretation">Level 4 - Audit and interpretation</a>
-  <ul class="collapse">
   <li><a href="#a-pretraining-claim-requires-a-data-and-run-record" id="toc-a-pretraining-claim-requires-a-data-and-run-record" class="nav-link" data-scroll-target="#a-pretraining-claim-requires-a-data-and-run-record">A pretraining claim requires a data and run record</a></li>
   </ul></li>
   <li><a href="#common-misconceptions" id="toc-common-misconceptions" class="nav-link" data-scroll-target="#common-misconceptions">Common misconceptions</a></li>
@@ -580,32 +572,18 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 </header>
 
 
-<section id="chapter-orientation" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
-<section id="why-this-chapter-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
-<p>Next-token prediction defines a loss over token sequences. It does not define which sequences enter training, how they are filtered and sampled, how many are processed, or how model capacity and compute are allocated. Those decisions determine the distribution a base model is fitted to and the evidence available for claims about its behaviour.</p>
-<p>Pretraining trains a model on broad corpora using a self-supervised objective. A base model learns conditional regularities in that constructed stream. It does not independently verify text, acquire a stable instruction policy, or guarantee suitable completions. This chapter separates corpus construction, objective choice, scale, and reproducibility. Chapter 29 turns to instruction tuning; Chapter 34 turns to evaluation.</p>
-</section>
-<section id="learning-objectives" class="level3">
-<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
-<p>By the end of this chapter, you should be able to:</p>
-<ul>
-<li>distinguish a corpus, sampled training stream, token budget, and optimisation run;</li>
-<li>explain why provenance, filtering, deduplication, and mixture weights affect a base model;</li>
-<li>compare causal, masked, and sequence-to-sequence pretraining objectives;</li>
-<li>account for parameters, training tokens, batch size, steps, and compute;</li>
-<li>interpret scaling-law findings under their measured conditions; and</li>
-<li>specify a reproducible pretraining record.</li>
-</ul>
-</section>
-<section id="running-example" class="level3">
-<h3 class="anchored" data-anchor-id="running-example">Running example</h3>
+<section id="the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
+<p>Chapter 25 defined the training objective: predict the next token from a permitted prefix and minimise the average negative log probability of the observed targets. The objective says nothing about which sequences enter training, how they are filtered and sampled, how many are processed, or how model capacity and compute are allocated. Those decisions determine the distribution a base model is fitted to and the evidence available for any claim about its behaviour.</p>
+<p>Pretraining trains a model on broad corpora under a self-supervised objective, and a base model learns the conditional regularities of that constructed stream. It does not independently verify text, acquire a stable instruction policy, or guarantee suitable completions. This chapter separates corpus construction, objective choice, scale, and reproducibility as distinct decisions, each with its own record. Chapter 29 turns to instruction tuning; Chapter 34 turns to evaluation.</p>
+<section id="a-mixed-training-stream-makes-exposure-visible" class="level3">
+<h3 class="anchored" data-anchor-id="a-mixed-training-stream-makes-exposure-visible">A mixed training stream makes exposure visible</h3>
 <p>Suppose a training stream mixes public web text, reference material, code, and curated multilingual material. Source size does not determine exposure: sampling weights and repetitions determine which tokens enter optimiser updates.</p>
+<p>The first diagram follows the path from sources to parameter updates. Read it left to right: four named sources feed a weighted sampler, the sampled documents pass through the tokenizer, and the resulting batches drive the loss and update loop. The sampled stream, not the source list, defines what the model actually sees.</p>
 <div id="cell-fig-data-stream" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -613,16 +591,16 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.6</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"web"</span>,blue),(<span class="st">"reference"</span>,teal),(<span class="st">"code"</span>,orange),(<span class="st">"multilingual"</span>,purple)]):</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.7</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.25</span>,y),<span class="fl">1.5</span>,<span class="fl">.35</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="dv">1</span>,y<span class="op">+</span><span class="fl">.175</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">1.78</span>,y<span class="op">+</span><span class="fl">.175</span>),(<span class="fl">2.45</span>,<span class="fl">1.6</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">2.55</span>,<span class="st">"weighted</span><span class="ch">\n</span><span class="st">sampler"</span>,grey),(<span class="fl">4.55</span>,<span class="st">"tokeniser"</span>,teal),(<span class="fl">6.25</span>,<span class="st">"batches"</span>,orange),(<span class="fl">7.95</span>,<span class="st">"model, loss,</span><span class="ch">\n</span><span class="st">update"</span>,blue)]:</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">2.55</span>,<span class="st">"weighted</span><span class="ch">\n</span><span class="st">sampler"</span>,grey),(<span class="fl">4.55</span>,<span class="st">"tokenizer"</span>,teal),(<span class="fl">6.25</span>,<span class="st">"batches"</span>,orange),(<span class="fl">7.95</span>,<span class="st">"model, loss,</span><span class="ch">\n</span><span class="st">update"</span>,blue)]:</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.28</span>),<span class="fl">1.35</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.675</span>,<span class="fl">1.6</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">3.95</span>,<span class="fl">5.85</span>,<span class="fl">7.55</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.6</span>),(x<span class="op">+</span><span class="fl">.52</span>,<span class="fl">1.6</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.2</span>,<span class="fl">.55</span>,<span class="st">"The sampled stream, not a source list alone, defines exposure during training."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.2</span>,<span class="fl">.55</span>,<span class="st">"The sampled stream, not a source list alone, defines exposure during training."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-data-stream" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Four named data sources feed through a weighted sampler and tokenizer into batches, model loss, and parameter updates.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-data-stream-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-data-stream-output-1.png" class="img-fluid figure-img" alt="Four named data sources feed through a weighted sampler and tokenizer into batches, model loss, and parameter updates.">
+<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-data-stream-output-1.png" alt="Four named data sources feed through a weighted sampler and tokenizer into batches, model loss, and parameter updates." width="763" height="285" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-stream-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;27.1: A pretraining run samples tokenised documents from a specified mixture before batching them into an objective and optimiser loop.
@@ -631,6 +609,7 @@ Figure&nbsp;27.1: A pretraining run samples tokenised documents from a specified
 </div>
 </div>
 </div>
+<p>A data card that lists only the four sources cannot answer what the model saw. The mixture weights, repetition policy, and tokenizer sit between the corpus and the gradient, and each is a documented choice rather than a background detail.</p>
 <div id="concept-pretraining" class="concept-box concept-core" data-term="Pretraining" data-domain="Large language models">
 <p><strong>Pretraining.</strong> Training a base model on a large token stream under a stated prediction objective. Its claims depend on the corpus, data mixture, token budget, architecture, optimiser, and held-out evaluation record.</p>
 </div>
@@ -645,15 +624,15 @@ Figure&nbsp;27.1: A pretraining run samples tokenised documents from a specified
 <div id="cell-fig-mixture-weights" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"code"</span>,<span class="st">"multilingual"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"code"</span>,<span class="st">"multilingual"</span>]</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>raw<span class="op">=</span>np.array([<span class="dv">65</span>,<span class="dv">15</span>,<span class="dv">12</span>,<span class="dv">8</span>])<span class="op">;</span> sampled<span class="op">=</span>np.array([<span class="dv">45</span>,<span class="dv">20</span>,<span class="dv">20</span>,<span class="dv">15</span>])<span class="op">;</span> x<span class="op">=</span>np.arange(<span class="dv">4</span>)<span class="op">;</span> w<span class="op">=</span><span class="fl">.36</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw,w,label<span class="op">=</span><span class="st">"raw source share"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,sampled,w,label<span class="op">=</span><span class="st">"sampled token share"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,names)<span class="op">;</span> ax.set_ylabel(<span class="st">"per cent (illustrative)"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Source size and training exposure can differ"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw,w,label<span class="op">=</span><span class="st">"raw source share"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,sampled,w,label<span class="op">=</span><span class="st">"sampled token share"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,names)<span class="op">;</span> ax.set_ylabel(<span class="st">"per cent (illustrative)"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Source size and training exposure can differ"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-mixture-weights" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Paired bars compare raw source share and sampled token share for web, reference, code, and multilingual data.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-mixture-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-mixture-weights-output-1.png" class="img-fluid figure-img" alt="Paired bars compare raw source share and sampled token share for web, reference, code, and multilingual data.">
+<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-mixture-weights-output-1.png" alt="Paired bars compare raw source share and sampled token share for web, reference, code, and multilingual data." width="759" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mixture-weights-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;27.2: Sampling weights can give a smaller source a larger share of processed training tokens than its raw corpus size.
@@ -671,19 +650,19 @@ Figure&nbsp;27.2: Sampling weights can give a smaller source a larger share of p
 <div id="cell-fig-objective-boundaries" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.2</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.2</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"causal"</span>,[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"?"</span>],[blue,blue,orange]),(<span class="st">"masked"</span>,[<span class="st">"the"</span>,<span class="st">"[mask]"</span>,<span class="st">"slept"</span>],[teal,orange,teal]),(<span class="st">"seq2seq"</span>,[<span class="st">"corrupted"</span>,<span class="st">"→"</span>,<span class="st">"target"</span>],[purple,grey,orange])]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(name,pieces,cols) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,(p,c) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(pieces,cols)):</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.23</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.23</span>),<span class="fl">.19</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.095</span>,<span class="fl">.5</span>,p,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-objective-boundaries" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three rows show causal left context, a masked token with both-sided context, and a corrupted source mapped to a target sequence.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-objective-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-objective-boundaries-output-1.png" class="img-fluid figure-img" alt="Three rows show causal left context, a masked token with both-sided context, and a corrupted source mapped to a target sequence.">
+<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-objective-boundaries-output-1.png" alt="Three rows show causal left context, a masked token with both-sided context, and a corrupted source mapped to a target sequence." width="854" height="394" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-objective-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;27.3: Causal, masked, and sequence-to-sequence pretraining expose different context when predicting targets.
@@ -692,21 +671,23 @@ Figure&nbsp;27.3: Causal, masked, and sequence-to-sequence pretraining expose di
 </div>
 </div>
 </div>
+<p>The three rows expose different context when predicting a target: causal prediction sees only the left of its position, masked prediction sees both sides of a hidden unit, and a sequence-to-sequence objective maps a corrupted source to a target. The choice among them belongs to the data contract; the three are not interchangeable descriptions of “learning language”.</p>
+<p>Level 1 separated a constructed corpus from a collected one and contrasted the objective families. Level 2 follows the records and counts that make a training stream reproducible.</p>
 </section>
 </section>
-<section id="level-2---data-mechanics" class="level2">
-<h2 class="anchored" data-anchor-id="level-2---data-mechanics">Level 2 - Data mechanics</h2>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
 <section id="a-corpus-record-needs-more-than-a-headline-token-count" class="level3">
 <h3 class="anchored" data-anchor-id="a-corpus-record-needs-more-than-a-headline-token-count">A corpus record needs more than a headline token count</h3>
 <p>A reproducible account identifies sources and dates, access conditions, document and token counts, language and domain labels, filtering rules, deduplication method, personally identifiable information policy, and held-out splits. It distinguishes raw collection from retained documents and from the final sampled stream. If sources cannot be fully disclosed because of privacy, licensing, or access restrictions, that limitation should be stated rather than replaced with an imprecise label.</p>
 <p>Deduplication is consequential. Exact removal identifies identical records; near-duplicate removal depends on a similarity rule and threshold. It may retain templated copies or remove legitimate repetition. Evaluation contamination occurs when benchmark items or close variants enter training. A contaminated score does not estimate performance on unseen instances alone.</p>
-<div id="2e2957fc" class="cell" data-execution_count="4">
+<div id="a21edd26" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>documents<span class="op">=</span>[<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water-quality."</span>,<span class="st">"Different document."</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>documents<span class="op">=</span>[<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water-quality."</span>,<span class="st">"Different document."</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>unique<span class="op">=</span><span class="bu">list</span>(<span class="bu">dict</span>.fromkeys(documents))</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"raw:"</span>,<span class="bu">len</span>(documents),<span class="st">"exact-unique:"</span>,<span class="bu">len</span>(unique))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"near duplicates require a declared similarity rule"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"near duplicates require a declared similarity rule"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>raw: 4 exact-unique: 3
@@ -716,35 +697,36 @@ near duplicates require a declared similarity rule</code></pre>
 </section>
 <section id="tokens-batches-steps-and-epochs-count-different-things" class="level3">
 <h3 class="anchored" data-anchor-id="tokens-batches-steps-and-epochs-count-different-things">Tokens, batches, steps, and epochs count different things</h3>
-<p>If a run processes (T) valid tokens with global batch size (B) tokens, it performs about (T/B) optimiser updates, subject to packing and gradient accumulation. An epoch means one pass through a defined finite dataset; it becomes ambiguous when a mixture is resampled or repeated.</p>
-<div id="def9bca5" class="cell" data-execution_count="5">
+<p>If a run processes <span class="math inline">\(T\)</span> valid tokens with global batch size <span class="math inline">\(B\)</span> tokens, it performs about <span class="math inline">\(T/B\)</span> optimiser updates, subject to packing and gradient accumulation. An epoch means one pass through a defined finite dataset; it becomes ambiguous when a mixture is resampled or repeated.</p>
+<div id="bf3b7f68" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>training_tokens<span class="op">=</span><span class="dv">300_000_000_000</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>training_tokens<span class="op">=</span><span class="dv">300_000_000_000</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>global_batch_tokens<span class="op">=</span><span class="dv">4_000_000</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>training_tokens<span class="op">/</span>global_batch_tokens</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"optimiser steps: </span><span class="sc">{</span>steps<span class="sc">:,.0f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"optimiser steps: </span><span class="sc">{</span>steps<span class="sc">:,.0f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>optimiser steps: 75,000</code></pre>
 </div>
 </div>
 <p>The token count depends on the tokenizer. A batch may be reported in sequences, examples, tokens, or tokens per device; these are not equivalent for variable lengths. A run record should give global valid tokens per update, maximum length, packing policy, accumulation steps, and total valid tokens processed.</p>
+<p>Level 2 identified the records a corpus and a batch schedule require. Level 3 states the objective and exposure calculations formally and implements them on small examples.</p>
 </section>
 </section>
-<section id="level-3---objectives-and-scale" class="level2">
-<h2 class="anchored" data-anchor-id="level-3---objectives-and-scale">Level 3 - Objectives and scale</h2>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
 <section id="objective-choice-determines-the-prediction-task" class="level3">
 <h3 class="anchored" data-anchor-id="objective-choice-determines-the-prediction-task">Objective choice determines the prediction task</h3>
 <p>A decoder-only causal objective predicts targets from a prefix. An encoder objective can form bidirectional representations for a complete input. An encoder-decoder objective predicts a causal target conditioned on a source. Chapter 23 established these architecture boundaries; pretraining selects the sequence task through which parameters are updated. Parameter count does not identify an objective.</p>
 <p>Loss weights can also change the effective data mixture. A run may weight sources, ignore selected targets, or normalise losses per sequence rather than per token. These choices alter gradient contributions and should be reported with the primary cross-entropy.</p>
-<div id="151810bf" class="cell" data-execution_count="6">
+<div id="0fae694a" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>losses<span class="op">=</span>np.array([<span class="fl">1.1</span>,<span class="fl">1.8</span>,<span class="fl">2.2</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>losses<span class="op">=</span>np.array([<span class="fl">1.1</span>,<span class="fl">1.8</span>,<span class="fl">2.2</span>])</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.2</span>])</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"unweighted mean:"</span>,losses.mean())</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weighted mixture loss:"</span>,(losses<span class="op">*</span>weights).<span class="bu">sum</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weighted mixture loss:"</span>,(losses<span class="op">*</span>weights).<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>unweighted mean: 1.7000000000000002
@@ -752,20 +734,46 @@ weighted mixture loss: 1.5300000000000002</code></pre>
 </div>
 </div>
 </section>
-<section id="scaling-laws-are-fitted-evidence-not-a-general-capability-law" class="level3">
-<h3 class="anchored" data-anchor-id="scaling-laws-are-fitted-evidence-not-a-general-capability-law">Scaling laws are fitted evidence, not a general capability law</h3>
-<p>Scaling-law studies report regular relationships between held-out loss, parameter count, data, and training compute under specified training regimes <span class="citation" data-cites="kaplan2020scaling hoffmann2022training">(<a href="#ref-kaplan2020scaling" role="doc-biblioref">Kaplan et al. 2020</a>; <a href="#ref-hoffmann2022training" role="doc-biblioref">Hoffmann et al. 2022</a>)</span>. They inform planning inside those conditions. They do not establish that every capability, safety property, language, or benchmark will improve smoothly with size. Extrapolation depends on architecture, data, tokenisation, optimisation, and the range studied.</p>
-<div id="cell-fig-scaling-curve" class="cell" data-execution_count="7">
+<section id="data-repetition-changes-the-meaning-of-a-token-budget" class="level3">
+<h3 class="anchored" data-anchor-id="data-repetition-changes-the-meaning-of-a-token-budget">Data repetition changes the meaning of a token budget</h3>
+<p>A headline such as “trained on one trillion tokens” reports processing volume. It does not say how many distinct documents or unique token sequences were available. A smaller, repeatedly sampled corpus and a larger, more diverse corpus can yield the same processed-token count while exposing the model to different evidence. The difference affects both generalisation and memorisation risks. It also affects the interpretation of a scaling comparison: a run can receive more arithmetic without receiving proportionately more independent data.</p>
+<p>Repetition is not always an error. Curated code, mathematical text, or low-resource languages may be deliberately oversampled because raw availability would otherwise leave them nearly absent from the gradient stream. The required record is the sampling rule, the number of effective passes or repetitions, and the reason for the weighting. A report that lists source sizes but not exposure cannot establish whether a small source was protected, ignored, or repeatedly replayed.</p>
+<div id="b87dbffb" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>compute<span class="op">=</span>np.logspace(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">100</span>)<span class="op">;</span> loss<span class="op">=</span><span class="fl">1.0</span><span class="op">+</span><span class="fl">2.2</span><span class="op">*</span>compute<span class="op">**-</span><span class="fl">.18</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(compute,loss,color<span class="op">=</span>purple,lw<span class="op">=</span><span class="fl">2.5</span>)<span class="op">;</span> ax.set_xscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"training compute (illustrative log scale)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"held-out loss (illustrative)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Diminishing loss reductions in a fitted regime"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>source_tokens<span class="op">=</span>np.array([<span class="dv">800</span>,<span class="dv">120</span>,<span class="dv">40</span>])</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sampling_weights<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.2</span>])</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>processed<span class="op">=</span><span class="dv">1_000</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>exposure<span class="op">=</span>processed<span class="op">*</span>sampling_weights<span class="op">/</span>source_tokens</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,passes <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"small curated"</span>],exposure):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name,<span class="st">"illustrative expected passes:"</span>,<span class="bu">round</span>(passes,<span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>web illustrative expected passes: 0.62
+reference illustrative expected passes: 2.5
+small curated illustrative expected passes: 5.0</code></pre>
+</div>
+</div>
+<p>The calculation uses a simplified fixed mixture. Real pipelines may sample documents, shards, or length-normalised examples; may replace exhausted sources; and may alter weights during a run. Those details belong in the training record because they define which losses contribute to parameter updates.</p>
+<p>Level 3 connected objectives and exposure to calculations that can be checked. Level 4 examines the fitted evidence for scaling, the validation boundary, and the language a base-model claim requires.</p>
+</section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
+<section id="scaling-laws-are-fitted-evidence-not-a-general-capability-law" class="level3">
+<h3 class="anchored" data-anchor-id="scaling-laws-are-fitted-evidence-not-a-general-capability-law">Scaling laws are fitted evidence, not a general capability law</h3>
+<p>Scaling-law studies report regular relationships between held-out loss, parameter count, data, and training compute under specified training regimes <span class="citation" data-cites="kaplan2020scaling hoffmann2022training">(<a href="#ref-kaplan2020scaling" role="doc-biblioref"><span class="nocase">Kaplan et al.</span> 2020</a>; <a href="#ref-hoffmann2022training" role="doc-biblioref">Hoffmann et al. 2022</a>)</span>. They inform planning inside those conditions. They do not establish that every capability, safety property, language, or benchmark will improve smoothly with size. Extrapolation depends on architecture, data, tokenisation, optimisation, and the range studied.</p>
+<div id="cell-fig-scaling-curve" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>compute<span class="op">=</span>np.logspace(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">100</span>)<span class="op">;</span> loss<span class="op">=</span><span class="fl">1.0</span><span class="op">+</span><span class="fl">2.2</span><span class="op">*</span>compute<span class="op">**-</span><span class="fl">.18</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(compute,loss,color<span class="op">=</span>purple,lw<span class="op">=</span><span class="fl">2.5</span>)<span class="op">;</span> ax.set_xscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"training compute (illustrative log scale)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"held-out loss (illustrative)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Diminishing loss reductions in a fitted regime"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-scaling-curve" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A downward curve plots illustrative validation loss against log training compute.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-scaling-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-scaling-curve-output-1.png" class="img-fluid figure-img" alt="A downward curve plots illustrative validation loss against log training compute.">
+<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-scaling-curve-output-1.png" alt="A downward curve plots illustrative validation loss against log training compute." width="711" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scaling-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;27.4: A conceptual scaling curve shows diminishing held-out loss reductions as training compute rises; its fitted form applies only to its measured regime.
@@ -776,39 +784,17 @@ Figure&nbsp;27.4: A conceptual scaling curve shows diminishing held-out loss red
 </div>
 <p>Compute accounting needs more than parameters times tokens. Actual cost depends on sequence length, attention implementation, precision, communication, activation recomputation, failed runs, and hardware utilisation. Chapter 15 developed these systems distinctions. A pretraining report must connect them to data and objective budgets rather than provide a single uninterpretable compute headline.</p>
 </section>
-<section id="data-repetition-changes-the-meaning-of-a-token-budget" class="level3">
-<h3 class="anchored" data-anchor-id="data-repetition-changes-the-meaning-of-a-token-budget">Data repetition changes the meaning of a token budget</h3>
-<p>A headline such as “trained on one trillion tokens” reports processing volume. It does not say how many distinct documents or unique token sequences were available. A smaller, repeatedly sampled corpus and a larger, more diverse corpus can yield the same processed-token count while exposing the model to different evidence. The difference affects both generalisation and memorisation risks. It also affects the interpretation of a scaling comparison: a run can receive more arithmetic without receiving proportionately more independent data.</p>
-<p>Repetition is not always an error. Curated code, mathematical text, or low-resource languages may be deliberately oversampled because raw availability would otherwise leave them nearly absent from the gradient stream. The required record is the sampling rule, the number of effective passes or repetitions, and the reason for the weighting. A report that lists source sizes but not exposure cannot establish whether a small source was protected, ignored, or repeatedly replayed.</p>
-<div id="5dbb1875" class="cell" data-execution_count="8">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>source_tokens<span class="op">=</span>np.array([<span class="dv">800</span>,<span class="dv">120</span>,<span class="dv">40</span>])</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sampling_weights<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.2</span>])</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>processed<span class="op">=</span><span class="dv">1_000</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>exposure<span class="op">=</span>processed<span class="op">*</span>sampling_weights<span class="op">/</span>source_tokens</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,passes <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"small curated"</span>],exposure):</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name,<span class="st">"illustrative expected passes:"</span>,<span class="bu">round</span>(passes,<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>web illustrative expected passes: 0.62
-reference illustrative expected passes: 2.5
-small curated illustrative expected passes: 5.0</code></pre>
-</div>
-</div>
-<p>The calculation uses a simplified fixed mixture. Real pipelines may sample documents, shards, or length-normalised examples; may replace exhausted sources; and may alter weights during a run. Those details belong in the training record because they define which losses contribute to parameter updates.</p>
-</section>
 <section id="validation-needs-an-information-boundary-of-its-own" class="level3">
 <h3 class="anchored" data-anchor-id="validation-needs-an-information-boundary-of-its-own">Validation needs an information boundary of its own</h3>
 <p>Training and validation must be separated before duplicate handling and mixture construction are finalised. A random split at the document level can still leak closely related pages, translated versions, template variants, or consecutive records from one source. Time-based and source-based boundaries may be more appropriate when a model will be evaluated on later or distinct material. The appropriate rule depends on the claim, but the rule must be specified.</p>
 <p>For language-model loss, the validation stream should use the same tokenizer and objective convention as training. It should not silently use a different normalisation policy, maximum context, special-token treatment, or padding denominator. Source-stratified results can identify a mixture average that is dominated by common material and conceals poor fit on a smaller intended population.</p>
-<div id="c8ffca20" class="cell" data-execution_count="9">
+<div id="dc862c61" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>validation<span class="op">=</span>{<span class="st">"web"</span>:(<span class="dv">10000</span>,<span class="fl">1.55</span>),<span class="st">"reference"</span>:(<span class="dv">3000</span>,<span class="fl">1.32</span>),<span class="st">"multilingual"</span>:(<span class="dv">2000</span>,<span class="fl">2.11</span>)}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>validation<span class="op">=</span>{<span class="st">"web"</span>:(<span class="dv">10000</span>,<span class="fl">1.55</span>),<span class="st">"reference"</span>:(<span class="dv">3000</span>,<span class="fl">1.32</span>),<span class="st">"multilingual"</span>:(<span class="dv">2000</span>,<span class="fl">2.11</span>)}</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>weighted<span class="op">=</span><span class="bu">sum</span>(count<span class="op">*</span>loss <span class="cf">for</span> count,loss <span class="kw">in</span> validation.values())<span class="op">/</span><span class="bu">sum</span>(count <span class="cf">for</span> count,_ <span class="kw">in</span> validation.values())</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"aggregate loss:"</span>,<span class="bu">round</span>(weighted,<span class="dv">3</span>))</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"source-specific losses:"</span>,validation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"source-specific losses:"</span>,validation)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>aggregate loss: 1.579
@@ -821,13 +807,13 @@ source-specific losses: {'web': (10000, 1.55), 'reference': (3000, 1.32), 'multi
 <h3 class="anchored" data-anchor-id="scale-has-several-bottlenecks">Scale has several bottlenecks</h3>
 <p>Parameter count measures stored learned values, not the full resource requirement. Training tokens measure prediction events under a tokenizer, not the diversity or quality of documents. FLOP estimates measure arithmetic under assumptions, not the wall-clock cost of moving data and synchronising devices. Context length affects attention and activation memory. Batch size affects the number of updates for a fixed token budget and can interact with optimiser settings. These quantities should be reported together because changing one can change the useful allocation of the others.</p>
 <p>The compute-optimal results of Hoffmann and colleagues apply to their measured Transformer family, data, and training setup <span class="citation" data-cites="hoffmann2022training">(<a href="#ref-hoffmann2022training" role="doc-biblioref">Hoffmann et al. 2022</a>)</span>. They provide evidence that model and data allocation matters under a compute budget. They do not provide a universal ratio that can be transferred without checking objective, data mixture, architecture, sequence length, and target deployment constraints. Scaling work is most useful when it leads to smaller controlled runs, documented extrapolations, and tests of the assumptions that support a large run.</p>
-<div id="fe117ef4" class="cell" data-execution_count="10">
+<div id="7d4575bd" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>parameter_counts<span class="op">=</span>np.array([<span class="fl">1e8</span>,<span class="fl">1e9</span>,<span class="fl">1e10</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>parameter_counts<span class="op">=</span>np.array([<span class="fl">1e8</span>,<span class="fl">1e9</span>,<span class="fl">1e10</span>])</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>token_budgets<span class="op">=</span>np.array([<span class="fl">2e9</span>,<span class="fl">2e10</span>,<span class="fl">2e11</span>])</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> params,tokens <span class="kw">in</span> <span class="bu">zip</span>(parameter_counts,token_budgets):</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"parameters=</span><span class="sc">{</span>params<span class="sc">:.0e}</span><span class="ss">, tokens=</span><span class="sc">{</span>tokens<span class="sc">:.0e}</span><span class="ss">, tokens/parameter=</span><span class="sc">{</span>tokens<span class="op">/</span>params<span class="sc">:.1f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"parameters=</span><span class="sc">{</span>params<span class="sc">:.0e}</span><span class="ss">, tokens=</span><span class="sc">{</span>tokens<span class="sc">:.0e}</span><span class="ss">, tokens/parameter=</span><span class="sc">{</span>tokens<span class="op">/</span>params<span class="sc">:.1f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>parameters=1e+08, tokens=2e+09, tokens/parameter=20.0
@@ -841,19 +827,16 @@ parameters=1e+10, tokens=2e+11, tokens/parameter=20.0</code></pre>
 <p>Pretraining can produce useful representations and conditional distributions across a wide range of text. It does not show that a system follows instructions, reports sources, abstains appropriately, protects private information, or remains reliable under a changed task distribution. Those behaviours require their own training, interface design, and evaluation. A report should therefore distinguish “the model was pretrained on” from “the deployed system was shown to do”.</p>
 <p>This distinction also prevents an opaque model scale claim from standing in for evidence. A model can be larger while having a narrower data mixture, a shorter context, a different objective, or less suitable evaluation. The relevant comparison begins with matched definitions and ends with tests that represent the intended use.</p>
 </section>
-</section>
-<section id="level-4---audit-and-interpretation" class="level2">
-<h2 class="anchored" data-anchor-id="level-4---audit-and-interpretation">Level 4 - Audit and interpretation</h2>
 <section id="a-pretraining-claim-requires-a-data-and-run-record" class="level3">
 <h3 class="anchored" data-anchor-id="a-pretraining-claim-requires-a-data-and-run-record">A pretraining claim requires a data and run record</h3>
 <p>An audit should record architecture and parameter count; tokenizer version; objective and target mask; source list and dates; filtering and deduplication procedures; mixture weights and resampling; raw, retained, and processed tokens; sequence and packing policy; batch and optimiser configuration; precision and hardware; checkpoints; validation construction; contamination checks; and stopping rule.</p>
-<div id="3a08e76b" class="cell" data-execution_count="11">
+<div id="14632e8b" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>run_record<span class="op">=</span>{<span class="st">"tokenizer"</span>:<span class="st">"versioned vocabulary"</span>,<span class="st">"objective"</span>:<span class="st">"causal next-token"</span>,<span class="st">"valid_tokens"</span>:<span class="dv">300_000_000_000</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"mixture"</span>:<span class="st">"documented weights"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>run_record<span class="op">=</span>{<span class="st">"tokenizer"</span>:<span class="st">"versioned vocabulary"</span>,<span class="st">"objective"</span>:<span class="st">"causal next-token"</span>,<span class="st">"valid_tokens"</span>:<span class="dv">300_000_000_000</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"mixture"</span>:<span class="st">"documented weights"</span>}</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>required<span class="op">=</span>{<span class="st">"tokenizer"</span>,<span class="st">"objective"</span>,<span class="st">"valid_tokens"</span>,<span class="st">"max_length"</span>,<span class="st">"mixture"</span>}</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> required <span class="op">&lt;=</span> <span class="bu">set</span>(run_record)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"minimum run-record fields present"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"minimum run-record fields present"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>minimum run-record fields present</code></pre>
@@ -863,17 +846,17 @@ parameters=1e+10, tokens=2e+11, tokens/parameter=20.0</code></pre>
 <div id="cell-fig-evidence-boundaries" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"held-out</span><span class="ch">\n</span><span class="st">loss"</span>,teal,<span class="fl">3.6</span>,<span class="fl">1.45</span>),(<span class="st">"coverage"</span>,blue,<span class="fl">.4</span>,<span class="fl">2.45</span>),(<span class="st">"contamination"</span>,orange,<span class="fl">3.6</span>,<span class="fl">2.45</span>),(<span class="st">"memorisation"</span>,purple,<span class="fl">6.8</span>,<span class="fl">2.45</span>),(<span class="st">"task evaluation"</span>,blue,<span class="fl">3.6</span>,<span class="fl">.35</span>)]</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,x,y <span class="kw">in</span> items: ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> dest <span class="kw">in</span> [(<span class="fl">2.2</span>,<span class="fl">2.7</span>),(<span class="fl">4.5</span>,<span class="fl">2.45</span>),(<span class="fl">6.8</span>,<span class="fl">2.7</span>),(<span class="fl">4.5</span>,<span class="fl">.83</span>)]: ax.add_patch(FancyArrowPatch((<span class="fl">4.5</span>,<span class="fl">1.93</span>),dest,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-evidence-boundaries" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A held-out loss box is connected to boxes for coverage, contamination checks, memorisation tests, and task evaluation.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-evidence-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-evidence-boundaries-output-1.png" class="img-fluid figure-img" alt="A held-out loss box is connected to boxes for coverage, contamination checks, memorisation tests, and task evaluation.">
+<img src="26-pretraining-data-objectives-scale_files/figure-html/fig-evidence-boundaries-output-1.png" alt="A held-out loss box is connected to boxes for coverage, contamination checks, memorisation tests, and task evaluation." width="689" height="271" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-evidence-boundaries-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;27.5: Held-out loss is one form of evidence; coverage, contamination, memorisation, and downstream reliability need separate checks.
@@ -926,20 +909,20 @@ Figure&nbsp;27.5: Held-out loss is one form of evidence; coverage, contamination
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Scaling laws for language models are documented by <span class="citation" data-cites="kaplan2020scaling">Kaplan et al. (<a href="#ref-kaplan2020scaling" role="doc-biblioref">2020</a>)</span>. Compute-optimal allocation between parameters and training tokens is investigated by <span class="citation" data-cites="hoffmann2022training">Hoffmann et al. (<a href="#ref-hoffmann2022training" role="doc-biblioref">2022</a>)</span>. Dataset documentation principles are developed by <span class="citation" data-cites="gebru2021datasheets">Gebru et al. (<a href="#ref-gebru2021datasheets" role="doc-biblioref">2021</a>)</span>.</p>
+<p>Scaling laws for language models are documented by <span class="citation" data-cites="kaplan2020scaling"><span class="nocase">Kaplan et al.</span> (<a href="#ref-kaplan2020scaling" role="doc-biblioref">2020</a>)</span>. Compute-optimal allocation between parameters and training tokens is investigated by <span class="citation" data-cites="hoffmann2022training">Hoffmann et al. (<a href="#ref-hoffmann2022training" role="doc-biblioref">2022</a>)</span>. Dataset documentation principles are developed by <span class="citation" data-cites="gebru2021datasheets">Gebru et al. (<a href="#ref-gebru2021datasheets" role="doc-biblioref">2021</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-gebru2021datasheets" class="csl-entry" role="listitem">
-Gebru, Timnit, Jamie Morgenstern, Briana Vecchione, Jennifer Wortman Vaughan, Hanna Wallach, Hal Daumé III, and Kate Crawford. 2021. <span>“Datasheets for Datasets.”</span> <em>Communications of the ACM</em> 64 (12): 86–92. <a href="https://doi.org/10.1145/3458723">https://doi.org/10.1145/3458723</a>.
+Gebru, Timnit, Jamie Morgenstern, Briana Vecchione, et al. 2021. <span>“Datasheets for Datasets.”</span> <em>Communications of the ACM</em> 64 (12): 86–92. <a href="https://doi.org/10.1145/3458723">https://doi.org/10.1145/3458723</a>.
 </div>
 <div id="ref-hoffmann2022training" class="csl-entry" role="listitem">
-Hoffmann, Jordan, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor Cai, Eliza Rutherford, Diego de Las Casas, et al. 2022. <span>“Training Compute-Optimal Large Language Models.”</span> <em>arXiv Preprint arXiv:2203.15556</em>. <a href="https://doi.org/10.48550/arXiv.2203.15556">https://doi.org/10.48550/arXiv.2203.15556</a>.
+Hoffmann, Jordan, Sebastian Borgeaud, Arthur Mensch, et al. 2022. <span>“Training Compute-Optimal Large Language Models.”</span> <em>arXiv Preprint arXiv:2203.15556</em>, ahead of print. <a href="https://doi.org/10.48550/arXiv.2203.15556">https://doi.org/10.48550/arXiv.2203.15556</a>.
 </div>
 <div id="ref-kaplan2020scaling" class="csl-entry" role="listitem">
-Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws for Neural Language Models.”</span> <em>arXiv Preprint arXiv:2001.08361</em>. <a href="https://arxiv.org/abs/2001.08361">https://arxiv.org/abs/2001.08361</a>.
+<span class="nocase">Kaplan, Jared, Sam McCandlish, Tom Henighan, et al.</span> 2020. <span>“Scaling Laws for Neural Language Models.”</span> <em>arXiv Preprint arXiv:2001.08361</em>. <a href="https://arxiv.org/abs/2001.08361">https://arxiv.org/abs/2001.08361</a>.
 </div>
 </div>
 </section>
@@ -996,13 +979,14 @@ Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws 
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1036,16 +1020,16 @@ Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws 
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1407,269 +1391,268 @@ Kaplan, Jared, Sam McCandlish, Tom Henighan, et al. 2020. <span>“Scaling Laws 
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Pretraining Data, Objectives, and Scale"</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "What a base language model is trained to predict, and what the training run can support"</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>Chapter 25 defined the training objective: predict the next token from a permitted prefix and minimise the average negative log probability of the observed targets. The objective says nothing about which sequences enter training, how they are filtered and sampled, how many are processed, or how model capacity and compute are allocated. Those decisions determine the distribution a base model is fitted to and the evidence available for any claim about its behaviour.</span>
 <span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>Next-token prediction defines a loss over token sequences. It does not define which sequences enter training, how they are filtered and sampled, how many are processed, or how model capacity and compute are allocated. Those decisions determine the distribution a base model is fitted to and the evidence available for claims about its behaviour.</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>Pretraining trains a model on broad corpora under a self-supervised objective, and a base model learns the conditional regularities of that constructed stream. It does not independently verify text, acquire a stable instruction policy, or guarantee suitable completions. This chapter separates corpus construction, objective choice, scale, and reproducibility as distinct decisions, each with its own record. Chapter 29 turns to instruction tuning; Chapter 34 turns to evaluation.</span>
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>Pretraining trains a model on broad corpora using a self-supervised objective. A base model learns conditional regularities in that constructed stream. It does not independently verify text, acquire a stable instruction policy, or guarantee suitable completions. This chapter separates corpus construction, objective choice, scale, and reproducibility. Chapter 29 turns to instruction tuning; Chapter 34 turns to evaluation.</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### A mixed training stream makes exposure visible</span></span>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>Suppose a training stream mixes public web text, reference material, code, and curated multilingual material. Source size does not determine exposure: sampling weights and repetitions determine which tokens enter optimiser updates.</span>
 <span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>The first diagram follows the path from sources to parameter updates. Read it left to right: four named sources feed a weighted sampler, the sampled documents pass through the tokenizer, and the resulting batches drive the loss and update loop. The sampled stream, not the source list, defines what the model actually sees.</span>
 <span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish a corpus, sampled training stream, token budget, and optimisation run;</span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain why provenance, filtering, deduplication, and mixture weights affect a base model;</span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>compare causal, masked, and sequence-to-sequence pretraining objectives;</span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>account for parameters, training tokens, batch size, steps, and compute;</span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>interpret scaling-law findings under their measured conditions; and</span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>specify a reproducible pretraining record.</span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running example</span></span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>Suppose a training stream mixes public web text, reference material, code, and curated multilingual material. Source size does not determine exposure: sampling weights and repetitions determine which tokens enter optimiser updates.</span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-data-stream</span></span>
-<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A pretraining run samples tokenised documents from a specified mixture before batching them into an objective and optimiser loop."</span></span>
-<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Four named data sources feed through a weighted sampler and tokenizer into batches, model loss, and parameter updates."</span></span>
-<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
-<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
-<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.6</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"web"</span>,blue),(<span class="st">"reference"</span>,teal),(<span class="st">"code"</span>,orange),(<span class="st">"multilingual"</span>,purple)]):</span>
-<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.7</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.25</span>,y),<span class="fl">1.5</span>,<span class="fl">.35</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="dv">1</span>,y<span class="op">+</span><span class="fl">.175</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">1.78</span>,y<span class="op">+</span><span class="fl">.175</span>),(<span class="fl">2.45</span>,<span class="fl">1.6</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
-<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">2.55</span>,<span class="st">"weighted</span><span class="ch">\n</span><span class="st">sampler"</span>,grey),(<span class="fl">4.55</span>,<span class="st">"tokeniser"</span>,teal),(<span class="fl">6.25</span>,<span class="st">"batches"</span>,orange),(<span class="fl">7.95</span>,<span class="st">"model, loss,</span><span class="ch">\n</span><span class="st">update"</span>,blue)]:</span>
-<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.28</span>),<span class="fl">1.35</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.675</span>,<span class="fl">1.6</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">3.95</span>,<span class="fl">5.85</span>,<span class="fl">7.55</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.6</span>),(x<span class="op">+</span><span class="fl">.52</span>,<span class="fl">1.6</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
-<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.2</span>,<span class="fl">.55</span>,<span class="st">"The sampled stream, not a source list alone, defines exposure during training."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-pretraining data-term="Pretraining" data-domain="Large language models"}</span>
-<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>**Pretraining.** Training a base model on a large token stream under a stated prediction objective. Its claims depend on the corpus, data mixture, token budget, architecture, optimiser, and held-out evaluation record.</span>
-<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training data are constructed, not simply collected</span></span>
-<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>Pretraining corpora are assembled through collection, access and licensing choices, parsing, filtering, deduplication, language identification, document segmentation, tokenisation, and sampling. Each operation changes the sequence distribution on which the loss is minimised. Calling this material “internet data” conceals choices that affect coverage and exclusion.</span>
-<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>Public web text differs from books, scientific literature, code repositories, private correspondence, and spoken language. Availability determines whose writing enters the source pool. A filter can remove spam and repeated pages while also removing low-resource languages, unusual formatting, or text misclassified by a quality system. These are properties of a pipeline to document and test, not background noise.</span>
-<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-63"><a href="#cb20-63" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-64"><a href="#cb20-64" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-mixture-weights</span></span>
-<span id="cb20-65"><a href="#cb20-65" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Sampling weights can give a smaller source a larger share of processed training tokens than its raw corpus size."</span></span>
-<span id="cb20-66"><a href="#cb20-66" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Paired bars compare raw source share and sampled token share for web, reference, code, and multilingual data."</span></span>
-<span id="cb20-67"><a href="#cb20-67" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"code"</span>,<span class="st">"multilingual"</span>]</span>
-<span id="cb20-68"><a href="#cb20-68" aria-hidden="true" tabindex="-1"></a>raw<span class="op">=</span>np.array([<span class="dv">65</span>,<span class="dv">15</span>,<span class="dv">12</span>,<span class="dv">8</span>])<span class="op">;</span> sampled<span class="op">=</span>np.array([<span class="dv">45</span>,<span class="dv">20</span>,<span class="dv">20</span>,<span class="dv">15</span>])<span class="op">;</span> x<span class="op">=</span>np.arange(<span class="dv">4</span>)<span class="op">;</span> w<span class="op">=</span><span class="fl">.36</span></span>
-<span id="cb20-69"><a href="#cb20-69" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw,w,label<span class="op">=</span><span class="st">"raw source share"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,sampled,w,label<span class="op">=</span><span class="st">"sampled token share"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,names)<span class="op">;</span> ax.set_ylabel(<span class="st">"per cent (illustrative)"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Source size and training exposure can differ"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb20-70"><a href="#cb20-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-71"><a href="#cb20-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-72"><a href="#cb20-72" aria-hidden="true" tabindex="-1"></a>The values are illustrative. The point is that a data card needs both raw source quantities and mixture policy. Oversampling a smaller collection can give it substantial gradient influence. Repeating a source also raises the importance of removing exact and near duplicates.</span>
-<span id="cb20-73"><a href="#cb20-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-74"><a href="#cb20-74" aria-hidden="true" tabindex="-1"></a><span class="fu">### Self-supervision supplies targets from text</span></span>
-<span id="cb20-75"><a href="#cb20-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-76"><a href="#cb20-76" aria-hidden="true" tabindex="-1"></a>Causal pretraining uses earlier tokens to predict the next token. The stored sequence supplies the target after tokenisation and shifting, without a separate human label for each prediction. This allows large-scale training, but the objective inherits the corpus's errors, omissions, conventions, and correlations.</span>
-<span id="cb20-77"><a href="#cb20-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-78"><a href="#cb20-78" aria-hidden="true" tabindex="-1"></a>Masked-language objectives hide selected units and predict them using left and right context. Sequence-to-sequence objectives predict a target sequence from a corrupted or transformed source. These objectives expose different information boundaries and fit different model architectures. They are not interchangeable descriptions of “learning language”.</span>
-<span id="cb20-79"><a href="#cb20-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-82"><a href="#cb20-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-83"><a href="#cb20-83" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-objective-boundaries</span></span>
-<span id="cb20-84"><a href="#cb20-84" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Causal, masked, and sequence-to-sequence pretraining expose different context when predicting targets."</span></span>
-<span id="cb20-85"><a href="#cb20-85" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three rows show causal left context, a masked token with both-sided context, and a corrupted source mapped to a target sequence."</span></span>
-<span id="cb20-86"><a href="#cb20-86" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.2</span>))</span>
-<span id="cb20-87"><a href="#cb20-87" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"causal"</span>,[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"?"</span>],[blue,blue,orange]),(<span class="st">"masked"</span>,[<span class="st">"the"</span>,<span class="st">"[mask]"</span>,<span class="st">"slept"</span>],[teal,orange,teal]),(<span class="st">"seq2seq"</span>,[<span class="st">"corrupted"</span>,<span class="st">"→"</span>,<span class="st">"target"</span>],[purple,grey,orange])]</span>
-<span id="cb20-88"><a href="#cb20-88" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(name,pieces,cols) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
-<span id="cb20-89"><a href="#cb20-89" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
-<span id="cb20-90"><a href="#cb20-90" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,(p,c) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(pieces,cols)):</span>
-<span id="cb20-91"><a href="#cb20-91" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.23</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.23</span>),<span class="fl">.19</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.095</span>,<span class="fl">.5</span>,p,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb20-92"><a href="#cb20-92" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb20-93"><a href="#cb20-93" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-94"><a href="#cb20-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-95"><a href="#cb20-95" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Data mechanics</span></span>
-<span id="cb20-96"><a href="#cb20-96" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-97"><a href="#cb20-97" aria-hidden="true" tabindex="-1"></a><span class="fu">### A corpus record needs more than a headline token count</span></span>
-<span id="cb20-98"><a href="#cb20-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-99"><a href="#cb20-99" aria-hidden="true" tabindex="-1"></a>A reproducible account identifies sources and dates, access conditions, document and token counts, language and domain labels, filtering rules, deduplication method, personally identifiable information policy, and held-out splits. It distinguishes raw collection from retained documents and from the final sampled stream. If sources cannot be fully disclosed because of privacy, licensing, or access restrictions, that limitation should be stated rather than replaced with an imprecise label.</span>
-<span id="cb20-100"><a href="#cb20-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-101"><a href="#cb20-101" aria-hidden="true" tabindex="-1"></a>Deduplication is consequential. Exact removal identifies identical records; near-duplicate removal depends on a similarity rule and threshold. It may retain templated copies or remove legitimate repetition. Evaluation contamination occurs when benchmark items or close variants enter training. A contaminated score does not estimate performance on unseen instances alone.</span>
-<span id="cb20-102"><a href="#cb20-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-105"><a href="#cb20-105" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-106"><a href="#cb20-106" aria-hidden="true" tabindex="-1"></a>documents<span class="op">=</span>[<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water-quality."</span>,<span class="st">"Different document."</span>]</span>
-<span id="cb20-107"><a href="#cb20-107" aria-hidden="true" tabindex="-1"></a>unique<span class="op">=</span><span class="bu">list</span>(<span class="bu">dict</span>.fromkeys(documents))</span>
-<span id="cb20-108"><a href="#cb20-108" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"raw:"</span>,<span class="bu">len</span>(documents),<span class="st">"exact-unique:"</span>,<span class="bu">len</span>(unique))</span>
-<span id="cb20-109"><a href="#cb20-109" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"near duplicates require a declared similarity rule"</span>)</span>
-<span id="cb20-110"><a href="#cb20-110" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-111"><a href="#cb20-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-112"><a href="#cb20-112" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tokens, batches, steps, and epochs count different things</span></span>
-<span id="cb20-113"><a href="#cb20-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-114"><a href="#cb20-114" aria-hidden="true" tabindex="-1"></a>If a run processes <span class="sc">\(</span>T<span class="sc">\)</span> valid tokens with global batch size <span class="sc">\(</span>B<span class="sc">\)</span> tokens, it performs about <span class="sc">\(</span>T/B<span class="sc">\)</span> optimiser updates, subject to packing and gradient accumulation. An epoch means one pass through a defined finite dataset; it becomes ambiguous when a mixture is resampled or repeated.</span>
-<span id="cb20-115"><a href="#cb20-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-118"><a href="#cb20-118" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-119"><a href="#cb20-119" aria-hidden="true" tabindex="-1"></a>training_tokens<span class="op">=</span><span class="dv">300_000_000_000</span></span>
-<span id="cb20-120"><a href="#cb20-120" aria-hidden="true" tabindex="-1"></a>global_batch_tokens<span class="op">=</span><span class="dv">4_000_000</span></span>
-<span id="cb20-121"><a href="#cb20-121" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>training_tokens<span class="op">/</span>global_batch_tokens</span>
-<span id="cb20-122"><a href="#cb20-122" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"optimiser steps: </span><span class="sc">{</span>steps<span class="sc">:,.0f}</span><span class="ss">"</span>)</span>
-<span id="cb20-123"><a href="#cb20-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-124"><a href="#cb20-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-125"><a href="#cb20-125" aria-hidden="true" tabindex="-1"></a>The token count depends on the tokenizer. A batch may be reported in sequences, examples, tokens, or tokens per device; these are not equivalent for variable lengths. A run record should give global valid tokens per update, maximum length, packing policy, accumulation steps, and total valid tokens processed.</span>
-<span id="cb20-126"><a href="#cb20-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-127"><a href="#cb20-127" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Objectives and scale</span></span>
-<span id="cb20-128"><a href="#cb20-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-129"><a href="#cb20-129" aria-hidden="true" tabindex="-1"></a><span class="fu">### Objective choice determines the prediction task</span></span>
-<span id="cb20-130"><a href="#cb20-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-131"><a href="#cb20-131" aria-hidden="true" tabindex="-1"></a>A decoder-only causal objective predicts targets from a prefix. An encoder objective can form bidirectional representations for a complete input. An encoder-decoder objective predicts a causal target conditioned on a source. Chapter 23 established these architecture boundaries; pretraining selects the sequence task through which parameters are updated. Parameter count does not identify an objective.</span>
-<span id="cb20-132"><a href="#cb20-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-133"><a href="#cb20-133" aria-hidden="true" tabindex="-1"></a>Loss weights can also change the effective data mixture. A run may weight sources, ignore selected targets, or normalise losses per sequence rather than per token. These choices alter gradient contributions and should be reported with the primary cross-entropy.</span>
-<span id="cb20-134"><a href="#cb20-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-137"><a href="#cb20-137" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-138"><a href="#cb20-138" aria-hidden="true" tabindex="-1"></a>losses<span class="op">=</span>np.array([<span class="fl">1.1</span>,<span class="fl">1.8</span>,<span class="fl">2.2</span>])</span>
-<span id="cb20-139"><a href="#cb20-139" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.2</span>])</span>
-<span id="cb20-140"><a href="#cb20-140" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"unweighted mean:"</span>,losses.mean())</span>
-<span id="cb20-141"><a href="#cb20-141" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weighted mixture loss:"</span>,(losses<span class="op">*</span>weights).<span class="bu">sum</span>())</span>
-<span id="cb20-142"><a href="#cb20-142" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-143"><a href="#cb20-143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-144"><a href="#cb20-144" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scaling laws are fitted evidence, not a general capability law</span></span>
-<span id="cb20-145"><a href="#cb20-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-146"><a href="#cb20-146" aria-hidden="true" tabindex="-1"></a>Scaling-law studies report regular relationships between held-out loss, parameter count, data, and training compute under specified training regimes <span class="co">[</span><span class="ot">@kaplan2020scaling; @hoffmann2022training</span><span class="co">]</span>. They inform planning inside those conditions. They do not establish that every capability, safety property, language, or benchmark will improve smoothly with size. Extrapolation depends on architecture, data, tokenisation, optimisation, and the range studied.</span>
-<span id="cb20-147"><a href="#cb20-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-150"><a href="#cb20-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-151"><a href="#cb20-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-scaling-curve</span></span>
-<span id="cb20-152"><a href="#cb20-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A conceptual scaling curve shows diminishing held-out loss reductions as training compute rises; its fitted form applies only to its measured regime."</span></span>
-<span id="cb20-153"><a href="#cb20-153" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A downward curve plots illustrative validation loss against log training compute."</span></span>
-<span id="cb20-154"><a href="#cb20-154" aria-hidden="true" tabindex="-1"></a>compute<span class="op">=</span>np.logspace(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">100</span>)<span class="op">;</span> loss<span class="op">=</span><span class="fl">1.0</span><span class="op">+</span><span class="fl">2.2</span><span class="op">*</span>compute<span class="op">**-</span><span class="fl">.18</span></span>
-<span id="cb20-155"><a href="#cb20-155" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(compute,loss,color<span class="op">=</span>purple,lw<span class="op">=</span><span class="fl">2.5</span>)<span class="op">;</span> ax.set_xscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"training compute (illustrative log scale)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"held-out loss (illustrative)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Diminishing loss reductions in a fitted regime"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-data-stream</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A pretraining run samples tokenised documents from a specified mixture before batching them into an objective and optimiser loop."</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Four named data sources feed through a weighted sampler and tokenizer into batches, model loss, and parameter updates."</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.6</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"web"</span>,blue),(<span class="st">"reference"</span>,teal),(<span class="st">"code"</span>,orange),(<span class="st">"multilingual"</span>,purple)]):</span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.7</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.55</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.25</span>,y),<span class="fl">1.5</span>,<span class="fl">.35</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="dv">1</span>,y<span class="op">+</span><span class="fl">.175</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">1.78</span>,y<span class="op">+</span><span class="fl">.175</span>),(<span class="fl">2.45</span>,<span class="fl">1.6</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">2.55</span>,<span class="st">"weighted</span><span class="ch">\n</span><span class="st">sampler"</span>,grey),(<span class="fl">4.55</span>,<span class="st">"tokenizer"</span>,teal),(<span class="fl">6.25</span>,<span class="st">"batches"</span>,orange),(<span class="fl">7.95</span>,<span class="st">"model, loss,</span><span class="ch">\n</span><span class="st">update"</span>,blue)]:</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.28</span>),<span class="fl">1.35</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.675</span>,<span class="fl">1.6</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">3.95</span>,<span class="fl">5.85</span>,<span class="fl">7.55</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.6</span>),(x<span class="op">+</span><span class="fl">.52</span>,<span class="fl">1.6</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">5.2</span>,<span class="fl">.55</span>,<span class="st">"The sampled stream, not a source list alone, defines exposure during training."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.3</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>A data card that lists only the four sources cannot answer what the model saw. The mixture weights, repetition policy, and tokenizer sit between the corpus and the gradient, and each is a documented choice rather than a background detail.</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-pretraining data-term="Pretraining" data-domain="Large language models"}</span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>**Pretraining.** Training a base model on a large token stream under a stated prediction objective. Its claims depend on the corpus, data mixture, token budget, architecture, optimiser, and held-out evaluation record.</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a><span class="fu">### Training data are constructed, not simply collected</span></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>Pretraining corpora are assembled through collection, access and licensing choices, parsing, filtering, deduplication, language identification, document segmentation, tokenisation, and sampling. Each operation changes the sequence distribution on which the loss is minimised. Calling this material “internet data” conceals choices that affect coverage and exclusion.</span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>Public web text differs from books, scientific literature, code repositories, private correspondence, and spoken language. Availability determines whose writing enters the source pool. A filter can remove spam and repeated pages while also removing low-resource languages, unusual formatting, or text misclassified by a quality system. These are properties of a pipeline to document and test, not background noise.</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-mixture-weights</span></span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Sampling weights can give a smaller source a larger share of processed training tokens than its raw corpus size."</span></span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Paired bars compare raw source share and sampled token share for web, reference, code, and multilingual data."</span></span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"code"</span>,<span class="st">"multilingual"</span>]</span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>raw<span class="op">=</span>np.array([<span class="dv">65</span>,<span class="dv">15</span>,<span class="dv">12</span>,<span class="dv">8</span>])<span class="op">;</span> sampled<span class="op">=</span>np.array([<span class="dv">45</span>,<span class="dv">20</span>,<span class="dv">20</span>,<span class="dv">15</span>])<span class="op">;</span> x<span class="op">=</span>np.arange(<span class="dv">4</span>)<span class="op">;</span> w<span class="op">=</span><span class="fl">.36</span></span>
+<span id="cb20-60"><a href="#cb20-60" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(x<span class="op">-</span>w<span class="op">/</span><span class="dv">2</span>,raw,w,label<span class="op">=</span><span class="st">"raw source share"</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.bar(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,sampled,w,label<span class="op">=</span><span class="st">"sampled token share"</span>,color<span class="op">=</span>teal)<span class="op">;</span> ax.set_xticks(x,names)<span class="op">;</span> ax.set_ylabel(<span class="st">"per cent (illustrative)"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Source size and training exposure can differ"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb20-61"><a href="#cb20-61" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-62"><a href="#cb20-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-63"><a href="#cb20-63" aria-hidden="true" tabindex="-1"></a>The values are illustrative. The point is that a data card needs both raw source quantities and mixture policy. Oversampling a smaller collection can give it substantial gradient influence. Repeating a source also raises the importance of removing exact and near duplicates.</span>
+<span id="cb20-64"><a href="#cb20-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-65"><a href="#cb20-65" aria-hidden="true" tabindex="-1"></a><span class="fu">### Self-supervision supplies targets from text</span></span>
+<span id="cb20-66"><a href="#cb20-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-67"><a href="#cb20-67" aria-hidden="true" tabindex="-1"></a>Causal pretraining uses earlier tokens to predict the next token. The stored sequence supplies the target after tokenisation and shifting, without a separate human label for each prediction. This allows large-scale training, but the objective inherits the corpus's errors, omissions, conventions, and correlations.</span>
+<span id="cb20-68"><a href="#cb20-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-69"><a href="#cb20-69" aria-hidden="true" tabindex="-1"></a>Masked-language objectives hide selected units and predict them using left and right context. Sequence-to-sequence objectives predict a target sequence from a corrupted or transformed source. These objectives expose different information boundaries and fit different model architectures. They are not interchangeable descriptions of “learning language”.</span>
+<span id="cb20-70"><a href="#cb20-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-73"><a href="#cb20-73" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-74"><a href="#cb20-74" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-objective-boundaries</span></span>
+<span id="cb20-75"><a href="#cb20-75" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Causal, masked, and sequence-to-sequence pretraining expose different context when predicting targets."</span></span>
+<span id="cb20-76"><a href="#cb20-76" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three rows show causal left context, a masked token with both-sided context, and a corrupted source mapped to a target sequence."</span></span>
+<span id="cb20-77"><a href="#cb20-77" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">3</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">4.2</span>))</span>
+<span id="cb20-78"><a href="#cb20-78" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"causal"</span>,[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"?"</span>],[blue,blue,orange]),(<span class="st">"masked"</span>,[<span class="st">"the"</span>,<span class="st">"[mask]"</span>,<span class="st">"slept"</span>],[teal,orange,teal]),(<span class="st">"seq2seq"</span>,[<span class="st">"corrupted"</span>,<span class="st">"→"</span>,<span class="st">"target"</span>],[purple,grey,orange])]</span>
+<span id="cb20-79"><a href="#cb20-79" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,(name,pieces,cols) <span class="kw">in</span> <span class="bu">zip</span>(axes,rows):</span>
+<span id="cb20-80"><a href="#cb20-80" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.text(<span class="fl">.02</span>,<span class="fl">.5</span>,name,weight<span class="op">=</span><span class="st">"bold"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes)</span>
+<span id="cb20-81"><a href="#cb20-81" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,(p,c) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(pieces,cols)):</span>
+<span id="cb20-82"><a href="#cb20-82" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.23</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">.23</span>),<span class="fl">.19</span>,<span class="fl">.54</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.095</span>,<span class="fl">.5</span>,p,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb20-83"><a href="#cb20-83" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb20-84"><a href="#cb20-84" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-85"><a href="#cb20-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-86"><a href="#cb20-86" aria-hidden="true" tabindex="-1"></a>The three rows expose different context when predicting a target: causal prediction sees only the left of its position, masked prediction sees both sides of a hidden unit, and a sequence-to-sequence objective maps a corrupted source to a target. The choice among them belongs to the data contract; the three are not interchangeable descriptions of "learning language".</span>
+<span id="cb20-87"><a href="#cb20-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-88"><a href="#cb20-88" aria-hidden="true" tabindex="-1"></a>Level 1 separated a constructed corpus from a collected one and contrasted the objective families. Level 2 follows the records and counts that make a training stream reproducible.</span>
+<span id="cb20-89"><a href="#cb20-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-90"><a href="#cb20-90" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb20-91"><a href="#cb20-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-92"><a href="#cb20-92" aria-hidden="true" tabindex="-1"></a><span class="fu">### A corpus record needs more than a headline token count</span></span>
+<span id="cb20-93"><a href="#cb20-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-94"><a href="#cb20-94" aria-hidden="true" tabindex="-1"></a>A reproducible account identifies sources and dates, access conditions, document and token counts, language and domain labels, filtering rules, deduplication method, personally identifiable information policy, and held-out splits. It distinguishes raw collection from retained documents and from the final sampled stream. If sources cannot be fully disclosed because of privacy, licensing, or access restrictions, that limitation should be stated rather than replaced with an imprecise label.</span>
+<span id="cb20-95"><a href="#cb20-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-96"><a href="#cb20-96" aria-hidden="true" tabindex="-1"></a>Deduplication is consequential. Exact removal identifies identical records; near-duplicate removal depends on a similarity rule and threshold. It may retain templated copies or remove legitimate repetition. Evaluation contamination occurs when benchmark items or close variants enter training. A contaminated score does not estimate performance on unseen instances alone.</span>
+<span id="cb20-97"><a href="#cb20-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-100"><a href="#cb20-100" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-101"><a href="#cb20-101" aria-hidden="true" tabindex="-1"></a>documents<span class="op">=</span>[<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water-quality."</span>,<span class="st">"Different document."</span>]</span>
+<span id="cb20-102"><a href="#cb20-102" aria-hidden="true" tabindex="-1"></a>unique<span class="op">=</span><span class="bu">list</span>(<span class="bu">dict</span>.fromkeys(documents))</span>
+<span id="cb20-103"><a href="#cb20-103" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"raw:"</span>,<span class="bu">len</span>(documents),<span class="st">"exact-unique:"</span>,<span class="bu">len</span>(unique))</span>
+<span id="cb20-104"><a href="#cb20-104" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"near duplicates require a declared similarity rule"</span>)</span>
+<span id="cb20-105"><a href="#cb20-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-106"><a href="#cb20-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-107"><a href="#cb20-107" aria-hidden="true" tabindex="-1"></a><span class="fu">### Tokens, batches, steps, and epochs count different things</span></span>
+<span id="cb20-108"><a href="#cb20-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-109"><a href="#cb20-109" aria-hidden="true" tabindex="-1"></a>If a run processes $T$ valid tokens with global batch size $B$ tokens, it performs about $T/B$ optimiser updates, subject to packing and gradient accumulation. An epoch means one pass through a defined finite dataset; it becomes ambiguous when a mixture is resampled or repeated.</span>
+<span id="cb20-110"><a href="#cb20-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-113"><a href="#cb20-113" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-114"><a href="#cb20-114" aria-hidden="true" tabindex="-1"></a>training_tokens<span class="op">=</span><span class="dv">300_000_000_000</span></span>
+<span id="cb20-115"><a href="#cb20-115" aria-hidden="true" tabindex="-1"></a>global_batch_tokens<span class="op">=</span><span class="dv">4_000_000</span></span>
+<span id="cb20-116"><a href="#cb20-116" aria-hidden="true" tabindex="-1"></a>steps<span class="op">=</span>training_tokens<span class="op">/</span>global_batch_tokens</span>
+<span id="cb20-117"><a href="#cb20-117" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"optimiser steps: </span><span class="sc">{</span>steps<span class="sc">:,.0f}</span><span class="ss">"</span>)</span>
+<span id="cb20-118"><a href="#cb20-118" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-119"><a href="#cb20-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-120"><a href="#cb20-120" aria-hidden="true" tabindex="-1"></a>The token count depends on the tokenizer. A batch may be reported in sequences, examples, tokens, or tokens per device; these are not equivalent for variable lengths. A run record should give global valid tokens per update, maximum length, packing policy, accumulation steps, and total valid tokens processed.</span>
+<span id="cb20-121"><a href="#cb20-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-122"><a href="#cb20-122" aria-hidden="true" tabindex="-1"></a>Level 2 identified the records a corpus and a batch schedule require. Level 3 states the objective and exposure calculations formally and implements them on small examples.</span>
+<span id="cb20-123"><a href="#cb20-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-124"><a href="#cb20-124" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb20-125"><a href="#cb20-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-126"><a href="#cb20-126" aria-hidden="true" tabindex="-1"></a><span class="fu">### Objective choice determines the prediction task</span></span>
+<span id="cb20-127"><a href="#cb20-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-128"><a href="#cb20-128" aria-hidden="true" tabindex="-1"></a>A decoder-only causal objective predicts targets from a prefix. An encoder objective can form bidirectional representations for a complete input. An encoder-decoder objective predicts a causal target conditioned on a source. Chapter 23 established these architecture boundaries; pretraining selects the sequence task through which parameters are updated. Parameter count does not identify an objective.</span>
+<span id="cb20-129"><a href="#cb20-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-130"><a href="#cb20-130" aria-hidden="true" tabindex="-1"></a>Loss weights can also change the effective data mixture. A run may weight sources, ignore selected targets, or normalise losses per sequence rather than per token. These choices alter gradient contributions and should be reported with the primary cross-entropy.</span>
+<span id="cb20-131"><a href="#cb20-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-134"><a href="#cb20-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-135"><a href="#cb20-135" aria-hidden="true" tabindex="-1"></a>losses<span class="op">=</span>np.array([<span class="fl">1.1</span>,<span class="fl">1.8</span>,<span class="fl">2.2</span>])</span>
+<span id="cb20-136"><a href="#cb20-136" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.2</span>])</span>
+<span id="cb20-137"><a href="#cb20-137" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"unweighted mean:"</span>,losses.mean())</span>
+<span id="cb20-138"><a href="#cb20-138" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weighted mixture loss:"</span>,(losses<span class="op">*</span>weights).<span class="bu">sum</span>())</span>
+<span id="cb20-139"><a href="#cb20-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-140"><a href="#cb20-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-141"><a href="#cb20-141" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data repetition changes the meaning of a token budget</span></span>
+<span id="cb20-142"><a href="#cb20-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-143"><a href="#cb20-143" aria-hidden="true" tabindex="-1"></a>A headline such as “trained on one trillion tokens” reports processing volume. It does not say how many distinct documents or unique token sequences were available. A smaller, repeatedly sampled corpus and a larger, more diverse corpus can yield the same processed-token count while exposing the model to different evidence. The difference affects both generalisation and memorisation risks. It also affects the interpretation of a scaling comparison: a run can receive more arithmetic without receiving proportionately more independent data.</span>
+<span id="cb20-144"><a href="#cb20-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-145"><a href="#cb20-145" aria-hidden="true" tabindex="-1"></a>Repetition is not always an error. Curated code, mathematical text, or low-resource languages may be deliberately oversampled because raw availability would otherwise leave them nearly absent from the gradient stream. The required record is the sampling rule, the number of effective passes or repetitions, and the reason for the weighting. A report that lists source sizes but not exposure cannot establish whether a small source was protected, ignored, or repeatedly replayed.</span>
+<span id="cb20-146"><a href="#cb20-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-149"><a href="#cb20-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-150"><a href="#cb20-150" aria-hidden="true" tabindex="-1"></a>source_tokens<span class="op">=</span>np.array([<span class="dv">800</span>,<span class="dv">120</span>,<span class="dv">40</span>])</span>
+<span id="cb20-151"><a href="#cb20-151" aria-hidden="true" tabindex="-1"></a>sampling_weights<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.2</span>])</span>
+<span id="cb20-152"><a href="#cb20-152" aria-hidden="true" tabindex="-1"></a>processed<span class="op">=</span><span class="dv">1_000</span></span>
+<span id="cb20-153"><a href="#cb20-153" aria-hidden="true" tabindex="-1"></a>exposure<span class="op">=</span>processed<span class="op">*</span>sampling_weights<span class="op">/</span>source_tokens</span>
+<span id="cb20-154"><a href="#cb20-154" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,passes <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"small curated"</span>],exposure):</span>
+<span id="cb20-155"><a href="#cb20-155" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name,<span class="st">"illustrative expected passes:"</span>,<span class="bu">round</span>(passes,<span class="dv">2</span>))</span>
 <span id="cb20-156"><a href="#cb20-156" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb20-157"><a href="#cb20-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-158"><a href="#cb20-158" aria-hidden="true" tabindex="-1"></a>Compute accounting needs more than parameters times tokens. Actual cost depends on sequence length, attention implementation, precision, communication, activation recomputation, failed runs, and hardware utilisation. Chapter 15 developed these systems distinctions. A pretraining report must connect them to data and objective budgets rather than provide a single uninterpretable compute headline.</span>
+<span id="cb20-158"><a href="#cb20-158" aria-hidden="true" tabindex="-1"></a>The calculation uses a simplified fixed mixture. Real pipelines may sample documents, shards, or length-normalised examples; may replace exhausted sources; and may alter weights during a run. Those details belong in the training record because they define which losses contribute to parameter updates.</span>
 <span id="cb20-159"><a href="#cb20-159" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-160"><a href="#cb20-160" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data repetition changes the meaning of a token budget</span></span>
+<span id="cb20-160"><a href="#cb20-160" aria-hidden="true" tabindex="-1"></a>Level 3 connected objectives and exposure to calculations that can be checked. Level 4 examines the fitted evidence for scaling, the validation boundary, and the language a base-model claim requires.</span>
 <span id="cb20-161"><a href="#cb20-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-162"><a href="#cb20-162" aria-hidden="true" tabindex="-1"></a>A headline such as “trained on one trillion tokens” reports processing volume. It does not say how many distinct documents or unique token sequences were available. A smaller, repeatedly sampled corpus and a larger, more diverse corpus can yield the same processed-token count while exposing the model to different evidence. The difference affects both generalisation and memorisation risks. It also affects the interpretation of a scaling comparison: a run can receive more arithmetic without receiving proportionately more independent data.</span>
+<span id="cb20-162"><a href="#cb20-162" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
 <span id="cb20-163"><a href="#cb20-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-164"><a href="#cb20-164" aria-hidden="true" tabindex="-1"></a>Repetition is not always an error. Curated code, mathematical text, or low-resource languages may be deliberately oversampled because raw availability would otherwise leave them nearly absent from the gradient stream. The required record is the sampling rule, the number of effective passes or repetitions, and the reason for the weighting. A report that lists source sizes but not exposure cannot establish whether a small source was protected, ignored, or repeatedly replayed.</span>
+<span id="cb20-164"><a href="#cb20-164" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scaling laws are fitted evidence, not a general capability law</span></span>
 <span id="cb20-165"><a href="#cb20-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-168"><a href="#cb20-168" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-169"><a href="#cb20-169" aria-hidden="true" tabindex="-1"></a>source_tokens<span class="op">=</span>np.array([<span class="dv">800</span>,<span class="dv">120</span>,<span class="dv">40</span>])</span>
-<span id="cb20-170"><a href="#cb20-170" aria-hidden="true" tabindex="-1"></a>sampling_weights<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.2</span>])</span>
-<span id="cb20-171"><a href="#cb20-171" aria-hidden="true" tabindex="-1"></a>processed<span class="op">=</span><span class="dv">1_000</span></span>
-<span id="cb20-172"><a href="#cb20-172" aria-hidden="true" tabindex="-1"></a>exposure<span class="op">=</span>processed<span class="op">*</span>sampling_weights<span class="op">/</span>source_tokens</span>
-<span id="cb20-173"><a href="#cb20-173" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,passes <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">"web"</span>,<span class="st">"reference"</span>,<span class="st">"small curated"</span>],exposure):</span>
-<span id="cb20-174"><a href="#cb20-174" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name,<span class="st">"illustrative expected passes:"</span>,<span class="bu">round</span>(passes,<span class="dv">2</span>))</span>
-<span id="cb20-175"><a href="#cb20-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-176"><a href="#cb20-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-177"><a href="#cb20-177" aria-hidden="true" tabindex="-1"></a>The calculation uses a simplified fixed mixture. Real pipelines may sample documents, shards, or length-normalised examples; may replace exhausted sources; and may alter weights during a run. Those details belong in the training record because they define which losses contribute to parameter updates.</span>
-<span id="cb20-178"><a href="#cb20-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-179"><a href="#cb20-179" aria-hidden="true" tabindex="-1"></a><span class="fu">### Validation needs an information boundary of its own</span></span>
-<span id="cb20-180"><a href="#cb20-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-181"><a href="#cb20-181" aria-hidden="true" tabindex="-1"></a>Training and validation must be separated before duplicate handling and mixture construction are finalised. A random split at the document level can still leak closely related pages, translated versions, template variants, or consecutive records from one source. Time-based and source-based boundaries may be more appropriate when a model will be evaluated on later or distinct material. The appropriate rule depends on the claim, but the rule must be specified.</span>
-<span id="cb20-182"><a href="#cb20-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-183"><a href="#cb20-183" aria-hidden="true" tabindex="-1"></a>For language-model loss, the validation stream should use the same tokenizer and objective convention as training. It should not silently use a different normalisation policy, maximum context, special-token treatment, or padding denominator. Source-stratified results can identify a mixture average that is dominated by common material and conceals poor fit on a smaller intended population.</span>
-<span id="cb20-184"><a href="#cb20-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-187"><a href="#cb20-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-188"><a href="#cb20-188" aria-hidden="true" tabindex="-1"></a>validation<span class="op">=</span>{<span class="st">"web"</span>:(<span class="dv">10000</span>,<span class="fl">1.55</span>),<span class="st">"reference"</span>:(<span class="dv">3000</span>,<span class="fl">1.32</span>),<span class="st">"multilingual"</span>:(<span class="dv">2000</span>,<span class="fl">2.11</span>)}</span>
-<span id="cb20-189"><a href="#cb20-189" aria-hidden="true" tabindex="-1"></a>weighted<span class="op">=</span><span class="bu">sum</span>(count<span class="op">*</span>loss <span class="cf">for</span> count,loss <span class="kw">in</span> validation.values())<span class="op">/</span><span class="bu">sum</span>(count <span class="cf">for</span> count,_ <span class="kw">in</span> validation.values())</span>
-<span id="cb20-190"><a href="#cb20-190" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"aggregate loss:"</span>,<span class="bu">round</span>(weighted,<span class="dv">3</span>))</span>
-<span id="cb20-191"><a href="#cb20-191" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"source-specific losses:"</span>,validation)</span>
-<span id="cb20-192"><a href="#cb20-192" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-193"><a href="#cb20-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-194"><a href="#cb20-194" aria-hidden="true" tabindex="-1"></a>The aggregate loss is useful for a declared mixture but cannot replace the rows from which it was calculated. A model intended for a multilingual or technical application requires validation evidence for those conditions. Holding out a generic sample of the same source pool is a narrower claim.</span>
-<span id="cb20-195"><a href="#cb20-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-196"><a href="#cb20-196" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scale has several bottlenecks</span></span>
-<span id="cb20-197"><a href="#cb20-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-198"><a href="#cb20-198" aria-hidden="true" tabindex="-1"></a>Parameter count measures stored learned values, not the full resource requirement. Training tokens measure prediction events under a tokenizer, not the diversity or quality of documents. FLOP estimates measure arithmetic under assumptions, not the wall-clock cost of moving data and synchronising devices. Context length affects attention and activation memory. Batch size affects the number of updates for a fixed token budget and can interact with optimiser settings. These quantities should be reported together because changing one can change the useful allocation of the others.</span>
-<span id="cb20-199"><a href="#cb20-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-200"><a href="#cb20-200" aria-hidden="true" tabindex="-1"></a>The compute-optimal results of Hoffmann and colleagues apply to their measured Transformer family, data, and training setup <span class="co">[</span><span class="ot">@hoffmann2022training</span><span class="co">]</span>. They provide evidence that model and data allocation matters under a compute budget. They do not provide a universal ratio that can be transferred without checking objective, data mixture, architecture, sequence length, and target deployment constraints. Scaling work is most useful when it leads to smaller controlled runs, documented extrapolations, and tests of the assumptions that support a large run.</span>
-<span id="cb20-201"><a href="#cb20-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-204"><a href="#cb20-204" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-205"><a href="#cb20-205" aria-hidden="true" tabindex="-1"></a>parameter_counts<span class="op">=</span>np.array([<span class="fl">1e8</span>,<span class="fl">1e9</span>,<span class="fl">1e10</span>])</span>
-<span id="cb20-206"><a href="#cb20-206" aria-hidden="true" tabindex="-1"></a>token_budgets<span class="op">=</span>np.array([<span class="fl">2e9</span>,<span class="fl">2e10</span>,<span class="fl">2e11</span>])</span>
-<span id="cb20-207"><a href="#cb20-207" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> params,tokens <span class="kw">in</span> <span class="bu">zip</span>(parameter_counts,token_budgets):</span>
-<span id="cb20-208"><a href="#cb20-208" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"parameters=</span><span class="sc">{</span>params<span class="sc">:.0e}</span><span class="ss">, tokens=</span><span class="sc">{</span>tokens<span class="sc">:.0e}</span><span class="ss">, tokens/parameter=</span><span class="sc">{</span>tokens<span class="op">/</span>params<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
-<span id="cb20-209"><a href="#cb20-209" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-210"><a href="#cb20-210" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-211"><a href="#cb20-211" aria-hidden="true" tabindex="-1"></a><span class="fu">### Base-model claims need proportionate language</span></span>
-<span id="cb20-212"><a href="#cb20-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-213"><a href="#cb20-213" aria-hidden="true" tabindex="-1"></a>Pretraining can produce useful representations and conditional distributions across a wide range of text. It does not show that a system follows instructions, reports sources, abstains appropriately, protects private information, or remains reliable under a changed task distribution. Those behaviours require their own training, interface design, and evaluation. A report should therefore distinguish “the model was pretrained on” from “the deployed system was shown to do”.</span>
-<span id="cb20-214"><a href="#cb20-214" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a>This distinction also prevents an opaque model scale claim from standing in for evidence. A model can be larger while having a narrower data mixture, a shorter context, a different objective, or less suitable evaluation. The relevant comparison begins with matched definitions and ends with tests that represent the intended use.</span>
-<span id="cb20-216"><a href="#cb20-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-217"><a href="#cb20-217" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and interpretation</span></span>
-<span id="cb20-218"><a href="#cb20-218" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-219"><a href="#cb20-219" aria-hidden="true" tabindex="-1"></a><span class="fu">### A pretraining claim requires a data and run record</span></span>
-<span id="cb20-220"><a href="#cb20-220" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-221"><a href="#cb20-221" aria-hidden="true" tabindex="-1"></a>An audit should record architecture and parameter count; tokenizer version; objective and target mask; source list and dates; filtering and deduplication procedures; mixture weights and resampling; raw, retained, and processed tokens; sequence and packing policy; batch and optimiser configuration; precision and hardware; checkpoints; validation construction; contamination checks; and stopping rule.</span>
-<span id="cb20-222"><a href="#cb20-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-225"><a href="#cb20-225" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-226"><a href="#cb20-226" aria-hidden="true" tabindex="-1"></a>run_record<span class="op">=</span>{<span class="st">"tokenizer"</span>:<span class="st">"versioned vocabulary"</span>,<span class="st">"objective"</span>:<span class="st">"causal next-token"</span>,<span class="st">"valid_tokens"</span>:<span class="dv">300_000_000_000</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"mixture"</span>:<span class="st">"documented weights"</span>}</span>
-<span id="cb20-227"><a href="#cb20-227" aria-hidden="true" tabindex="-1"></a>required<span class="op">=</span>{<span class="st">"tokenizer"</span>,<span class="st">"objective"</span>,<span class="st">"valid_tokens"</span>,<span class="st">"max_length"</span>,<span class="st">"mixture"</span>}</span>
-<span id="cb20-228"><a href="#cb20-228" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> required <span class="op">&lt;=</span> <span class="bu">set</span>(run_record)</span>
-<span id="cb20-229"><a href="#cb20-229" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"minimum run-record fields present"</span>)</span>
-<span id="cb20-230"><a href="#cb20-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-231"><a href="#cb20-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-232"><a href="#cb20-232" aria-hidden="true" tabindex="-1"></a>Average validation loss can conceal failure on rare inputs, arithmetic, long contexts, low-resource languages, or tasks requiring external evidence. It is therefore one form of evidence alongside coverage analysis, contamination checks, memorisation testing, and task-specific evaluation. Optimising token-level likelihood does not resolve copyright, privacy, data-governance, or downstream reliability questions.</span>
-<span id="cb20-233"><a href="#cb20-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-236"><a href="#cb20-236" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb20-237"><a href="#cb20-237" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-evidence-boundaries</span></span>
-<span id="cb20-238"><a href="#cb20-238" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Held-out loss is one form of evidence; coverage, contamination, memorisation, and downstream reliability need separate checks."</span></span>
-<span id="cb20-239"><a href="#cb20-239" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A held-out loss box is connected to boxes for coverage, contamination checks, memorisation tests, and task evaluation."</span></span>
-<span id="cb20-240"><a href="#cb20-240" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb20-241"><a href="#cb20-241" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"held-out</span><span class="ch">\n</span><span class="st">loss"</span>,teal,<span class="fl">3.6</span>,<span class="fl">1.45</span>),(<span class="st">"coverage"</span>,blue,<span class="fl">.4</span>,<span class="fl">2.45</span>),(<span class="st">"contamination"</span>,orange,<span class="fl">3.6</span>,<span class="fl">2.45</span>),(<span class="st">"memorisation"</span>,purple,<span class="fl">6.8</span>,<span class="fl">2.45</span>),(<span class="st">"task evaluation"</span>,blue,<span class="fl">3.6</span>,<span class="fl">.35</span>)]</span>
-<span id="cb20-242"><a href="#cb20-242" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,x,y <span class="kw">in</span> items: ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb20-243"><a href="#cb20-243" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> dest <span class="kw">in</span> [(<span class="fl">2.2</span>,<span class="fl">2.7</span>),(<span class="fl">4.5</span>,<span class="fl">2.45</span>),(<span class="fl">6.8</span>,<span class="fl">2.7</span>),(<span class="fl">4.5</span>,<span class="fl">.83</span>)]: ax.add_patch(FancyArrowPatch((<span class="fl">4.5</span>,<span class="fl">1.93</span>),dest,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
-<span id="cb20-244"><a href="#cb20-244" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb20-245"><a href="#cb20-245" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb20-246"><a href="#cb20-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-247"><a href="#cb20-247" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb20-248"><a href="#cb20-248" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-249"><a href="#cb20-249" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Pretraining data are a random sample of the web.** Collection, access, filtering, and sampling construct the training distribution.</span>
-<span id="cb20-250"><a href="#cb20-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More raw documents mean more effective data.** Duplicates, mixture weights, tokenisation, and repetitions determine exposure.</span>
-<span id="cb20-251"><a href="#cb20-251" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Self-supervision removes data-quality concerns.** It removes separate labels, not errors or exclusions in sequence data.</span>
-<span id="cb20-252"><a href="#cb20-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A scaling law guarantees broad capability gains.** It describes measured loss relations under stated conditions.</span>
-<span id="cb20-253"><a href="#cb20-253" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A low validation loss rules out contamination.** Contamination needs direct checks against the relevant evaluation material.</span>
-<span id="cb20-254"><a href="#cb20-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-255"><a href="#cb20-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb20-256"><a href="#cb20-256" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-257"><a href="#cb20-257" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish raw corpus, retained corpus, and sampled token stream.</span>
-<span id="cb20-258"><a href="#cb20-258" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Explain how a smaller source can receive more exposure than a larger source.</span>
-<span id="cb20-259"><a href="#cb20-259" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate steps for a token budget and global token batch size.</span>
-<span id="cb20-260"><a href="#cb20-260" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Compare exact and near-duplicate removal.</span>
-<span id="cb20-261"><a href="#cb20-261" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Explain why contamination changes a benchmark score's interpretation.</span>
-<span id="cb20-262"><a href="#cb20-262" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Draw causal and masked objective information boundaries.</span>
-<span id="cb20-263"><a href="#cb20-263" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Give an example of a source-stratified validation slice.</span>
-<span id="cb20-264"><a href="#cb20-264" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Calculate a weighted loss from supplied component losses.</span>
-<span id="cb20-265"><a href="#cb20-265" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>State why parameter count does not identify a training objective.</span>
-<span id="cb20-266"><a href="#cb20-266" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>List four costs omitted by a simple parameter-times-token estimate.</span>
-<span id="cb20-267"><a href="#cb20-267" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Explain why epoch count may be ambiguous under resampling.</span>
-<span id="cb20-268"><a href="#cb20-268" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a test for document-boundary leakage in packed sequences.</span>
-<span id="cb20-269"><a href="#cb20-269" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Identify a data decision that can affect a low-resource language.</span>
-<span id="cb20-270"><a href="#cb20-270" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why held-out loss and task performance are distinct evidence.</span>
-<span id="cb20-271"><a href="#cb20-271" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>List the metadata needed to interpret a reported pretraining loss.</span>
-<span id="cb20-272"><a href="#cb20-272" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that treats finite inference contexts.</span>
-<span id="cb20-273"><a href="#cb20-273" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-274"><a href="#cb20-274" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
-<span id="cb20-275"><a href="#cb20-275" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-276"><a href="#cb20-276" aria-hidden="true" tabindex="-1"></a>Pretraining fits a model to a constructed stream of token sequences under a specified objective. Source collection, filtering, deduplication, tokenisation, mixture weights, document boundaries, token budget, model capacity, and compute all affect the resulting base model.</span>
-<span id="cb20-277"><a href="#cb20-277" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-278"><a href="#cb20-278" aria-hidden="true" tabindex="-1"></a>Scaling findings help plan work within their measured regimes, but they do not replace documentation, contamination checks, coverage analysis, or targeted evaluation. <span class="co">[</span><span class="ot">Chapter 27</span><span class="co">](27-context-windows-model-inference.qmd)</span> examines finite contexts and cache mechanics at inference; Chapter 29 examines supervised adaptation for instruction-following behaviour.</span>
-<span id="cb20-279"><a href="#cb20-279" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-280"><a href="#cb20-280" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
-<span id="cb20-281"><a href="#cb20-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-282"><a href="#cb20-282" aria-hidden="true" tabindex="-1"></a>Pretraining produces a checkpoint under a finite token budget and an explicit data contract. <span class="co">[</span><span class="ot">Chapter 27</span><span class="co">](27-context-windows-model-inference.qmd)</span> turns to the different constraint at inference time: what information can fit into a request and what it costs the model to use it.</span>
-<span id="cb20-283"><a href="#cb20-283" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-284"><a href="#cb20-284" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb20-285"><a href="#cb20-285" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-286"><a href="#cb20-286" aria-hidden="true" tabindex="-1"></a>Scaling laws for language models are documented by @kaplan2020scaling. Compute-optimal allocation between parameters and training tokens is investigated by @hoffmann2022training. Dataset documentation principles are developed by @gebru2021datasheets.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<span id="cb20-166"><a href="#cb20-166" aria-hidden="true" tabindex="-1"></a>Scaling-law studies report regular relationships between held-out loss, parameter count, data, and training compute under specified training regimes <span class="co">[</span><span class="ot">@kaplan2020scaling; @hoffmann2022training</span><span class="co">]</span>. They inform planning inside those conditions. They do not establish that every capability, safety property, language, or benchmark will improve smoothly with size. Extrapolation depends on architecture, data, tokenisation, optimisation, and the range studied.</span>
+<span id="cb20-167"><a href="#cb20-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-170"><a href="#cb20-170" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-171"><a href="#cb20-171" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-scaling-curve</span></span>
+<span id="cb20-172"><a href="#cb20-172" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A conceptual scaling curve shows diminishing held-out loss reductions as training compute rises; its fitted form applies only to its measured regime."</span></span>
+<span id="cb20-173"><a href="#cb20-173" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A downward curve plots illustrative validation loss against log training compute."</span></span>
+<span id="cb20-174"><a href="#cb20-174" aria-hidden="true" tabindex="-1"></a>compute<span class="op">=</span>np.logspace(<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">100</span>)<span class="op">;</span> loss<span class="op">=</span><span class="fl">1.0</span><span class="op">+</span><span class="fl">2.2</span><span class="op">*</span>compute<span class="op">**-</span><span class="fl">.18</span></span>
+<span id="cb20-175"><a href="#cb20-175" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(compute,loss,color<span class="op">=</span>purple,lw<span class="op">=</span><span class="fl">2.5</span>)<span class="op">;</span> ax.set_xscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"training compute (illustrative log scale)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"held-out loss (illustrative)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Diminishing loss reductions in a fitted regime"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb20-176"><a href="#cb20-176" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-177"><a href="#cb20-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-178"><a href="#cb20-178" aria-hidden="true" tabindex="-1"></a>Compute accounting needs more than parameters times tokens. Actual cost depends on sequence length, attention implementation, precision, communication, activation recomputation, failed runs, and hardware utilisation. Chapter 15 developed these systems distinctions. A pretraining report must connect them to data and objective budgets rather than provide a single uninterpretable compute headline.</span>
+<span id="cb20-179"><a href="#cb20-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-180"><a href="#cb20-180" aria-hidden="true" tabindex="-1"></a><span class="fu">### Validation needs an information boundary of its own</span></span>
+<span id="cb20-181"><a href="#cb20-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-182"><a href="#cb20-182" aria-hidden="true" tabindex="-1"></a>Training and validation must be separated before duplicate handling and mixture construction are finalised. A random split at the document level can still leak closely related pages, translated versions, template variants, or consecutive records from one source. Time-based and source-based boundaries may be more appropriate when a model will be evaluated on later or distinct material. The appropriate rule depends on the claim, but the rule must be specified.</span>
+<span id="cb20-183"><a href="#cb20-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-184"><a href="#cb20-184" aria-hidden="true" tabindex="-1"></a>For language-model loss, the validation stream should use the same tokenizer and objective convention as training. It should not silently use a different normalisation policy, maximum context, special-token treatment, or padding denominator. Source-stratified results can identify a mixture average that is dominated by common material and conceals poor fit on a smaller intended population.</span>
+<span id="cb20-185"><a href="#cb20-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-188"><a href="#cb20-188" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-189"><a href="#cb20-189" aria-hidden="true" tabindex="-1"></a>validation<span class="op">=</span>{<span class="st">"web"</span>:(<span class="dv">10000</span>,<span class="fl">1.55</span>),<span class="st">"reference"</span>:(<span class="dv">3000</span>,<span class="fl">1.32</span>),<span class="st">"multilingual"</span>:(<span class="dv">2000</span>,<span class="fl">2.11</span>)}</span>
+<span id="cb20-190"><a href="#cb20-190" aria-hidden="true" tabindex="-1"></a>weighted<span class="op">=</span><span class="bu">sum</span>(count<span class="op">*</span>loss <span class="cf">for</span> count,loss <span class="kw">in</span> validation.values())<span class="op">/</span><span class="bu">sum</span>(count <span class="cf">for</span> count,_ <span class="kw">in</span> validation.values())</span>
+<span id="cb20-191"><a href="#cb20-191" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"aggregate loss:"</span>,<span class="bu">round</span>(weighted,<span class="dv">3</span>))</span>
+<span id="cb20-192"><a href="#cb20-192" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"source-specific losses:"</span>,validation)</span>
+<span id="cb20-193"><a href="#cb20-193" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-194"><a href="#cb20-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-195"><a href="#cb20-195" aria-hidden="true" tabindex="-1"></a>The aggregate loss is useful for a declared mixture but cannot replace the rows from which it was calculated. A model intended for a multilingual or technical application requires validation evidence for those conditions. Holding out a generic sample of the same source pool is a narrower claim.</span>
+<span id="cb20-196"><a href="#cb20-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-197"><a href="#cb20-197" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scale has several bottlenecks</span></span>
+<span id="cb20-198"><a href="#cb20-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-199"><a href="#cb20-199" aria-hidden="true" tabindex="-1"></a>Parameter count measures stored learned values, not the full resource requirement. Training tokens measure prediction events under a tokenizer, not the diversity or quality of documents. FLOP estimates measure arithmetic under assumptions, not the wall-clock cost of moving data and synchronising devices. Context length affects attention and activation memory. Batch size affects the number of updates for a fixed token budget and can interact with optimiser settings. These quantities should be reported together because changing one can change the useful allocation of the others.</span>
+<span id="cb20-200"><a href="#cb20-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-201"><a href="#cb20-201" aria-hidden="true" tabindex="-1"></a>The compute-optimal results of Hoffmann and colleagues apply to their measured Transformer family, data, and training setup <span class="co">[</span><span class="ot">@hoffmann2022training</span><span class="co">]</span>. They provide evidence that model and data allocation matters under a compute budget. They do not provide a universal ratio that can be transferred without checking objective, data mixture, architecture, sequence length, and target deployment constraints. Scaling work is most useful when it leads to smaller controlled runs, documented extrapolations, and tests of the assumptions that support a large run.</span>
+<span id="cb20-202"><a href="#cb20-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-205"><a href="#cb20-205" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-206"><a href="#cb20-206" aria-hidden="true" tabindex="-1"></a>parameter_counts<span class="op">=</span>np.array([<span class="fl">1e8</span>,<span class="fl">1e9</span>,<span class="fl">1e10</span>])</span>
+<span id="cb20-207"><a href="#cb20-207" aria-hidden="true" tabindex="-1"></a>token_budgets<span class="op">=</span>np.array([<span class="fl">2e9</span>,<span class="fl">2e10</span>,<span class="fl">2e11</span>])</span>
+<span id="cb20-208"><a href="#cb20-208" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> params,tokens <span class="kw">in</span> <span class="bu">zip</span>(parameter_counts,token_budgets):</span>
+<span id="cb20-209"><a href="#cb20-209" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"parameters=</span><span class="sc">{</span>params<span class="sc">:.0e}</span><span class="ss">, tokens=</span><span class="sc">{</span>tokens<span class="sc">:.0e}</span><span class="ss">, tokens/parameter=</span><span class="sc">{</span>tokens<span class="op">/</span>params<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
+<span id="cb20-210"><a href="#cb20-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-211"><a href="#cb20-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-212"><a href="#cb20-212" aria-hidden="true" tabindex="-1"></a><span class="fu">### Base-model claims need proportionate language</span></span>
+<span id="cb20-213"><a href="#cb20-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-214"><a href="#cb20-214" aria-hidden="true" tabindex="-1"></a>Pretraining can produce useful representations and conditional distributions across a wide range of text. It does not show that a system follows instructions, reports sources, abstains appropriately, protects private information, or remains reliable under a changed task distribution. Those behaviours require their own training, interface design, and evaluation. A report should therefore distinguish “the model was pretrained on” from “the deployed system was shown to do”.</span>
+<span id="cb20-215"><a href="#cb20-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-216"><a href="#cb20-216" aria-hidden="true" tabindex="-1"></a>This distinction also prevents an opaque model scale claim from standing in for evidence. A model can be larger while having a narrower data mixture, a shorter context, a different objective, or less suitable evaluation. The relevant comparison begins with matched definitions and ends with tests that represent the intended use.</span>
+<span id="cb20-217"><a href="#cb20-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-218"><a href="#cb20-218" aria-hidden="true" tabindex="-1"></a><span class="fu">### A pretraining claim requires a data and run record</span></span>
+<span id="cb20-219"><a href="#cb20-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-220"><a href="#cb20-220" aria-hidden="true" tabindex="-1"></a>An audit should record architecture and parameter count; tokenizer version; objective and target mask; source list and dates; filtering and deduplication procedures; mixture weights and resampling; raw, retained, and processed tokens; sequence and packing policy; batch and optimiser configuration; precision and hardware; checkpoints; validation construction; contamination checks; and stopping rule.</span>
+<span id="cb20-221"><a href="#cb20-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-224"><a href="#cb20-224" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-225"><a href="#cb20-225" aria-hidden="true" tabindex="-1"></a>run_record<span class="op">=</span>{<span class="st">"tokenizer"</span>:<span class="st">"versioned vocabulary"</span>,<span class="st">"objective"</span>:<span class="st">"causal next-token"</span>,<span class="st">"valid_tokens"</span>:<span class="dv">300_000_000_000</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"mixture"</span>:<span class="st">"documented weights"</span>}</span>
+<span id="cb20-226"><a href="#cb20-226" aria-hidden="true" tabindex="-1"></a>required<span class="op">=</span>{<span class="st">"tokenizer"</span>,<span class="st">"objective"</span>,<span class="st">"valid_tokens"</span>,<span class="st">"max_length"</span>,<span class="st">"mixture"</span>}</span>
+<span id="cb20-227"><a href="#cb20-227" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> required <span class="op">&lt;=</span> <span class="bu">set</span>(run_record)</span>
+<span id="cb20-228"><a href="#cb20-228" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"minimum run-record fields present"</span>)</span>
+<span id="cb20-229"><a href="#cb20-229" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-230"><a href="#cb20-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-231"><a href="#cb20-231" aria-hidden="true" tabindex="-1"></a>Average validation loss can conceal failure on rare inputs, arithmetic, long contexts, low-resource languages, or tasks requiring external evidence. It is therefore one form of evidence alongside coverage analysis, contamination checks, memorisation testing, and task-specific evaluation. Optimising token-level likelihood does not resolve copyright, privacy, data-governance, or downstream reliability questions.</span>
+<span id="cb20-232"><a href="#cb20-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-235"><a href="#cb20-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb20-236"><a href="#cb20-236" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-evidence-boundaries</span></span>
+<span id="cb20-237"><a href="#cb20-237" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Held-out loss is one form of evidence; coverage, contamination, memorisation, and downstream reliability need separate checks."</span></span>
+<span id="cb20-238"><a href="#cb20-238" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A held-out loss box is connected to boxes for coverage, contamination checks, memorisation tests, and task evaluation."</span></span>
+<span id="cb20-239"><a href="#cb20-239" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb20-240"><a href="#cb20-240" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"held-out</span><span class="ch">\n</span><span class="st">loss"</span>,teal,<span class="fl">3.6</span>,<span class="fl">1.45</span>),(<span class="st">"coverage"</span>,blue,<span class="fl">.4</span>,<span class="fl">2.45</span>),(<span class="st">"contamination"</span>,orange,<span class="fl">3.6</span>,<span class="fl">2.45</span>),(<span class="st">"memorisation"</span>,purple,<span class="fl">6.8</span>,<span class="fl">2.45</span>),(<span class="st">"task evaluation"</span>,blue,<span class="fl">3.6</span>,<span class="fl">.35</span>)]</span>
+<span id="cb20-241"><a href="#cb20-241" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,x,y <span class="kw">in</span> items: ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb20-242"><a href="#cb20-242" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> dest <span class="kw">in</span> [(<span class="fl">2.2</span>,<span class="fl">2.7</span>),(<span class="fl">4.5</span>,<span class="fl">2.45</span>),(<span class="fl">6.8</span>,<span class="fl">2.7</span>),(<span class="fl">4.5</span>,<span class="fl">.83</span>)]: ax.add_patch(FancyArrowPatch((<span class="fl">4.5</span>,<span class="fl">1.93</span>),dest,arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">10</span>))</span>
+<span id="cb20-243"><a href="#cb20-243" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb20-244"><a href="#cb20-244" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb20-245"><a href="#cb20-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-246"><a href="#cb20-246" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb20-247"><a href="#cb20-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-248"><a href="#cb20-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Pretraining data are a random sample of the web.** Collection, access, filtering, and sampling construct the training distribution.</span>
+<span id="cb20-249"><a href="#cb20-249" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**More raw documents mean more effective data.** Duplicates, mixture weights, tokenisation, and repetitions determine exposure.</span>
+<span id="cb20-250"><a href="#cb20-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Self-supervision removes data-quality concerns.** It removes separate labels, not errors or exclusions in sequence data.</span>
+<span id="cb20-251"><a href="#cb20-251" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A scaling law guarantees broad capability gains.** It describes measured loss relations under stated conditions.</span>
+<span id="cb20-252"><a href="#cb20-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A low validation loss rules out contamination.** Contamination needs direct checks against the relevant evaluation material.</span>
+<span id="cb20-253"><a href="#cb20-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-254"><a href="#cb20-254" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb20-255"><a href="#cb20-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-256"><a href="#cb20-256" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Distinguish raw corpus, retained corpus, and sampled token stream.</span>
+<span id="cb20-257"><a href="#cb20-257" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Explain how a smaller source can receive more exposure than a larger source.</span>
+<span id="cb20-258"><a href="#cb20-258" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Calculate steps for a token budget and global token batch size.</span>
+<span id="cb20-259"><a href="#cb20-259" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Compare exact and near-duplicate removal.</span>
+<span id="cb20-260"><a href="#cb20-260" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Explain why contamination changes a benchmark score's interpretation.</span>
+<span id="cb20-261"><a href="#cb20-261" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Draw causal and masked objective information boundaries.</span>
+<span id="cb20-262"><a href="#cb20-262" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Give an example of a source-stratified validation slice.</span>
+<span id="cb20-263"><a href="#cb20-263" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Calculate a weighted loss from supplied component losses.</span>
+<span id="cb20-264"><a href="#cb20-264" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>State why parameter count does not identify a training objective.</span>
+<span id="cb20-265"><a href="#cb20-265" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>List four costs omitted by a simple parameter-times-token estimate.</span>
+<span id="cb20-266"><a href="#cb20-266" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Explain why epoch count may be ambiguous under resampling.</span>
+<span id="cb20-267"><a href="#cb20-267" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Design a test for document-boundary leakage in packed sequences.</span>
+<span id="cb20-268"><a href="#cb20-268" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>Identify a data decision that can affect a low-resource language.</span>
+<span id="cb20-269"><a href="#cb20-269" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>State why held-out loss and task performance are distinct evidence.</span>
+<span id="cb20-270"><a href="#cb20-270" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>List the metadata needed to interpret a reported pretraining loss.</span>
+<span id="cb20-271"><a href="#cb20-271" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that treats finite inference contexts.</span>
+<span id="cb20-272"><a href="#cb20-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-273"><a href="#cb20-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb20-274"><a href="#cb20-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-275"><a href="#cb20-275" aria-hidden="true" tabindex="-1"></a>Pretraining fits a model to a constructed stream of token sequences under a specified objective. Source collection, filtering, deduplication, tokenisation, mixture weights, document boundaries, token budget, model capacity, and compute all affect the resulting base model.</span>
+<span id="cb20-276"><a href="#cb20-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-277"><a href="#cb20-277" aria-hidden="true" tabindex="-1"></a>Scaling findings help plan work within their measured regimes, but they do not replace documentation, contamination checks, coverage analysis, or targeted evaluation. <span class="co">[</span><span class="ot">Chapter 27</span><span class="co">](27-context-windows-model-inference.qmd)</span> examines finite contexts and cache mechanics at inference; Chapter 29 examines supervised adaptation for instruction-following behaviour.</span>
+<span id="cb20-278"><a href="#cb20-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-279"><a href="#cb20-279" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb20-280"><a href="#cb20-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-281"><a href="#cb20-281" aria-hidden="true" tabindex="-1"></a>Pretraining produces a checkpoint under a finite token budget and an explicit data contract. <span class="co">[</span><span class="ot">Chapter 27</span><span class="co">](27-context-windows-model-inference.qmd)</span> turns to the different constraint at inference time: what information can fit into a request and what it costs the model to use it.</span>
+<span id="cb20-282"><a href="#cb20-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-283"><a href="#cb20-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
+<span id="cb20-284"><a href="#cb20-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-285"><a href="#cb20-285" aria-hidden="true" tabindex="-1"></a>Scaling laws for language models are documented by @kaplan2020scaling. Compute-optimal allocation between parameters and training tokens is investigated by @hoffmann2022training. Dataset documentation principles are developed by @gebru2021datasheets.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

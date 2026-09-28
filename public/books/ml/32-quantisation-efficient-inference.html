@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Quantisation and Efficient Inference ‚Äì Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "‚Üê sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -605,7 +570,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-quantisation-map" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -613,13 +578,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"float weights</span><span class="ch">\n</span><span class="st">[-0.8, 0.2, 1.1]"</span>,blue),(<span class="fl">3.35</span>,<span class="st">"integer codes</span><span class="ch">\n</span><span class="st">[-3, 1, 4]"</span>,orange),(<span class="fl">6.45</span>,<span class="st">"reconstructed</span><span class="ch">\n</span><span class="st">[-0.75, 0.25, 1.0]"</span>,teal)]: ax.add_patch(Rectangle((x,<span class="fl">1.2</span>),<span class="fl">2.0</span>,<span class="fl">.65</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="dv">1</span>,<span class="fl">1.525</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label <span class="kw">in</span> [(<span class="fl">2.3</span>,<span class="st">"quantise"</span>),(<span class="fl">5.4</span>,<span class="st">"dequantise"</span>)]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.525</span>),(x<span class="op">+</span><span class="fl">.95</span>,<span class="fl">1.525</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">12</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.47</span>,<span class="fl">.95</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-quantisation-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram shows floating values mapped to integer codes then reconstructed into nearby floating values.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-quantisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="32-quantisation-efficient-inference_files/figure-html/fig-quantisation-map-output-1.png" class="img-fluid figure-img" alt="A diagram shows floating values mapped to integer codes then reconstructed into nearby floating values.">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-quantisation-map-output-1.png" alt="A diagram shows floating values mapped to integer codes then reconstructed into nearby floating values." width="689" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quantisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;33.1: Quantisation maps floating-point values to a finite integer code range and reconstructs approximate values using stored scale information.
@@ -639,11 +604,11 @@ Figure&nbsp;33.1: Quantisation maps floating-point values to a finite integer co
 <h3 class="anchored" data-anchor-id="fewer-bits-trade-representation-detail-for-resource-use">Fewer bits trade representation detail for resource use</h3>
 <p>A floating-point tensor stores values with a wide numerical range and finite precision. A quantised tensor stores codes from a smaller set, plus scales and sometimes zero points that map codes back to approximate values. Fewer bits reduce the raw weight footprint. They can also reduce data movement, which is frequently a practical bottleneck in generation. The conversion discards detail, so task behaviour must be checked after conversion.</p>
 <p>For a model with (P) weights, a simple storage estimate is (Pb/8) bytes for (b)-bit values, before scales, metadata, packing overhead, and non-quantised tensors. This calculation is useful for capacity planning but is not a measured memory requirement.</p>
-<div id="16ad62d6" class="cell" data-execution_count="2">
+<div id="4b934280" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bits <span class="kw">in</span> [<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>]: <span class="bu">print</span>(bits,<span class="st">"bit raw weight GiB:"</span>,<span class="bu">round</span>(parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span>,<span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> bits <span class="kw">in</span> [<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>]: <span class="bu">print</span>(bits,<span class="st">"bit raw weight GiB:"</span>,<span class="bu">round</span>(parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span>,<span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>16 bit raw weight GiB: 13.04
@@ -654,14 +619,14 @@ Figure&nbsp;33.1: Quantisation maps floating-point values to a finite integer co
 <div id="cell-fig-weight-memory" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bits<span class="op">=</span>np.array([<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>])<span class="op">;</span> gib<span class="op">=</span>parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"16-bit"</span>,<span class="st">"8-bit"</span>,<span class="st">"4-bit"</span>],gib,color<span class="op">=</span>[blue,teal,orange])<span class="op">;</span> ax.set_ylabel(<span class="st">"raw weight storage (GiB)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Raw storage estimate before quantisation overhead"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bits<span class="op">=</span>np.array([<span class="dv">16</span>,<span class="dv">8</span>,<span class="dv">4</span>])<span class="op">;</span> gib<span class="op">=</span>parameters<span class="op">*</span>bits<span class="op">/</span><span class="dv">8</span><span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar([<span class="st">"16-bit"</span>,<span class="st">"8-bit"</span>,<span class="st">"4-bit"</span>],gib,color<span class="op">=</span>[blue,teal,orange])<span class="op">;</span> ax.set_ylabel(<span class="st">"raw weight storage (GiB)"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Raw storage estimate before quantisation overhead"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-weight-memory" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart compares illustrative raw storage of a seven-billion-parameter model at 16, 8, and 4 bits.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-weight-memory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="32-quantisation-efficient-inference_files/figure-html/fig-weight-memory-output-1.png" class="img-fluid figure-img" alt="A bar chart compares illustrative raw storage of a seven-billion-parameter model at 16, 8, and 4 bits.">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-weight-memory-output-1.png" alt="A bar chart compares illustrative raw storage of a seven-billion-parameter model at 16, 8, and 4 bits." width="663" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-weight-memory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;33.2: Lower stored bit width reduces raw weight-memory requirements, while scales, metadata, and unquantised tensors add overhead.
@@ -682,17 +647,17 @@ Figure&nbsp;33.2: Lower stored bit width reduces raw weight-memory requirements,
 <section id="a-simple-affine-quantiser" class="level3">
 <h3 class="anchored" data-anchor-id="a-simple-affine-quantiser">A simple affine quantiser</h3>
 <p>For symmetric signed quantisation, a scale can map a maximum magnitude to the largest available integer code. Values are divided by the scale, rounded, clipped to the integer range, and reconstructed by multiplying the code by the scale. Real systems add choices about group size, outliers, zero points, packing, and kernel layout.</p>
-<div id="2b481fe7" class="cell" data-execution_count="4">
+<div id="5631ff5d" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">.83</span>,<span class="op">-</span><span class="fl">.31</span>,<span class="fl">.18</span>,<span class="fl">.62</span>,<span class="fl">1.04</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">.83</span>,<span class="op">-</span><span class="fl">.31</span>,<span class="fl">.18</span>,<span class="fl">.62</span>,<span class="fl">1.04</span>])</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>qmax<span class="op">=</span><span class="dv">7</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x))<span class="op">/</span>qmax</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>codes<span class="op">=</span>np.clip(np.<span class="bu">round</span>(x<span class="op">/</span>scale),<span class="op">-</span>qmax,qmax).astype(<span class="bu">int</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>reconstructed<span class="op">=</span>codes<span class="op">*</span>scale</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scale:"</span>,<span class="bu">round</span>(scale,<span class="dv">3</span>),<span class="st">"codes:"</span>,codes)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reconstructed:"</span>,np.<span class="bu">round</span>(reconstructed,<span class="dv">3</span>))</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max absolute error:"</span>,<span class="bu">round</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x<span class="op">-</span>reconstructed)),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max absolute error:"</span>,<span class="bu">round</span>(np.<span class="bu">max</span>(np.<span class="bu">abs</span>(x<span class="op">-</span>reconstructed)),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>scale: 0.149 codes: [-6 -2  1  4  7]
@@ -703,13 +668,13 @@ max absolute error: 0.061</code></pre>
 <div id="cell-fig-reconstruction-error" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>,<span class="fl">4.5</span>))<span class="op">;</span> ax.scatter(x,reconstructed,color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">65</span>)<span class="op">;</span> ax.plot([<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],[<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],color<span class="op">=</span>grey,ls<span class="op">=</span><span class="st">"--"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"original"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"reconstructed"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Toy quantisation reconstruction"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>,<span class="fl">4.5</span>))<span class="op">;</span> ax.scatter(x,reconstructed,color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">65</span>)<span class="op">;</span> ax.plot([<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],[<span class="op">-</span><span class="fl">1.1</span>,<span class="fl">1.1</span>],color<span class="op">=</span>grey,ls<span class="op">=</span><span class="st">"--"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"original"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"reconstructed"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Toy quantisation reconstruction"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-reconstruction-error" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A scatter plot compares original vector values with reconstructed values, alongside a diagonal equality line.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reconstruction-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="32-quantisation-efficient-inference_files/figure-html/fig-reconstruction-error-output-1.png" class="img-fluid figure-img" alt="A scatter plot compares original vector values with reconstructed values, alongside a diagonal equality line.">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-reconstruction-error-output-1.png" alt="A scatter plot compares original vector values with reconstructed values, alongside a diagonal equality line." width="519" height="422" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reconstruction-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;33.3: Quantised reconstruction replaces each original value with a nearby representable level; the error depends on scale and code range.
@@ -722,13 +687,13 @@ Figure&nbsp;33.3: Quantised reconstruction replaces each original value with a n
 <section id="scales-determine-where-error-falls" class="level3">
 <h3 class="anchored" data-anchor-id="scales-determine-where-error-falls">Scales determine where error falls</h3>
 <p>One scale for a whole tensor is simple but can represent small values poorly when a few outliers determine the range. Per-channel or groupwise scaling uses more scale values and metadata while allowing each channel or group a more suitable range. The group definition must be recorded because it changes the representation and can change accuracy.</p>
-<div id="692606e8" class="cell" data-execution_count="6">
+<div id="c2a51bbd" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([[<span class="fl">.02</span>,<span class="fl">.04</span>,<span class="fl">.08</span>,<span class="fl">1.1</span>],[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.06</span>,<span class="fl">.09</span>]])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([[<span class="fl">.02</span>,<span class="fl">.04</span>,<span class="fl">.08</span>,<span class="fl">1.1</span>],[<span class="fl">.01</span>,<span class="fl">.03</span>,<span class="fl">.06</span>,<span class="fl">.09</span>]])</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>global_scale<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights))<span class="op">/</span><span class="dv">7</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>row_scales<span class="op">=</span>np.<span class="bu">max</span>(np.<span class="bu">abs</span>(weights),axis<span class="op">=</span><span class="dv">1</span>)<span class="op">/</span><span class="dv">7</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"global scale:"</span>,<span class="bu">round</span>(global_scale,<span class="dv">3</span>),<span class="st">"row scales:"</span>,np.<span class="bu">round</span>(row_scales,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"global scale:"</span>,<span class="bu">round</span>(global_scale,<span class="dv">3</span>),<span class="st">"row scales:"</span>,np.<span class="bu">round</span>(row_scales,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>global scale: 0.157 row scales: [0.157 0.013]</code></pre>
@@ -744,13 +709,13 @@ Figure&nbsp;33.3: Quantised reconstruction replaces each original value with a n
 <div id="cell-fig-memory-components" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> components<span class="op">=</span>np.array([<span class="dv">10</span>,<span class="dv">2</span>,<span class="dv">5</span>])<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">0</span>],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"weights"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">1</span>],bottom<span class="op">=</span>components[<span class="dv">0</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"temporary activations"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">2</span>],bottom<span class="op">=</span>components[:<span class="dv">2</span>].<span class="bu">sum</span>(),color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"KV cache"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_ylabel(<span class="st">"relative memory"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Quantisation targets have distinct memory roles"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> components<span class="op">=</span>np.array([<span class="dv">10</span>,<span class="dv">2</span>,<span class="dv">5</span>])<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">0</span>],color<span class="op">=</span>blue,label<span class="op">=</span><span class="st">"weights"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">1</span>],bottom<span class="op">=</span>components[<span class="dv">0</span>],color<span class="op">=</span>orange,label<span class="op">=</span><span class="st">"temporary activations"</span>)<span class="op">;</span> ax.bar([<span class="st">"inference request"</span>],components[<span class="dv">2</span>],bottom<span class="op">=</span>components[:<span class="dv">2</span>].<span class="bu">sum</span>(),color<span class="op">=</span>teal,label<span class="op">=</span><span class="st">"KV cache"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_ylabel(<span class="st">"relative memory"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Quantisation targets have distinct memory roles"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-memory-components" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A stacked bar separates weights, temporary activations, and KV cache, with annotations for independent precision choices.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-memory-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="32-quantisation-efficient-inference_files/figure-html/fig-memory-components-output-1.png" class="img-fluid figure-img" alt="A stacked bar separates weights, temporary activations, and KV cache, with annotations for independent precision choices.">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-memory-components-output-1.png" alt="A stacked bar separates weights, temporary activations, and KV cache, with annotations for independent precision choices." width="759" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-memory-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;33.4: Inference memory includes static weights, temporary activations, and a length-dependent key-value cache; each component can use a different precision.
@@ -764,12 +729,12 @@ Figure&nbsp;33.4: Inference memory includes static weights, temporary activation
 <section id="calibration-and-validation-must-follow-conversion" class="level3">
 <h3 class="anchored" data-anchor-id="calibration-and-validation-must-follow-conversion">Calibration and validation must follow conversion</h3>
 <p>Post-training quantisation may use representative activations to choose scales or protect outlier channels. The calibration set should resemble the declared workload in language, length, formatting, and task type. Calibrating only short generic prompts then claiming a result for long code or multilingual documents leaves an untested gap.</p>
-<div id="2a344af7" class="cell" data-execution_count="8">
+<div id="88deb817" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>baseline<span class="op">=</span>np.array([<span class="fl">.62</span>,<span class="fl">.58</span>,<span class="fl">.71</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>baseline<span class="op">=</span>np.array([<span class="fl">.62</span>,<span class="fl">.58</span>,<span class="fl">.71</span>])</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>quantised<span class="op">=</span>np.array([<span class="fl">.61</span>,<span class="fl">.57</span>,<span class="fl">.68</span>])</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task deltas:"</span>,np.<span class="bu">round</span>(quantised<span class="op">-</span>baseline,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"task deltas:"</span>,np.<span class="bu">round</span>(quantised<span class="op">-</span>baseline,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>task deltas: [-0.01 -0.01 -0.03]</code></pre>
@@ -780,13 +745,13 @@ Figure&nbsp;33.4: Inference memory includes static weights, temporary activation
 <h3 class="anchored" data-anchor-id="numerical-error-accumulates-through-a-generation-loop">Numerical error accumulates through a generation loop</h3>
 <p>Quantisation does not perturb one isolated matrix multiplication. A generated token changes the next prefix, which changes attention keys, values, and later logits. Small differences can leave a short deterministic output unchanged or lead to a different token after a close decision, after which the two generations follow different prefixes. Output disagreement is therefore expected to be task- and decoding-dependent, not proof by itself that conversion failed.</p>
 <p>The useful comparison separates numerical equivalence tests from behaviour tests. On a small fixed reference input, compare intermediate or next-token logits within a stated tolerance. On a task suite, compare outcome scores and error categories. On a serving workload, compare memory and latency at the prompt lengths and concurrency that matter. Each test identifies a different conversion property.</p>
-<div id="98128c61" class="cell" data-execution_count="9">
+<div id="2ef07f60" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>baseline_logits<span class="op">=</span>np.array([<span class="fl">2.001</span>,<span class="fl">1.200</span>,<span class="fl">.302</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>baseline_logits<span class="op">=</span>np.array([<span class="fl">2.001</span>,<span class="fl">1.200</span>,<span class="fl">.302</span>])</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>quantised_logits<span class="op">=</span>np.array([<span class="fl">1.996</span>,<span class="fl">1.205</span>,<span class="fl">.297</span>])</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"max logit difference:"</span>,np.<span class="bu">max</span>(np.<span class="bu">abs</span>(baseline_logits<span class="op">-</span>quantised_logits)))</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same greedy token:"</span>,baseline_logits.argmax()<span class="op">==</span>quantised_logits.argmax())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"same greedy token:"</span>,baseline_logits.argmax()<span class="op">==</span>quantised_logits.argmax())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>max logit difference: 0.0050000000000001155
@@ -797,12 +762,12 @@ same greedy token: True</code></pre>
 <section id="quantisation-policy-should-include-fallback-behaviour" class="level3">
 <h3 class="anchored" data-anchor-id="quantisation-policy-should-include-fallback-behaviour">Quantisation policy should include fallback behaviour</h3>
 <p>Some deployments keep selected modules in higher precision because they are sensitive to a conversion method or because a runtime lacks a suitable kernel. Others route long-context or high-stakes requests to a higher-precision model. A fallback is not a defect, but it changes cost and comparability. The policy should state when it is triggered and report how often it occurs in the intended workload.</p>
-<div id="74cdab01" class="cell" data-execution_count="10">
+<div id="04b33e81" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>request<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">12000</span>,<span class="st">"task"</span>:<span class="st">"source-grounded answer"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>request<span class="op">=</span>{<span class="st">"prompt_tokens"</span>:<span class="dv">12000</span>,<span class="st">"task"</span>:<span class="st">"source-grounded answer"</span>}</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>route<span class="op">=</span><span class="st">"higher precision"</span> <span class="cf">if</span> request[<span class="st">"prompt_tokens"</span>]<span class="op">&gt;</span><span class="dv">8192</span> <span class="cf">else</span> <span class="st">"quantised"</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"route:"</span>,route)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"route:"</span>,route)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>route: higher precision</code></pre>
@@ -815,12 +780,12 @@ same greedy token: True</code></pre>
 <section id="a-quantised-checkpoint-requires-a-conversion-record" class="level3">
 <h3 class="anchored" data-anchor-id="a-quantised-checkpoint-requires-a-conversion-record">A quantised checkpoint requires a conversion record</h3>
 <p>The record should state base checkpoint hash, tokenizer, source dtype, weight and activation formats, group size, scales and zero-point method, exempt modules, calibration data and procedure, compute accumulation dtype, cache format, runtime and kernel version, hardware, merge status for adapters, and output artifact hashes. A conversion cannot be audited from a filename such as <code>model-4bit</code>.</p>
-<div id="686e9482" class="cell" data-execution_count="11">
+<div id="361dd7f3" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>conversion<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"weight_format"</span>:<span class="st">"int4 groupwise"</span>,<span class="st">"group_size"</span>:<span class="dv">128</span>,<span class="st">"compute_dtype"</span>:<span class="st">"float16"</span>,<span class="st">"kv_cache"</span>:<span class="st">"float16"</span>,<span class="st">"runtime"</span>:<span class="st">"versioned"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>conversion<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"weight_format"</span>:<span class="st">"int4 groupwise"</span>,<span class="st">"group_size"</span>:<span class="dv">128</span>,<span class="st">"compute_dtype"</span>:<span class="st">"float16"</span>,<span class="st">"kv_cache"</span>:<span class="st">"float16"</span>,<span class="st">"runtime"</span>:<span class="st">"versioned"</span>}</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"base_hash"</span>,<span class="st">"weight_format"</span>,<span class="st">"compute_dtype"</span>,<span class="st">"runtime"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(conversion)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"conversion record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"conversion record complete"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>conversion record complete</code></pre>
@@ -833,15 +798,15 @@ same greedy token: True</code></pre>
 <div id="cell-fig-conversion-audit" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.8</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.8</span>,<span class="fl">3.2</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"baseline</span><span class="ch">\n</span><span class="st">checkpoint"</span>,blue),(<span class="fl">2.45</span>,<span class="st">"quantised</span><span class="ch">\n</span><span class="st">checkpoint"</span>,orange),(<span class="fl">5.0</span>,<span class="st">"fixed task</span><span class="ch">\n</span><span class="st">and output tests"</span>,teal),(<span class="fl">7.2</span>,<span class="st">"serving</span><span class="ch">\n</span><span class="st">benchmark"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.5</span>,<span class="fl">.6</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.75</span>,<span class="fl">1.55</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Hold input, tokenizer, and policy fixed for the accuracy comparison."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.55</span>,<span class="st">"Hold input, tokenizer, and policy fixed for the accuracy comparison."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-conversion-audit" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A diagram connects baseline and quantised models to shared task evaluation and shared serving benchmarks.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-conversion-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="32-quantisation-efficient-inference_files/figure-html/fig-conversion-audit-output-1.png" class="img-fluid figure-img" alt="A diagram connects baseline and quantised models to shared task evaluation and shared serving benchmarks.">
+<img src="32-quantisation-efficient-inference_files/figure-html/fig-conversion-audit-output-1.png" alt="A diagram connects baseline and quantised models to shared task evaluation and shared serving benchmarks." width="674" height="256" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-conversion-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;33.5: Quantisation validation compares a baseline and converted checkpoint on fixed outputs, task scores, memory, latency, and context-boundary behaviour.
@@ -899,7 +864,7 @@ Figure&nbsp;33.5: Quantisation validation compares a baseline and converted chec
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-dettmers2023qlora" class="csl-entry" role="listitem">
 Dettmers, Tim, Artidoro Pagnoni, Ari Holtzman, and Luke Zettlemoyer. 2023. <span>‚ÄúQLo<span>RA</span>: Efficient Finetuning of Quantized <span>LLM</span>s.‚Äù</span> <em>Advances in Neural Information Processing Systems</em> 36: 10088‚Äì115. <a href="https://arxiv.org/abs/2305.14314">https://arxiv.org/abs/2305.14314</a>.
 </div>
@@ -961,13 +926,14 @@ Frantar, Elias, Saleh Ashkboos, Torsten Hoefler, and Dan Alistarh. 2023. <span>‚
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1001,16 +967,16 @@ Frantar, Elias, Saleh Ashkboos, Torsten Hoefler, and Dan Alistarh. 2023. <span>‚
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1372,7 +1338,7 @@ Frantar, Elias, Saleh Ashkboos, Torsten Hoefler, and Dan Alistarh. 2023. <span>‚
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Quantisation and Efficient Inference"</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Lower-precision representations, memory budgets, and accuracy checks"</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1595,7 +1561,7 @@ Frantar, Elias, Saleh Ashkboos, Torsten Hoefler, and Dan Alistarh. 2023. <span>‚
 <span id="cb20-245"><a href="#cb20-245" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb20-246"><a href="#cb20-246" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-247"><a href="#cb20-247" aria-hidden="true" tabindex="-1"></a>QLoRA combines low-rank adaptation with a quantised base model <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>. GPTQ provides one post-training quantisation approach for generative models <span class="co">[</span><span class="ot">@frantar2022gptq</span><span class="co">]</span>.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

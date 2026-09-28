@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>What Makes a Reasoning Model? – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -604,7 +569,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-reasoning-loop" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -612,13 +577,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="st">"problem"</span>,blue),(<span class="fl">2.05</span>,<span class="st">"candidate</span><span class="ch">\n</span><span class="st">generation"</span>,teal),(<span class="fl">4.2</span>,<span class="st">"verifier or</span><span class="ch">\n</span><span class="st">selection"</span>,orange),(<span class="fl">6.4</span>,<span class="st">"selected</span><span class="ch">\n</span><span class="st">answer"</span>,purple)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.45</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.725</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.78</span>,<span class="fl">3.78</span>,<span class="fl">5.98</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.25</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"Tokens, samples, verifier calls, and latency are part of the reasoning-system budget."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.8</span>,<span class="fl">.55</span>,<span class="st">"Tokens, samples, verifier calls, and latency are part of the reasoning-system budget."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.4</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-reasoning-loop" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A prompt flows to candidate generation, verification, selection, and answer, with a budget label spanning the loop.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reasoning-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-reasoning-loop-output-1.png" class="img-fluid figure-img" alt="A prompt flows to candidate generation, verification, selection, and answer, with a budget label spanning the loop.">
+<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-reasoning-loop-output-1.png" alt="A prompt flows to candidate generation, verification, selection, and answer, with a budget label spanning the loop." width="763" height="271" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reasoning-loop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;36.1: A reasoning system can generate candidates, apply a verifier or selection rule, and return one answer under a finite inference-time budget.
@@ -641,11 +606,11 @@ Figure&nbsp;36.1: A reasoning system can generate candidates, apply a verifier o
 <h3 class="anchored" data-anchor-id="reasoning-is-a-system-property-under-a-task-definition">Reasoning is a system property under a task definition</h3>
 <p>A base model predicts a continuation from its prompt. Instruction tuning changes the response convention. A reasoning-tuned system may additionally be trained to produce intermediate work, reward verifiable outcomes, sample alternative solutions, or use more time before selecting an answer. The label should describe an observed mechanism and task result, not a marketing category.</p>
 <p>For an arithmetic expression, a model can answer immediately, write a calculation, generate several calculations and vote, or use a calculator tool. These may have different accuracy, token cost, and failure patterns. A system that calls a calculator can be reliable on arithmetic without demonstrating a general internal ability to reason about every task. A system that writes a long explanation can be incorrect despite a fluent trace.</p>
-<div id="a0ce6f25" class="cell" data-execution_count="2">
+<div id="adc7aa9c" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>strategies<span class="op">=</span>{<span class="st">"direct"</span>:<span class="st">"one answer"</span>,<span class="st">"rationale"</span>:<span class="st">"answer with steps"</span>,<span class="st">"sample-and-select"</span>:<span class="st">"several candidates plus selection"</span>,<span class="st">"tool-assisted"</span>:<span class="st">"external calculation"</span>}</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,description <span class="kw">in</span> strategies.items(): <span class="bu">print</span>(name<span class="op">+</span><span class="st">":"</span>,description)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>strategies<span class="op">=</span>{<span class="st">"direct"</span>:<span class="st">"one answer"</span>,<span class="st">"rationale"</span>:<span class="st">"answer with steps"</span>,<span class="st">"sample-and-select"</span>:<span class="st">"several candidates plus selection"</span>,<span class="st">"tool-assisted"</span>:<span class="st">"external calculation"</span>}</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name,description <span class="kw">in</span> strategies.items(): <span class="bu">print</span>(name<span class="op">+</span><span class="st">":"</span>,description)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>direct: one answer
@@ -664,16 +629,16 @@ tool-assisted: external calculation</code></pre>
 <div id="cell-fig-trace-and-faithfulness" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">2.6</span>,<span class="fl">2.3</span>,<span class="st">"visible</span><span class="ch">\n</span><span class="st">trace"</span>,blue),(<span class="fl">4.3</span>,<span class="fl">2.3</span>,<span class="st">"internal</span><span class="ch">\n</span><span class="st">computation"</span>,teal),(<span class="fl">3.45</span>,<span class="fl">1.25</span>,<span class="st">"correct</span><span class="ch">\n</span><span class="st">answer"</span>,orange)]:</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    circle<span class="op">=</span>plt.Circle((x,y),<span class="fl">1.15</span>,color<span class="op">=</span>c,alpha<span class="op">=</span><span class="fl">.35</span>)<span class="op">;</span> ax.add_patch(circle)<span class="op">;</span> ax.text(x,y,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,weight<span class="op">=</span><span class="st">"bold"</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">1</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">1</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-trace-and-faithfulness" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three overlapping circles are labelled visible trace, internal computation, and correct answer, with no claim that any circle fully contains another.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-trace-and-faithfulness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-trace-and-faithfulness-output-1.png" class="img-fluid figure-img" alt="Three overlapping circles are labelled visible trace, internal computation, and correct answer, with no claim that any circle fully contains another.">
+<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-trace-and-faithfulness-output-1.png" alt="Three overlapping circles are labelled visible trace, internal computation, and correct answer, with no claim that any circle fully contains another." width="540" height="315" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trace-and-faithfulness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;36.2: A visible rationale, internal model computation, and answer correctness are related but distinct objects that require separate evaluation.
@@ -689,12 +654,12 @@ Figure&nbsp;36.2: A visible rationale, internal model computation, and answer co
 <section id="candidate-generation-and-selection-form-a-basic-search-loop" class="level3">
 <h3 class="anchored" data-anchor-id="candidate-generation-and-selection-form-a-basic-search-loop">Candidate generation and selection form a basic search loop</h3>
 <p>Sampling several completions creates a candidate set. A selection rule can choose the highest model score, a majority answer, a verifier-approved candidate, or an externally checked result. The improvement, if any, comes from the combination of candidate diversity and a selection signal that distinguishes better from worse candidates. More samples without a useful selector can simply add cost and inconsistent answers.</p>
-<div id="f5192f73" class="cell" data-execution_count="4">
+<div id="8fafc144" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"valid"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>}]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"valid"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>}]</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>valid<span class="op">=</span>[c[<span class="st">"answer"</span>] <span class="cf">for</span> c <span class="kw">in</span> candidates <span class="cf">if</span> c[<span class="st">"valid"</span>]]</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected answer:"</span>,<span class="bu">max</span>(<span class="bu">set</span>(valid),key<span class="op">=</span>valid.count))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected answer:"</span>,<span class="bu">max</span>(<span class="bu">set</span>(valid),key<span class="op">=</span>valid.count))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>selected answer: 12</code></pre>
@@ -710,16 +675,16 @@ Figure&nbsp;36.2: A visible rationale, internal model computation, and answer co
 <div id="cell-fig-mechanism-map" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.8</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">3.7</span>,<span class="fl">1.55</span>),<span class="fl">1.5</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.45</span>,<span class="fl">1.84</span>,<span class="st">"problem"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y,label,c <span class="kw">in</span> [(<span class="fl">.3</span>,<span class="fl">2.8</span>,<span class="st">"decompose"</span>,teal),(<span class="fl">2.2</span>,<span class="fl">.45</span>,<span class="st">"generate"</span>,orange),(<span class="fl">5.6</span>,<span class="fl">.45</span>,<span class="st">"search"</span>,purple),(<span class="fl">7.3</span>,<span class="fl">2.8</span>,<span class="st">"verify"</span>,teal),(<span class="fl">7.3</span>,<span class="fl">1.3</span>,<span class="st">"tools"</span>,orange)]: ax.add_patch(Rectangle((x,y),<span class="fl">1.25</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.625</span>,y<span class="op">+</span><span class="fl">.25</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.6</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.6</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-mechanism-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A central problem connects to separate boxes for decomposition, candidate generation, search, verification, and tools.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-mechanism-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-mechanism-map-output-1.png" class="img-fluid figure-img" alt="A central problem connects to separate boxes for decomposition, candidate generation, search, verification, and tools.">
+<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-mechanism-map-output-1.png" alt="A central problem connects to separate boxes for decomposition, candidate generation, search, verification, and tools." width="689" height="300" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mechanism-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use are distinct mechanisms that can be combined in a reasoning system.
@@ -732,12 +697,12 @@ Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use 
 <section id="a-budget-makes-the-trade-off-observable" class="level3">
 <h3 class="anchored" data-anchor-id="a-budget-makes-the-trade-off-observable">A budget makes the trade-off observable</h3>
 <p>Inference-time compute can be counted as generated tokens, model forward passes, samples, verifier calls, tool calls, wall-clock time, energy, or monetary cost. These measures are related but not identical. A system may generate fewer tokens but make more expensive verifier calls, or use a long hidden trace with no user-visible explanation. An evaluation should report the resource definition alongside accuracy.</p>
-<div id="7e1ddeef" class="cell" data-execution_count="6">
+<div id="ba255b40" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>budget<span class="op">=</span>{<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"tokens_per_sample"</span>:<span class="dv">250</span>,<span class="st">"verifier_calls"</span>:<span class="dv">8</span>,<span class="st">"latency_seconds"</span>:<span class="fl">4.2</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>budget<span class="op">=</span>{<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"tokens_per_sample"</span>:<span class="dv">250</span>,<span class="st">"verifier_calls"</span>:<span class="dv">8</span>,<span class="st">"latency_seconds"</span>:<span class="fl">4.2</span>}</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"generated tokens:"</span>,budget[<span class="st">"samples"</span>]<span class="op">*</span>budget[<span class="st">"tokens_per_sample"</span>])</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(budget)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(budget)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>generated tokens: 2000
@@ -752,11 +717,11 @@ Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use 
 <section id="reasoning-tuning-changes-a-policy-under-selected-signals" class="level3">
 <h3 class="anchored" data-anchor-id="reasoning-tuning-changes-a-policy-under-selected-signals">Reasoning tuning changes a policy under selected signals</h3>
 <p>Reasoning-oriented training may use demonstrations with intermediate steps, outcomes checked by a verifier, preference comparisons among solutions, or reinforcement learning over multi-step trajectories. The system learns from the data and reward signals available; it does not receive a general proof procedure. A reward based only on final answer can favour lucky or opaque trajectories. A process reward can favour steps that look plausible to its judge without guaranteeing they caused the result.</p>
-<div id="8a738eab" class="cell" data-execution_count="7">
+<div id="ef097681" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>trajectories<span class="op">=</span>[{<span class="st">"steps"</span>:<span class="dv">4</span>,<span class="st">"answer_correct"</span>:<span class="dv">1</span>,<span class="st">"process_score"</span>:<span class="fl">.7</span>},{<span class="st">"steps"</span>:<span class="dv">8</span>,<span class="st">"answer_correct"</span>:<span class="dv">0</span>,<span class="st">"process_score"</span>:<span class="fl">.9</span>}]</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> trajectories: <span class="bu">print</span>(t)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>trajectories<span class="op">=</span>[{<span class="st">"steps"</span>:<span class="dv">4</span>,<span class="st">"answer_correct"</span>:<span class="dv">1</span>,<span class="st">"process_score"</span>:<span class="fl">.7</span>},{<span class="st">"steps"</span>:<span class="dv">8</span>,<span class="st">"answer_correct"</span>:<span class="dv">0</span>,<span class="st">"process_score"</span>:<span class="fl">.9</span>}]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> trajectories: <span class="bu">print</span>(t)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'steps': 4, 'answer_correct': 1, 'process_score': 0.7}
@@ -768,11 +733,11 @@ Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use 
 <section id="latent-computation-has-an-observability-limit" class="level3">
 <h3 class="anchored" data-anchor-id="latent-computation-has-an-observability-limit">Latent computation has an observability limit</h3>
 <p>Internal activations and any hidden intermediate tokens can influence an answer without being available to the user. This can protect proprietary methods or avoid exposing unsafe detailed work, but it limits direct inspection. A system should not substitute an invented visible rationale for an unavailable trace. It can instead report answer confidence limits, tool outputs, verified constraints, and the inference budget used.</p>
-<div id="fce8602a" class="cell" data-execution_count="8">
+<div id="a2649a71" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>audit<span class="op">=</span>{<span class="st">"model"</span>:<span class="st">"versioned"</span>,<span class="st">"samples"</span>:<span class="dv">4</span>,<span class="st">"selector"</span>:<span class="st">"exact verifier"</span>,<span class="st">"visible_rationale"</span>:<span class="va">False</span>,<span class="st">"verified_constraint"</span>:<span class="st">"answer parses"</span>}</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(audit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>audit<span class="op">=</span>{<span class="st">"model"</span>:<span class="st">"versioned"</span>,<span class="st">"samples"</span>:<span class="dv">4</span>,<span class="st">"selector"</span>:<span class="st">"exact verifier"</span>,<span class="st">"visible_rationale"</span>:<span class="va">False</span>,<span class="st">"verified_constraint"</span>:<span class="st">"answer parses"</span>}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(audit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'model': 'versioned', 'samples': 4, 'selector': 'exact verifier', 'visible_rationale': False, 'verified_constraint': 'answer parses'}</code></pre>
@@ -787,17 +752,17 @@ Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use 
 <div id="cell-fig-training-inference-routes" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.7</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>paths<span class="op">=</span>[(<span class="st">"training change</span><span class="ch">\n</span><span class="st">→ one-pass answer"</span>,orange,<span class="fl">2.7</span>),(<span class="st">"base model</span><span class="ch">\n</span><span class="st">→ search + verifier"</span>,teal,<span class="fl">1.8</span>),(<span class="st">"training change</span><span class="ch">\n</span><span class="st">→ search + verifier"</span>,purple,<span class="fl">.9</span>)]</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label,c,y <span class="kw">in</span> paths:</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">.45</span>,y),<span class="fl">2.0</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.45</span>,y<span class="op">+</span><span class="fl">.25</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.add_patch(FancyArrowPatch((<span class="fl">2.5</span>,y<span class="op">+</span><span class="fl">.25</span>),(<span class="fl">4.25</span>,y<span class="op">+</span><span class="fl">.25</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">4.35</span>,y),<span class="fl">1.4</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.05</span>,y<span class="op">+</span><span class="fl">.25</span>,<span class="st">"answer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.2</span>,<span class="fl">.25</span>,<span class="st">"Hold routes fixed or compare them explicitly."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">6.2</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.2</span>,<span class="fl">.25</span>,<span class="st">"Hold routes fixed or compare them explicitly."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">6.2</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.5</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-training-inference-routes" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three paths lead to an answer: reasoning-tuned model with one pass, base model with search and verification, and tuned model with search and verification.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-training-inference-routes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-training-inference-routes-output-1.png" class="img-fluid figure-img" alt="Three paths lead to an answer: reasoning-tuned model with one pass, base model with search and verification, and tuned model with search and verification.">
+<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-training-inference-routes-output-1.png" alt="Three paths lead to an answer: reasoning-tuned model with one pass, base model with search and verification, and tuned model with search and verification." width="689" height="293" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-training-inference-routes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;36.4: Reasoning behaviour can arise from training changes, inference-time procedures, or their combination; evaluation should identify the route used.
@@ -816,17 +781,17 @@ Figure&nbsp;36.4: Reasoning behaviour can arise from training changes, inference
 <div id="cell-fig-reasoning-audit" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[(<span class="st">"search"</span>,<span class="st">"candidate coverage and selection"</span>),(<span class="st">"verification"</span>,<span class="st">"verifier errors and calibration"</span>),(<span class="st">"extra inference"</span>,<span class="st">"accuracy versus cost"</span>),(<span class="st">"visible trace"</span>,<span class="st">"faithfulness intervention"</span>)]</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(claim,test) <span class="kw">in</span> <span class="bu">enumerate</span>(rows):</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.8</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.62</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.45</span>,y),<span class="fl">2.1</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.5</span>,y<span class="op">+</span><span class="fl">.2</span>,claim,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">3.0</span>,y),<span class="fl">4.8</span>,<span class="fl">.4</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">5.4</span>,y<span class="op">+</span><span class="fl">.2</span>,test,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.4</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">8.5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.4</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-reasoning-audit" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A table-like chart maps claimed mechanisms to corresponding tests and resource records.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reasoning-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-reasoning-audit-output-1.png" class="img-fluid figure-img" alt="A table-like chart maps claimed mechanisms to corresponding tests and resource records.">
+<img src="35-what-makes-a-reasoning-model_files/figure-html/fig-reasoning-audit-output-1.png" alt="A table-like chart maps claimed mechanisms to corresponding tests and resource records." width="689" height="278" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reasoning-audit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;36.5: A reasoning-system evaluation links each claimed mechanism to a test: search to candidate selection, verification to verifier accuracy, and extra inference to an accuracy-cost curve.
@@ -840,12 +805,12 @@ Figure&nbsp;36.5: A reasoning-system evaluation links each claimed mechanism to 
 <h3 class="anchored" data-anchor-id="scope-claims-should-remain-narrow">Scope claims should remain narrow</h3>
 <p>Reasoning benchmarks can reward answer formats, familiar problem templates, or verifier-compatible outputs. A gain on one set of mathematical problems does not establish general reasoning across science, law, planning, or open-ended advice. Contamination and benchmark-specific optimisation remain concerns from Chapter 34. The module will therefore report task distributions, inference cost, selected mechanisms, and failure cases rather than treating one score or one trace style as a global capability measure.</p>
 <p>An adequate report begins with the base model and task distribution, then states the generator, candidate budget, tools, verifier, selection rule, stopping rule, and answer interface. It reports the outcome measure and resource measures together, followed by examples of false acceptance, false rejection, exhausted budgets, and cases that the system could not verify. That record does not settle whether a system has a general reasoning capability. It does make the narrower claim inspectable and provides the inputs Chapter 36 needs for a valid evaluation.</p>
-<div id="3212d9cb" class="cell" data-execution_count="11">
+<div id="acf5266f" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable arithmetic"</span>,<span class="st">"base"</span>:<span class="st">"checkpoint-v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact answer"</span>,<span class="st">"cost"</span>:<span class="st">"tokens and latency"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out problems"</span>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable arithmetic"</span>,<span class="st">"base"</span>:<span class="st">"checkpoint-v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact answer"</span>,<span class="st">"cost"</span>:<span class="st">"tokens and latency"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out problems"</span>}</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> {<span class="st">"task"</span>,<span class="st">"samples"</span>,<span class="st">"verifier"</span>,<span class="st">"evaluation"</span>} <span class="op">&lt;=</span> <span class="bu">set</span>(record)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reasoning-system record complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"reasoning-system record complete"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>reasoning-system record complete</code></pre>
@@ -901,18 +866,18 @@ Figure&nbsp;36.5: A reasoning-system evaluation links each claimed mechanism to 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-cobbe2021training" class="csl-entry" role="listitem">
-Cobbe, Karl, Vineet Kosaraju, Mohammad Bavarian, Mark Chen, Heewoo Jun, Lukasz Kaiser, Matthias Plappert, et al. 2021. <span>“Training Verifiers to Solve Math Word Problems.”</span> <em>arXiv Preprint arXiv:2110.14168</em>. <a href="https://arxiv.org/abs/2110.14168">https://arxiv.org/abs/2110.14168</a>.
+Cobbe, Karl, Vineet Kosaraju, Mohammad Bavarian, et al. 2021. <span>“Training Verifiers to Solve Math Word Problems.”</span> <em>arXiv Preprint arXiv:2110.14168</em>. <a href="https://arxiv.org/abs/2110.14168">https://arxiv.org/abs/2110.14168</a>.
 </div>
 <div id="ref-lightman2023lets" class="csl-entry" role="listitem">
-Lightman, Hunter, Vineet Kosaraju, Yura Burda, Harri Edwards, Bowen Baker, Teddy Lee, Jan Leike, John Schulman, Ilya Sutskever, and Karl Cobbe. 2023. <span>“Let’s Verify Step by Step.”</span> <em>arXiv Preprint arXiv:2305.20050</em>. <a href="https://arxiv.org/abs/2305.20050">https://arxiv.org/abs/2305.20050</a>.
+Lightman, Hunter, Vineet Kosaraju, Yura Burda, et al. 2023. <span>“Let’s Verify Step by Step.”</span> <em>arXiv Preprint arXiv:2305.20050</em>. <a href="https://arxiv.org/abs/2305.20050">https://arxiv.org/abs/2305.20050</a>.
 </div>
 <div id="ref-raschka2025reasoning" class="csl-entry" role="listitem">
 Raschka, Sebastian. 2025. <em>Build a Reasoning Model (from Scratch)</em>. Manning. <a href="https://github.com/rasbt/reasoning-from-scratch">https://github.com/rasbt/reasoning-from-scratch</a>.
 </div>
 <div id="ref-wei2022chain" class="csl-entry" role="listitem">
-Wei, Jason, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed H. Chi, Quoc V. Le, and Denny Zhou. 2022. <span>“Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.”</span> <em>Advances in Neural Information Processing Systems</em> 35: 24824–37. <a href="https://arxiv.org/abs/2201.11903">https://arxiv.org/abs/2201.11903</a>.
+Wei, Jason, Xuezhi Wang, Dale Schuurmans, et al. 2022. <span>“Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.”</span> <em>Advances in Neural Information Processing Systems</em> 35: 24824–37. <a href="https://arxiv.org/abs/2201.11903">https://arxiv.org/abs/2201.11903</a>.
 </div>
 </div>
 </section>
@@ -969,13 +934,14 @@ Wei, Jason, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed H. Chi, Quo
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1009,16 +975,16 @@ Wei, Jason, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed H. Chi, Quo
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1380,7 +1346,7 @@ Wei, Jason, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed H. Chi, Quo
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "What Makes a Reasoning Model?"</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Additional computation, search, verification, and the limits of visible traces"</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1619,7 +1585,7 @@ Wei, Jason, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed H. Chi, Quo
 <span id="cb18-259"><a href="#cb18-259" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb18-260"><a href="#cb18-260" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-261"><a href="#cb18-261" aria-hidden="true" tabindex="-1"></a>Chain-of-thought prompting is studied by @wei2022chain. The module's educational build perspective is informed by @raschka2025reasoning.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

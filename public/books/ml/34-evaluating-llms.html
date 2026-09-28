@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Evaluating LLMs – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -605,7 +570,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-evaluation-contract" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -613,13 +578,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="st">"checkpoint +</span><span class="ch">\n</span><span class="st">interface"</span>,blue),(<span class="fl">2.25</span>,<span class="st">"test items</span><span class="ch">\n</span><span class="st">+ labels"</span>,teal),(<span class="fl">4.25</span>,<span class="st">"decoding +</span><span class="ch">\n</span><span class="st">tools"</span>,orange),(<span class="fl">6.25</span>,<span class="st">"scoring</span><span class="ch">\n</span><span class="st">rule"</span>,purple),(<span class="fl">8.2</span>,<span class="st">"metric +</span><span class="ch">\n</span><span class="st">uncertainty"</span>,blue)]: ax.add_patch(Rectangle((x,<span class="fl">1.3</span>),<span class="fl">1.4</span>,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.61</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="fl">1.68</span>,<span class="fl">3.68</span>,<span class="fl">5.68</span>,<span class="fl">7.68</span>]: ax.add_patch(FancyArrowPatch((x,<span class="fl">1.61</span>),(x<span class="op">+</span><span class="fl">.5</span>,<span class="fl">1.61</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,color<span class="op">=</span>grey,mutation_scale<span class="op">=</span><span class="dv">11</span>))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"A score is conditional on the complete evaluation contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>,<span class="fl">.55</span>,<span class="st">"A score is conditional on the complete evaluation contract."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="fl">9.8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-evaluation-contract" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="34-evaluating-llms_files/figure-html/fig-evaluation-contract-output-1.png" class="img-fluid figure-img" alt="Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval.">
+<img src="34-evaluating-llms_files/figure-html/fig-evaluation-contract-output-1.png" alt="Model and system configuration, test items, decoding, and a scoring rule feed into a reported metric with an uncertainty interval." width="763" height="271" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-evaluation-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;35.1: An LLM score is produced by a defined model and system interface, test set, decoding policy, and scoring procedure.
@@ -642,12 +607,12 @@ Figure&nbsp;35.1: An LLM score is produced by a defined model and system interfa
 <h3 class="anchored" data-anchor-id="scores-answer-bounded-questions">Scores answer bounded questions</h3>
 <p>Exact accuracy on multiple-choice questions measures success on those items under the supplied prompt and answer extraction rule. A factuality evaluation measures a different property. A safety red-team, long-context retrieval test, code execution task, and human preference study each answer other questions. A broad evaluation programme may combine them, but their scores should not be collapsed into one claim without explaining the aggregation and the uses it represents.</p>
 <p>Benchmark choice defines which errors are visible. A test with short English questions can miss multilingual performance, tool failures, source use, refusal behaviour, latency, and long-document reliability. A test with a fixed answer key can be appropriate for a narrow capability while being unsuitable for an open-ended assistant response.</p>
-<div id="5fc6d048" class="cell" data-execution_count="2">
+<div id="e0222221" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>]</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>accuracy<span class="op">=</span>np.mean(items)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"accuracy:"</span>,accuracy,<span class="st">"n:"</span>,<span class="bu">len</span>(items))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"accuracy:"</span>,accuracy,<span class="st">"n:"</span>,<span class="bu">len</span>(items))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>accuracy: 0.7 n: 10</code></pre>
@@ -660,15 +625,15 @@ Figure&nbsp;35.1: An LLM score is produced by a defined model and system interfa
 <div id="cell-fig-aggregate-and-slices" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>names<span class="op">=</span>[<span class="st">"overall"</span>,<span class="st">"extraction"</span>,<span class="st">"multilingual"</span>,<span class="st">"long-context"</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>[<span class="fl">.72</span>,<span class="fl">.86</span>,<span class="fl">.61</span>,<span class="fl">.49</span>]</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(names,scores,color<span class="op">=</span>[grey,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"score"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Aggregate performance can hide task differences"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-aggregate-and-slices" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="34-evaluating-llms_files/figure-html/fig-aggregate-and-slices-output-1.png" class="img-fluid figure-img" alt="A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices.">
+<img src="34-evaluating-llms_files/figure-html/fig-aggregate-and-slices-output-1.png" alt="A bar chart shows an overall score beside different scores for extraction, multilingual, and long-context slices." width="759" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-aggregate-and-slices-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;35.2: An aggregate score can conceal different performance across task or population slices, so evaluation should retain the component results.
@@ -685,12 +650,12 @@ Figure&nbsp;35.2: An aggregate score can conceal different performance across ta
 <h3 class="anchored" data-anchor-id="the-unit-and-denominator-determine-a-metric">The unit and denominator determine a metric</h3>
 <p>An accuracy denominator can be questions, examples, claims, generated tokens, tool calls, or complete episodes. These choices are not interchangeable. A system that answers one question with five claims may be correct on some claims and not others. A RAG system may retrieve a relevant document but fail the final answer. The report should state the unit, inclusion rule, missing-data rule, and whether an item can receive partial credit.</p>
 <p>For binary accuracy over (n) independent labelled units, a simple standard-error approximation is (). It is not sufficient for clustered, repeated, or adaptively sampled data, but it shows why a score from a small test set has substantial uncertainty.</p>
-<div id="f6714e29" class="cell" data-execution_count="4">
+<div id="fd840588" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.72</span><span class="op">;</span> n<span class="op">=</span><span class="dv">100</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>se<span class="op">=</span>np.sqrt(p<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>p)<span class="op">/</span>n)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"approximate 95</span><span class="sc">% i</span><span class="st">nterval:"</span>,(<span class="bu">round</span>(p<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>),<span class="bu">round</span>(p<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>se,<span class="dv">3</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>approximate 95% interval: (np.float64(0.632), np.float64(0.808))</code></pre>
@@ -699,14 +664,14 @@ Figure&nbsp;35.2: An aggregate score can conceal different performance across ta
 <div id="cell-fig-uncertainty-size" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">25</span>,<span class="dv">100</span>,<span class="dv">400</span>])<span class="op">;</span> estimates<span class="op">=</span>np.repeat(<span class="fl">.72</span>,<span class="dv">3</span>)<span class="op">;</span> errors<span class="op">=</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(estimates<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>estimates)<span class="op">/</span>sizes)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.errorbar([<span class="st">"25"</span>,<span class="st">"100"</span>,<span class="st">"400"</span>],estimates,yerr<span class="op">=</span>errors,fmt<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>teal,capsize<span class="op">=</span><span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.35</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"number of labelled items"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative sampling uncertainty"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-uncertainty-size" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-uncertainty-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="34-evaluating-llms_files/figure-html/fig-uncertainty-size-output-1.png" class="img-fluid figure-img" alt="Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items.">
+<img src="34-evaluating-llms_files/figure-html/fig-uncertainty-size-output-1.png" alt="Error bars for accuracy 0.72 shrink as evaluation size rises from 25 to 400 items." width="711" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-uncertainty-size-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;35.3: For a fixed observed accuracy, a larger evaluation set yields a narrower simple binomial uncertainty interval.
@@ -719,13 +684,13 @@ Figure&nbsp;35.3: For a fixed observed accuracy, a larger evaluation set yields 
 <section id="prompt-and-scorer-choices-are-part-of-the-treatment" class="level3">
 <h3 class="anchored" data-anchor-id="prompt-and-scorer-choices-are-part-of-the-treatment">Prompt and scorer choices are part of the treatment</h3>
 <p>Few-shot examples, system messages, answer options, retrieval context, tool permissions, temperature, and output parsing can all change a score. The evaluation should freeze or systematically vary these choices rather than treating them as invisible plumbing. Automatic scorers should be validated on a labelled subset, particularly when judging open-ended answers, code, citations, or safety properties.</p>
-<div id="f6dff361" class="cell" data-execution_count="6">
+<div id="aa3f503a" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>predictions<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"C"</span>,<span class="st">"A"</span>]</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>labels<span class="op">=</span>[<span class="st">"A"</span>,<span class="st">"B"</span>,<span class="st">"B"</span>,<span class="st">"A"</span>]</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>exact<span class="op">=</span>[p<span class="op">==</span>y <span class="cf">for</span> p,y <span class="kw">in</span> <span class="bu">zip</span>(predictions,labels)]</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact-match score:"</span>,np.mean(exact),<span class="st">"errors:"</span>,[i <span class="cf">for</span> i,x <span class="kw">in</span> <span class="bu">enumerate</span>(exact) <span class="cf">if</span> <span class="kw">not</span> x])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>exact-match score: 0.75 errors: [2]</code></pre>
@@ -738,13 +703,13 @@ Figure&nbsp;35.3: For a fixed observed accuracy, a larger evaluation set yields 
 <section id="contamination-changes-the-interpretation-of-benchmark-performance" class="level3">
 <h3 class="anchored" data-anchor-id="contamination-changes-the-interpretation-of-benchmark-performance">Contamination changes the interpretation of benchmark performance</h3>
 <p>If test items, answers, or close variants entered pretraining, fine-tuning, preference data, or prompt examples, benchmark performance can reflect prior exposure as well as generalisation. Exact-string searches are useful but insufficient because paraphrases, translated items, templates, and solutions can differ visibly while preserving the test content. A contamination policy should state search methods, source coverage, match thresholds, exclusions, and what score is reported when exposure is suspected.</p>
-<div id="e4dbca00" class="cell" data-execution_count="7">
+<div id="047cb6ec" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>test_item<span class="op">=</span><span class="st">"What is the eligibility rule?"</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>training_texts<span class="op">=</span>[<span class="st">"Eligibility requires residence in the district."</span>,<span class="st">"What is the eligibility rule?"</span>,<span class="st">"Other text"</span>]</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>matches<span class="op">=</span>[text <span class="cf">for</span> text <span class="kw">in</span> training_texts <span class="cf">if</span> test_item.lower() <span class="kw">in</span> text.lower()]</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"exact matches:"</span>,matches)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>exact matches: ['What is the eligibility rule?']</code></pre>
@@ -755,11 +720,11 @@ Figure&nbsp;35.3: For a fixed observed accuracy, a larger evaluation set yields 
 <section id="evaluate-complete-systems-at-component-boundaries" class="level3">
 <h3 class="anchored" data-anchor-id="evaluate-complete-systems-at-component-boundaries">Evaluate complete systems at component boundaries</h3>
 <p>An LLM application can include a model, prompt template, decoder, retriever, index, tools, output validator, and user interface. A final failure may originate in any of these. The evaluation trace should retain input tokens, retrieved IDs, tool calls and outputs, generated IDs, validator decisions, and the final displayed answer. This supports component-level measurements and repair.</p>
-<div id="11a4a633" class="cell" data-execution_count="8">
+<div id="d2b85c46" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"retrieval"</span>:<span class="st">"relevant chunk missed"</span>,<span class="st">"tool"</span>:<span class="st">"not called"</span>,<span class="st">"generation"</span>:<span class="st">"unsupported answer"</span>,<span class="st">"validator"</span>:<span class="st">"passed"</span>}</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(trace)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'retrieval': 'relevant chunk missed', 'tool': 'not called', 'generation': 'unsupported answer', 'validator': 'passed'}</code></pre>
@@ -768,16 +733,16 @@ Figure&nbsp;35.3: For a fixed observed accuracy, a larger evaluation set yields 
 <div id="cell-fig-system-failure-trace" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"input"</span>,blue),(<span class="st">"retrieve / tools"</span>,teal),(<span class="st">"context"</span>,orange),(<span class="st">"generate"</span>,purple),(<span class="st">"validate"</span>,teal),(<span class="st">"display"</span>,blue)]):</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.62</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.35</span>),<span class="fl">1.2</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.6</span>,<span class="fl">1.625</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.9</span>,<span class="fl">.55</span>,<span class="st">"Record stage outputs to locate failures rather than treating every error as a model error."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-system-failure-trace" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-system-failure-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="34-evaluating-llms_files/figure-html/fig-system-failure-trace-output-1.png" class="img-fluid figure-img" alt="A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage.">
+<img src="34-evaluating-llms_files/figure-html/fig-system-failure-trace-output-1.png" alt="A flow of user input through retrieval, context, generation, validation, and displayed output has failure labels at each stage." width="763" height="263" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-system-failure-trace-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;35.4: A complete-system evaluation traces failures across input construction, retrieval or tools, generation, validation, and final output.
@@ -793,11 +758,11 @@ Figure&nbsp;35.4: A complete-system evaluation traces failures across input cons
 <section id="build-an-evaluation-around-a-decision" class="level3">
 <h3 class="anchored" data-anchor-id="build-an-evaluation-around-a-decision">Build an evaluation around a decision</h3>
 <p>The intended decision should determine the test: whether to deploy a model version, select an adaptation, allow a tool action, use a retrieval corpus, or claim performance for a population. Define the target inputs, harm or cost of errors, baseline, required confidence, and stopping rule before inspecting the result. This prevents a convenient benchmark from becoming a proxy for a different deployment decision.</p>
-<div id="fbe64a5d" class="cell" data-execution_count="10">
+<div id="4ffff2ed" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>evaluation_plan<span class="op">=</span>{<span class="st">"decision"</span>:<span class="st">"deploy retrieval update"</span>,<span class="st">"population"</span>:<span class="st">"current policy queries"</span>,<span class="st">"baseline"</span>:<span class="st">"index-v11"</span>,<span class="st">"primary"</span>:<span class="st">"supported-answer rate"</span>,<span class="st">"guardrail"</span>:<span class="st">"no access-control failures"</span>}</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(evaluation_plan)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'decision': 'deploy retrieval update', 'population': 'current policy queries', 'baseline': 'index-v11', 'primary': 'supported-answer rate', 'guardrail': 'no access-control failures'}</code></pre>
@@ -810,17 +775,17 @@ Figure&nbsp;35.4: A complete-system evaluation traces failures across input cons
 <div id="cell-fig-reporting-matrix" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>fields<span class="op">=</span>[<span class="st">"claim"</span>,<span class="st">"population"</span>,<span class="st">"interface"</span>,<span class="st">"metric"</span>,<span class="st">"uncertainty"</span>,<span class="st">"contamination"</span>,<span class="st">"failures"</span>]</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,field <span class="kw">in</span> <span class="bu">enumerate</span>(fields):</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="fl">.25</span><span class="op">+</span>(i<span class="op">%</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">2.15</span><span class="op">;</span> y<span class="op">=</span><span class="fl">2.45</span><span class="op">-</span>(i<span class="op">//</span><span class="dv">4</span>)<span class="op">*</span><span class="fl">.85</span><span class="op">;</span> ax.add_patch(Rectangle((x,y),<span class="fl">1.8</span>,<span class="fl">.48</span>,facecolor<span class="op">=</span>[blue,teal,orange,purple][i<span class="op">%</span><span class="dv">4</span>],edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.9</span>,y<span class="op">+</span><span class="fl">.24</span>,field,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.5</span>,<span class="fl">.45</span>,<span class="st">"The report should make the scope of every performance claim inspectable."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.15</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-reporting-matrix" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="34-evaluating-llms_files/figure-html/fig-reporting-matrix-output-1.png" class="img-fluid figure-img" alt="A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures.">
+<img src="34-evaluating-llms_files/figure-html/fig-reporting-matrix-output-1.png" alt="A table-like matrix lists required report fields: claim, population, system version, metric, uncertainty, contamination, and failures." width="689" height="278" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reporting-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;35.5: A credible LLM evaluation report links each claim to its population, interface, metric, uncertainty, contamination status, and known limits.
@@ -834,11 +799,11 @@ Figure&nbsp;35.5: A credible LLM evaluation report links each claim to its popul
 <h3 class="anchored" data-anchor-id="reliability-includes-calibration-and-failure-concentration">Reliability includes calibration and failure concentration</h3>
 <p>An evaluation can ask whether a model’s expressed confidence or probability is related to correctness. Calibration is not solved by a single overall accuracy: a system may be reliable on routine examples and confidently wrong on one task slice. When a system does not expose calibrated probabilities, a proxy such as self-reported confidence, verifier score, or retrieval support should be treated as a separate predictor and evaluated against outcomes.</p>
 <p>Failure concentration also matters. Ten errors distributed across low-stakes formatting tasks have different implications from ten errors concentrated in access-control, medical, or financial cases. An evaluation report should preserve error categories and severity rules, rather than allowing a broad average to conceal the decision consequences of a rare failure.</p>
-<div id="153560fa" class="cell" data-execution_count="12">
+<div id="82bbe9be" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>[{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.8</span>},{<span class="st">"slice"</span>:<span class="st">"high-stakes"</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"confidence"</span>:<span class="fl">.95</span>},{<span class="st">"slice"</span>:<span class="st">"routine"</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"confidence"</span>:<span class="fl">.7</span>}]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> outcomes: <span class="bu">print</span>(row)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'slice': 'routine', 'correct': 1, 'confidence': 0.8}
@@ -850,11 +815,11 @@ Figure&nbsp;35.5: A credible LLM evaluation report links each claim to its popul
 <section id="benchmark-development-is-itself-an-intervention" class="level3">
 <h3 class="anchored" data-anchor-id="benchmark-development-is-itself-an-intervention">Benchmark development is itself an intervention</h3>
 <p>Once a benchmark is public and used repeatedly for model selection, prompt design, data filtering, or reward design, its score can become a target. This can improve performance on the benchmark while narrowing the evidence it provides about unseen work. Held-out sets, refreshed item pools, task variants, and preregistered evaluation protocols can reduce this risk, but none removes the need to describe the development history.</p>
-<div id="d8a64167" class="cell" data-execution_count="13">
+<div id="5ab11915" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>development<span class="op">=</span>{<span class="st">"public_benchmark_used_for_tuning"</span>:<span class="va">True</span>,<span class="st">"hidden_holdout"</span>:<span class="va">True</span>,<span class="st">"prompt_fixed_before_holdout"</span>:<span class="va">True</span>}</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(development)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'public_benchmark_used_for_tuning': True, 'hidden_holdout': True, 'prompt_fixed_before_holdout': True}</code></pre>
@@ -909,12 +874,12 @@ Figure&nbsp;35.5: A credible LLM evaluation report links each claim to its popul
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-hendrycks2021measuring" class="csl-entry" role="listitem">
-Hendrycks, Dan, Collin Burns, Steven Basart, Andy Zou, Mantas Mazeika, Dawn Song, and Jacob Steinhardt. 2021. <span>“Measuring Massive Multitask Language Understanding.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2009.03300">https://arxiv.org/abs/2009.03300</a>.
+Hendrycks, Dan, Collin Burns, Steven Basart, et al. 2021. <span>“Measuring Massive Multitask Language Understanding.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2009.03300">https://arxiv.org/abs/2009.03300</a>.
 </div>
 <div id="ref-liang2022holistic" class="csl-entry" role="listitem">
-Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihiro Yasunaga, Yian Zhang, et al. 2022. <span>“Holistic Evaluation of Language Models.”</span> <em>arXiv Preprint arXiv:2211.09110</em>. <a href="https://arxiv.org/abs/2211.09110">https://arxiv.org/abs/2211.09110</a>.
+Liang, Percy, Rishi Bommasani, Tony Lee, et al. 2022. <span>“Holistic Evaluation of Language Models.”</span> <em>arXiv Preprint arXiv:2211.09110</em>. <a href="https://arxiv.org/abs/2211.09110">https://arxiv.org/abs/2211.09110</a>.
 </div>
 </div>
 </section>
@@ -971,13 +936,14 @@ Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihi
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1011,16 +977,16 @@ Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihi
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1382,7 +1348,7 @@ Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihi
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Evaluating LLMs"</span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Capability, reliability, contamination, and the limits of benchmark scores"</span></span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1613,7 +1579,7 @@ Liang, Percy, Rishi Bommasani, Tony Lee, Dimitris Tsipras, Dilara Soylu, Michihi
 <span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a>Holistic evaluation categories and scenarios are developed by @liang2022holistic. The MMLU benchmark illustrates multi-task knowledge evaluation and its scope limits <span class="co">[</span><span class="ot">@hendrycks2021measuring</span><span class="co">]</span>.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

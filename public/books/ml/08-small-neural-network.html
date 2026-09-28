@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Building a Small Neural Network – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -625,7 +590,7 @@ window.Quarto = {
 <div id="cell-fig-small-network-data" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> FancyBboxPatch, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -665,13 +630,13 @@ window.Quarto = {
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Standardised feature 1"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Standardised feature 2"</span>)</span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"A deliberately nonlinear classification task"</span>)</span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>ax.legend(ncol<span class="op">=</span><span class="dv">2</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-small-network-data" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A scatter plot shows two noisy interlocking curves. Blue circles and orange triangles represent the two classes, with outlined markers identifying test observations.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-small-network-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="08-small-neural-network_files/figure-html/fig-small-network-data-output-1.png" class="img-fluid figure-img" alt="A scatter plot shows two noisy interlocking curves. Blue circles and orange triangles represent the two classes, with outlined markers identifying test observations.">
+<img src="08-small-neural-network_files/figure-html/fig-small-network-data-output-1.png" alt="A scatter plot shows two noisy interlocking curves. Blue circles and orange triangles represent the two classes, with outlined markers identifying test observations." width="788" height="499" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-small-network-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9.1: The synthetic task contains two classes with a curved boundary; colour shows the label and marker shape shows the data split.
@@ -693,7 +658,7 @@ Figure&nbsp;9.1: The synthetic task contains two classes with a curved boundary;
 <div id="cell-fig-training-loop-intuition" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="fl">4.4</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="fl">4.4</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>steps <span class="op">=</span> [(<span class="fl">0.08</span>,<span class="st">"Batch"</span>,blue),(<span class="fl">0.27</span>,<span class="st">"Forward</span><span class="ch">\n</span><span class="st">pass"</span>,teal),(<span class="fl">0.46</span>,<span class="st">"Loss"</span>,orange),</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>         (<span class="fl">0.65</span>,<span class="st">"Backpropagation"</span>,purple),(<span class="fl">0.84</span>,<span class="st">"Update</span><span class="ch">\n</span><span class="st">parameters"</span>,blue)]</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos, label, colour <span class="kw">in</span> steps:</span>
@@ -707,13 +672,13 @@ Figure&nbsp;9.1: The synthetic task contains two classes with a curved boundary;
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                             arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">15</span>,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="dv">2</span>))</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.46</span>,<span class="fl">0.13</span>,<span class="st">"repeat with changed parameters"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>orange)</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">0.93</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">0.05</span>,<span class="fl">0.85</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-training-loop-intuition" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Five rounded boxes form a loop: batch, forward pass, loss, backpropagation, and update. An arrow returns from the update to the next batch.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-training-loop-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="08-small-neural-network_files/figure-html/fig-training-loop-intuition-output-1.png" class="img-fluid figure-img" alt="Five rounded boxes form a loop: batch, forward pass, loss, backpropagation, and update. An arrow returns from the update to the next batch.">
+<img src="08-small-neural-network_files/figure-html/fig-training-loop-intuition-output-1.png" alt="Five rounded boxes form a loop: batch, forward pass, loss, backpropagation, and update. An arrow returns from the update to the next batch." width="998" height="413" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-training-loop-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9.2: A training loop connects a batch, forward pass, loss, backpropagation, and parameter update before processing the next batch.
@@ -748,7 +713,7 @@ b_1=(0.1,-0.2,0).
 <div id="cell-fig-one-observation-forward" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.7</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">11</span>,<span class="fl">3.7</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="fl">0.06</span>,<span class="vs">r"</span><span class="dv">$</span><span class="vs">x</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"(0.60, -0.20)"</span>,blue),(<span class="fl">0.24</span>,<span class="vs">r"</span><span class="dv">$</span><span class="vs">z_1</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"(0.66, -0.56, 0.20)"</span>,teal),</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>       (<span class="fl">0.42</span>,<span class="vs">r"</span><span class="dv">$</span><span class="vs">h</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"(0.66, 0, 0.20)"</span>,orange),(<span class="fl">0.60</span>,<span class="vs">r"logit </span><span class="dv">$</span><span class="vs">s</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"0.706"</span>,purple),</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>       (<span class="fl">0.76</span>,<span class="vs">r"probability </span><span class="dv">$</span><span class="vs">p</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"0.670"</span>,teal),(<span class="fl">0.92</span>,<span class="vs">r"loss </span><span class="dv">$</span><span class="vs">L</span><span class="dv">$</span><span class="vs">"</span>,<span class="st">"0.401"</span>,orange)]</span>
@@ -763,13 +728,13 @@ b_1=(0.1,-0.2,0).
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.68</span>,<span class="fl">0.12</span>,<span class="st">"sigmoid"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.85</span>,<span class="fl">0.12</span>,<span class="st">"compare with y = 1"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">0.98</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">0.82</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-one-observation-forward" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A horizontal sequence shows input x, first-layer pre-activation z, ReLU hidden values h, logit s, probability p, and binary cross-entropy loss L with their numerical values.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-one-observation-forward-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="08-small-neural-network_files/figure-html/fig-one-observation-forward-output-1.png" class="img-fluid figure-img" alt="A horizontal sequence shows input x, first-layer pre-activation z, ReLU hidden values h, logit s, probability p, and binary cross-entropy loss L with their numerical values.">
+<img src="08-small-neural-network_files/figure-html/fig-one-observation-forward-output-1.png" alt="A horizontal sequence shows input x, first-layer pre-activation z, ReLU hidden values h, logit s, probability p, and binary cross-entropy loss L with their numerical values." width="1046" height="346" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-one-observation-forward-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9.3: One observation becomes hidden pre-activations, activated values, a logit, a probability, and finally a loss.
@@ -791,7 +756,7 @@ Figure&nbsp;9.3: One observation becomes hidden pre-activations, activated value
 <div id="cell-fig-one-step-update" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p_example<span class="op">=</span><span class="dv">1</span><span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>np.exp(<span class="op">-</span><span class="fl">0.706</span>))<span class="op">;</span> delta_s<span class="op">=</span>p_example<span class="op">-</span><span class="dv">1</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p_example<span class="op">=</span><span class="dv">1</span><span class="op">/</span>(<span class="dv">1</span><span class="op">+</span>np.exp(<span class="op">-</span><span class="fl">0.706</span>))<span class="op">;</span> delta_s<span class="op">=</span>p_example<span class="op">-</span><span class="dv">1</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>h_example<span class="op">=</span>np.array([<span class="fl">0.66</span>,<span class="fl">0.0</span>,<span class="fl">0.20</span>])<span class="op">;</span> x_example<span class="op">=</span>np.array([<span class="fl">0.6</span>,<span class="op">-</span><span class="fl">0.2</span>])</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>w2_example<span class="op">=</span>np.array([<span class="fl">1.1</span>,<span class="op">-</span><span class="fl">0.7</span>,<span class="fl">0.4</span>])<span class="op">;</span> z_example<span class="op">=</span>np.array([<span class="fl">0.66</span>,<span class="op">-</span><span class="fl">0.56</span>,<span class="fl">0.20</span>])</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>delta_z<span class="op">=</span>(w2_example<span class="op">*</span>delta_s)<span class="op">*</span>(z_example<span class="op">&gt;</span><span class="dv">0</span>)</span>
@@ -806,13 +771,13 @@ Figure&nbsp;9.3: One observation becomes hidden pre-activations, activated value
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>ax.bar(positions<span class="op">+</span>width<span class="op">/</span><span class="dv">2</span>,after,width,label<span class="op">=</span><span class="st">"after one update"</span>,color<span class="op">=</span>orange)</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="dv">0</span>,color<span class="op">=</span><span class="st">"black"</span>,linewidth<span class="op">=</span><span class="fl">0.8</span>)<span class="op">;</span> ax.set_xticks(positions,labels)</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Parameter value"</span>)<span class="op">;</span> ax.set_title(<span class="st">"One update with learning rate 0.1"</span>)<span class="op">;</span> ax.legend()</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-one-step-update" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A paired bar chart compares four representative parameter values before and after one update, showing small changes and no change for a weight feeding the inactive hidden unit.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-one-step-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="08-small-neural-network_files/figure-html/fig-one-step-update-output-1.png" class="img-fluid figure-img" alt="A paired bar chart compares four representative parameter values before and after one update, showing small changes and no change for a weight feeding the inactive hidden unit.">
+<img src="08-small-neural-network_files/figure-html/fig-one-step-update-output-1.png" alt="A paired bar chart compares four representative parameter values before and after one update, showing small changes and no change for a weight feeding the inactive hidden unit." width="807" height="422" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-one-step-update-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9.4: A gradient-descent update moves selected parameters in the direction that lowers the current observation’s loss.
@@ -854,10 +819,10 @@ L=-\frac{1}{B}\sum_{i=1}^{B}[y_i\log p_i+(1-y_i)\log(1-p_i)].
 </section>
 <section id="one-manual-numpy-step-exposes-every-gradient" class="level3">
 <h3 class="anchored" data-anchor-id="one-manual-numpy-step-exposes-every-gradient">One manual NumPy step exposes every gradient</h3>
-<div id="a334a01d" class="cell" data-execution_count="5">
+<div id="0c30ca17" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="fl">0.6</span>,<span class="op">-</span><span class="fl">0.2</span>])<span class="op">;</span> y<span class="op">=</span><span class="fl">1.0</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.array([<span class="fl">0.6</span>,<span class="op">-</span><span class="fl">0.2</span>])<span class="op">;</span> y<span class="op">=</span><span class="fl">1.0</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>W1<span class="op">=</span>np.array([[<span class="fl">0.8</span>,<span class="op">-</span><span class="fl">0.4</span>],[<span class="op">-</span><span class="fl">0.3</span>,<span class="fl">0.9</span>],[<span class="fl">0.5</span>,<span class="fl">0.5</span>]])<span class="op">;</span> b1<span class="op">=</span>np.array([<span class="fl">0.1</span>,<span class="op">-</span><span class="fl">0.2</span>,<span class="fl">0.0</span>])</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>W2<span class="op">=</span>np.array([[<span class="fl">1.1</span>,<span class="op">-</span><span class="fl">0.7</span>,<span class="fl">0.4</span>]])<span class="op">;</span> b2<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">0.1</span>])</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>z1<span class="op">=</span>W1<span class="op">@</span>x<span class="op">+</span>b1<span class="op">;</span> h1<span class="op">=</span>np.maximum(<span class="dv">0</span>,z1)<span class="op">;</span> logit<span class="op">=</span>(W2<span class="op">@</span>h1<span class="op">+</span>b2).item()</span>
@@ -867,7 +832,7 @@ L=-\frac{1}{B}\sum_{i=1}^{B}[y_i\log p_i+(1-y_i)\log(1-p_i)].
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>dh1<span class="op">=</span>W2.ravel()<span class="op">*</span>ds<span class="op">;</span> dz1<span class="op">=</span>dh1<span class="op">*</span>(z1<span class="op">&gt;</span><span class="dv">0</span>)<span class="op">;</span> dW1<span class="op">=</span>np.outer(dz1,x)<span class="op">;</span> db1<span class="op">=</span>dz1</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"z1:"</span>,np.<span class="bu">round</span>(z1,<span class="dv">3</span>))<span class="op">;</span> <span class="bu">print</span>(<span class="st">"h1:"</span>,np.<span class="bu">round</span>(h1,<span class="dv">3</span>))</span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"logit, probability, loss:"</span>,np.<span class="bu">round</span>([logit,probability,loss],<span class="dv">3</span>))</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"dW2:"</span>,np.<span class="bu">round</span>(dW2,<span class="dv">3</span>))<span class="op">;</span> <span class="bu">print</span>(<span class="st">"dW1:</span><span class="ch">\n</span><span class="st">"</span>,np.<span class="bu">round</span>(dW1,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"dW2:"</span>,np.<span class="bu">round</span>(dW2,<span class="dv">3</span>))<span class="op">;</span> <span class="bu">print</span>(<span class="st">"dW1:</span><span class="ch">\n</span><span class="st">"</span>,np.<span class="bu">round</span>(dW1,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>z1: [ 0.66 -0.56  0.2 ]
@@ -884,10 +849,10 @@ dW1:
 </section>
 <section id="pytorch-separates-model-loss-and-optimiser" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-separates-model-loss-and-optimiser">PyTorch separates model, loss, and optimiser</h3>
-<div id="226de05c" class="cell" data-execution_count="6">
+<div id="7428f56a" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">27</span>)</span>
@@ -899,7 +864,7 @@ dW1:
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>loss_function<span class="op">=</span>nn.BCEWithLogitsLoss()</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>optimiser<span class="op">=</span>torch.optim.Adam(model.parameters(),lr<span class="op">=</span><span class="fl">0.03</span>)</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>parameter_count<span class="op">=</span><span class="bu">sum</span>(parameter.numel() <span class="cf">for</span> parameter <span class="kw">in</span> model.parameters())</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)<span class="op">;</span> <span class="bu">print</span>(<span class="st">"Trainable parameters:"</span>,parameter_count)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)<span class="op">;</span> <span class="bu">print</span>(<span class="st">"Trainable parameters:"</span>,parameter_count)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Sequential(
@@ -914,10 +879,10 @@ Trainable parameters: 65</code></pre>
 </section>
 <section id="the-complete-loop-is-short-because-autograd-carries-the-graph" class="level3">
 <h3 class="anchored" data-anchor-id="the-complete-loop-is-short-because-autograd-carries-the-graph">The complete loop is short because autograd carries the graph</h3>
-<div id="1b8fcc57" class="cell" data-execution_count="7">
+<div id="4fa08033" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span><span class="dv">500</span><span class="op">;</span> batch_size<span class="op">=</span><span class="dv">32</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span><span class="dv">500</span><span class="op">;</span> batch_size<span class="op">=</span><span class="dv">32</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>history<span class="op">=</span>{<span class="st">"loss"</span>:[],<span class="st">"train_accuracy"</span>:[],<span class="st">"test_accuracy"</span>:[]}</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>initial_state<span class="op">=</span>{name:value.detach().clone() <span class="cf">for</span> name,value <span class="kw">in</span> model.state_dict().items()}</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -941,7 +906,7 @@ Trainable parameters: 65</code></pre>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Final training loss: </span><span class="sc">{</span>history[<span class="st">'loss'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
 <span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Training accuracy: </span><span class="sc">{</span>history[<span class="st">'train_accuracy'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test accuracy: </span><span class="sc">{</span>history[<span class="st">'test_accuracy'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test accuracy: </span><span class="sc">{</span>history[<span class="st">'test_accuracy'</span>][<span class="op">-</span><span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Final training loss: 0.000
@@ -956,7 +921,7 @@ Test accuracy: 1.000</code></pre>
 <div id="cell-fig-small-network-training" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>grid_x,grid_y<span class="op">=</span>np.meshgrid(np.linspace(X_train_np[:,<span class="dv">0</span>].<span class="bu">min</span>()<span class="op">-</span><span class="fl">0.5</span>,X_train_np[:,<span class="dv">0</span>].<span class="bu">max</span>()<span class="op">+</span><span class="fl">0.5</span>,<span class="dv">220</span>),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>grid_x,grid_y<span class="op">=</span>np.meshgrid(np.linspace(X_train_np[:,<span class="dv">0</span>].<span class="bu">min</span>()<span class="op">-</span><span class="fl">0.5</span>,X_train_np[:,<span class="dv">0</span>].<span class="bu">max</span>()<span class="op">+</span><span class="fl">0.5</span>,<span class="dv">220</span>),</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                          np.linspace(X_train_np[:,<span class="dv">1</span>].<span class="bu">min</span>()<span class="op">-</span><span class="fl">0.5</span>,X_train_np[:,<span class="dv">1</span>].<span class="bu">max</span>()<span class="op">+</span><span class="fl">0.5</span>,<span class="dv">220</span>))</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>grid<span class="op">=</span>torch.tensor(np.column_stack([grid_x.ravel(),grid_y.ravel()]),dtype<span class="op">=</span>torch.float32)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>trained_state<span class="op">=</span>{name:value.detach().clone() <span class="cf">for</span> name,value <span class="kw">in</span> model.state_dict().items()}</span>
@@ -983,13 +948,13 @@ Test accuracy: 1.000</code></pre>
 <span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].set_title(<span class="st">"Optimisation and evaluation"</span>)</span>
 <span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>lines1,labels1<span class="op">=</span>axes[<span class="dv">2</span>].get_legend_handles_labels()<span class="op">;</span> lines2,labels2<span class="op">=</span>accuracy_axis.get_legend_handles_labels()</span>
 <span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">2</span>].legend(lines1<span class="op">+</span>lines2,labels1<span class="op">+</span>labels2,loc<span class="op">=</span><span class="st">"center right"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-small-network-training" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three panels show the untrained boundary, trained boundary, and curves for training loss plus training and test accuracy across 500 epochs.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-small-network-training-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="08-small-neural-network_files/figure-html/fig-small-network-training-output-1.png" class="img-fluid figure-img" alt="Three panels show the untrained boundary, trained boundary, and curves for training loss plus training and test accuracy across 500 epochs.">
+<img src="08-small-neural-network_files/figure-html/fig-small-network-training-output-1.png" alt="Three panels show the untrained boundary, trained boundary, and curves for training loss plus training and test accuracy across 500 epochs." width="1335" height="412" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-small-network-training-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9.5: Training lowers the batch-averaged loss and changes an initially arbitrary boundary into one that follows the curved class pattern.
@@ -1002,13 +967,13 @@ Figure&nbsp;9.5: Training lowers the batch-averaged loss and changes an initiall
 </section>
 <section id="a-checkpoint-must-match-the-intended-recovery-task" class="level3">
 <h3 class="anchored" data-anchor-id="a-checkpoint-must-match-the-intended-recovery-task">A checkpoint must match the intended recovery task</h3>
-<div id="7fff9962" class="cell" data-execution_count="9">
+<div id="c2e2f659" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>checkpoint<span class="op">=</span>{<span class="st">"epoch"</span>:epochs,<span class="st">"model_state"</span>:model.state_dict(),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>checkpoint<span class="op">=</span>{<span class="st">"epoch"</span>:epochs,<span class="st">"model_state"</span>:model.state_dict(),</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>            <span class="st">"optimiser_state"</span>:optimiser.state_dict(),<span class="st">"train_mean"</span>:train_mean,</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>            <span class="st">"train_std"</span>:train_std,<span class="st">"history"</span>:history,<span class="st">"torch_rng_state"</span>:torch.get_rng_state()}</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(checkpoint.keys())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(checkpoint.keys())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>dict_keys(['epoch', 'model_state', 'optimiser_state', 'train_mean', 'train_std', 'history', 'torch_rng_state'])</code></pre>
@@ -1021,7 +986,7 @@ Figure&nbsp;9.5: Training lowers the batch-averaged loss and changes an initiall
 <h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
 <section id="the-example-loop-implements-stochastic-optimisation" class="level3">
 <h3 class="anchored" data-anchor-id="the-example-loop-implements-stochastic-optimisation">The example loop implements stochastic optimisation</h3>
-<p>Mini-batch training estimates the full-data gradient using subsets of observations. The updates are cheaper than full-batch updates and contain sampling variation. Their behaviour depends on batch construction, learning rate, momentum or adaptive state, and observation order. Large-scale analyses therefore treat batch size and update rules jointly <span class="citation" data-cites="bottou2018">(<a href="#ref-bottou2018" role="doc-biblioref">Bottou, Curtis, and Nocedal 2018</a>)</span>.</p>
+<p>Mini-batch training estimates the full-data gradient using subsets of observations. The updates are cheaper than full-batch updates and contain sampling variation. Their behaviour depends on batch construction, learning rate, momentum or adaptive state, and observation order. Large-scale analyses therefore treat batch size and update rules jointly <span class="citation" data-cites="bottou2018">(<a href="#ref-bottou2018" role="doc-biblioref">Bottou et al. 2018</a>)</span>.</p>
 <p>The code uses Adam, which maintains estimates based on first and second moments of recent gradients <span class="citation" data-cites="kingma2014">(<a href="#ref-kingma2014" role="doc-biblioref">Kingma and Ba 2015</a>)</span>. Those additional values increase optimiser memory and checkpoint size. Replacing Adam with plain stochastic gradient descent leaves the structure of the loop unchanged but changes the update calculation. Later chapters compare optimisers and schedules directly.</p>
 </section>
 <section id="batch-size-exchanges-memory-and-update-frequency" class="level3">
@@ -1030,7 +995,7 @@ Figure&nbsp;9.5: Training lowers the batch-averaged loss and changes an initiall
 <div id="cell-fig-batch-tradeoffs" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>batch_sizes<span class="op">=</span>np.array([<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>,<span class="dv">64</span>,<span class="dv">128</span>,<span class="dv">256</span>,<span class="dv">512</span>,<span class="dv">1024</span>])<span class="op">;</span> dataset_size<span class="op">=</span><span class="dv">8192</span><span class="op">;</span> hidden_width<span class="op">=</span><span class="dv">4096</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>batch_sizes<span class="op">=</span>np.array([<span class="dv">8</span>,<span class="dv">16</span>,<span class="dv">32</span>,<span class="dv">64</span>,<span class="dv">128</span>,<span class="dv">256</span>,<span class="dv">512</span>,<span class="dv">1024</span>])<span class="op">;</span> dataset_size<span class="op">=</span><span class="dv">8192</span><span class="op">;</span> hidden_width<span class="op">=</span><span class="dv">4096</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>activation_values<span class="op">=</span>batch_sizes<span class="op">*</span>hidden_width<span class="op">;</span> steps_per_epoch<span class="op">=</span>np.ceil(dataset_size<span class="op">/</span>batch_sizes)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>fig,ax1<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>ax1.plot(batch_sizes,activation_values,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>blue,linewidth<span class="op">=</span><span class="fl">2.5</span>)</span>
@@ -1039,13 +1004,13 @@ Figure&nbsp;9.5: Training lowers the batch-averaged loss and changes an initiall
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>ax2<span class="op">=</span>ax1.twinx()<span class="op">;</span> ax2.plot(batch_sizes,steps_per_epoch,marker<span class="op">=</span><span class="st">"s"</span>,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="fl">2.5</span>)</span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>ax2.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax2.set_ylabel(<span class="st">"Optimiser steps per epoch"</span>,color<span class="op">=</span>orange)</span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>ax1.set_title(<span class="st">"Two consequences of changing batch size"</span>)</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-batch-tradeoffs" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A two-axis line chart shows activation values increasing with batch size while optimiser steps per epoch decrease for 8192 observations and hidden width 4096.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-batch-tradeoffs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="08-small-neural-network_files/figure-html/fig-batch-tradeoffs-output-1.png" class="img-fluid figure-img" alt="A two-axis line chart shows activation values increasing with batch size while optimiser steps per epoch decrease for 8192 observations and hidden width 4096.">
+<img src="08-small-neural-network_files/figure-html/fig-batch-tradeoffs-output-1.png" alt="A two-axis line chart shows activation values increasing with batch size while optimiser steps per epoch decrease for 8192 observations and hidden width 4096." width="854" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-batch-tradeoffs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;9.6: For a fixed dataset, larger batches increase a simple activation-memory proxy and reduce the number of optimiser steps per epoch.
@@ -1059,7 +1024,7 @@ Figure&nbsp;9.6: For a fixed dataset, larger batches increase a simple activatio
 <section id="framework-automation-does-not-remove-experimental-choices" class="level3">
 <h3 class="anchored" data-anchor-id="framework-automation-does-not-remove-experimental-choices">Framework automation does not remove experimental choices</h3>
 <p>PyTorch records operations dynamically and uses automatic differentiation to calculate gradients <span class="citation" data-cites="paszke2019">(<a href="#ref-paszke2019" role="doc-biblioref">Paszke et al. 2019</a>)</span>. The framework does not decide whether the split leaks information, whether the loss matches the objective, or whether a random result is stable. Those remain properties of the analysis and experimental design.</p>
-<p>Reproducible reporting requires more than setting one seed. Code, data transformations, split definitions, software versions, hardware, hyperparameters, stopping criteria, and the number of runs can affect a reported result. <span class="citation" data-cites="pineau2021">Pineau et al. (<a href="#ref-pineau2021" role="doc-biblioref">2021</a>)</span> describe the NeurIPS reproducibility programme and its reporting checklist. Exact bitwise replication and replication of a substantive conclusion should be distinguished.</p>
+<p>Reproducible reporting requires more than setting one seed. Code, data transformations, split definitions, software versions, hardware, hyperparameters, stopping criteria, and the number of runs can affect a reported result. <span class="citation" data-cites="pineau2021"><span class="nocase">Pineau et al.</span> (<a href="#ref-pineau2021" role="doc-biblioref">2021</a>)</span> describe the NeurIPS reproducibility programme and its reporting checklist. Exact bitwise replication and replication of a substantive conclusion should be distinguished.</p>
 </section>
 <section id="mixed-precision-changes-representation-not-the-objective" class="level3">
 <h3 class="anchored" data-anchor-id="mixed-precision-changes-representation-not-the-objective">Mixed precision changes representation, not the objective</h3>
@@ -1138,12 +1103,12 @@ Figure&nbsp;9.6: For a fixed dataset, larger batches increase a simple activatio
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Large-scale stochastic optimisation is reviewed by <span class="citation" data-cites="bottou2018">Bottou, Curtis, and Nocedal (<a href="#ref-bottou2018" role="doc-biblioref">2018</a>)</span>, while Adam is introduced by <span class="citation" data-cites="kingma2014">Kingma and Ba (<a href="#ref-kingma2014" role="doc-biblioref">2015</a>)</span>. PyTorch’s execution and automatic-differentiation design are described by <span class="citation" data-cites="paszke2019">Paszke et al. (<a href="#ref-paszke2019" role="doc-biblioref">2019</a>)</span>. Mixed-precision training is developed by <span class="citation" data-cites="micikevicius2018">Micikevicius et al. (<a href="#ref-micikevicius2018" role="doc-biblioref">2018</a>)</span>, and data-parallel training is analysed by <span class="citation" data-cites="li2020ddp">Li et al. (<a href="#ref-li2020ddp" role="doc-biblioref">2020</a>)</span>. Reporting and experimental reproducibility are discussed by <span class="citation" data-cites="pineau2021">Pineau et al. (<a href="#ref-pineau2021" role="doc-biblioref">2021</a>)</span>.</p>
+<p>Large-scale stochastic optimisation is reviewed by <span class="citation" data-cites="bottou2018">Bottou et al. (<a href="#ref-bottou2018" role="doc-biblioref">2018</a>)</span>, while Adam is introduced by <span class="citation" data-cites="kingma2014">Kingma and Ba (<a href="#ref-kingma2014" role="doc-biblioref">2015</a>)</span>. PyTorch’s execution and automatic-differentiation design are described by <span class="citation" data-cites="paszke2019">Paszke et al. (<a href="#ref-paszke2019" role="doc-biblioref">2019</a>)</span>. Mixed-precision training is developed by <span class="citation" data-cites="micikevicius2018">Micikevicius et al. (<a href="#ref-micikevicius2018" role="doc-biblioref">2018</a>)</span>, and data-parallel training is analysed by <span class="citation" data-cites="li2020ddp">Li et al. (<a href="#ref-li2020ddp" role="doc-biblioref">2020</a>)</span>. Reporting and experimental reproducibility are discussed by <span class="citation" data-cites="pineau2021"><span class="nocase">Pineau et al.</span> (<a href="#ref-pineau2021" role="doc-biblioref">2021</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-bottou2018" class="csl-entry" role="listitem">
 Bottou, Léon, Frank E. Curtis, and Jorge Nocedal. 2018. <span>“Optimization Methods for Large-Scale Machine Learning.”</span> <em>SIAM Review</em> 60 (2): 223–311. <a href="https://doi.org/10.1137/16M1080173">https://doi.org/10.1137/16M1080173</a>.
 </div>
@@ -1151,16 +1116,16 @@ Bottou, Léon, Frank E. Curtis, and Jorge Nocedal. 2018. <span>“Optimization M
 Kingma, Diederik P., and Jimmy Ba. 2015. <span>“Adam: A Method for Stochastic Optimization.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1412.6980">https://arxiv.org/abs/1412.6980</a>.
 </div>
 <div id="ref-li2020ddp" class="csl-entry" role="listitem">
-Li, Shen, Yanli Zhao, Rohan Varma, Omkar Salpekar, Pieter Noordhuis, Teng Li, Adam Paszke, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
+Li, Shen, Yanli Zhao, Rohan Varma, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
 </div>
 <div id="ref-micikevicius2018" class="csl-entry" role="listitem">
-Micikevicius, Paulius, Sharan Narang, Jonah Alben, Gregory Diamos, Erich Elsen, David Garcia, Boris Ginsburg, et al. 2018. <span>“Mixed Precision Training.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=r1gs9JgRZ">https://openreview.net/forum?id=r1gs9JgRZ</a>.
+Micikevicius, Paulius, Sharan Narang, Jonah Alben, et al. 2018. <span>“Mixed Precision Training.”</span> <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=r1gs9JgRZ">https://openreview.net/forum?id=r1gs9JgRZ</a>.
 </div>
 <div id="ref-paszke2019" class="csl-entry" role="listitem">
-Paszke, Adam, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory Chanan, Trevor Killeen, et al. 2019. <span>“<span>PyTorch</span>: An Imperative Style, High-Performance Deep Learning Library.”</span> In <em>Advances in Neural Information Processing Systems</em>, 32:8024–35. <a href="https://proceedings.neurips.cc/paper/2019/hash/bdbca288fee7f92f2bfa9f7012727740-Abstract.html">https://proceedings.neurips.cc/paper/2019/hash/bdbca288fee7f92f2bfa9f7012727740-Abstract.html</a>.
+Paszke, Adam, Sam Gross, Francisco Massa, et al. 2019. <span>“<span>PyTorch</span>: An Imperative Style, High-Performance Deep Learning Library.”</span> <em>Advances in Neural Information Processing Systems</em> 32: 8024–35. <a href="https://proceedings.neurips.cc/paper/2019/hash/bdbca288fee7f92f2bfa9f7012727740-Abstract.html">https://proceedings.neurips.cc/paper/2019/hash/bdbca288fee7f92f2bfa9f7012727740-Abstract.html</a>.
 </div>
 <div id="ref-pineau2021" class="csl-entry" role="listitem">
-Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, Vincent Larivière, Alina Beygelzimer, Florence d’Alché-Buc, Emily Fox, and Hugo Larochelle. 2021. <span>“Improving Reproducibility in Machine Learning Research: A Report from the <span>NeurIPS</span> 2019 Reproducibility Program.”</span> <em>Journal of Machine Learning Research</em> 22 (164): 1–20. <a href="https://www.jmlr.org/papers/v22/20-303.html">https://www.jmlr.org/papers/v22/20-303.html</a>.
+<span class="nocase">Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, et al.</span> 2021. <span>“Improving Reproducibility in Machine Learning Research: A Report from the <span>NeurIPS</span> 2019 Reproducibility Program.”</span> <em>Journal of Machine Learning Research</em> 22 (164): 1–20. <a href="https://www.jmlr.org/papers/v22/20-303.html">https://www.jmlr.org/papers/v22/20-303.html</a>.
 </div>
 </div>
 </section>
@@ -1217,13 +1182,14 @@ Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, Vincent Larivière, Ali
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1257,16 +1223,16 @@ Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, Vincent Larivière, Ali
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1628,7 +1594,7 @@ Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, Vincent Larivière, Ali
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Building a Small Neural Network"</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "From data to updated predictions"</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -2078,7 +2044,7 @@ Pineau, Joelle, Philippe Vincent-Lamarre, Koustuv Sinha, Vincent Larivière, Ali
 <span id="cb15-468"><a href="#cb15-468" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb15-469"><a href="#cb15-469" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-470"><a href="#cb15-470" aria-hidden="true" tabindex="-1"></a>Large-scale stochastic optimisation is reviewed by @bottou2018, while Adam is introduced by @kingma2014. PyTorch's execution and automatic-differentiation design are described by @paszke2019. Mixed-precision training is developed by @micikevicius2018, and data-parallel training is analysed by @li2020ddp. Reporting and experimental reproducibility are discussed by @pineau2021.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

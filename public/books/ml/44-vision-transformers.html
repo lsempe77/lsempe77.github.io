@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Vision Transformers – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,85 +130,45 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
-
 
 
 <link rel="stylesheet" href="styles.css">
@@ -612,7 +577,7 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <div id="cell-fig-image-patches" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -624,13 +589,13 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): ax.add_patch(Rectangle((<span class="fl">2.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.52</span>,<span class="fl">1.55</span>),<span class="fl">.42</span>,<span class="fl">.42</span>,facecolor<span class="op">=</span>purple,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">1.7</span>,<span class="fl">1.8</span>),(<span class="fl">2.1</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,<span class="fl">1.2</span>,<span class="st">"patch + position embeddings"</span>,ha<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">4.9</span>,<span class="fl">1.8</span>),(<span class="fl">5.5</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.6</span>,<span class="fl">1.48</span>),<span class="fl">1.4</span>,<span class="fl">.64</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.3</span>,<span class="fl">1.8</span>,<span class="st">"Transformer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">7.1</span>,<span class="fl">1.8</span>),(<span class="fl">7.7</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.text(<span class="fl">8.3</span>,<span class="fl">1.8</span>,<span class="st">"class"</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.7</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ax.add_patch(FancyArrowPatch((<span class="fl">7.1</span>,<span class="fl">1.8</span>),(<span class="fl">7.7</span>,<span class="fl">1.8</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>))<span class="op">;</span> ax.text(<span class="fl">8.3</span>,<span class="fl">1.8</span>,<span class="st">"class"</span>,ha<span class="op">=</span><span class="st">"center"</span>)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.4</span>,<span class="fl">2.7</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-image-patches" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A gridded image becomes a row of patch embeddings with position vectors before Transformer blocks and a classifier.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-image-patches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="44-vision-transformers_files/figure-html/fig-image-patches-output-1.png" class="img-fluid figure-img" alt="A gridded image becomes a row of patch embeddings with position vectors before Transformer blocks and a classifier.">
+<img src="44-vision-transformers_files/figure-html/fig-image-patches-output-1.png" alt="A gridded image becomes a row of patch embeddings with position vectors before Transformer blocks and a classifier." width="763" height="300" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-image-patches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;45.1: A vision transformer divides an image into patches, projects them to embeddings, adds positional information, and processes the resulting token sequence.
@@ -639,11 +604,11 @@ Figure&nbsp;45.1: A vision transformer divides an image into patches, projects t
 </div>
 </div>
 </div>
-<div id="251bf4c0" class="cell" data-execution_count="2">
+<div id="5e5cd30d" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>H<span class="op">=</span>W<span class="op">=</span><span class="dv">224</span><span class="op">;</span> P<span class="op">=</span><span class="dv">16</span><span class="op">;</span> N<span class="op">=</span>(H<span class="op">//</span>P)<span class="op">*</span>(W<span class="op">//</span>P)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"patches"</span>:N,<span class="st">"tokens_with_class"</span>:N<span class="op">+</span><span class="dv">1</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>H<span class="op">=</span>W<span class="op">=</span><span class="dv">224</span><span class="op">;</span> P<span class="op">=</span><span class="dv">16</span><span class="op">;</span> N<span class="op">=</span>(H<span class="op">//</span>P)<span class="op">*</span>(W<span class="op">//</span>P)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({<span class="st">"patches"</span>:N,<span class="st">"tokens_with_class"</span>:N<span class="op">+</span><span class="dv">1</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'patches': 196, 'tokens_with_class': 197}</code></pre>
@@ -661,14 +626,14 @@ Figure&nbsp;45.1: A vision transformer divides an image into patches, projects t
 <div id="cell-fig-patch-cost" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">32</span>,<span class="dv">16</span>,<span class="dv">8</span>])<span class="op">;</span> tokens<span class="op">=</span>(<span class="dv">224</span><span class="op">//</span>sizes)<span class="op">**</span><span class="dv">2</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(sizes,tokens<span class="op">**</span><span class="dv">2</span>,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.invert_xaxis()<span class="op">;</span> ax.set_xlabel(<span class="st">"patch side length (pixels)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"token-pair count"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Attention cost from patch resolution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sizes<span class="op">=</span>np.array([<span class="dv">32</span>,<span class="dv">16</span>,<span class="dv">8</span>])<span class="op">;</span> tokens<span class="op">=</span>(<span class="dv">224</span><span class="op">//</span>sizes)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>,<span class="dv">4</span>))<span class="op">;</span> ax.plot(sizes,tokens<span class="op">**</span><span class="dv">2</span>,marker<span class="op">=</span><span class="st">"o"</span>,color<span class="op">=</span>purple)<span class="op">;</span> ax.invert_xaxis()<span class="op">;</span> ax.set_xlabel(<span class="st">"patch side length (pixels)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"token-pair count"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Attention cost from patch resolution"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-patch-cost" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A line chart plots patch-token count and token-pair count for patch sizes 32, 16, and 8 on a 224 pixel image.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-patch-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="44-vision-transformers_files/figure-html/fig-patch-cost-output-1.png" class="img-fluid figure-img" alt="A line chart plots patch-token count and token-pair count for patch sizes 32, 16, and 8 on a 224 pixel image.">
+<img src="44-vision-transformers_files/figure-html/fig-patch-cost-output-1.png" alt="A line chart plots patch-token count and token-pair count for patch sizes 32, 16, and 8 on a 224 pixel image." width="646" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-patch-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;45.2: Smaller image patches create more visual tokens and increase the quadratic attention relation count.
@@ -692,16 +657,16 @@ Figure&nbsp;45.2: Smaller image patches create more visual tokens and increase t
 <div id="cell-fig-position-grid" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,pos <span class="kw">in</span> [(<span class="fl">1.0</span>,<span class="st">"row 1, col 1"</span>),(<span class="fl">4.3</span>,<span class="st">"row 4, col 4"</span>)]:</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a> ax.add_patch(Rectangle((x,<span class="fl">1.5</span>),<span class="fl">1.4</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.78</span>,<span class="st">"patch content"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.7</span>,<span class="fl">1.1</span>,pos,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>purple)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">7</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.5</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-position-grid" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two identical patch-content boxes receive different position labels because they occur at different grid locations.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-position-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="44-vision-transformers_files/figure-html/fig-position-grid-output-1.png" class="img-fluid figure-img" alt="Two identical patch-content boxes receive different position labels because they occur at different grid locations.">
+<img src="44-vision-transformers_files/figure-html/fig-position-grid-output-1.png" alt="Two identical patch-content boxes receive different position labels because they occur at different grid locations." width="540" height="263" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-position-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;45.3: Patch embeddings identify local visual content, while positional embeddings identify the patch’s place in the image grid.
@@ -722,16 +687,16 @@ Figure&nbsp;45.3: Patch embeddings identify local visual content, while position
 <div id="cell-fig-local-global-access" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.set_xticks([])<span class="op">;</span> ax.set_yticks([])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.set_xticks([])<span class="op">;</span> ax.set_yticks([])</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a> <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): ax.add_patch(Rectangle((i,j),<span class="dv">1</span>,<span class="dv">1</span>,facecolor<span class="op">=</span><span class="st">"#e7edf1"</span>,edgecolor<span class="op">=</span><span class="st">"white"</span>))</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="dv">1</span>,<span class="dv">1</span>),<span class="dv">3</span>,<span class="dv">3</span>,fill<span class="op">=</span><span class="va">False</span>,edgecolor<span class="op">=</span>orange,lw<span class="op">=</span><span class="dv">3</span>))<span class="op">;</span> ax.annotate(<span class="st">"attention"</span>,xy<span class="op">=</span>(<span class="fl">4.5</span>,<span class="fl">4.5</span>),xytext<span class="op">=</span>(<span class="fl">.5</span>,<span class="fl">.5</span>),arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-|&gt;"</span>,<span class="st">"color"</span>:purple})<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_title(<span class="st">"Local window and distant token access"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="dv">1</span>,<span class="dv">1</span>),<span class="dv">3</span>,<span class="dv">3</span>,fill<span class="op">=</span><span class="va">False</span>,edgecolor<span class="op">=</span>orange,lw<span class="op">=</span><span class="dv">3</span>))<span class="op">;</span> ax.annotate(<span class="st">"attention"</span>,xy<span class="op">=</span>(<span class="fl">4.5</span>,<span class="fl">4.5</span>),xytext<span class="op">=</span>(<span class="fl">.5</span>,<span class="fl">.5</span>),arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-|&gt;"</span>,<span class="st">"color"</span>:purple})<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">5</span>)<span class="op">;</span> ax.set_title(<span class="st">"Local window and distant token access"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-local-global-access" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A grid highlights a local convolution window and an arrow connecting two distant patches for attention.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-local-global-access-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="44-vision-transformers_files/figure-html/fig-local-global-access-output-1.png" class="img-fluid figure-img" alt="A grid highlights a local convolution window and an arrow connecting two distant patches for attention.">
+<img src="44-vision-transformers_files/figure-html/fig-local-global-access-output-1.png" alt="A grid highlights a local convolution window and an arrow connecting two distant patches for attention." width="662" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-local-global-access-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;45.4: A convolutional layer begins with local neighbourhoods, whereas a ViT attention head can assign weight between distant patch tokens in one layer.
@@ -752,12 +717,12 @@ Figure&nbsp;45.4: A convolutional layer begins with local neighbourhoods, wherea
 <section id="the-classification-representation-is-a-declared-interface" class="level3">
 <h3 class="anchored" data-anchor-id="the-classification-representation-is-a-declared-interface">The classification representation is a declared interface</h3>
 <p>A classification ViT can prepend a learned class token and use its final representation for a classifier, or pool patch representations. These are different interfaces and should be reported. Training also inherits the earlier contracts: image normalisation, crop policy, augmentation, label mapping, optimiser, schedule, checkpoint selection, and the split used for final evaluation.</p>
-<div id="1c063530" class="cell" data-execution_count="6">
+<div id="25b94b90" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>patches<span class="op">=</span>np.array([[<span class="fl">.2</span>,<span class="fl">.1</span>],[<span class="fl">.7</span>,<span class="fl">.3</span>],[<span class="fl">.1</span>,<span class="fl">.8</span>]])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>patches<span class="op">=</span>np.array([[<span class="fl">.2</span>,<span class="fl">.1</span>],[<span class="fl">.7</span>,<span class="fl">.3</span>],[<span class="fl">.1</span>,<span class="fl">.8</span>]])</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>class_token<span class="op">=</span>np.array([<span class="fl">.5</span>,<span class="fl">.5</span>])<span class="op">;</span> sequence<span class="op">=</span>np.vstack([class_token,patches])</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sequence shape including class token:"</span>,sequence.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"sequence shape including class token:"</span>,sequence.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>sequence shape including class token: (4, 2)</code></pre>
@@ -771,16 +736,16 @@ Figure&nbsp;45.4: A convolutional layer begins with local neighbourhoods, wherea
 <div id="cell-fig-training-contract" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(label,c) <span class="kw">in</span> <span class="bu">enumerate</span>([(<span class="st">"image"</span>,blue),(<span class="st">"preprocess"</span>,teal),(<span class="st">"patches"</span>,purple),(<span class="st">"train"</span>,orange),(<span class="st">"held-out</span><span class="ch">\n</span><span class="st">evaluation"</span>,blue)]):</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a> x<span class="op">=</span><span class="fl">.2</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.75</span><span class="op">;</span> ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),<span class="fl">1.25</span>,<span class="fl">.55</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.63</span>,<span class="fl">1.53</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.6</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-training-contract" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A pipeline runs from raw image through preprocessing and patches to training, held-out evaluation, and a record of settings.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-training-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="44-vision-transformers_files/figure-html/fig-training-contract-output-1.png" class="img-fluid figure-img" alt="A pipeline runs from raw image through preprocessing and patches to training, held-out evaluation, and a record of settings.">
+<img src="44-vision-transformers_files/figure-html/fig-training-contract-output-1.png" alt="A pipeline runs from raw image through preprocessing and patches to training, held-out evaluation, and a record of settings." width="689" height="241" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-training-contract-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;45.5: A ViT result depends on the image and training contract: preprocessing, patching, position, augmentation, labels, and evaluation split.
@@ -815,14 +780,14 @@ Figure&nbsp;45.5: A ViT result depends on the image and training contract: prepr
 <div id="cell-fig-slice-evaluation" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>slices<span class="op">=</span>[<span class="st">"standard"</span>,<span class="st">"low light"</span>,<span class="st">"small object"</span>,<span class="st">"new camera"</span>]<span class="op">;</span> acc<span class="op">=</span>[<span class="fl">.88</span>,<span class="fl">.74</span>,<span class="fl">.67</span>,<span class="fl">.70</span>]</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(slices,acc,color<span class="op">=</span>[blue,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative visual-distribution slices"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>slices<span class="op">=</span>[<span class="st">"standard"</span>,<span class="st">"low light"</span>,<span class="st">"small object"</span>,<span class="st">"new camera"</span>]<span class="op">;</span> acc<span class="op">=</span>[<span class="fl">.88</span>,<span class="fl">.74</span>,<span class="fl">.67</span>,<span class="fl">.70</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>,<span class="dv">4</span>))<span class="op">;</span> ax.bar(slices,acc,color<span class="op">=</span>[blue,teal,orange,purple])<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"accuracy"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Illustrative visual-distribution slices"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-slice-evaluation" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A grouped bar chart compares illustrative accuracy for standard, low-light, small-object, and shifted-camera image slices.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-slice-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="44-vision-transformers_files/figure-html/fig-slice-evaluation-output-1.png" class="img-fluid figure-img" alt="A grouped bar chart compares illustrative accuracy for standard, low-light, small-object, and shifted-camera image slices.">
+<img src="44-vision-transformers_files/figure-html/fig-slice-evaluation-output-1.png" alt="A grouped bar chart compares illustrative accuracy for standard, low-light, small-object, and shifted-camera image slices." width="663" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-slice-evaluation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;45.6: ViT evaluation should report performance by visual slice because changes in resolution, object scale, or acquisition conditions can alter the image distribution.
@@ -879,12 +844,12 @@ Figure&nbsp;45.6: ViT evaluation should report performance by visual slice becau
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-dosovitskiy2021vit" class="csl-entry" role="listitem">
-Dosovitskiy, Alexey, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, et al. 2021. <span>“An Image Is Worth 16x16 Words: Transformers for Image Recognition at Scale.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2010.11929">https://arxiv.org/abs/2010.11929</a>.
+Dosovitskiy, Alexey, Lucas Beyer, Alexander Kolesnikov, et al. 2021. <span>“An Image Is Worth 16x16 Words: Transformers for Image Recognition at Scale.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/2010.11929">https://arxiv.org/abs/2010.11929</a>.
 </div>
 <div id="ref-touvron2021deit" class="csl-entry" role="listitem">
-Touvron, Hugo, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles, and Hervé Jégou. 2021. <span>“Training Data-Efficient Image Transformers and Distillation Through Attention.”</span> In <em>International Conference on Machine Learning</em>. <a href="https://arxiv.org/abs/2012.12877">https://arxiv.org/abs/2012.12877</a>.
+Touvron, Hugo, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles, and Hervé Jégou. 2021. <span>“Training Data-Efficient Image Transformers and Distillation Through Attention.”</span> <em>International Conference on Machine Learning</em>. <a href="https://arxiv.org/abs/2012.12877">https://arxiv.org/abs/2012.12877</a>.
 </div>
 </div>
 </section>
@@ -941,13 +906,14 @@ Touvron, Hugo, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayr
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -981,16 +947,16 @@ Touvron, Hugo, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayr
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1352,7 +1318,7 @@ Touvron, Hugo, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayr
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Vision Transformers"</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Image patches, positional structure, attention, and visual evaluation"</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1575,7 +1541,7 @@ Touvron, Hugo, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayr
 <span id="cb11-237"><a href="#cb11-237" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb11-238"><a href="#cb11-238" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-239"><a href="#cb11-239" aria-hidden="true" tabindex="-1"></a>Vision Transformer is introduced by @dosovitskiy2021vit. Data-efficient image Transformer training and distillation are studied by @touvron2021deit.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

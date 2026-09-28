@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Generalisation and Overfitting – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -626,7 +591,7 @@ f(x)=\sin(\pi x)+0.3x,
 <div id="cell-fig-capacity-fits" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> numpy.polynomial <span class="im">import</span> Polynomial</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> FancyBboxPatch, FancyArrowPatch</span>
@@ -656,13 +621,13 @@ f(x)=\sin(\pi x)+0.3x,
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">2.2</span>, <span class="fl">2.2</span>)</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-capacity-fits" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three panels show the same 18 noisy training observations with polynomial fits of degree 1, 5, and 17 against the true smooth function.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-capacity-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="09-generalisation-overfitting_files/figure-html/fig-capacity-fits-output-1.png" class="img-fluid figure-img" alt="Three panels show the same 18 noisy training observations with polynomial fits of degree 1, 5, and 17 against the true smooth function.">
+<img src="09-generalisation-overfitting_files/figure-html/fig-capacity-fits-output-1.png" alt="Three panels show the same 18 noisy training observations with polynomial fits of degree 1, 5, and 17 against the true smooth function." width="1287" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-capacity-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10.1: Polynomial capacity changes what the model follows: degree 1 misses the curve, degree 5 follows the signal, and degree 17 follows individual noisy observations.
@@ -706,7 +671,7 @@ Figure&nbsp;10.1: Polynomial capacity changes what the model follows: degree 1 m
 <div id="cell-fig-data-split-roles" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="fl">4.8</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>, <span class="fl">4.8</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>boxes <span class="op">=</span> [</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.08</span>, <span class="fl">0.60</span>, <span class="st">"Training data"</span>, <span class="st">"fit parameters"</span>, blue),</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">0.38</span>, <span class="fl">0.60</span>, <span class="st">"Candidate models"</span>, <span class="st">"degrees, widths, epochs"</span>, teal),</span>
@@ -726,13 +691,13 @@ Figure&nbsp;10.1: Polynomial capacity changes what the model follows: degree 1 m
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(FancyArrowPatch(start,end,arrowstyle<span class="op">=</span><span class="st">"-&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">15</span>,color<span class="op">=</span>grey))</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.53</span>,<span class="fl">0.40</span>,<span class="st">"development loop stays above"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="fl">0.82</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">0.04</span>,<span class="fl">0.76</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-data-split-roles" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A flow diagram shows training data fitting parameters, validation data selecting among fitted candidates, and test data assessing the selected model once.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-data-split-roles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="09-generalisation-overfitting_files/figure-html/fig-data-split-roles-output-1.png" class="img-fluid figure-img" alt="A flow diagram shows training data fitting parameters, validation data selecting among fitted candidates, and test data assessing the selected model once.">
+<img src="09-generalisation-overfitting_files/figure-html/fig-data-split-roles-output-1.png" alt="A flow diagram shows training data fitting parameters, validation data selecting among fitted candidates, and test data assessing the selected model once." width="998" height="451" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-split-roles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10.2: Training, validation, and test sets enter the workflow at different points.
@@ -749,7 +714,7 @@ Figure&nbsp;10.2: Training, validation, and test sets enter the workflow at diff
 <div id="cell-fig-capacity-error" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_fresh <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4000</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_fresh <span class="op">=</span> rng.uniform(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4000</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>y_fresh <span class="op">=</span> true_function(x_fresh) <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="bu">len</span>(x_fresh))</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>degrees <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">18</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>training_mse, fresh_mse <span class="op">=</span> [], []</span>
@@ -765,13 +730,13 @@ Figure&nbsp;10.2: Training, validation, and test sets enter the workflow at diff
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Capacity and error on observed versus fresh data"</span>)</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>ax.axvline(degrees[np.argmin(fresh_mse)], color<span class="op">=</span>grey, linestyle<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"best fresh-sample degree"</span>)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="fl">1e-4</span>, <span class="fl">1e6</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-capacity-error" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A log-scale line chart shows monotonically decreasing training mean squared error and U-shaped fresh-sample error over polynomial degrees zero to seventeen.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-capacity-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="09-generalisation-overfitting_files/figure-html/fig-capacity-error-output-1.png" class="img-fluid figure-img" alt="A log-scale line chart shows monotonically decreasing training mean squared error and U-shaped fresh-sample error over polynomial degrees zero to seventeen.">
+<img src="09-generalisation-overfitting_files/figure-html/fig-capacity-error-output-1.png" alt="A log-scale line chart shows monotonically decreasing training mean squared error and U-shaped fresh-sample error over polynomial degrees zero to seventeen." width="854" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-capacity-error-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10.3: Training error falls as polynomial degree rises, while error on fresh observations reaches a minimum and then increases.
@@ -788,7 +753,7 @@ Figure&nbsp;10.3: Training error falls as polynomial degree rises, while error o
 <div id="cell-fig-learning-curves" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sample_sizes <span class="op">=</span> np.array([<span class="dv">12</span>, <span class="dv">18</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">80</span>, <span class="dv">140</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sample_sizes <span class="op">=</span> np.array([<span class="dv">12</span>, <span class="dv">18</span>, <span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">80</span>, <span class="dv">140</span>])</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>repetitions <span class="op">=</span> <span class="dv">80</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>evaluation_x <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">800</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>evaluation_y <span class="op">=</span> true_function(evaluation_x)</span>
@@ -818,13 +783,13 @@ Figure&nbsp;10.3: Training error falls as polynomial degree rises, while error o
 <span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Mean squared error"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend()</span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylim(<span class="fl">3e-2</span>, <span class="dv">1</span>)</span>
 <span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylim(<span class="fl">1e-3</span>, <span class="fl">1e9</span>)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-learning-curves" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels show median training and fresh-sample error against sample size for degree-1 and degree-15 polynomial models, with uncertainty bands across repeated samples.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-learning-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="09-generalisation-overfitting_files/figure-html/fig-learning-curves-output-1.png" class="img-fluid figure-img" alt="Two panels show median training and fresh-sample error against sample size for degree-1 and degree-15 polynomial models, with uncertainty bands across repeated samples.">
+<img src="09-generalisation-overfitting_files/figure-html/fig-learning-curves-output-1.png" alt="Two panels show median training and fresh-sample error against sample size for degree-1 and degree-15 polynomial models, with uncertainty bands across repeated samples." width="1046" height="422" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-learning-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10.4: Additional observations stabilise the flexible polynomial, while the low-capacity model retains systematic error.
@@ -869,7 +834,7 @@ R_P(\hat\theta_D)-\widehat R_D(\hat\theta_D).
 <div id="cell-fig-bias-variance" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">0.65</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x0 <span class="op">=</span> <span class="fl">0.65</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>noise_variance <span class="op">=</span> <span class="fl">0.25</span><span class="op">**</span><span class="dv">2</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>components <span class="op">=</span> []</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> degree <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">15</span>]:</span>
@@ -892,13 +857,13 @@ R_P(\hat\theta_D)-\widehat R_D(\hat\theta_D).
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xticks(positions,[<span class="st">"Degree 1"</span>,<span class="st">"Degree 5"</span>,<span class="st">"Degree 15"</span>])</span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Estimated error component at x = 0.65"</span>)</span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Bias–variance decomposition across repeated samples"</span>)</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-bias-variance" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A stacked bar chart decomposes estimated prediction error into squared bias, variance, and noise for polynomial degrees 1, 5, and 15.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="09-generalisation-overfitting_files/figure-html/fig-bias-variance-output-1.png" class="img-fluid figure-img" alt="A stacked bar chart decomposes estimated prediction error into squared bias, variance, and noise for polynomial degrees 1, 5, and 15.">
+<img src="09-generalisation-overfitting_files/figure-html/fig-bias-variance-output-1.png" alt="A stacked bar chart decomposes estimated prediction error into squared bias, variance, and noise for polynomial degrees 1, 5, and 15." width="806" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10.5: At one input value, low degree produces bias while high degree produces sampling variance; observation noise remains for every model.
@@ -916,16 +881,16 @@ Figure&nbsp;10.5: At one input value, low degree produces bias while high degree
 \operatorname{SE}(\bar L)=\frac{s_L}{\sqrt m}.
 \]</span></p>
 <p>The independence assumption fails for clustered observations or repeated measurements from the same entity. Confidence intervals must then respect the sampling structure. Comparing many models on the same test observations also creates paired losses; analysing their differences is usually more informative than treating model estimates as independent.</p>
-<div id="a3cad3d2" class="cell" data-execution_count="6">
+<div id="6573ff0a" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate fresh-sample error and a simple independent-observation standard error.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate fresh-sample error and a simple independent-observation standard error.</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>selected_model <span class="op">=</span> Polynomial.fit(x_train, y_train, <span class="dv">5</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>test_losses <span class="op">=</span> (selected_model(x_fresh) <span class="op">-</span> y_fresh)<span class="op">**</span><span class="dv">2</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>mean_loss <span class="op">=</span> test_losses.mean()</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>standard_error <span class="op">=</span> test_losses.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(<span class="bu">len</span>(test_losses))</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Estimated test MSE: </span><span class="sc">{</span>mean_loss<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Approximate standard error: </span><span class="sc">{</span>standard_error<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Approximate standard error: </span><span class="sc">{</span>standard_error<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Estimated test MSE: 0.074
@@ -959,7 +924,7 @@ Approximate standard error: 0.002</code></pre>
 <div id="cell-fig-distribution-shift" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_extended<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">1</span>,<span class="fl">1.6</span>,<span class="dv">650</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_extended<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">1</span>,<span class="fl">1.6</span>,<span class="dv">650</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>fit_degree5<span class="op">=</span>Polynomial.fit(x_train,y_train,<span class="dv">5</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="dv">5</span>))</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.axvspan(<span class="dv">1</span>,<span class="fl">1.6</span>,color<span class="op">=</span>orange,alpha<span class="op">=</span><span class="fl">0.13</span>,label<span class="op">=</span><span class="st">"shifted input region"</span>)</span>
@@ -969,13 +934,13 @@ Approximate standard error: 0.002</code></pre>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">1</span>,color<span class="op">=</span>orange,linestyle<span class="op">=</span><span class="st">":"</span>,linewidth<span class="op">=</span><span class="dv">2</span>)</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"y"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="dv">4</span>,<span class="dv">3</span>)</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Interpolation evidence does not establish extrapolation"</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-distribution-shift" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A plot shows training observations and a degree-5 fit on minus one to one, then extends the same fitted curve into a shaded shifted region from one to one point six where it diverges from the true function.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-distribution-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="09-generalisation-overfitting_files/figure-html/fig-distribution-shift-output-1.png" class="img-fluid figure-img" alt="A plot shows training observations and a degree-5 fit on minus one to one, then extends the same fitted curve into a shaded shifted region from one to one point six where it diverges from the true function.">
+<img src="09-generalisation-overfitting_files/figure-html/fig-distribution-shift-output-1.png" alt="A plot shows training observations and a degree-5 fit on minus one to one, then extends the same fitted curve into a shaded shifted region from one to one point six where it diverges from the true function." width="855" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-distribution-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;10.6: A model fitted within the training range can generalise there and fail when asked to extrapolate beyond it.
@@ -1062,12 +1027,12 @@ Figure&nbsp;10.6: A model fitted within the training range can generalise there 
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Classical statistical-learning treatments of model complexity and generalisation appear in <span class="citation" data-cites="hastie2009">Hastie, Tibshirani, and Friedman (<a href="#ref-hastie2009" role="doc-biblioref">2009</a>)</span>. The ability of large networks to fit random labels is demonstrated by <span class="citation" data-cites="zhang2017">Zhang et al. (<a href="#ref-zhang2017" role="doc-biblioref">2017</a>)</span>. Double-descent formulations are developed by <span class="citation" data-cites="belkin2019">Belkin et al. (<a href="#ref-belkin2019" role="doc-biblioref">2019</a>)</span> and <span class="citation" data-cites="nakkiran2020">Nakkiran et al. (<a href="#ref-nakkiran2020" role="doc-biblioref">2020</a>)</span>. The sensitivity of benchmark performance to newly collected test sets is examined by <span class="citation" data-cites="recht2019">Recht et al. (<a href="#ref-recht2019" role="doc-biblioref">2019</a>)</span>.</p>
+<p>Classical statistical-learning treatments of model complexity and generalisation appear in <span class="citation" data-cites="hastie2009">Hastie et al. (<a href="#ref-hastie2009" role="doc-biblioref">2009</a>)</span>. The ability of large networks to fit random labels is demonstrated by <span class="citation" data-cites="zhang2017">Zhang et al. (<a href="#ref-zhang2017" role="doc-biblioref">2017</a>)</span>. Double-descent formulations are developed by <span class="citation" data-cites="belkin2019">Belkin et al. (<a href="#ref-belkin2019" role="doc-biblioref">2019</a>)</span> and <span class="citation" data-cites="nakkiran2020">Nakkiran et al. (<a href="#ref-nakkiran2020" role="doc-biblioref">2020</a>)</span>. The sensitivity of benchmark performance to newly collected test sets is examined by <span class="citation" data-cites="recht2019">Recht et al. (<a href="#ref-recht2019" role="doc-biblioref">2019</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-belkin2019" class="csl-entry" role="listitem">
 Belkin, Mikhail, Daniel Hsu, Siyuan Ma, and Soumik Mandal. 2019. <span>“Reconciling Modern Machine-Learning Practice and the Classical Bias–Variance Trade-Off.”</span> <em>Proceedings of the National Academy of Sciences</em> 116 (32): 15849–54. <a href="https://doi.org/10.1073/pnas.1903070116">https://doi.org/10.1073/pnas.1903070116</a>.
 </div>
@@ -1075,13 +1040,13 @@ Belkin, Mikhail, Daniel Hsu, Siyuan Ma, and Soumik Mandal. 2019. <span>“Reconc
 Hastie, Trevor, Robert Tibshirani, and Jerome Friedman. 2009. <em>The Elements of Statistical Learning</em>. 2nd ed. Springer. <a href="https://doi.org/10.1007/978-0-387-84858-7">https://doi.org/10.1007/978-0-387-84858-7</a>.
 </div>
 <div id="ref-nakkiran2020" class="csl-entry" role="listitem">
-Nakkiran, Preetum, Gal Kaplun, Yamini Bansal, Tristan Yang, Boaz Barak, and Ilya Sutskever. 2020. <span>“Deep Double Descent: Where Bigger Models and More Data Hurt.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=-bJ_Hb7lCVH">https://openreview.net/forum?id=-bJ_Hb7lCVH</a>.
+Nakkiran, Preetum, Gal Kaplun, Yamini Bansal, Tristan Yang, Boaz Barak, and Ilya Sutskever. 2020. <span>“Deep Double Descent: Where Bigger Models and More Data Hurt.”</span> <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=-bJ_Hb7lCVH">https://openreview.net/forum?id=-bJ_Hb7lCVH</a>.
 </div>
 <div id="ref-recht2019" class="csl-entry" role="listitem">
-Recht, Benjamin, Rebecca Roelofs, Ludwig Schmidt, and Vaishaal Shankar. 2019. <span>“Do <span>ImageNet</span> Classifiers Generalize to <span>ImageNet</span>?”</span> In <em>Proceedings of the 36th International Conference on Machine Learning</em>, 97:5389–5400. Proceedings of Machine Learning Research. PMLR. <a href="https://proceedings.mlr.press/v97/recht19a.html">https://proceedings.mlr.press/v97/recht19a.html</a>.
+Recht, Benjamin, Rebecca Roelofs, Ludwig Schmidt, and Vaishaal Shankar. 2019. <span>“Do <span>ImageNet</span> Classifiers Generalize to <span>ImageNet</span>?”</span> <em>Proceedings of the 36th International Conference on Machine Learning</em>, Proceedings of machine learning research, vol. 97: 5389–400. <a href="https://proceedings.mlr.press/v97/recht19a.html">https://proceedings.mlr.press/v97/recht19a.html</a>.
 </div>
 <div id="ref-zhang2017" class="csl-entry" role="listitem">
-Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 2017. <span>“Understanding Deep Learning Requires Rethinking Generalization.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=Sy8gdB9xx">https://openreview.net/forum?id=Sy8gdB9xx</a>.
+Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 2017. <span>“Understanding Deep Learning Requires Rethinking Generalization.”</span> <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=Sy8gdB9xx">https://openreview.net/forum?id=Sy8gdB9xx</a>.
 </div>
 </div>
 </section>
@@ -1138,13 +1103,14 @@ Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 20
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1178,16 +1144,16 @@ Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 20
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1549,7 +1515,7 @@ Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 20
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Generalisation and Overfitting"</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "From fitting observed data to performing on new cases"</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1961,7 +1927,7 @@ Zhang, Chiyuan, Samy Bengio, Moritz Hardt, Benjamin Recht, and Oriol Vinyals. 20
 <span id="cb9-424"><a href="#cb9-424" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb9-425"><a href="#cb9-425" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-426"><a href="#cb9-426" aria-hidden="true" tabindex="-1"></a>Classical statistical-learning treatments of model complexity and generalisation appear in @hastie2009. The ability of large networks to fit random labels is demonstrated by @zhang2017. Double-descent formulations are developed by @belkin2019 and @nakkiran2020. The sensitivity of benchmark performance to newly collected test sets is examined by @recht2019.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

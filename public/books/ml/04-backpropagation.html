@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Backpropagation – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -627,7 +592,7 @@ a=3x,\qquad b=a+4,\qquad L=b^2.
 <div id="cell-fig-forward-backward-intuition" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>blue, teal, orange <span class="op">=</span> <span class="st">"#24527a"</span>, <span class="st">"#3a9188"</span>, <span class="st">"#d97745"</span></span>
@@ -648,13 +613,13 @@ a=3x,\qquad b=a+4,\qquad L=b^2.
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.5</span>, <span class="fl">0.06</span>, <span class="st">"then: trace how earlier values affect that loss"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-forward-backward-intuition" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A simple two-row diagram with forward values moving left to right and backward gradient information moving right to left.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-forward-backward-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="04-backpropagation_files/figure-html/fig-forward-backward-intuition-output-1.png" class="img-fluid figure-img" alt="A simple two-row diagram with forward values moving left to right and backward gradient information moving right to left.">
+<img src="04-backpropagation_files/figure-html/fig-forward-backward-intuition-output-1.png" alt="A simple two-row diagram with forward values moving left to right and backward gradient information moving right to left." width="806" height="250" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-forward-backward-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.1: The forward pass produces a result; the backward pass traces how the result changed.
@@ -679,7 +644,7 @@ Figure&nbsp;5.1: The forward pass produces a result; the backward pass traces ho
 <div id="cell-fig-chain-rule-mechanics" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.3</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.3</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>items <span class="op">=</span> [(<span class="fl">0.14</span>, <span class="st">"x"</span>, blue), (<span class="fl">0.36</span>, <span class="st">"a = 3x"</span>, blue), (<span class="fl">0.58</span>, <span class="st">"b = a + 4"</span>, blue), (<span class="fl">0.82</span>, <span class="st">"L = b²"</span>, orange)]</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> xpos, label, colour <span class="kw">in</span> items:</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    ax.text(xpos, <span class="fl">0.65</span>, label, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, weight<span class="op">=</span><span class="st">"bold"</span>,</span>
@@ -691,13 +656,13 @@ Figure&nbsp;5.1: The forward pass produces a result; the backward pass traces ho
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.70</span>, <span class="fl">0.25</span>, <span class="st">"d L / d b = 20"</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>teal)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-chain-rule-mechanics" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A chain of three operations labelled with local derivatives and a final product of those derivatives.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-chain-rule-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="04-backpropagation_files/figure-html/fig-chain-rule-mechanics-output-1.png" class="img-fluid figure-img" alt="A chain of three operations labelled with local derivatives and a final product of those derivatives.">
+<img src="04-backpropagation_files/figure-html/fig-chain-rule-mechanics-output-1.png" alt="A chain of three operations labelled with local derivatives and a final product of those derivatives." width="806" height="211" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-chain-rule-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.2: Backpropagation combines local derivatives along the path from a parameter to the loss.
@@ -772,10 +737,10 @@ x\xrightarrow{\,a=3x\,}a\xrightarrow{\,b=a+4\,}b\xrightarrow{\,L=b^2\,}L.
 \frac{dL}{da}=\frac{dL}{db}\frac{db}{da}=20\times1=20.
 \]</span></p>
 <p>This is the quantity that would be passed further backwards if <span class="math inline">\(a\)</span> were the output of an earlier layer. In a neural network, every operation receives an incoming gradient from the right, multiplies it by its local derivative, and passes the result to the left.</p>
-<div id="225beb3f" class="cell" data-execution_count="3">
+<div id="0aafe624" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor(<span class="fl">2.0</span>, requires_grad<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="dv">3</span> <span class="op">*</span> x</span>
@@ -786,7 +751,7 @@ x\xrightarrow{\,a=3x\,}a\xrightarrow{\,b=a+4\,}b\xrightarrow{\,L=b^2\,}L.
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"a = </span><span class="sc">{</span>a<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"b = </span><span class="sc">{</span>b<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"loss = </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"dL/dx = </span><span class="sc">{</span>x<span class="sc">.</span>grad<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"dL/dx = </span><span class="sc">{</span>x<span class="sc">.</span>grad<span class="sc">.</span>item()<span class="sc">:.1f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>a = 6.0
@@ -804,16 +769,16 @@ dL/dx = 60.0</code></pre>
 <p><span class="math display">\[
 \frac{dL}{dx}\approx\frac{L(x+h)-L(x-h)}{2h}.
 \]</span></p>
-<div id="35c96e8b" class="cell" data-execution_count="4">
+<div id="3b7cf716" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_function(value):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loss_function(value):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (<span class="dv">3</span> <span class="op">*</span> value <span class="op">+</span> <span class="dv">4</span>) <span class="op">**</span> <span class="dv">2</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>x_value <span class="op">=</span> <span class="fl">2.0</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> <span class="fl">1e-5</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>finite_difference <span class="op">=</span> (loss_function(x_value <span class="op">+</span> h) <span class="op">-</span> loss_function(x_value <span class="op">-</span> h)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> h)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"finite-difference derivative: </span><span class="sc">{</span>finite_difference<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"finite-difference derivative: </span><span class="sc">{</span>finite_difference<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>finite-difference derivative: 60.000000</code></pre>
@@ -824,7 +789,7 @@ dL/dx = 60.0</code></pre>
 <div id="cell-fig-local-slope" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -848,13 +813,13 @@ dL/dx = 60.0</code></pre>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"input x"</span>, ylabel<span class="op">=</span><span class="st">"loss L(x)"</span>, title<span class="op">=</span><span class="st">"The gradient describes local change in the loss"</span>)</span>
 <span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
 <span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-local-slope" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A parabola for the loss as the input changes, with the forward-pass value at x equals two, two nearby finite-difference points, and a tangent line whose slope is sixty.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-local-slope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="04-backpropagation_files/figure-html/fig-local-slope-output-1.png" class="img-fluid figure-img" alt="A parabola for the loss as the input changes, with the forward-pass value at x equals two, two nearby finite-difference points, and a tangent line whose slope is sixty.">
+<img src="04-backpropagation_files/figure-html/fig-local-slope-output-1.png" alt="A parabola for the loss as the input changes, with the forward-pass value at x equals two, two nearby finite-difference points, and a tangent line whose slope is sixty." width="779" height="403" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-local-slope-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.3: A derivative is the slope of the loss near the value reached by the forward pass; the tangent is a local approximation, not the full loss curve.
@@ -867,10 +832,10 @@ Figure&nbsp;5.3: A derivative is the slope of the loss near the value reached by
 </section>
 <section id="a-small-neural-network" class="level3">
 <h3 class="anchored" data-anchor-id="a-small-neural-network">A small neural network</h3>
-<div id="b1aff6e1" class="cell" data-execution_count="6">
+<div id="058162f7" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">3</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(nn.Linear(<span class="dv">2</span>, <span class="dv">3</span>), nn.Tanh(), nn.Linear(<span class="dv">3</span>, <span class="dv">1</span>))</span>
@@ -882,13 +847,13 @@ Figure&nbsp;5.3: A derivative is the slope of the loss near the value reached by
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, parameter <span class="kw">in</span> model.named_parameters():</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name, parameter.grad.shape, parameter.grad.norm().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(name, parameter.grad.shape, parameter.grad.norm().item())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.weight torch.Size([3, 2]) 0.7815805673599243
-0.bias torch.Size([3]) 0.472900390625
+<pre><code>0.weight torch.Size([3, 2]) 0.7815804481506348
+0.bias torch.Size([3]) 0.47290030121803284
 2.weight torch.Size([1, 3]) 2.924274206161499
-2.bias torch.Size([1]) 2.4533448219299316</code></pre>
+2.bias torch.Size([1]) 2.4533445835113525</code></pre>
 </div>
 </div>
 <p>Every parameter tensor receives a gradient. The gradient shapes match the parameter shapes because each weight and bias has its own local contribution to the final loss.</p>
@@ -899,7 +864,7 @@ Figure&nbsp;5.3: A derivative is the slope of the loss near the value reached by
 <div id="cell-fig-gradient-flow" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Circle, FancyArrowPatch</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -917,13 +882,13 @@ Figure&nbsp;5.3: A derivative is the slope of the loss near the value reached by
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">"←"</span>, xy<span class="op">=</span>(<span class="fl">0.66</span>, <span class="fl">0.39</span>), fontsize<span class="op">=</span><span class="dv">20</span>, ha<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span>orange)</span>
 <span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-gradient-flow" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A directed diagram showing x flowing through a, b, and loss in the forward direction, with derivatives flowing back in the opposite direction.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="04-backpropagation_files/figure-html/fig-gradient-flow-output-1.png" class="img-fluid figure-img" alt="A directed diagram showing x flowing through a, b, and loss in the forward direction, with derivatives flowing back in the opposite direction.">
+<img src="04-backpropagation_files/figure-html/fig-gradient-flow-output-1.png" alt="A directed diagram showing x flowing through a, b, and loss in the forward direction, with derivatives flowing back in the opposite direction." width="854" height="259" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gradient-flow-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.4: A computation graph carries values forward and gradient signals backward.
@@ -949,7 +914,7 @@ Figure&nbsp;5.4: A computation graph carries values forward and gradient signals
 <div id="cell-fig-checkpoint-tradeoff" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">3.5</span>))</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>settings <span class="op">=</span> [<span class="st">"Store all</span><span class="ch">\n</span><span class="st">activations"</span>, <span class="st">"Checkpoint</span><span class="ch">\n</span><span class="st">and recompute"</span>]</span>
@@ -960,13 +925,13 @@ Figure&nbsp;5.4: A computation graph carries values forward and gradient signals
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(ylabel<span class="op">=</span><span class="st">"Relative computation"</span>, title<span class="op">=</span><span class="st">"Computation"</span>)</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="dv">150</span>)</span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-checkpoint-tradeoff" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A conceptual comparison showing lower activation memory and higher computation when checkpointing is used.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-checkpoint-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="04-backpropagation_files/figure-html/fig-checkpoint-tradeoff-output-1.png" class="img-fluid figure-img" alt="A conceptual comparison showing lower activation memory and higher computation when checkpointing is used.">
+<img src="04-backpropagation_files/figure-html/fig-checkpoint-tradeoff-output-1.png" alt="A conceptual comparison showing lower activation memory and higher computation when checkpointing is used." width="808" height="326" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-checkpoint-tradeoff-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5.5: Activation checkpointing reduces stored activations by repeating part of the forward computation.
@@ -1032,12 +997,12 @@ Figure&nbsp;5.5: Activation checkpointing reduces stored activations by repeatin
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>The original neural-network treatment of backpropagation is provided by <span class="citation" data-cites="rumelhart1986">Rumelhart, Hinton, and Williams (<a href="#ref-rumelhart1986" role="doc-biblioref">1986</a>)</span>. The practical and systems issues surrounding large-scale optimisation are discussed by <span class="citation" data-cites="bottou2018">Bottou, Curtis, and Nocedal (<a href="#ref-bottou2018" role="doc-biblioref">2018</a>)</span>.</p>
+<p>The original neural-network treatment of backpropagation is provided by <span class="citation" data-cites="rumelhart1986">Rumelhart et al. (<a href="#ref-rumelhart1986" role="doc-biblioref">1986</a>)</span>. The practical and systems issues surrounding large-scale optimisation are discussed by <span class="citation" data-cites="bottou2018">Bottou et al. (<a href="#ref-bottou2018" role="doc-biblioref">2018</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-baydin2018" class="csl-entry" role="listitem">
 Baydin, Atilim Gunes, Barak A. Pearlmutter, Alexey Andreyevich Radul, and Jeffrey Mark Siskind. 2018. <span>“Automatic Differentiation in Machine Learning: A Survey.”</span> <em>Journal of Machine Learning Research</em> 18 (153): 1–43. <a href="https://www.jmlr.org/papers/v18/17-468.html">https://www.jmlr.org/papers/v18/17-468.html</a>.
 </div>
@@ -1048,7 +1013,7 @@ Bottou, Léon, Frank E. Curtis, and Jorge Nocedal. 2018. <span>“Optimization M
 Chen, Tianqi, Bing Xu, Chiyuan Zhang, and Carlos Guestrin. 2016. <span>“Training Deep Nets with Sublinear Memory Cost.”</span> <em>arXiv Preprint arXiv:1604.06174</em>. <a href="https://arxiv.org/abs/1604.06174">https://arxiv.org/abs/1604.06174</a>.
 </div>
 <div id="ref-li2020ddp" class="csl-entry" role="listitem">
-Li, Shen, Yanli Zhao, Rohan Varma, Omkar Salpekar, Pieter Noordhuis, Teng Li, Adam Paszke, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
+Li, Shen, Yanli Zhao, Rohan Varma, et al. 2020. <span>“PyTorch Distributed: Experiences on Accelerating Data Parallel Training.”</span> <em>arXiv Preprint arXiv:2006.15704</em>. <a href="https://arxiv.org/abs/2006.15704">https://arxiv.org/abs/2006.15704</a>.
 </div>
 <div id="ref-rumelhart1986" class="csl-entry" role="listitem">
 Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. 1986. <span>“Learning Representations by Back-Propagating Errors.”</span> <em>Nature</em> 323: 533–36. <a href="https://doi.org/10.1038/323533a0">https://doi.org/10.1038/323533a0</a>.
@@ -1108,13 +1073,14 @@ Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. 1986. <span>“
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1148,16 +1114,16 @@ Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. 1986. <span>“
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1519,7 +1485,7 @@ Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. 1986. <span>“
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Backpropagation"</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "How a network computes the gradients it needs to learn"</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1910,7 +1876,7 @@ Rumelhart, David E., Geoffrey E. Hinton, and Ronald J. Williams. 1986. <span>“
 <span id="cb12-405"><a href="#cb12-405" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb12-406"><a href="#cb12-406" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-407"><a href="#cb12-407" aria-hidden="true" tabindex="-1"></a>The original neural-network treatment of backpropagation is provided by @rumelhart1986. The practical and systems issues surrounding large-scale optimisation are discussed by @bottou2018.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

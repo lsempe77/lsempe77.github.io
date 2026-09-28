@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Attention – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -625,7 +590,7 @@ window.Quarto = {
 <div id="cell-fig-attention-overview" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle, FancyArrowPatch</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -647,13 +612,13 @@ window.Quarto = {
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>ax.add_patch(Rectangle((<span class="fl">7.1</span>,<span class="fl">.5</span>),<span class="fl">1.35</span>,<span class="fl">.58</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">7.775</span>,<span class="fl">.79</span>,<span class="st">"context vector"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>): ax.add_patch(FancyArrowPatch((<span class="fl">.75</span><span class="op">+</span>i<span class="op">*</span><span class="fl">1.15</span>,<span class="fl">.87</span>),(<span class="fl">7.05</span>,<span class="fl">.79</span>),arrowstyle<span class="op">=</span><span class="st">"-|&gt;"</span>,mutation_scale<span class="op">=</span><span class="dv">9</span>,color<span class="op">=</span>teal,alpha<span class="op">=</span><span class="fl">.38</span>))</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.0</span>,<span class="fl">.25</span>,<span class="st">"softmax normalises scores; weighted values are summed"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">4.1</span>)<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">4.1</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-attention-overview" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Five source-state boxes provide keys and values. A decoder query sends arrows to score boxes, scores pass through softmax into weighted arrows, and the values combine into one context vector.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-attention-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="19-attention_files/figure-html/fig-attention-overview-output-1.png" class="img-fluid figure-img" alt="Five source-state boxes provide keys and values. A decoder query sends arrows to score boxes, scores pass through softmax into weighted arrows, and the values combine into one context vector.">
+<img src="19-attention_files/figure-html/fig-attention-overview-output-1.png" alt="Five source-state boxes provide keys and values. A decoder query sends arrows to score boxes, scores pass through softmax into weighted arrows, and the values combine into one context vector." width="912" height="367" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-attention-overview-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.1: Attention makes a query-dependent context vector by scoring source keys, normalising the scores, and combining the corresponding values.
@@ -684,20 +649,20 @@ Figure&nbsp;20.1: Attention makes a query-dependent context vector by scoring so
 <div id="cell-fig-query-dependent-retrieval" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>source_labels<span class="op">=</span>[<span class="st">"source 1"</span>,<span class="st">"source 2"</span>,<span class="st">"source 3"</span>,<span class="st">"source 4"</span>,<span class="st">"source 5"</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>source_labels<span class="op">=</span>[<span class="st">"source 1"</span>,<span class="st">"source 2"</span>,<span class="st">"source 3"</span>,<span class="st">"source 4"</span>,<span class="st">"source 5"</span>]</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>weights<span class="op">=</span>np.array([[<span class="fl">.05</span>,<span class="fl">.48</span>,<span class="fl">.36</span>,<span class="fl">.08</span>,<span class="fl">.03</span>],[<span class="fl">.03</span>,<span class="fl">.05</span>,<span class="fl">.10</span>,<span class="fl">.37</span>,<span class="fl">.45</span>]])</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.8</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,row,title <span class="kw">in</span> <span class="bu">zip</span>(axes,weights,[<span class="st">"Query: retrieve an early detail"</span>,<span class="st">"Query: retrieve a later detail"</span>]):</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    image<span class="op">=</span>ax.imshow(row[<span class="va">None</span>,:],cmap<span class="op">=</span><span class="st">"YlGnBu"</span>,vmin<span class="op">=</span><span class="dv">0</span>,vmax<span class="op">=</span><span class="fl">.5</span>,aspect<span class="op">=</span><span class="st">"auto"</span>)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    ax.set_xticks(<span class="bu">range</span>(<span class="dv">5</span>),source_labels,rotation<span class="op">=</span><span class="dv">25</span>,ha<span class="op">=</span><span class="st">"right"</span>)<span class="op">;</span> ax.set_yticks([<span class="dv">0</span>],[<span class="st">"weight"</span>])<span class="op">;</span> ax.set_title(title)</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,value <span class="kw">in</span> <span class="bu">enumerate</span>(row): ax.text(i,<span class="dv">0</span>,<span class="ss">f"</span><span class="sc">{</span>value<span class="sc">:.2f}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">9</span>,color<span class="op">=</span><span class="st">"black"</span> <span class="cf">if</span> value<span class="op">&lt;</span><span class="fl">.28</span> <span class="cf">else</span> <span class="st">"white"</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>axes.ravel().tolist(),label<span class="op">=</span><span class="st">"attention weight"</span>,shrink<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>axes.ravel().tolist(),label<span class="op">=</span><span class="st">"attention weight"</span>,shrink<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-query-dependent-retrieval" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two heatmaps show attention weights over five source positions for two decoder queries. The first concentrates on positions two and three; the second concentrates on positions four and five.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-query-dependent-retrieval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="19-attention_files/figure-html/fig-query-dependent-retrieval-output-1.png" class="img-fluid figure-img" alt="Two heatmaps show attention weights over five source positions for two decoder queries. The first concentrates on positions two and three; the second concentrates on positions four and five.">
+<img src="19-attention_files/figure-html/fig-query-dependent-retrieval-output-1.png" alt="Two heatmaps show attention weights over five source positions for two decoder queries. The first concentrates on positions two and three; the second concentrates on positions four and five." width="953" height="356" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-query-dependent-retrieval-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.2: Different queries retrieve different mixtures from the same source values because their score patterns differ.
@@ -727,18 +692,18 @@ Figure&nbsp;20.2: Different queries retrieve different mixtures from the same so
 <p><span class="math display">\[
 e_i=v_a^\top\tanh(W_q q+W_k k_i+b_a).
 \]</span></p>
-<p>The score has no requirement to lie between zero and one. It is a compatibility value whose scale and distribution depend on the parameterisation and inputs. Bahdanau attention used an additive alignment function in an encoder-decoder model <span class="citation" data-cites="bahdanau2015attention">(<a href="#ref-bahdanau2015attention" role="doc-biblioref">Bahdanau, Cho, and Bengio 2015</a>)</span>. Luong and colleagues compared dot-product, general bilinear, and related score functions <span class="citation" data-cites="luong2015attention">(<a href="#ref-luong2015attention" role="doc-biblioref">Luong, Pham, and Manning 2015</a>)</span>.</p>
-<div id="0ec62326" class="cell" data-execution_count="3">
+<p>The score has no requirement to lie between zero and one. It is a compatibility value whose scale and distribution depend on the parameterisation and inputs. Bahdanau attention used an additive alignment function in an encoder-decoder model <span class="citation" data-cites="bahdanau2015attention">(<a href="#ref-bahdanau2015attention" role="doc-biblioref">Bahdanau et al. 2015</a>)</span>. Luong and colleagues compared dot-product, general bilinear, and related score functions <span class="citation" data-cites="luong2015attention">(<a href="#ref-luong2015attention" role="doc-biblioref">Luong et al. 2015</a>)</span>.</p>
+<div id="fc7ff256" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>query<span class="op">=</span>np.array([<span class="fl">.8</span>,<span class="op">-</span><span class="fl">.3</span>,<span class="fl">.5</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>query<span class="op">=</span>np.array([<span class="fl">.8</span>,<span class="op">-</span><span class="fl">.3</span>,<span class="fl">.5</span>])</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>keys<span class="op">=</span>np.array([[<span class="fl">.2</span>,<span class="fl">.7</span>,<span class="op">-</span><span class="fl">.1</span>],[<span class="fl">.9</span>,<span class="op">-</span><span class="fl">.2</span>,<span class="fl">.4</span>],[<span class="fl">.1</span>,<span class="fl">.3</span>,<span class="fl">.8</span>],[<span class="op">-</span><span class="fl">.6</span>,<span class="fl">.2</span>,<span class="fl">.5</span>],[<span class="fl">.4</span>,<span class="op">-</span><span class="fl">.8</span>,<span class="op">-</span><span class="fl">.2</span>]])</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>values<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">.2</span>],[<span class="fl">.7</span>,<span class="fl">.4</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.9</span>,<span class="fl">.3</span>],[<span class="fl">.1</span>,<span class="fl">.3</span>,<span class="fl">.8</span>],[<span class="fl">.4</span>,<span class="fl">.2</span>,<span class="fl">1.</span>]])</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>dot_scores<span class="op">=</span>keys<span class="op">@</span>query</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>W<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">.1</span>,<span class="fl">0.</span>],[<span class="fl">0.</span>,<span class="fl">.8</span>,<span class="fl">.2</span>],[<span class="fl">.2</span>,<span class="fl">0.</span>,<span class="fl">1.</span>]])</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>bilinear_scores<span class="op">=</span>keys<span class="op">@</span>(W.T<span class="op">@</span>query)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"dot-product scores:"</span>,np.<span class="bu">round</span>(dot_scores,<span class="dv">3</span>))</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"bilinear scores:   "</span>,np.<span class="bu">round</span>(bilinear_scores,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"bilinear scores:   "</span>,np.<span class="bu">round</span>(bilinear_scores,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>dot-product scores: [-0.1   0.98  0.39 -0.29  0.46]
@@ -754,10 +719,10 @@ bilinear scores:    [ 0.024  1.018  0.394 -0.352  0.4  ]</code></pre>
 \alpha_i=\frac{\exp(e_i)}{\sum_{j=1}^{S}\exp(e_j)}.
 \]</span></p>
 <p>Every <span class="math inline">\(\alpha_i\)</span> is non-negative and the weights sum to one. Raising one score affects all weights through the denominator. Adding the same constant to every score leaves the distribution unchanged, so stable implementations subtract the maximum score before exponentiation.</p>
-<div id="002aae2e" class="cell" data-execution_count="4">
+<div id="9df4760d" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(scores):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(scores):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    shifted<span class="op">=</span>scores<span class="op">-</span>scores.<span class="bu">max</span>()</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    exp<span class="op">=</span>np.exp(shifted)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> exp<span class="op">/</span>exp.<span class="bu">sum</span>()</span>
@@ -765,7 +730,7 @@ bilinear scores:    [ 0.024  1.018  0.394 -0.352  0.4  ]</code></pre>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>attention_weights<span class="op">=</span>softmax(dot_scores)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>context<span class="op">=</span>attention_weights<span class="op">@</span>values</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weights:"</span>,np.<span class="bu">round</span>(attention_weights,<span class="dv">3</span>),<span class="st">"sum:"</span>,attention_weights.<span class="bu">sum</span>())</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"context:"</span>,np.<span class="bu">round</span>(context,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"context:"</span>,np.<span class="bu">round</span>(context,<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>weights: [0.123 0.361 0.2   0.101 0.215] sum: 1.0
@@ -784,19 +749,19 @@ context: [0.511 0.398 0.417]</code></pre>
 <div id="cell-fig-softmax-temperature" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>temperatures<span class="op">=</span>[<span class="fl">.5</span>,<span class="fl">1.</span>,<span class="fl">2.</span>]</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>temperatures<span class="op">=</span>[<span class="fl">.5</span>,<span class="fl">1.</span>,<span class="fl">2.</span>]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">3</span>,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="fl">3.8</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,temp <span class="kw">in</span> <span class="bu">zip</span>(axes,temperatures):</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    w<span class="op">=</span>softmax(dot_scores<span class="op">/</span>temp)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    ax.bar(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">6</span>),w,color<span class="op">=</span>teal)</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"temperature </span><span class="sc">{</span>temp<span class="sc">}</span><span class="ss">"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Source position"</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">.8</span>)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Attention weight"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Attention weight"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-softmax-temperature" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three bar charts show attention weights over five source positions at temperatures 0.5, 1.0, and 2.0. Lower temperature concentrates more weight on the highest-scoring position.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-softmax-temperature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="19-attention_files/figure-html/fig-softmax-temperature-output-1.png" class="img-fluid figure-img" alt="Three bar charts show attention weights over five source positions at temperatures 0.5, 1.0, and 2.0. Lower temperature concentrates more weight on the highest-scoring position.">
+<img src="19-attention_files/figure-html/fig-softmax-temperature-output-1.png" alt="Three bar charts show attention weights over five source positions at temperatures 0.5, 1.0, and 2.0. Lower temperature concentrates more weight on the highest-scoring position." width="1143" height="355" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-softmax-temperature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.3: Softmax temperature changes the concentration of an attention distribution while retaining the ranking of scores.
@@ -813,20 +778,20 @@ Figure&nbsp;20.3: Softmax temperature changes the concentration of an attention 
 <div id="cell-fig-attention-mask" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>valid<span class="op">=</span>np.array([<span class="va">True</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">False</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>valid<span class="op">=</span>np.array([<span class="va">True</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">False</span>,<span class="va">False</span>])</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>masked_scores<span class="op">=</span>dot_scores.copy()<span class="op">;</span> masked_scores[<span class="op">~</span>valid]<span class="op">=-</span>np.inf</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>masked_weights<span class="op">=</span>softmax(masked_scores)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">3.8</span>),sharey<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].bar(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">6</span>),attention_weights,color<span class="op">=</span>orange)<span class="op">;</span> axes[<span class="dv">0</span>].set_title(<span class="st">"Unmasked"</span>)</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">6</span>),masked_weights,color<span class="op">=</span>teal)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Positions 4-5 masked"</span>)</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.set_xlabel(<span class="st">"Source position"</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">.8</span>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Attention weight"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Attention weight"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-attention-mask" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two bar charts compare unmasked attention over five positions with masked attention in which positions four and five receive zero weight and earlier weights are renormalised.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-attention-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="19-attention_files/figure-html/fig-attention-mask-output-1.png" class="img-fluid figure-img" alt="Two bar charts compare unmasked attention over five positions with masked attention in which positions four and five receive zero weight and earlier weights are renormalised.">
+<img src="19-attention_files/figure-html/fig-attention-mask-output-1.png" alt="Two bar charts compare unmasked attention over five positions with masked attention in which positions four and five receive zero weight and earlier weights are renormalised." width="951" height="355" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-attention-mask-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.4: Masking removes ineligible positions before softmax, reallocating their probability mass across valid positions.
@@ -839,23 +804,23 @@ Figure&nbsp;20.4: Masking removes ineligible positions before softmax, reallocat
 </section>
 <section id="global-and-local-access-trade-coverage-for-cost" class="level3">
 <h3 class="anchored" data-anchor-id="global-and-local-access-trade-coverage-for-cost">Global and local access trade coverage for cost</h3>
-<p>Global attention scores every available source state. Local attention restricts scoring to a window or selected subset. Global access can retrieve any source position but grows with sequence length. Local access reduces work and may suit monotonic or spatially local tasks, but it can miss a relevant position outside the window. Luong et al.&nbsp;compared global and local attention in neural machine translation <span class="citation" data-cites="luong2015attention">(<a href="#ref-luong2015attention" role="doc-biblioref">Luong, Pham, and Manning 2015</a>)</span>.</p>
+<p>Global attention scores every available source state. Local attention restricts scoring to a window or selected subset. Global access can retrieve any source position but grows with sequence length. Local access reduces work and may suit monotonic or spatially local tasks, but it can miss a relevant position outside the window. Luong et al.&nbsp;compared global and local attention in neural machine translation <span class="citation" data-cites="luong2015attention">(<a href="#ref-luong2015attention" role="doc-biblioref">Luong et al. 2015</a>)</span>.</p>
 <div id="cell-fig-global-local-attention" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">4.4</span>),sharex<span class="op">=</span><span class="va">True</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">2</span>,<span class="dv">1</span>,figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="fl">4.4</span>),sharex<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title,active <span class="kw">in</span> [(axes[<span class="dv">0</span>],<span class="st">"Global: all source positions eligible"</span>,<span class="bu">set</span>(<span class="bu">range</span>(<span class="dv">10</span>))),(axes[<span class="dv">1</span>],<span class="st">"Local: window around predicted centre"</span>,<span class="bu">set</span>(<span class="bu">range</span>(<span class="dv">3</span>,<span class="dv">7</span>)))]:</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>):</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        colour<span class="op">=</span>teal <span class="cf">if</span> i <span class="kw">in</span> active <span class="cf">else</span> <span class="st">"#d9dde1"</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((i,<span class="fl">.25</span>),<span class="fl">.75</span>,<span class="fl">.5</span>,facecolor<span class="op">=</span>colour,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(i<span class="op">+</span><span class="fl">.375</span>,<span class="fl">.5</span>,<span class="bu">str</span>(i<span class="op">+</span><span class="dv">1</span>),ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="op">-</span><span class="fl">.1</span>,<span class="dv">10</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.set_title(title,loc<span class="op">=</span><span class="st">"left"</span>,fontsize<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-global-local-attention" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A ten-position source line is shown twice. Global attention highlights all positions, while local attention highlights positions four through seven around a decoder's predicted centre.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-global-local-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="19-attention_files/figure-html/fig-global-local-attention-output-1.png" class="img-fluid figure-img" alt="A ten-position source line is shown twice. Global attention highlights all positions, while local attention highlights positions four through seven around a decoder's predicted centre.">
+<img src="19-attention_files/figure-html/fig-global-local-attention-output-1.png" alt="A ten-position source line is shown twice. Global attention highlights all positions, while local attention highlights positions four through seven around a decoder's predicted centre." width="950" height="413" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-global-local-attention-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.5: Global attention scores every source position; local attention restricts retrieval to a declared window around the current location.
@@ -880,10 +845,10 @@ c=\alpha^\top V.
 \]</span></p>
 <p>Here <span class="math inline">\(Kq\in\mathbb{R}^{S}\)</span> supplies one score per source position, <span class="math inline">\(\alpha\in\mathbb{R}^{S}\)</span> supplies one weight per position, and <span class="math inline">\(c\in\mathbb{R}^{D_v}\)</span> is the context vector. The key dimension and value dimension need not be equal.</p>
 <p>For a batch of decoder queries <span class="math inline">\(Q\in\mathbb{R}^{B\times T\times D_k}\)</span> and source keys <span class="math inline">\(K\in\mathbb{R}^{B\times S\times D_k}\)</span>, the score tensor has shape <span class="math inline">\(B\times T\times S\)</span>. Each target position has its own distribution over source positions.</p>
-<div id="b04b7afe" class="cell" data-execution_count="8">
+<div id="e88bdbfc" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">19</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>B,T,S,D_k,D_v<span class="op">=</span><span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">4</span>,<span class="dv">6</span></span>
@@ -895,7 +860,7 @@ c=\alpha^\top V.
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>contexts<span class="op">=</span>torch.matmul(weights,V)</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scores:  "</span>,<span class="bu">tuple</span>(scores.shape))</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"weights: "</span>,<span class="bu">tuple</span>(weights.shape),<span class="st">"row sums:"</span>,weights[<span class="dv">0</span>,<span class="dv">0</span>].<span class="bu">sum</span>().item())</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"contexts:"</span>,<span class="bu">tuple</span>(contexts.shape))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"contexts:"</span>,<span class="bu">tuple</span>(contexts.shape))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>scores:   (2, 3, 5)
@@ -907,10 +872,10 @@ contexts: (2, 3, 6)</code></pre>
 </section>
 <section id="masked-softmax-requires-a-stable-fill-value" class="level3">
 <h3 class="anchored" data-anchor-id="masked-softmax-requires-a-stable-fill-value">Masked softmax requires a stable fill value</h3>
-<div id="7bc0d895" class="cell" data-execution_count="9">
+<div id="490483e2" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> masked_attention(query,keys,values,valid_positions):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> masked_attention(query,keys,values,valid_positions):</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    scores<span class="op">=</span>query<span class="op">@</span>keys.T</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    scores<span class="op">=</span>np.where(valid_positions,scores,<span class="op">-</span>np.inf)</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    weights<span class="op">=</span>softmax(scores)</span>
@@ -923,7 +888,7 @@ contexts: (2, 3, 6)</code></pre>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>checked_weights,checked_context<span class="op">=</span>masked_attention(one_query,one_keys,one_values,one_mask)</span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"masked weights:"</span>,np.<span class="bu">round</span>(checked_weights,<span class="dv">3</span>))</span>
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"masked context:"</span>,np.<span class="bu">round</span>(checked_context,<span class="dv">3</span>))</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"masked mass:"</span>,checked_weights[<span class="op">~</span>one_mask].<span class="bu">sum</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"masked mass:"</span>,checked_weights[<span class="op">~</span>one_mask].<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>masked weights: [0.179 0.528 0.293 0.    0.   ]
@@ -939,7 +904,7 @@ masked mass: 0.0</code></pre>
 <div id="cell-fig-weighted-context" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>value_points<span class="op">=</span>np.array([[<span class="fl">0.</span>,<span class="fl">0.</span>],[<span class="fl">2.6</span>,<span class="fl">.25</span>],[<span class="fl">.55</span>,<span class="fl">2.1</span>]])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>value_points<span class="op">=</span>np.array([[<span class="fl">0.</span>,<span class="fl">0.</span>],[<span class="fl">2.6</span>,<span class="fl">.25</span>],[<span class="fl">.55</span>,<span class="fl">2.1</span>]])</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>weight_sets<span class="op">=</span>np.array([[<span class="fl">.6</span>,<span class="fl">.3</span>,<span class="fl">.1</span>],[<span class="fl">.15</span>,<span class="fl">.25</span>,<span class="fl">.6</span>]])</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>contexts_2d<span class="op">=</span>weight_sets<span class="op">@</span>value_points</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>,<span class="fl">5.2</span>))</span>
@@ -948,13 +913,13 @@ masked mass: 0.0</code></pre>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(x,y) <span class="kw">in</span> <span class="bu">enumerate</span>(value_points): ax.scatter(x,y,s<span class="op">=</span><span class="dv">90</span>,color<span class="op">=</span>blue)<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.06</span>,y<span class="op">+</span><span class="fl">.06</span>,<span class="ss">f"value </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(x,y) <span class="kw">in</span> <span class="bu">enumerate</span>(contexts_2d):</span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x,y,s<span class="op">=</span><span class="dv">95</span>,color<span class="op">=</span>orange <span class="cf">if</span> i<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> teal)<span class="op">;</span> ax.text(x<span class="op">+</span><span class="fl">.06</span>,y<span class="op">-</span><span class="fl">.18</span>,<span class="ss">f"context </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>weight_sets[i]<span class="sc">}</span><span class="ss">"</span>,fontsize<span class="op">=</span><span class="dv">9</span>)</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"value coordinate 1"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"value coordinate 2"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Attention contexts remain within the value mixture"</span>)<span class="op">;</span> ax.set_aspect(<span class="st">"equal"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"value coordinate 1"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"value coordinate 2"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Attention contexts remain within the value mixture"</span>)<span class="op">;</span> ax.set_aspect(<span class="st">"equal"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-weighted-context" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A two-dimensional scatter plot shows three value vectors as vertices and two attention contexts inside their triangle, each labelled by its three weights.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-weighted-context-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="19-attention_files/figure-html/fig-weighted-context-output-1.png" class="img-fluid figure-img" alt="A two-dimensional scatter plot shows three value vectors as vertices and two attention contexts inside their triangle, each labelled by its three weights.">
+<img src="19-attention_files/figure-html/fig-weighted-context-output-1.png" alt="A two-dimensional scatter plot shows three value vectors as vertices and two attention contexts inside their triangle, each labelled by its three weights." width="569" height="458" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-weighted-context-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;20.6: A context vector is a weighted mixture of value vectors; moving attention mass changes the returned coordinates continuously.
@@ -972,16 +937,16 @@ Figure&nbsp;20.6: A context vector is a weighted mixture of value vectors; movin
 e_{ti}=v_a^\top\tanh(W_q q_t+W_h h_i+b_a).
 \]</span></p>
 <p>The matrices can map decoder and encoder representations with different widths into a shared alignment width. The learned vector <span class="math inline">\(v_a\)</span> reduces the nonlinear comparison to one scalar score. This formulation can express interactions beyond a direct dot product, but it adds parameters and elementwise work for every query-key pair.</p>
-<div id="18c275ab" class="cell" data-execution_count="11">
+<div id="89c49f5c" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rng<span class="op">=</span>np.random.default_rng(<span class="dv">19</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rng<span class="op">=</span>np.random.default_rng(<span class="dv">19</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>query_width,source_width,alignment_width<span class="op">=</span><span class="dv">4</span>,<span class="dv">6</span>,<span class="dv">5</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>q<span class="op">=</span>rng.normal(size<span class="op">=</span>query_width)<span class="op">;</span> source<span class="op">=</span>rng.normal(size<span class="op">=</span>(<span class="dv">5</span>,source_width))</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>W_q<span class="op">=</span>rng.normal(size<span class="op">=</span>(alignment_width,query_width))<span class="op">;</span> W_h<span class="op">=</span>rng.normal(size<span class="op">=</span>(alignment_width,source_width))<span class="op">;</span> v_a<span class="op">=</span>rng.normal(size<span class="op">=</span>alignment_width)</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>additive_scores<span class="op">=</span>np.array([v_a<span class="op">@</span>np.tanh(W_q<span class="op">@</span>q<span class="op">+</span>W_h<span class="op">@</span>h) <span class="cf">for</span> h <span class="kw">in</span> source])</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"additive score shape:"</span>,additive_scores.shape)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"additive weights:    "</span>,np.<span class="bu">round</span>(softmax(additive_scores),<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"additive weights:    "</span>,np.<span class="bu">round</span>(softmax(additive_scores),<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>additive score shape: (5,)
@@ -996,7 +961,7 @@ additive weights:     [0.012 0.073 0.498 0.26  0.157]</code></pre>
 <h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
 <section id="attention-alters-information-access-not-the-need-for-representation-quality" class="level3">
 <h3 class="anchored" data-anchor-id="attention-alters-information-access-not-the-need-for-representation-quality">Attention alters information access, not the need for representation quality</h3>
-<p>Attention lets a decoder retrieve from individual encoder states instead of depending solely on one final state <span class="citation" data-cites="bahdanau2015attention">(<a href="#ref-bahdanau2015attention" role="doc-biblioref">Bahdanau, Cho, and Bengio 2015</a>)</span>. It does not guarantee that encoder states preserve the required detail, that scores identify the most useful position, or that the output model uses the context in the intended way. Encoder architecture, value projection, decoder state, objective, and data distribution remain part of the system.</p>
+<p>Attention lets a decoder retrieve from individual encoder states instead of depending solely on one final state <span class="citation" data-cites="bahdanau2015attention">(<a href="#ref-bahdanau2015attention" role="doc-biblioref">Bahdanau et al. 2015</a>)</span>. It does not guarantee that encoder states preserve the required detail, that scores identify the most useful position, or that the output model uses the context in the intended way. Encoder architecture, value projection, decoder state, objective, and data distribution remain part of the system.</p>
 <p>Cross-attention uses one sequence or modality to query another. Self-attention uses a sequence to query itself and will be treated separately in Chapter 20. Both use score matrices and weighted value sums, but their masks, source-target relationships, and computational patterns differ.</p>
 </section>
 <section id="attention-weights-are-not-sufficient-explanations" class="level3">
@@ -1092,20 +1057,20 @@ O(TS(D_k+D_v)).
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Additive encoder-decoder attention is introduced by <span class="citation" data-cites="bahdanau2015attention">Bahdanau, Cho, and Bengio (<a href="#ref-bahdanau2015attention" role="doc-biblioref">2015</a>)</span>. Dot-product, bilinear, global, and local variants are compared by <span class="citation" data-cites="luong2015attention">Luong, Pham, and Manning (<a href="#ref-luong2015attention" role="doc-biblioref">2015</a>)</span>. The limits of treating attention weights as explanations are examined by <span class="citation" data-cites="jain2019attention">Jain and Wallace (<a href="#ref-jain2019attention" role="doc-biblioref">2019</a>)</span>.</p>
+<p>Additive encoder-decoder attention is introduced by <span class="citation" data-cites="bahdanau2015attention">Bahdanau et al. (<a href="#ref-bahdanau2015attention" role="doc-biblioref">2015</a>)</span>. Dot-product, bilinear, global, and local variants are compared by <span class="citation" data-cites="luong2015attention">Luong et al. (<a href="#ref-luong2015attention" role="doc-biblioref">2015</a>)</span>. The limits of treating attention weights as explanations are examined by <span class="citation" data-cites="jain2019attention">Jain and Wallace (<a href="#ref-jain2019attention" role="doc-biblioref">2019</a>)</span>.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-bahdanau2015attention" class="csl-entry" role="listitem">
-Bahdanau, Dzmitry, Kyunghyun Cho, and Yoshua Bengio. 2015. <span>“Neural Machine Translation by Jointly Learning to Align and Translate.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/">https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/</a>.
+Bahdanau, Dzmitry, Kyunghyun Cho, and Yoshua Bengio. 2015. <span>“Neural Machine Translation by Jointly Learning to Align and Translate.”</span> <em>International Conference on Learning Representations</em>. <a href="https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/">https://mlanthology.org/iclr/2015/bahdanau2015iclr-neural/</a>.
 </div>
 <div id="ref-jain2019attention" class="csl-entry" role="listitem">
-Jain, Sarthak, and Byron C. Wallace. 2019. <span>“Attention Is Not Explanation.”</span> In <em>Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</em>, 3543–56. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/N19-1357">https://doi.org/10.18653/v1/N19-1357</a>.
+Jain, Sarthak, and Byron C. Wallace. 2019. <span>“Attention Is Not Explanation.”</span> <em>Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies</em>, 3543–56. <a href="https://doi.org/10.18653/v1/N19-1357">https://doi.org/10.18653/v1/N19-1357</a>.
 </div>
 <div id="ref-luong2015attention" class="csl-entry" role="listitem">
-Luong, Thang, Hieu Pham, and Christopher D. Manning. 2015. <span>“Effective Approaches to Attention-Based Neural Machine Translation.”</span> In <em>Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing</em>, 1412–21. Association for Computational Linguistics. <a href="https://doi.org/10.18653/v1/D15-1166">https://doi.org/10.18653/v1/D15-1166</a>.
+Luong, Thang, Hieu Pham, and Christopher D. Manning. 2015. <span>“Effective Approaches to Attention-Based Neural Machine Translation.”</span> <em>Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing</em>, 1412–21. <a href="https://doi.org/10.18653/v1/D15-1166">https://doi.org/10.18653/v1/D15-1166</a>.
 </div>
 </div>
 </section>
@@ -1162,13 +1127,14 @@ Luong, Thang, Hieu Pham, and Christopher D. Manning. 2015. <span>“Effective Ap
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1202,16 +1168,16 @@ Luong, Thang, Hieu Pham, and Christopher D. Manning. 2015. <span>“Effective Ap
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1573,7 +1539,7 @@ Luong, Thang, Hieu Pham, and Christopher D. Manning. 2015. <span>“Effective Ap
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb17" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Attention"</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Query-dependent weighted retrieval from a sequence of representations"</span></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1989,7 +1955,7 @@ Luong, Thang, Hieu Pham, and Christopher D. Manning. 2015. <span>“Effective Ap
 <span id="cb17-436"><a href="#cb17-436" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb17-437"><a href="#cb17-437" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-438"><a href="#cb17-438" aria-hidden="true" tabindex="-1"></a>Additive encoder-decoder attention is introduced by @bahdanau2015attention. Dot-product, bilinear, global, and local variants are compared by @luong2015attention. The limits of treating attention weights as explanations are examined by @jain2019attention.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

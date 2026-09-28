@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>What Is Machine Learning? – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -673,7 +638,7 @@ window.Quarto = {
 <div id="cell-fig-intuition-pattern" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -694,13 +659,13 @@ window.Quarto = {
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlim<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">46</span>), ylim<span class="op">=</span>(<span class="op">-</span><span class="fl">0.4</span>, <span class="fl">5.6</span>), yticks<span class="op">=</span><span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">6</span>))</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-intuition-pattern" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Households are plotted by travel time and earlier programme visits. Orange points show known uptake and blue points show known non-uptake. The teal star represents a new household with a travel time of fifteen minutes and two earlier visits, whose uptake outcome is not yet known.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-intuition-pattern-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-intuition-pattern-output-1.png" class="img-fluid figure-img" alt="Households are plotted by travel time and earlier programme visits. Orange points show known uptake and blue points show known non-uptake. The teal star represents a new household with a travel time of fifteen minutes and two earlier visits, whose uptake outcome is not yet known.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-intuition-pattern-output-1.png" alt="Households are plotted by travel time and earlier programme visits. Orange points show known uptake and blue points show known non-uptake. The teal star represents a new household with a travel time of fifteen minutes and two earlier visits, whose uptake outcome is not yet known." width="711" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-intuition-pattern-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.1: Earlier outreach records provide an imperfect pattern for estimating whether the new household, shown by the teal star, will take up the programme.
@@ -731,7 +696,7 @@ else:
 <div id="cell-fig-rule-vs-learned" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.lines <span class="im">import</span> Line2D</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>rng_rule <span class="op">=</span> np.random.default_rng(<span class="dv">17</span>)</span>
@@ -811,13 +776,13 @@ else:
 <span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>fig.legend(handles<span class="op">=</span>legend_handles, loc<span class="op">=</span><span class="st">"lower center"</span>, ncol<span class="op">=</span><span class="dv">3</span>, frameon<span class="op">=</span><span class="va">False</span>,</span>
 <span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>           bbox_to_anchor<span class="op">=</span>(<span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.03</span>))</span>
 <span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>plt.tight_layout(rect<span class="op">=</span>[<span class="dv">0</span>, <span class="fl">0.08</span>, <span class="dv">1</span>, <span class="dv">1</span>])</span>
-<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-rule-vs-learned" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels show the same household examples by age and distance. The hand-written rule uses a horizontal distance boundary, while the learned model uses an angled boundary estimated from the examples.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-rule-vs-learned-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-rule-vs-learned-output-1.png" class="img-fluid figure-img" alt="Two panels show the same household examples by age and distance. The hand-written rule uses a horizontal distance boundary, while the learned model uses an angled boundary estimated from the examples.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-rule-vs-learned-output-1.png" alt="Two panels show the same household examples by age and distance. The hand-written rule uses a horizontal distance boundary, while the learned model uses an angled boundary estimated from the examples." width="952" height="423" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rule-vs-learned-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.2: A hand-written rule fixes a boundary in advance; a fitted model estimates a boundary from labelled examples.
@@ -839,7 +804,7 @@ Figure&nbsp;2.2: A hand-written rule fixes a boundary in advance; a fitted model
 <div id="cell-fig-mechanics-pipeline" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.2</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">2.2</span>))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.12</span>, <span class="fl">0.5</span>, <span class="st">"features</span><span class="ch">\n</span><span class="st">(age, distance, prior participation)"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, weight<span class="op">=</span><span class="st">"bold"</span>,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        bbox<span class="op">=</span>{<span class="st">"boxstyle"</span>: <span class="st">"round,pad=0.6"</span>, <span class="st">"facecolor"</span>: blue})</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.50</span>, <span class="fl">0.5</span>, <span class="st">"fitted</span><span class="ch">\n</span><span class="st">model"</span>, ha<span class="op">=</span><span class="st">"center"</span>, va<span class="op">=</span><span class="st">"center"</span>, color<span class="op">=</span><span class="st">"white"</span>, weight<span class="op">=</span><span class="st">"bold"</span>,</span>
@@ -850,13 +815,13 @@ Figure&nbsp;2.2: A hand-written rule fixes a boundary in advance; a fitted model
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">""</span>, xy<span class="op">=</span>(<span class="fl">0.76</span>, <span class="fl">0.5</span>), xytext<span class="op">=</span>(<span class="fl">0.62</span>, <span class="fl">0.5</span>), arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"lw"</span>: <span class="dv">2</span>, <span class="st">"color"</span>: <span class="st">"#666666"</span>})</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-mechanics-pipeline" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A horizontal diagram showing features entering a fitted model and producing a predicted probability.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-mechanics-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-mechanics-pipeline-output-1.png" class="img-fluid figure-img" alt="A horizontal diagram showing features entering a fitted model and producing a predicted probability.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-mechanics-pipeline-output-1.png" alt="A horizontal diagram showing features entering a fitted model and producing a predicted probability." width="798" height="202" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mechanics-pipeline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.3: The mechanics of prediction: features enter a fitted model and produce an output.
@@ -894,7 +859,7 @@ Figure&nbsp;2.3: The mechanics of prediction: features enter a fitted model and 
 <div id="cell-fig-calibration" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>probability_bins <span class="op">=</span> np.arange(<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="fl">0.1</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>probability_bins <span class="op">=</span> np.arange(<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="fl">0.1</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>observed_calibrated <span class="op">=</span> np.array([<span class="fl">0.09</span>, <span class="fl">0.21</span>, <span class="fl">0.31</span>, <span class="fl">0.39</span>, <span class="fl">0.51</span>, <span class="fl">0.61</span>, <span class="fl">0.68</span>, <span class="fl">0.79</span>, <span class="fl">0.91</span>])</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>observed_overconfident <span class="op">=</span> np.array([<span class="fl">0.24</span>, <span class="fl">0.31</span>, <span class="fl">0.39</span>, <span class="fl">0.46</span>, <span class="fl">0.50</span>, <span class="fl">0.55</span>, <span class="fl">0.62</span>, <span class="fl">0.69</span>, <span class="fl">0.76</span>])</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -929,13 +894,13 @@ Figure&nbsp;2.3: The mechanics of prediction: features enter a fitted model and 
 <span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">"equal"</span>, adjustable<span class="op">=</span><span class="st">"box"</span>)</span>
 <span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>, loc<span class="op">=</span><span class="st">"upper left"</span>)</span>
 <span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-calibration" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A reliability diagram compares a well-calibrated model with an overconfident model. The calibrated series remains near the diagonal, while the overconfident series lies closer to one half than its predictions imply.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-calibration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-calibration-output-1.png" class="img-fluid figure-img" alt="A reliability diagram compares a well-calibrated model with an overconfident model. The calibrated series remains near the diagonal, while the overconfident series lies closer to one half than its predictions imply.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-calibration-output-1.png" alt="A reliability diagram compares a well-calibrated model with an overconfident model. The calibrated series remains near the diagonal, while the overconfident series lies closer to one half than its predictions imply." width="485" height="489" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-calibration-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.4: Calibration compares predicted probabilities with observed outcome frequencies.
@@ -969,7 +934,7 @@ Figure&nbsp;2.4: Calibration compares predicted probabilities with observed outc
 <div id="cell-fig-data-split" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -990,13 +955,13 @@ Figure&nbsp;2.4: Calibration compares predicted probabilities with observed outc
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>            arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>: <span class="st">"-&gt;"</span>, <span class="st">"color"</span>: <span class="st">"#5c6670"</span>}, ha<span class="op">=</span><span class="st">"center"</span>)</span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>, <span class="dv">1</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-data-split" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A flow diagram showing data divided into training, validation, and test sets, with the test set used only at final evaluation.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-data-split-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-data-split-output-1.png" class="img-fluid figure-img" alt="A flow diagram showing data divided into training, validation, and test sets, with the test set used only at final evaluation.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-data-split-output-1.png" alt="A flow diagram showing data divided into training, validation, and test sets, with the test set used only at final evaluation." width="854" height="202" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-split-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.5: A clean development workflow keeps the test set separate until final evaluation.
@@ -1031,10 +996,10 @@ Figure&nbsp;2.5: A clean development workflow keeps the test set separate until 
 \operatorname{MSE}=\frac{1}{n}\sum_{i=1}^n(\hat{y}_i-y_i)^2.
 \]</span></p>
 <p>This loss squares the difference between each prediction and its observed outcome, then averages those squared differences. A large miss counts more heavily than a small one. The following code uses a simulated continuous engagement score so that the linear model and mean-squared-error calculation can be shown without introducing a second classifier at the same time. The workflow is the same as for the uptake example: split earlier cases, fit on one part, and check predictions on cases not used for fitting.</p>
-<div id="ae41b41d" class="cell" data-execution_count="6">
+<div id="6a14af30" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -1061,7 +1026,7 @@ Figure&nbsp;2.5: A clean development workflow keeps the test set separate until 
 <span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LinearRegression().fit(X_train, y_train)</span>
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>predictions <span class="op">=</span> model.predict(X_test)</span>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"test MSE: </span><span class="sc">{</span>mean_squared_error(y_test, predictions)<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"test R²:   </span><span class="sc">{</span>r2_score(y_test, predictions)<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"test R²:   </span><span class="sc">{</span>r2_score(y_test, predictions)<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>test MSE: 0.007
@@ -1080,7 +1045,7 @@ e_i=y_i-\hat y_i.
 <div id="cell-fig-regression-residuals" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> y_test.to_numpy() <span class="op">-</span> predictions</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> y_test.to_numpy() <span class="op">-</span> predictions</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="fl">3.8</span>))</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].scatter(y_test, predictions, color<span class="op">=</span>blue, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
@@ -1091,13 +1056,13 @@ e_i=y_i-\hat y_i.
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span>orange, linestyle<span class="op">=</span><span class="st">"--"</span>)</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Predicted score"</span>, ylabel<span class="op">=</span><span class="st">"Residual"</span>, title<span class="op">=</span><span class="st">"Residual diagnostic"</span>)</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-regression-residuals" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels showing observed versus predicted scores and residuals against predicted scores.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-regression-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-regression-residuals-output-1.png" class="img-fluid figure-img" alt="Two panels showing observed versus predicted scores and residuals against predicted scores.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-regression-residuals-output-1.png" alt="Two panels showing observed versus predicted scores and residuals against predicted scores." width="859" height="355" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regression-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.6: Predictions should be inspected alongside residuals rather than summarised by one score.
@@ -1153,7 +1118,7 @@ Figure&nbsp;2.6: Predictions should be inspected alongside residuals rather than
 <div id="cell-fig-threshold" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>positive <span class="op">=</span> rng.beta(<span class="dv">7</span>, <span class="dv">3</span>, <span class="dv">70</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>positive <span class="op">=</span> rng.beta(<span class="dv">7</span>, <span class="dv">3</span>, <span class="dv">70</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>negative <span class="op">=</span> rng.beta(<span class="dv">2</span>, <span class="dv">6</span>, <span class="dv">70</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>threshold <span class="op">=</span> <span class="fl">0.5</span></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1164,13 +1129,13 @@ Figure&nbsp;2.6: Predictions should be inspected alongside residuals rather than
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Predicted probability"</span>, ylabel<span class="op">=</span><span class="st">"Number of observations"</span>, title<span class="op">=</span><span class="st">"A threshold converts probabilities into decisions"</span>)</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-threshold" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A histogram of predicted probabilities separated by a vertical threshold line.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-threshold-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-threshold-output-1.png" class="img-fluid figure-img" alt="A histogram of predicted probabilities separated by a vertical threshold line.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-threshold-output-1.png" alt="A histogram of predicted probabilities separated by a vertical threshold line." width="759" height="393" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-threshold-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.7: Changing the classification threshold changes the number of predicted positives.
@@ -1186,7 +1151,7 @@ Figure&nbsp;2.7: Changing the classification threshold changes the number of pre
 <p>The preceding levels showed how to fit and assess a rule with earlier data. Using that rule in a real decision adds a further question: do the data, outcome, and error measures still describe the setting in which the prediction will be used? This level examines the boundary between a successful development exercise and a defensible deployed system.</p>
 <section id="the-training-objective-is-not-the-deployment-objective" class="level3">
 <h3 class="anchored" data-anchor-id="the-training-objective-is-not-the-deployment-objective">The training objective is not the deployment objective</h3>
-<p>Training commonly minimises an average loss over observed examples. A programme may instead be judged by service access, safety, cost, equity, response time, or the quality of the decisions that follow. Training loss is therefore a proxy, not the full purpose of the system. This gap between the fitted model and its surrounding production system is a documented source of technical debt <span class="citation" data-cites="sculley2015">(<a href="#ref-sculley2015" role="doc-biblioref">Sculley et al. 2015</a>)</span>.</p>
+<p>Training commonly minimises an average loss over observed examples. A programme may instead be judged by service access, safety, cost, equity, response time, or the quality of the decisions that follow. Training loss is therefore a proxy, not the full purpose of the system. This gap between the fitted model and its surrounding production system is a documented source of technical debt <span class="citation" data-cites="sculley2015">(<a href="#ref-sculley2015" role="doc-biblioref"><span class="nocase">Sculley et al.</span> 2015</a>)</span>.</p>
 <p>If the recorded outcome is measured with error, the model may learn that measurement process. If the data exclude a population, a test score does not describe that population. If the setting changes after deployment, an earlier test set may no longer be informative. These are failures of the prediction claim, not defects that a lower training loss can repair.</p>
 </section>
 <section id="generalisation-and-overfitting" class="level3">
@@ -1197,7 +1162,7 @@ Figure&nbsp;2.7: Changing the classification threshold changes the number of pre
 <div id="cell-fig-generalization" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>complexity <span class="op">=</span> np.linspace(<span class="fl">0.1</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>complexity <span class="op">=</span> np.linspace(<span class="fl">0.1</span>, <span class="dv">10</span>, <span class="dv">100</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>train_error <span class="op">=</span> <span class="fl">0.9</span> <span class="op">/</span> (complexity <span class="op">+</span> <span class="fl">0.3</span>) <span class="op">+</span> <span class="fl">0.04</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>test_error <span class="op">=</span> <span class="fl">0.7</span> <span class="op">/</span> (complexity <span class="op">+</span> <span class="fl">0.4</span>) <span class="op">+</span> <span class="fl">0.012</span> <span class="op">*</span> (complexity <span class="op">-</span> <span class="fl">3.5</span>) <span class="op">**</span> <span class="dv">2</span> <span class="op">+</span> <span class="fl">0.12</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1208,13 +1173,13 @@ Figure&nbsp;2.7: Changing the classification threshold changes the number of pre
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>ax.<span class="bu">set</span>(xlabel<span class="op">=</span><span class="st">"Model flexibility"</span>, ylabel<span class="op">=</span><span class="st">"Error"</span>, title<span class="op">=</span><span class="st">"Generalization is the target"</span>)</span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-generalization" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A conceptual plot showing training error falling while test error falls and then rises as model complexity increases.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-generalization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-generalization-output-1.png" class="img-fluid figure-img" alt="A conceptual plot showing training error falling while test error falls and then rises as model complexity increases.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-generalization-output-1.png" alt="A conceptual plot showing training error falling while test error falls and then rises as model complexity increases." width="759" height="412" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-generalization-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.8: Training and test error can move in different directions as model flexibility increases.
@@ -1231,7 +1196,7 @@ Figure&nbsp;2.8: Training and test error can move in different directions as mod
 <div id="cell-fig-distribution-shift" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>distance_shift <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">25</span>, <span class="dv">300</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>distance_shift <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">25</span>, <span class="dv">300</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> normal_density(values, mean, sd):</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.exp(<span class="op">-</span><span class="fl">0.5</span> <span class="op">*</span> ((values <span class="op">-</span> mean) <span class="op">/</span> sd) <span class="op">**</span> <span class="dv">2</span>) <span class="op">/</span> (sd <span class="op">*</span> np.sqrt(<span class="dv">2</span> <span class="op">*</span> np.pi))</span>
@@ -1282,13 +1247,13 @@ Figure&nbsp;2.8: Training and test error can move in different directions as mod
 <span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-distribution-shift" class="quarto-float quarto-figure quarto-figure-center anchored" alt="The left panel shows deployment households located farther from a service point than training households. The right panel shows the probability of uptake changing at the same distance between training and deployment.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-distribution-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="01-what-is-machine-learning_files/figure-html/fig-distribution-shift-output-1.png" class="img-fluid figure-img" alt="The left panel shows deployment households located farther from a service point than training households. The right panel shows the probability of uptake changing at the same distance between training and deployment.">
+<img src="01-what-is-machine-learning_files/figure-html/fig-distribution-shift-output-1.png" alt="The left panel shows deployment households located farther from a service point than training households. The right panel shows the probability of uptake changing at the same distance between training and deployment." width="950" height="383" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-distribution-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2.9: Distribution shift can change the inputs presented to a model, the relationship between inputs and outcomes, or both.
@@ -1349,32 +1314,32 @@ Figure&nbsp;2.9: Distribution shift can change the inputs presented to a model, 
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>The statistical-learning perspective is developed in <span class="citation" data-cites="hastie2009">Hastie, Tibshirani, and Friedman (<a href="#ref-hastie2009" role="doc-biblioref">2009</a>)</span>. <span class="citation" data-cites="mitchell1997">T. M. Mitchell (<a href="#ref-mitchell1997" role="doc-biblioref">1997</a>)</span> provides a broad conceptual introduction to machine learning. For the operational risks that arise when models become part of larger products and institutions, see <span class="citation" data-cites="sculley2015">Sculley et al. (<a href="#ref-sculley2015" role="doc-biblioref">2015</a>)</span>. The documentation of datasets and models is discussed by <span class="citation" data-cites="gebru2021">Gebru et al. (<a href="#ref-gebru2021" role="doc-biblioref">2021</a>)</span> and <span class="citation" data-cites="mitchell2019">M. Mitchell et al. (<a href="#ref-mitchell2019" role="doc-biblioref">2019</a>)</span>. Calibration in modern neural networks is examined by <span class="citation" data-cites="guo2017calibration">Guo et al. (<a href="#ref-guo2017calibration" role="doc-biblioref">2017</a>)</span>, while <span class="citation" data-cites="ovadia2019">Ovadia et al. (<a href="#ref-ovadia2019" role="doc-biblioref">2019</a>)</span> evaluate predictive uncertainty under dataset shift.</p>
+<p>The statistical-learning perspective is developed in <span class="citation" data-cites="hastie2009">Hastie et al. (<a href="#ref-hastie2009" role="doc-biblioref">2009</a>)</span>. <span class="citation" data-cites="mitchell1997">Mitchell (<a href="#ref-mitchell1997" role="doc-biblioref">1997</a>)</span> provides a broad conceptual introduction to machine learning. For the operational risks that arise when models become part of larger products and institutions, see <span class="citation" data-cites="sculley2015"><span class="nocase">Sculley et al.</span> (<a href="#ref-sculley2015" role="doc-biblioref">2015</a>)</span>. The documentation of datasets and models is discussed by <span class="citation" data-cites="gebru2021"><span class="nocase">Gebru et al.</span> (<a href="#ref-gebru2021" role="doc-biblioref">2021</a>)</span> and <span class="citation" data-cites="mitchell2019"><span class="nocase">Mitchell et al.</span> (<a href="#ref-mitchell2019" role="doc-biblioref">2019</a>)</span>. Calibration in modern neural networks is examined by <span class="citation" data-cites="guo2017calibration">Guo et al. (<a href="#ref-guo2017calibration" role="doc-biblioref">2017</a>)</span>, while <span class="citation" data-cites="ovadia2019">Ovadia et al. (<a href="#ref-ovadia2019" role="doc-biblioref">2019</a>)</span> evaluate predictive uncertainty under dataset shift.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-gebru2021" class="csl-entry" role="listitem">
-Gebru, Timnit et al. 2021. <span>“Datasheets for Datasets.”</span> <em>Communications of the ACM</em> 64 (12): 86–92. <a href="https://doi.org/10.1145/3458723">https://doi.org/10.1145/3458723</a>.
+<span class="nocase">Gebru, Timnit et al.</span> 2021. <span>“Datasheets for Datasets.”</span> <em>Communications of the ACM</em> 64 (12): 86–92. <a href="https://doi.org/10.1145/3458723">https://doi.org/10.1145/3458723</a>.
 </div>
 <div id="ref-guo2017calibration" class="csl-entry" role="listitem">
-Guo, Chuan, Geoff Pleiss, Yu Sun, and Kilian Q. Weinberger. 2017. <span>“On Calibration of Modern Neural Networks.”</span> In <em>Proceedings of the 34th International Conference on Machine Learning</em>, 70:1321–30. Proceedings of Machine Learning Research. PMLR. <a href="https://proceedings.mlr.press/v70/guo17a.html">https://proceedings.mlr.press/v70/guo17a.html</a>.
+Guo, Chuan, Geoff Pleiss, Yu Sun, and Kilian Q. Weinberger. 2017. <span>“On Calibration of Modern Neural Networks.”</span> <em>Proceedings of the 34th International Conference on Machine Learning</em>, Proceedings of machine learning research, vol. 70: 1321–30. <a href="https://proceedings.mlr.press/v70/guo17a.html">https://proceedings.mlr.press/v70/guo17a.html</a>.
 </div>
 <div id="ref-hastie2009" class="csl-entry" role="listitem">
 Hastie, Trevor, Robert Tibshirani, and Jerome Friedman. 2009. <em>The Elements of Statistical Learning</em>. 2nd ed. Springer. <a href="https://doi.org/10.1007/978-0-387-84858-7">https://doi.org/10.1007/978-0-387-84858-7</a>.
 </div>
 <div id="ref-mitchell2019" class="csl-entry" role="listitem">
-Mitchell, Margaret et al. 2019. <span>“Model Cards for Model Reporting.”</span> In <em>Proceedings of the Conference on Fairness, Accountability, and Transparency</em>, 220–29. <a href="https://doi.org/10.1145/3287560.3287596">https://doi.org/10.1145/3287560.3287596</a>.
+<span class="nocase">Mitchell, Margaret et al.</span> 2019. <span>“Model Cards for Model Reporting.”</span> <em>Proceedings of the Conference on Fairness, Accountability, and Transparency</em>, 220–29. <a href="https://doi.org/10.1145/3287560.3287596">https://doi.org/10.1145/3287560.3287596</a>.
 </div>
 <div id="ref-mitchell1997" class="csl-entry" role="listitem">
 Mitchell, Tom M. 1997. <em>Machine Learning</em>. McGraw-Hill.
 </div>
 <div id="ref-ovadia2019" class="csl-entry" role="listitem">
-Ovadia, Yaniv, Emily Fertig, Jie Ren, Zachary Nado, D. Sculley, Sebastian Nowozin, Joshua V. Dillon, Balaji Lakshminarayanan, and Jasper Snoek. 2019. <span>“Can You Trust Your Model’s Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 32. <a href="https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html">https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html</a>.
+Ovadia, Yaniv, Emily Fertig, Jie Ren, et al. 2019. <span>“Can You Trust Your Model’s Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift.”</span> <em>Advances in Neural Information Processing Systems</em> 32. <a href="https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html">https://papers.nips.cc/paper/2019/hash/8558cb408c1d76621371888657d2eb1d-Abstract.html</a>.
 </div>
 <div id="ref-sculley2015" class="csl-entry" role="listitem">
-Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Systems.”</span> In <em>Advances in Neural Information Processing Systems</em>. Vol. 28.
+<span class="nocase">Sculley, D. et al.</span> 2015. <span>“Hidden Technical Debt in Machine Learning Systems.”</span> <em>Advances in Neural Information Processing Systems</em> 28.
 </div>
 </div>
 </section>
@@ -1431,13 +1396,14 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1471,16 +1437,16 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1842,7 +1808,7 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "What Is Machine Learning?"</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "From examples to predictions"</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -2469,7 +2435,7 @@ Sculley, D. et al. 2015. <span>“Hidden Technical Debt in Machine Learning Syst
 <span id="cb13-645"><a href="#cb13-645" aria-hidden="true" tabindex="-1"></a><span class="ot">## Further reading</span></span>
 <span id="cb13-646"><a href="#cb13-646" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-647"><a href="#cb13-647" aria-hidden="true" tabindex="-1"></a><span class="ot">The statistical-learning perspective is developed in </span><span class="er">@</span><span class="ot">hastie2009. </span><span class="er">@</span><span class="ot">mitchell1997 provides a broad conceptual introduction to machine learning. For the operational risks that arise when models become part of larger products and institutions</span><span class="er">,</span><span class="ot"> see </span><span class="er">@</span><span class="ot">sculley2015. The documentation of datasets and models is discussed by </span><span class="er">@</span><span class="ot">gebru2021 and </span><span class="er">@</span><span class="ot">mitchell2019. Calibration in modern neural networks is examined by </span><span class="er">@</span><span class="ot">guo2017calibration</span><span class="er">,</span><span class="ot"> while </span><span class="er">@</span><span class="ot">ovadia2019 evaluate predictive uncertainty under dataset shift.</span></span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

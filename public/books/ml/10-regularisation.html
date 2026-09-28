@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Regularisation – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -626,7 +591,7 @@ y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),
 <div id="cell-fig-regularisation-intuition" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -657,13 +622,13 @@ y=\sin(\pi x)+0.3x+\varepsilon,\qquad \varepsilon\sim\mathcal N(0,0.25^2),
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    ax.scatter(x_train,y_train,color<span class="op">=</span>blue,s<span class="op">=</span><span class="dv">28</span>,label<span class="op">=</span><span class="st">"training data"</span>)</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)<span class="op">;</span> ax.set_xlabel(<span class="st">"x"</span>)<span class="op">;</span> ax.set_ylim(<span class="op">-</span><span class="fl">2.2</span>,<span class="fl">2.2</span>)</span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)<span class="op">;</span> axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-regularisation-intuition" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels compare an oscillating unpenalised degree-15 polynomial with a smoother ridge-regularised degree-15 polynomial against the same noisy observations and true signal.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-regularisation-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="10-regularisation_files/figure-html/fig-regularisation-intuition-output-1.png" class="img-fluid figure-img" alt="Two panels compare an oscillating unpenalised degree-15 polynomial with a smoother ridge-regularised degree-15 polynomial against the same noisy observations and true signal.">
+<img src="10-regularisation_files/figure-html/fig-regularisation-intuition-output-1.png" alt="Two panels compare an oscillating unpenalised degree-15 polynomial with a smoother ridge-regularised degree-15 polynomial against the same noisy observations and true signal." width="1047" height="403" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularisation-intuition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11.1: Ridge regularisation retains a degree-15 model but suppresses the extreme oscillations of its unpenalised fit.
@@ -690,7 +655,7 @@ Figure&nbsp;11.1: Ridge regularisation retains a degree-15 model but suppresses 
 <div id="cell-fig-regularisation-map" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.2</span>))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">10.5</span>,<span class="fl">4.2</span>))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>items<span class="op">=</span>[(<span class="st">"Data"</span>,<span class="st">"augmentation"</span>,blue),(<span class="st">"Objective"</span>,<span class="st">"L1 / L2 penalty"</span>,teal),</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>       (<span class="st">"Architecture"</span>,<span class="st">"dropout mask"</span>,orange),(<span class="st">"Optimisation"</span>,<span class="st">"early stopping"</span>,purple)]</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,(heading,method,colour) <span class="kw">in</span> <span class="bu">enumerate</span>(items):</span>
@@ -701,13 +666,13 @@ Figure&nbsp;11.1: Ridge regularisation retains a degree-15 model but suppresses 
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i<span class="op">&lt;</span><span class="dv">3</span>: ax.annotate(<span class="st">""</span>,xy<span class="op">=</span>(x<span class="op">+</span><span class="fl">0.17</span>,<span class="fl">0.43</span>),xytext<span class="op">=</span>(x<span class="op">+</span><span class="fl">0.09</span>,<span class="fl">0.43</span>),arrowprops<span class="op">=</span>{<span class="st">"arrowstyle"</span>:<span class="st">"-&gt;"</span>,<span class="st">"color"</span>:grey})</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">0.50</span>,<span class="fl">0.13</span>,<span class="st">"all choices are selected through validation evidence"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">1</span>)<span class="op">;</span> ax.set_ylim(<span class="dv">0</span>,<span class="fl">0.85</span>)<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-regularisation-map" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A four-column diagram maps data augmentation to training data, L1 and L2 penalties to the objective, dropout to the architecture, and early stopping to optimisation time.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-regularisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="10-regularisation_files/figure-html/fig-regularisation-map-output-1.png" class="img-fluid figure-img" alt="A four-column diagram maps data augmentation to training data, L1 and L2 penalties to the objective, dropout to the architecture, and early stopping to optimisation time.">
+<img src="10-regularisation_files/figure-html/fig-regularisation-map-output-1.png" alt="A four-column diagram maps data augmentation to training data, L1 and L2 penalties to the objective, dropout to the architecture, and early stopping to optimisation time." width="998" height="394" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularisation-map-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11.2: Regularisation methods intervene in the data, objective, architecture, or optimisation path.
@@ -745,7 +710,7 @@ J(w)=\frac{1}{n}\sum_{i=1}^n(f_w(x_i)-y_i)^2+\lambda\sum_{j=1}^p w_j^2.
 <div id="cell-fig-dropout-mechanics" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>activations<span class="op">=</span>np.array([<span class="fl">0.3</span>,<span class="fl">1.1</span>,<span class="fl">0.0</span>,<span class="fl">0.8</span>,<span class="fl">1.5</span>,<span class="fl">0.2</span>,<span class="fl">0.9</span>,<span class="fl">0.5</span>])<span class="op">;</span> q<span class="op">=</span><span class="fl">0.75</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>activations<span class="op">=</span>np.array([<span class="fl">0.3</span>,<span class="fl">1.1</span>,<span class="fl">0.0</span>,<span class="fl">0.8</span>,<span class="fl">1.5</span>,<span class="fl">0.2</span>,<span class="fl">0.9</span>,<span class="fl">0.5</span>])<span class="op">;</span> q<span class="op">=</span><span class="fl">0.75</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>masks<span class="op">=</span>rng.binomial(<span class="dv">1</span>,q,size<span class="op">=</span>(<span class="dv">6</span>,<span class="bu">len</span>(activations)))</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>training_outputs<span class="op">=</span>masks<span class="op">*</span>activations<span class="op">/</span>q</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>display<span class="op">=</span>np.vstack([training_outputs,activations])</span>
@@ -756,13 +721,13 @@ J(w)=\frac{1}{n}\sum_{i=1}^n(f_w(x_i)-y_i)^2+\lambda\sum_{j=1}^p w_j^2.
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>ax.axhline(<span class="fl">5.5</span>,color<span class="op">=</span>orange,linewidth<span class="op">=</span><span class="dv">2</span>)</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>fig.colorbar(image,ax<span class="op">=</span>ax,label<span class="op">=</span><span class="st">"value passed forward"</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Dropout changes training activations, not evaluation activations"</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-dropout-mechanics" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A heatmap shows six dropout masks applied to eight activations during training, beside an unmasked evaluation row.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-dropout-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="10-regularisation_files/figure-html/fig-dropout-mechanics-output-1.png" class="img-fluid figure-img" alt="A heatmap shows six dropout masks applied to eight activations during training, beside an unmasked evaluation row.">
+<img src="10-regularisation_files/figure-html/fig-dropout-mechanics-output-1.png" alt="A heatmap shows six dropout masks applied to eight activations during training, beside an unmasked evaluation row." width="810" height="412" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dropout-mechanics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11.3: Inverted dropout randomly masks activations during training and uses the full vector during evaluation.
@@ -789,7 +754,7 @@ Figure&nbsp;11.3: Inverted dropout randomly masks activations during training an
 <div id="cell-fig-early-stopping" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">121</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span>np.arange(<span class="dv">1</span>,<span class="dv">121</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>training_loss<span class="op">=</span><span class="fl">0.62</span><span class="op">*</span>np.exp(<span class="op">-</span>epochs<span class="op">/</span><span class="dv">36</span>)<span class="op">+</span><span class="fl">0.035</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>validation_loss<span class="op">=</span><span class="fl">0.58</span><span class="op">*</span>np.exp(<span class="op">-</span>epochs<span class="op">/</span><span class="dv">30</span>)<span class="op">+</span><span class="fl">0.08</span><span class="op">+</span><span class="fl">0.000055</span><span class="op">*</span>np.maximum(epochs<span class="op">-</span><span class="dv">48</span>,<span class="dv">0</span>)<span class="op">**</span><span class="dv">2</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>best_epoch<span class="op">=</span><span class="bu">int</span>(epochs[np.argmin(validation_loss)])</span>
@@ -799,13 +764,13 @@ Figure&nbsp;11.3: Inverted dropout randomly masks activations during training an
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>ax.axvline(best_epoch,color<span class="op">=</span>teal,linestyle<span class="op">=</span><span class="st">"--"</span>,linewidth<span class="op">=</span><span class="dv">2</span>,label<span class="op">=</span><span class="ss">f"best epoch: </span><span class="sc">{</span>best_epoch<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>ax.scatter([best_epoch],[validation_loss[best_epoch<span class="op">-</span><span class="dv">1</span>]],color<span class="op">=</span>teal,s<span class="op">=</span><span class="dv">70</span>,zorder<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Epoch"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Loss"</span>)<span class="op">;</span> ax.set_title(<span class="st">"Checkpoint selection by validation loss"</span>)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>ax.legend()<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-early-stopping" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Training loss declines over 120 epochs while validation loss declines and then rises; a vertical line marks the best validation epoch.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="10-regularisation_files/figure-html/fig-early-stopping-output-1.png" class="img-fluid figure-img" alt="Training loss declines over 120 epochs while validation loss declines and then rises; a vertical line marks the best validation epoch.">
+<img src="10-regularisation_files/figure-html/fig-early-stopping-output-1.png" alt="Training loss declines over 120 epochs while validation loss declines and then rises; a vertical line marks the best validation epoch." width="855" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-early-stopping-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11.4: Early stopping retains the checkpoint with the lowest validation loss rather than the final training checkpoint.
@@ -830,7 +795,7 @@ Figure&nbsp;11.4: Early stopping retains the checkpoint with the lowest validati
 <div id="cell-fig-ridge-path" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x_validation<span class="op">=</span>rng.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">600</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>x_validation<span class="op">=</span>rng.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">600</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>y_validation<span class="op">=</span>true_function(x_validation)<span class="op">+</span>rng.normal(<span class="dv">0</span>,<span class="fl">0.25</span>,<span class="bu">len</span>(x_validation))</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>X_validation<span class="op">=</span>polynomial_design(x_validation)</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>lambdas<span class="op">=</span>np.logspace(<span class="op">-</span><span class="dv">8</span>,<span class="dv">3</span>,<span class="dv">80</span>)</span>
@@ -855,13 +820,13 @@ Figure&nbsp;11.4: Early stopping retains the checkpoint with the lowest validati
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xscale(<span class="st">"log"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_yscale(<span class="st">"log"</span>)</span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"lambda"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Mean squared error"</span>)</span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Penalty selection"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-ridge-path" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two log-scale panels show absolute coefficient values falling with lambda and validation mean squared error reaching a minimum before rising.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-ridge-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="10-regularisation_files/figure-html/fig-ridge-path-output-1.png" class="img-fluid figure-img" alt="Two log-scale panels show absolute coefficient values falling with lambda and validation mean squared error reaching a minimum before rising.">
+<img src="10-regularisation_files/figure-html/fig-ridge-path-output-1.png" alt="Two log-scale panels show absolute coefficient values falling with lambda and validation mean squared error reaching a minimum before rising." width="1046" height="422" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ridge-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;11.5: Increasing the ridge penalty shrinks high-order polynomial coefficients and produces a validation-error minimum at an intermediate value.
@@ -879,15 +844,15 @@ Figure&nbsp;11.5: Increasing the ridge penalty shrinks high-order polynomial coe
 \nabla_wJ=\nabla_wL+2\lambda w.
 \]</span></p>
 <p>Each update therefore contains a data-loss term and a shrinkage term. Some libraries define the penalty with a factor of <span class="math inline">\(1/2\)</span>, removing the 2 from its gradient. Reported <span class="math inline">\(\lambda\)</span> values are not comparable without the convention.</p>
-<div id="665b88e7" class="cell" data-execution_count="6">
+<div id="ece56772" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare one scalar update with and without an L2 penalty.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare one scalar update with and without an L2 penalty.</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>weight<span class="op">=</span><span class="fl">1.4</span><span class="op">;</span> data_gradient<span class="op">=-</span><span class="fl">0.3</span><span class="op">;</span> learning_rate<span class="op">=</span><span class="fl">0.1</span><span class="op">;</span> penalty<span class="op">=</span><span class="fl">0.2</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>plain_update<span class="op">=</span>weight<span class="op">-</span>learning_rate<span class="op">*</span>data_gradient</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>penalised_update<span class="op">=</span>weight<span class="op">-</span>learning_rate<span class="op">*</span>(data_gradient<span class="op">+</span><span class="dv">2</span><span class="op">*</span>penalty<span class="op">*</span>weight)</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Without penalty: </span><span class="sc">{</span>plain_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"With L2 penalty: </span><span class="sc">{</span>penalised_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"With L2 penalty: </span><span class="sc">{</span>penalised_update<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Without penalty: 1.430
@@ -898,10 +863,10 @@ With L2 penalty: 1.374</code></pre>
 </section>
 <section id="pytorch-exposes-distinct-regularisation-mechanisms" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-exposes-distinct-regularisation-mechanisms">PyTorch exposes distinct regularisation mechanisms</h3>
-<div id="d89d1f8e" class="cell" data-execution_count="7">
+<div id="2b7460e3" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> nn.Sequential(</span>
@@ -911,7 +876,7 @@ With L2 penalty: 1.374</code></pre>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    nn.Linear(<span class="dv">64</span>, <span class="dv">1</span>),</span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>optimiser <span class="op">=</span> torch.optim.AdamW(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>, weight_decay<span class="op">=</span><span class="fl">1e-2</span>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Sequential(
@@ -923,10 +888,10 @@ With L2 penalty: 1.374</code></pre>
 </div>
 </div>
 <p><code>Dropout</code> changes forward passes in training mode. <code>AdamW</code> applies decoupled weight decay rather than adding the L2 term to Adam’s gradient calculation <span class="citation" data-cites="adamw2019">(<a href="#ref-adamw2019" role="doc-biblioref">Loshchilov and Hutter 2019</a>)</span>. For plain stochastic gradient descent, L2 regularisation and multiplicative weight decay can coincide under common conventions; with adaptive optimisers they are generally different operations.</p>
-<div id="b40f2357" class="cell" data-execution_count="8">
+<div id="d98901c3" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A minimal early-stopping state machine.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A minimal early-stopping state machine.</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>best_validation<span class="op">=</span><span class="bu">float</span>(<span class="st">"inf"</span>)<span class="op">;</span> patience<span class="op">=</span><span class="dv">8</span><span class="op">;</span> epochs_without_improvement<span class="op">=</span><span class="dv">0</span><span class="op">;</span> best_state<span class="op">=</span><span class="va">None</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>validation_sequence<span class="op">=</span>[<span class="fl">0.52</span>,<span class="fl">0.44</span>,<span class="fl">0.39</span>,<span class="fl">0.36</span>,<span class="fl">0.35</span>,<span class="fl">0.351</span>,<span class="fl">0.354</span>,<span class="fl">0.356</span>,<span class="fl">0.359</span>,<span class="fl">0.361</span>,<span class="fl">0.364</span>,<span class="fl">0.366</span>,<span class="fl">0.369</span>]</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch,value <span class="kw">in</span> <span class="bu">enumerate</span>(validation_sequence,<span class="dv">1</span>):</span>
@@ -937,7 +902,7 @@ With L2 penalty: 1.374</code></pre>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        epochs_without_improvement <span class="op">+=</span> <span class="dv">1</span></span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epochs_without_improvement <span class="op">&gt;=</span> patience:</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(best_state)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(best_state)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>{'epoch': 5, 'validation_loss': 0.35}</code></pre>
@@ -1045,18 +1010,18 @@ With L2 penalty: 1.374</code></pre>
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-adamw2019" class="csl-entry" role="listitem">
-Loshchilov, Ilya, and Frank Hutter. 2019. <span>“Decoupled Weight Decay Regularization.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1711.05101">https://arxiv.org/abs/1711.05101</a>.
+Loshchilov, Ilya, and Frank Hutter. 2019. <span>“Decoupled Weight Decay Regularization.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1711.05101">https://arxiv.org/abs/1711.05101</a>.
 </div>
 <div id="ref-prechelt1998" class="csl-entry" role="listitem">
-Prechelt, Lutz. 1998. <span>“Early Stopping—but When?”</span> In <em>Neural Networks: Tricks of the Trade</em>, 55–69. Springer. <a href="https://doi.org/10.1007/3-540-49430-8_3">https://doi.org/10.1007/3-540-49430-8_3</a>.
+Prechelt, Lutz. 1998. <span>“Early Stopping—but When?”</span> In <em>Neural Networks: Tricks of the Trade</em>. Springer. <a href="https://doi.org/10.1007/3-540-49430-8_3">https://doi.org/10.1007/3-540-49430-8_3</a>.
 </div>
 <div id="ref-srivastava2014" class="csl-entry" role="listitem">
 Srivastava, Nitish, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan Salakhutdinov. 2014. <span>“Dropout: A Simple Way to Prevent Neural Networks from Overfitting.”</span> <em>Journal of Machine Learning Research</em> 15 (56): 1929–58. <a href="https://jmlr.org/papers/v15/srivastava14a.html">https://jmlr.org/papers/v15/srivastava14a.html</a>.
 </div>
 <div id="ref-zhang2018mixup" class="csl-entry" role="listitem">
-Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <span>“Mixup: Beyond Empirical Risk Minimization.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=r1Ddp1-Rb">https://openreview.net/forum?id=r1Ddp1-Rb</a>.
+Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <span>“Mixup: Beyond Empirical Risk Minimization.”</span> <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=r1Ddp1-Rb">https://openreview.net/forum?id=r1Ddp1-Rb</a>.
 </div>
 </div>
 </section>
@@ -1113,13 +1078,14 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1153,16 +1119,16 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1524,7 +1490,7 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Regularisation"</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Changing the learning problem to improve transfer"</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -1907,7 +1873,7 @@ Zhang, Hongyi, Moustapha Cisse, Yann N. Dauphin, and David Lopez-Paz. 2018. <spa
 <span id="cb12-397"><a href="#cb12-397" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb12-398"><a href="#cb12-398" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-399"><a href="#cb12-399" aria-hidden="true" tabindex="-1"></a>Dropout is developed by @srivastava2014. Early-stopping criteria are compared by @prechelt1998. Mixup is introduced by @zhang2018mixup. Decoupled weight decay for adaptive optimisation is developed by @adamw2019.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

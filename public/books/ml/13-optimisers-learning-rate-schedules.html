@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Optimisers and Learning-rate Schedules – Machine Learning Concepts</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -59,7 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -93,10 +98,10 @@ div.csl-indent {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-364982630eef5352dd1537128a8ed5cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fd0503e23dce65854c81c5baaade3bdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -125,88 +130,48 @@ div.csl-indent {
   }
 }</script>
 <!--
-
 Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
 
-
-
 Why this is a script rather than markup: Quarto generates the secondary nav bar
-
 from its own template, so there is no source position where a plain anchor would
-
 land inside it. Inserting the links at render time would mean overriding a Quarto
-
 template partial, which breaks when the Quarto version changes. Querying the
-
 finished DOM is stable across releases.
 
-
-
 Without this, the links were patched into the published HTML by hand in the
-
 website repository, and every re-render silently removed them. That happened
-
 repeatedly: the September 2026 republish stripped them from 33 chapters.
-
 -->
-
 <script>
-
 (function () {
-
   function addBookNav() {
-
     var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
-
     if (!bar || bar.querySelector(".book-site-return")) return;
 
-
-
     var back = document.createElement("a");
-
     back.className = "book-site-return";
-
     back.href = "/";
-
     back.textContent = "\u2190 sempe.dev";
 
-
-
     var books = document.createElement("a");
-
     books.className = "book-site-books";
-
     books.href = "/#books";
-
     books.textContent = "Books";
 
-
-
     bar.insertBefore(back, bar.firstChild);
-
     bar.insertBefore(books, back.nextSibling);
-
   }
-
-
 
   if (document.readyState === "loading") {
-
     document.addEventListener("DOMContentLoaded", addBookNav);
-
   } else {
-
     addBookNav();
-
   }
-
 })();
-
 </script>
 
-
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -219,7 +184,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -631,7 +596,7 @@ L(x,y)=\frac{1}{2}(x^2+20y^2).
 <div id="cell-fig-optimiser-paths" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
@@ -674,13 +639,13 @@ L(x,y)=\frac{1}{2}(x^2+20y^2).
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    ax.scatter([<span class="dv">0</span>], [<span class="dv">0</span>], color<span class="op">=</span>blue, s<span class="op">=</span><span class="dv">45</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
 <span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    ax.set_title(name)<span class="op">;</span> ax.set_xlabel(<span class="st">"x"</span>)</span>
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"y"</span>)</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-optimiser-paths" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three contour plots show optimisation paths from the same starting point. SGD oscillates across the narrow valley, momentum smooths the direction over time, and Adam rescales the coordinates.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-optimiser-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-optimiser-paths-output-1.png" class="img-fluid figure-img" alt="Three contour plots show optimisation paths from the same starting point. SGD oscillates across the narrow valley, momentum smooths the direction over time, and Adam rescales the coordinates.">
+<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-optimiser-paths-output-1.png" alt="Three contour plots show optimisation paths from the same starting point. SGD oscillates across the narrow valley, momentum smooths the direction over time, and Adam rescales the coordinates." width="1143" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-optimiser-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;14.1: SGD, momentum, and Adam follow different paths across the same elongated loss surface.
@@ -708,7 +673,7 @@ Figure&nbsp;14.1: SGD, momentum, and Adam follow different paths across the same
 <div id="cell-fig-momentum-filter" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">33</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">33</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>steps <span class="op">=</span> np.arange(<span class="dv">80</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>underlying <span class="op">=</span> <span class="fl">0.7</span> <span class="op">*</span> np.sin(steps <span class="op">/</span> <span class="dv">17</span>) <span class="op">+</span> <span class="fl">0.8</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> underlying <span class="op">+</span> rng.normal(<span class="dv">0</span>, <span class="fl">0.75</span>, size<span class="op">=</span><span class="bu">len</span>(steps))</span>
@@ -725,13 +690,13 @@ Figure&nbsp;14.1: SGD, momentum, and Adam follow different paths across the same
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].plot(steps, velocity, color<span class="op">=</span>teal, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"momentum state"</span>)</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].axhline(<span class="dv">0</span>, color<span class="op">=</span>grey, linewidth<span class="op">=</span><span class="fl">.8</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_title(<span class="st">"Accumulated direction"</span>)</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Step"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Exponential average"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].legend()</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-momentum-filter" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels compare noisy observed gradients with their smooth underlying direction and show the velocity created by an exponential accumulation of those gradients.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-momentum-filter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-momentum-filter-output-1.png" class="img-fluid figure-img" alt="Two panels compare noisy observed gradients with their smooth underlying direction and show the velocity created by an exponential accumulation of those gradients.">
+<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-momentum-filter-output-1.png" alt="Two panels compare noisy observed gradients with their smooth underlying direction and show the velocity created by an exponential accumulation of those gradients." width="1047" height="373" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-momentum-filter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;14.2: Momentum retains a persistent gradient direction while reducing the effect of batch-to-batch variation.
@@ -773,10 +738,10 @@ v_t=\beta v_{t-1}+g_t,\qquad
 <section id="adam-maintains-two-moment-estimates" class="level3">
 <h3 class="anchored" data-anchor-id="adam-maintains-two-moment-estimates">Adam maintains two moment estimates</h3>
 <p>Adam first updates an exponential average of the gradient and of its square. It corrects both averages for their initialisation at zero, divides the corrected first moment by the square root of the corrected second moment, and applies the learning rate. Epsilon prevents division by zero.</p>
-<div id="f03a3f0c" class="cell" data-execution_count="3">
+<div id="f4036063" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gradients <span class="op">=</span> np.array([<span class="fl">2.0</span>, <span class="fl">1.0</span>, <span class="op">-</span><span class="fl">1.0</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>gradients <span class="op">=</span> np.array([<span class="fl">2.0</span>, <span class="fl">1.0</span>, <span class="op">-</span><span class="fl">1.0</span>])</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>beta1, beta2 <span class="op">=</span> <span class="fl">0.9</span>, <span class="fl">0.999</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m, v <span class="op">=</span> <span class="fl">0.0</span>, <span class="fl">0.0</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
@@ -787,7 +752,7 @@ v_t=\beta v_{t-1}+g_t,\qquad
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    rows.append([t, gradient, m, v, m_hat<span class="op">/</span>np.sqrt(v_hat)])</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">" step  grad      m        v     scaled direction"</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> rows:</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f" </span><span class="sc">{</span>row[<span class="dv">0</span>]<span class="sc">:&gt;3}</span><span class="ss">  </span><span class="sc">{</span>row[<span class="dv">1</span>]<span class="sc">:&gt;4.1f}</span><span class="ss">  </span><span class="sc">{</span>row[<span class="dv">2</span>]<span class="sc">:&gt;7.3f}</span><span class="ss">  </span><span class="sc">{</span>row[<span class="dv">3</span>]<span class="sc">:&gt;7.4f}</span><span class="ss">       </span><span class="sc">{</span>row[<span class="dv">4</span>]<span class="sc">:&gt;7.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f" </span><span class="sc">{</span>row[<span class="dv">0</span>]<span class="sc">:&gt;3}</span><span class="ss">  </span><span class="sc">{</span>row[<span class="dv">1</span>]<span class="sc">:&gt;4.1f}</span><span class="ss">  </span><span class="sc">{</span>row[<span class="dv">2</span>]<span class="sc">:&gt;7.3f}</span><span class="ss">  </span><span class="sc">{</span>row[<span class="dv">3</span>]<span class="sc">:&gt;7.4f}</span><span class="ss">       </span><span class="sc">{</span>row[<span class="dv">4</span>]<span class="sc">:&gt;7.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> step  grad      m        v     scaled direction
@@ -803,7 +768,7 @@ v_t=\beta v_{t-1}+g_t,\qquad
 <div id="cell-fig-adaptive-coordinate-scaling" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>g1 <span class="op">=</span> <span class="dv">8</span> <span class="op">*</span> np.exp(<span class="op">-</span>steps[:<span class="dv">40</span>]<span class="op">/</span><span class="dv">18</span>) <span class="op">+</span> <span class="fl">0.4</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>g1 <span class="op">=</span> <span class="dv">8</span> <span class="op">*</span> np.exp(<span class="op">-</span>steps[:<span class="dv">40</span>]<span class="op">/</span><span class="dv">18</span>) <span class="op">+</span> <span class="fl">0.4</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>g2 <span class="op">=</span> <span class="fl">0.35</span> <span class="op">+</span> <span class="fl">0.12</span><span class="op">*</span>np.sin(steps[:<span class="dv">40</span>]<span class="op">/</span><span class="dv">5</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>grad_matrix <span class="op">=</span> np.column_stack([g1, g2])</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> np.zeros(<span class="dv">2</span>)<span class="op">;</span> v <span class="op">=</span> np.zeros(<span class="dv">2</span>)<span class="op">;</span> updates <span class="op">=</span> []</span>
@@ -820,13 +785,13 @@ v_t=\beta v_{t-1}+g_t,\qquad
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].bar(positions<span class="op">+</span>width<span class="op">/</span><span class="dv">2</span>, np.<span class="bu">abs</span>(updates[chosen,<span class="dv">1</span>]), width, label<span class="op">=</span><span class="st">"coordinate 2"</span>, color<span class="op">=</span>purple)</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Adam scaled direction"</span>)<span class="op">;</span> axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Magnitude"</span>)</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> axes: ax.set_xticks(positions, [<span class="ss">f"step </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> chosen])<span class="op">;</span> ax.legend()</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-adaptive-coordinate-scaling" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Grouped bars compare raw gradient magnitudes and Adam update magnitudes for two coordinates over selected training steps.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-adaptive-coordinate-scaling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-adaptive-coordinate-scaling-output-1.png" class="img-fluid figure-img" alt="Grouped bars compare raw gradient magnitudes and Adam update magnitudes for two coordinates over selected training steps.">
+<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-adaptive-coordinate-scaling-output-1.png" alt="Grouped bars compare raw gradient magnitudes and Adam update magnitudes for two coordinates over selected training steps." width="951" height="374" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-adaptive-coordinate-scaling-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;14.3: Adam converts gradients with very different scales into more comparable coordinate updates.
@@ -847,7 +812,7 @@ Figure&nbsp;14.3: Adam converts gradients with very different scales into more c
 <div id="cell-fig-adamw-weight-decay" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>initial <span class="op">=</span> np.array([<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="fl">10.0</span>])<span class="op">;</span> rate, decay <span class="op">=</span> <span class="fl">0.05</span>, <span class="fl">0.1</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>initial <span class="op">=</span> np.array([<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="fl">10.0</span>])<span class="op">;</span> rate, decay <span class="op">=</span> <span class="fl">0.05</span>, <span class="fl">0.1</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>coupled <span class="op">=</span> initial.copy()<span class="op">;</span> decoupled <span class="op">=</span> initial.copy()</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> np.zeros(<span class="dv">3</span>)<span class="op">;</span> v <span class="op">=</span> np.zeros(<span class="dv">3</span>)<span class="op">;</span> coupled_history<span class="op">=</span>[coupled.copy()]<span class="op">;</span> decoupled_history<span class="op">=</span>[decoupled.copy()]</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">31</span>):</span>
@@ -864,13 +829,13 @@ Figure&nbsp;14.3: Adam converts gradients with very different scales into more c
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="st">"Adam with L2 gradient"</span>,<span class="st">"AdamW decay only"</span>]):</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    ax.set_yscale(<span class="st">"log"</span>)<span class="op">;</span> ax.set_xlabel(<span class="st">"Step"</span>)<span class="op">;</span> ax.set_title(title)<span class="op">;</span> ax.legend()</span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Absolute parameter value"</span>)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-adamw-weight-decay" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels track the absolute values of three parameters under Adam with an L2 gradient and under proportional AdamW decay when the data gradient is zero.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-adamw-weight-decay-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-adamw-weight-decay-output-1.png" class="img-fluid figure-img" alt="Two panels track the absolute values of three parameters under Adam with an L2 gradient and under proportional AdamW decay when the data gradient is zero.">
+<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-adamw-weight-decay-output-1.png" alt="Two panels track the absolute values of three parameters under Adam with an L2 gradient and under proportional AdamW decay when the data gradient is zero." width="950" height="373" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-adamw-weight-decay-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;14.4: Coupled L2 regularisation and decoupled AdamW weight decay produce different shrinkage under adaptive scaling.
@@ -887,7 +852,7 @@ Figure&nbsp;14.4: Coupled L2 regularisation and decoupled AdamW weight decay pro
 <div id="cell-fig-learning-rate-schedules" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.arange(<span class="dv">101</span>)<span class="op">;</span> base <span class="op">=</span> <span class="fl">1.0</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.arange(<span class="dv">101</span>)<span class="op">;</span> base <span class="op">=</span> <span class="fl">1.0</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>constant <span class="op">=</span> np.ones_like(t, dtype<span class="op">=</span><span class="bu">float</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>step_decay <span class="op">=</span> <span class="fl">.5</span> <span class="op">**</span> (t<span class="op">//</span><span class="dv">25</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>exponential <span class="op">=</span> np.exp(<span class="op">-</span><span class="fl">.025</span><span class="op">*</span>t)</span>
@@ -902,13 +867,13 @@ Figure&nbsp;14.4: Coupled L2 regularisation and decoupled AdamW weight decay pro
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    ax.plot(t,values,label<span class="op">=</span>label,color<span class="op">=</span>colour,linestyle<span class="op">=</span>style,linewidth<span class="op">=</span><span class="fl">2.2</span>)</span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Optimiser update"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"Learning rate / base rate"</span>)</span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Five schedule shapes on the same update clock"</span>)<span class="op">;</span> ax.legend(ncol<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-learning-rate-schedules" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A line chart compares constant, step-decay, exponential, cosine, and warm-up plus cosine learning-rate schedules over one hundred optimiser updates.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-learning-rate-schedules-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-learning-rate-schedules-output-1.png" class="img-fluid figure-img" alt="A line chart compares constant, step-decay, exponential, cosine, and warm-up plus cosine learning-rate schedules over one hundred optimiser updates.">
+<img src="13-optimisers-learning-rate-schedules_files/figure-html/fig-learning-rate-schedules-output-1.png" alt="A line chart compares constant, step-decay, exponential, cosine, and warm-up plus cosine learning-rate schedules over one hundred optimiser updates." width="903" height="470" class="figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-learning-rate-schedules-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;14.5: Learning-rate schedules encode different assumptions about when large and small updates are useful.
@@ -963,10 +928,10 @@ v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2.
 </section>
 <section id="a-manual-optimiser-makes-state-explicit" class="level3">
 <h3 class="anchored" data-anchor-id="a-manual-optimiser-makes-state-explicit">A manual optimiser makes state explicit</h3>
-<div id="8749fdd3" class="cell" data-execution_count="7">
+<div id="b7b2bc2a" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adamw_step(parameters, gradient, state, step, learning_rate,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> adamw_step(parameters, gradient, state, step, learning_rate,</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>               beta1<span class="op">=</span><span class="fl">0.9</span>, beta2<span class="op">=</span><span class="fl">0.999</span>, eps<span class="op">=</span><span class="fl">1e-8</span>, weight_decay<span class="op">=</span><span class="fl">0.01</span>):</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    state[<span class="st">"m"</span>] <span class="op">=</span> beta1<span class="op">*</span>state[<span class="st">"m"</span>] <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>beta1)<span class="op">*</span>gradient</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    state[<span class="st">"v"</span>] <span class="op">=</span> beta2<span class="op">*</span>state[<span class="st">"v"</span>] <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>beta2)<span class="op">*</span>gradient<span class="op">**</span><span class="dv">2</span></span>
@@ -979,7 +944,7 @@ v_t=\beta_2v_{t-1}+(1-\beta_2)g_t^2.
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>theta<span class="op">=</span>np.array([<span class="fl">1.0</span>,<span class="op">-</span><span class="fl">2.0</span>])<span class="op">;</span> state<span class="op">=</span>{<span class="st">"m"</span>:np.zeros(<span class="dv">2</span>),<span class="st">"v"</span>:np.zeros(<span class="dv">2</span>)}</span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>theta,state<span class="op">=</span>adamw_step(theta,np.array([<span class="fl">0.3</span>,<span class="op">-</span><span class="fl">0.1</span>]),state,step<span class="op">=</span><span class="dv">1</span>,learning_rate<span class="op">=</span><span class="fl">1e-2</span>)</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"updated parameters:"</span>,theta.<span class="bu">round</span>(<span class="dv">6</span>))</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"stored first moment:"</span>,state[<span class="st">"m"</span>].<span class="bu">round</span>(<span class="dv">6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"stored first moment:"</span>,state[<span class="st">"m"</span>].<span class="bu">round</span>(<span class="dv">6</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>updated parameters: [ 0.9899 -1.9898]
@@ -990,10 +955,10 @@ stored first moment: [ 0.03 -0.01]</code></pre>
 </section>
 <section id="pytorch-separates-gradient-calculation-optimiser-update-and-schedule-update" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-separates-gradient-calculation-optimiser-update-and-schedule-update">PyTorch separates gradient calculation, optimiser update, and schedule update</h3>
-<div id="d7bb0671" class="cell" data-execution_count="8">
+<div id="cb10346b" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">13</span>)</span>
@@ -1014,22 +979,22 @@ stored first moment: [ 0.03 -0.01]</code></pre>
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>loss.backward()</span>
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>optimizer.step()</span>
 <span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>scheduler.step()</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"loss:"</span>,<span class="bu">round</span>(loss.item(),<span class="dv">4</span>),<span class="st">"next learning rate:"</span>,optimizer.param_groups[<span class="dv">0</span>][<span class="st">"lr"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"loss:"</span>,<span class="bu">round</span>(loss.item(),<span class="dv">4</span>),<span class="st">"next learning rate:"</span>,optimizer.param_groups[<span class="dv">0</span>][<span class="st">"lr"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>loss: 1.1916 next learning rate: 0.0002999259840548597</code></pre>
 </div>
 </div>
 <p><code>loss.backward()</code> produces gradients. <code>optimizer.step()</code> transforms them using the stored moments and changes parameters. <code>scheduler.step()</code> changes the learning rate used by a later optimiser update. Their order matters. The correct scheduler timing depends on the scheduler’s documented convention, especially for schedules defined by epochs rather than updates.</p>
-<div id="0254a99e" class="cell" data-execution_count="9">
+<div id="13656915" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimisers and schedulers carry state beyond the visible parameters.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimisers and schedulers carry state beyond the visible parameters.</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>optimizer_state<span class="op">=</span>optimizer.state_dict()</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>scheduler_state<span class="op">=</span>scheduler.state_dict()</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"optimiser state fields:"</span>,optimizer_state.keys())</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"parameter-state entries:"</span>,<span class="bu">len</span>(optimizer_state[<span class="st">"state"</span>]))</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scheduler state fields:"</span>,scheduler_state.keys())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"scheduler state fields:"</span>,scheduler_state.keys())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>optimiser state fields: dict_keys(['state', 'param_groups'])
@@ -1045,7 +1010,7 @@ scheduler state fields: dict_keys(['T_max', 'eta_min', 'base_lrs', 'last_epoch',
 <section id="optimiser-choice-is-conditional-on-the-training-regime" class="level3">
 <h3 class="anchored" data-anchor-id="optimiser-choice-is-conditional-on-the-training-regime">Optimiser choice is conditional on the training regime</h3>
 <p>Adam often reduces the tuning required to obtain early progress when gradient scales differ, while well-tuned SGD with momentum remains effective in many vision settings. These are empirical patterns, not a universal ranking. Architecture, normalisation, batch size, data ordering, regularisation, training horizon, and schedule can reverse a comparison. A fair experiment allocates each optimiser an appropriate learning-rate search and reports the compute used for tuning.</p>
-<p>The original Adam paper gives an algorithm and convergence analysis under stated assumptions <span class="citation" data-cites="kingma2014">(<a href="#ref-kingma2014" role="doc-biblioref">Kingma and Ba 2015</a>)</span>. Later work constructed settings in which Adam does not converge and proposed AMSGrad as one response <span class="citation" data-cites="reddi2018adam">(<a href="#ref-reddi2018adam" role="doc-biblioref">Reddi, Kale, and Kumar 2018</a>)</span>. This does not show that Adam generally fails in neural-network training. It shows that popularity and strong empirical performance do not supply a universal convergence guarantee.</p>
+<p>The original Adam paper gives an algorithm and convergence analysis under stated assumptions <span class="citation" data-cites="kingma2014">(<a href="#ref-kingma2014" role="doc-biblioref">Kingma and Ba 2015</a>)</span>. Later work constructed settings in which Adam does not converge and proposed AMSGrad as one response <span class="citation" data-cites="reddi2018adam">(<a href="#ref-reddi2018adam" role="doc-biblioref">Reddi et al. 2018</a>)</span>. This does not show that Adam generally fails in neural-network training. It shows that popularity and strong empirical performance do not supply a universal convergence guarantee.</p>
 </section>
 <section id="learning-rate-schedules-encode-a-training-budget" class="level3">
 <h3 class="anchored" data-anchor-id="learning-rate-schedules-encode-a-training-budget">Learning-rate schedules encode a training budget</h3>
@@ -1123,32 +1088,32 @@ scheduler state fields: dict_keys(['T_max', 'eta_min', 'base_lrs', 'last_epoch',
 </section>
 <section id="further-reading" class="level2">
 <h2 class="anchored" data-anchor-id="further-reading">Further reading</h2>
-<p>Large-scale stochastic optimisation is reviewed by <span class="citation" data-cites="bottou2018">Bottou, Curtis, and Nocedal (<a href="#ref-bottou2018" role="doc-biblioref">2018</a>)</span>. Momentum in deep-network training is analysed empirically by <span class="citation" data-cites="sutskever2013momentum">Sutskever et al. (<a href="#ref-sutskever2013momentum" role="doc-biblioref">2013</a>)</span>. Adam is introduced by <span class="citation" data-cites="kingma2014">Kingma and Ba (<a href="#ref-kingma2014" role="doc-biblioref">2015</a>)</span>, while <span class="citation" data-cites="reddi2018adam">Reddi, Kale, and Kumar (<a href="#ref-reddi2018adam" role="doc-biblioref">2018</a>)</span> examine limits of its original convergence argument. Decoupled weight decay is developed by <span class="citation" data-cites="adamw2019">Loshchilov and Hutter (<a href="#ref-adamw2019" role="doc-biblioref">2019</a>)</span>. Cosine schedules with warm restarts are proposed by <span class="citation" data-cites="loshchilov2017sgdr">Loshchilov and Hutter (<a href="#ref-loshchilov2017sgdr" role="doc-biblioref">2017</a>)</span>, and <span class="citation" data-cites="goyal2017large">Goyal et al. (<a href="#ref-goyal2017large" role="doc-biblioref">2017</a>)</span> document gradual warm-up in a large-batch distributed training configuration.</p>
+<p>Large-scale stochastic optimisation is reviewed by <span class="citation" data-cites="bottou2018">Bottou et al. (<a href="#ref-bottou2018" role="doc-biblioref">2018</a>)</span>. Momentum in deep-network training is analysed empirically by <span class="citation" data-cites="sutskever2013momentum">Sutskever et al. (<a href="#ref-sutskever2013momentum" role="doc-biblioref">2013</a>)</span>. Adam is introduced by <span class="citation" data-cites="kingma2014">Kingma and Ba (<a href="#ref-kingma2014" role="doc-biblioref">2015</a>)</span>, while <span class="citation" data-cites="reddi2018adam">Reddi et al. (<a href="#ref-reddi2018adam" role="doc-biblioref">2018</a>)</span> examine limits of its original convergence argument. Decoupled weight decay is developed by <span class="citation" data-cites="adamw2019">Loshchilov and Hutter (<a href="#ref-adamw2019" role="doc-biblioref">2019</a>)</span>. Cosine schedules with warm restarts are proposed by <span class="citation" data-cites="loshchilov2017sgdr">Loshchilov and Hutter (<a href="#ref-loshchilov2017sgdr" role="doc-biblioref">2017</a>)</span>, and <span class="citation" data-cites="goyal2017large">Goyal et al. (<a href="#ref-goyal2017large" role="doc-biblioref">2017</a>)</span> document gradual warm-up in a large-batch distributed training configuration.</p>
 
 
 <!-- -->
 
-<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-bottou2018" class="csl-entry" role="listitem">
 Bottou, Léon, Frank E. Curtis, and Jorge Nocedal. 2018. <span>“Optimization Methods for Large-Scale Machine Learning.”</span> <em>SIAM Review</em> 60 (2): 223–311. <a href="https://doi.org/10.1137/16M1080173">https://doi.org/10.1137/16M1080173</a>.
 </div>
 <div id="ref-goyal2017large" class="csl-entry" role="listitem">
-Goyal, Priya, Piotr Dollár, Ross Girshick, Pieter Noordhuis, Lukasz Wesolowski, Aapo Kyrola, Andrew Tulloch, Yangqing Jia, and Kaiming He. 2017. <span>“Accurate, Large Minibatch <span>SGD</span>: Training <span>ImageNet</span> in 1 Hour.”</span> <em>arXiv Preprint arXiv:1706.02677</em>. <a href="https://arxiv.org/abs/1706.02677">https://arxiv.org/abs/1706.02677</a>.
+Goyal, Priya, Piotr Dollár, Ross Girshick, et al. 2017. <span>“Accurate, Large Minibatch <span>SGD</span>: Training <span>ImageNet</span> in 1 Hour.”</span> <em>arXiv Preprint arXiv:1706.02677</em>. <a href="https://arxiv.org/abs/1706.02677">https://arxiv.org/abs/1706.02677</a>.
 </div>
 <div id="ref-kingma2014" class="csl-entry" role="listitem">
 Kingma, Diederik P., and Jimmy Ba. 2015. <span>“Adam: A Method for Stochastic Optimization.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1412.6980">https://arxiv.org/abs/1412.6980</a>.
 </div>
 <div id="ref-loshchilov2017sgdr" class="csl-entry" role="listitem">
-Loshchilov, Ilya, and Frank Hutter. 2017. <span>“<span>SGDR</span>: Stochastic Gradient Descent with Warm Restarts.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=Skq89Scxx">https://openreview.net/forum?id=Skq89Scxx</a>.
+Loshchilov, Ilya, and Frank Hutter. 2017. <span>“<span>SGDR</span>: Stochastic Gradient Descent with Warm Restarts.”</span> <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=Skq89Scxx">https://openreview.net/forum?id=Skq89Scxx</a>.
 </div>
 <div id="ref-adamw2019" class="csl-entry" role="listitem">
-———. 2019. <span>“Decoupled Weight Decay Regularization.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1711.05101">https://arxiv.org/abs/1711.05101</a>.
+Loshchilov, Ilya, and Frank Hutter. 2019. <span>“Decoupled Weight Decay Regularization.”</span> <em>International Conference on Learning Representations</em>. <a href="https://arxiv.org/abs/1711.05101">https://arxiv.org/abs/1711.05101</a>.
 </div>
 <div id="ref-reddi2018adam" class="csl-entry" role="listitem">
-Reddi, Sashank J., Satyen Kale, and Sanjiv Kumar. 2018. <span>“On the Convergence of Adam and Beyond.”</span> In <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=ryQu7f-RZ">https://openreview.net/forum?id=ryQu7f-RZ</a>.
+Reddi, Sashank J., Satyen Kale, and Sanjiv Kumar. 2018. <span>“On the Convergence of Adam and Beyond.”</span> <em>International Conference on Learning Representations</em>. <a href="https://openreview.net/forum?id=ryQu7f-RZ">https://openreview.net/forum?id=ryQu7f-RZ</a>.
 </div>
 <div id="ref-sutskever2013momentum" class="csl-entry" role="listitem">
-Sutskever, Ilya, James Martens, George Dahl, and Geoffrey Hinton. 2013. <span>“On the Importance of Initialization and Momentum in Deep Learning.”</span> In <em>Proceedings of the 30th International Conference on Machine Learning</em>, 28:1139–47. Proceedings of Machine Learning Research 3. PMLR. <a href="https://proceedings.mlr.press/v28/sutskever13.html">https://proceedings.mlr.press/v28/sutskever13.html</a>.
+Sutskever, Ilya, James Martens, George Dahl, and Geoffrey Hinton. 2013. <span>“On the Importance of Initialization and Momentum in Deep Learning.”</span> <em>Proceedings of the 30th International Conference on Machine Learning</em>, Proceedings of machine learning research, vol. 28: 1139–47. <a href="https://proceedings.mlr.press/v28/sutskever13.html">https://proceedings.mlr.press/v28/sutskever13.html</a>.
 </div>
 </div>
 </section>
@@ -1205,13 +1170,14 @@ Sutskever, Ilya, James Martens, George Dahl, and Geoffrey Hinton. 2013. <span>�
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1245,16 +1211,16 @@ Sutskever, Ilya, James Martens, George Dahl, and Geoffrey Hinton. 2013. <span>�
     }
     function toggleCodeHandler(show) {
       return function(e) {
-        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-        for (let i=0; i<detailsSrc.length; i++) {
-          const details = detailsSrc[i].parentElement;
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
           if (show) {
             details.open = true;
           } else {
             details.removeAttribute("open");
           }
         }
-        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
         const fromCls = show ? "hidden" : "unhidden";
         const toCls = show ? "unhidden" : "hidden";
         for (let i=0; i<cellCodeDivs.length; i++) {
@@ -1616,7 +1582,7 @@ Sutskever, Ilya, James Martens, George Dahl, and Geoffrey Hinton. 2013. <span>�
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Optimisers and Learning-rate Schedules"</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Turning gradients into a sequence of parameter updates"</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -2083,7 +2049,7 @@ Sutskever, Ilya, James Martens, George Dahl, and Geoffrey Hinton. 2013. <span>�
 <span id="cb14-483"><a href="#cb14-483" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb14-484"><a href="#cb14-484" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-485"><a href="#cb14-485" aria-hidden="true" tabindex="-1"></a>Large-scale stochastic optimisation is reviewed by @bottou2018. Momentum in deep-network training is analysed empirically by @sutskever2013momentum. Adam is introduced by @kingma2014, while @reddi2018adam examine limits of its original convergence argument. Decoupled weight decay is developed by @adamw2019. Cosine schedules with warm restarts are proposed by @loshchilov2017sgdr, and @goyal2017large document gradual warm-up in a large-batch distributed training configuration.</span>
-</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
