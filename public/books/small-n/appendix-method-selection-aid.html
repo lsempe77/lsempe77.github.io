@@ -75,8 +75,49 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<!--
+Adds the "← sempe.dev" and "Books" links to the book's top navigation bar.
+
+Why this is a script rather than markup: Quarto generates the secondary nav bar
+from its own template, so there is no source position where a plain anchor would
+land inside it. Inserting the links at render time would mean overriding a Quarto
+template partial, which breaks when the pinned Quarto version changes (this book
+is rendered by Quarto 1.7.32 locally and a newer release in CI). Querying the
+finished DOM is stable across both.
+
+Without this, the links used to be patched into the published HTML by hand in the
+website repository, and every re-render silently removed them.
+-->
+<script>
+(function () {
+  function addBookNav() {
+    var bar = document.querySelector(".quarto-secondary-nav .container-fluid");
+    if (!bar || bar.querySelector(".book-site-return")) return;
+
+    var back = document.createElement("a");
+    back.className = "book-site-return";
+    back.href = "/";
+    back.textContent = "\u2190 sempe.dev";
+
+    var books = document.createElement("a");
+    books.className = "book-site-books";
+    books.href = "/#books";
+    books.textContent = "Books";
+
+    bar.insertBefore(back, bar.firstChild);
+    bar.insertBefore(books, back.nextSibling);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", addBookNav);
+  } else {
+    addBookNav();
+  }
+})();
+</script>
 
 
+<link rel="stylesheet" href="book-navigation.css">
 </head>
 
 <body class="nav-sidebar floating quarto-light">
