@@ -840,7 +840,7 @@ Y_{ij}=\gamma_j\frac{X_{ij}-\mu_j}{\sqrt{\sigma_j^2+\varepsilon}}+\beta_j.
 \sigma_i^2=\frac{1}{D}\sum_{j=1}^{D}(X_{ij}-\mu_i)^2.
 \]</span></p>
 <p>Now the feature index <span class="math inline">\(j\)</span> is reduced. For sequence data with shape batch <span class="math inline">\(\times\)</span> tokens <span class="math inline">\(\times\)</span> features, layer normalisation is ordinarily applied across features for each token separately. The token does not borrow statistics from other tokens or other sequences.</p>
-<div id="490ed215" class="cell" data-execution_count="6">
+<div id="2bb104e6" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> batch_norm_manual(x, gamma, beta, eps<span class="op">=</span><span class="fl">1e-5</span>):</span>
@@ -877,7 +877,7 @@ r_i=\sqrt{\frac{1}{D}\sum_{j=1}^{D}x_{ij}^{2}+\varepsilon},\qquad
 y_{ij}=\gamma_j\frac{x_{ij}}{r_i}.
 \]</span></p>
 <p>There is no <span class="math inline">\(μ_i\)</span> and commonly no learned beta. RMS normalisation therefore provides re-scaling invariance but not re-centring invariance. The distinction matters when a vector’s mean carries information or when reducing arithmetic and memory movement is valuable.</p>
-<div id="528985f8" class="cell" data-execution_count="7">
+<div id="f80801da" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rms_norm_manual(x, weight, eps<span class="op">=</span><span class="fl">1e-5</span>):</span>
@@ -899,7 +899,7 @@ RMS output mean:  0.953</code></pre>
 </section>
 <section id="pytorch-encodes-axes-in-the-module-configuration" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-encodes-axes-in-the-module-configuration">PyTorch encodes axes in the module configuration</h3>
-<div id="56de5d8f" class="cell" data-execution_count="8">
+<div id="84b1918e" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -927,7 +927,7 @@ BN train/eval outputs equal: False</code></pre>
 </div>
 </div>
 <p>The final result is false because the evaluation calculation uses running estimates accumulated by the module, while the training calculation uses the current batch. With real training, running estimates aggregate information over many batches. A freshly created layer has seen only the single batch used here.</p>
-<div id="365ba6ea" class="cell" data-execution_count="9">
+<div id="9bc42426" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ManualRMSNorm(nn.Module):</span>

@@ -604,7 +604,7 @@ Figure&nbsp;38.1: Inference-time scaling increases a candidate or search budget,
 <section id="more-attempts-can-raise-coverage" class="level3">
 <h3 class="anchored" data-anchor-id="more-attempts-can-raise-coverage">More attempts can raise coverage</h3>
 <p>If a single sampled solution has probability (p) of being correct and samples are independent, the probability that at least one among (N) is correct is (1-(1-p)^N). This is an upper-bound intuition for best-of-N: the system still needs to recognise or select the correct candidate. Correlated mistakes, narrow decoding, and weak selectors reduce the practical gain.</p>
-<div id="8da256df" class="cell" data-execution_count="2">
+<div id="dd2a17a5" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">=</span><span class="fl">.35</span></span>
@@ -618,7 +618,7 @@ Figure&nbsp;38.1: Inference-time scaling increases a candidate or search budget,
 </div>
 </div>
 <p>Sampling does not create new evidence. It produces several continuations of the same model under the same context. If all candidates repeat a common misconception, a majority vote can reinforce it. If a verifier checks the relevant property, it can select a rare correct candidate. The mechanism must be evaluated on the task rather than inferred from candidate count.</p>
-<div id="07297e6b" class="cell" data-execution_count="3">
+<div id="f35aa719" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[<span class="dv">12</span>,<span class="dv">13</span>,<span class="dv">12</span>,<span class="dv">11</span>,<span class="dv">12</span>]</span>
@@ -640,7 +640,7 @@ Figure&nbsp;38.1: Inference-time scaling increases a candidate or search budget,
 <section id="best-of-n-needs-a-score-with-useful-ranking-power" class="level3">
 <h3 class="anchored" data-anchor-id="best-of-n-needs-a-score-with-useful-ranking-power">Best-of-N needs a score with useful ranking power</h3>
 <p>Best-of-N generates (N) candidates and chooses the highest-scoring one. The score can be an exact verifier, a learned reward, a self-evaluation, or a task-specific heuristic. An oracle score that knows the answer provides a useful educational upper bound but is not a deployable selection rule. A learned scorer requires its own precision, recall, and distribution-shift evaluation from Chapter 36.</p>
-<div id="79212585" class="cell" data-execution_count="4">
+<div id="92547b82" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"score"</span>:<span class="fl">.91</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"score"</span>:<span class="fl">.63</span>},{<span class="st">"answer"</span>:<span class="dv">11</span>,<span class="st">"score"</span>:<span class="fl">.42</span>}]</span>
@@ -682,7 +682,7 @@ Figure&nbsp;38.2: Candidate coverage and selection accuracy are separate: a corr
 <section id="self-consistency-votes-over-answers" class="level3">
 <h3 class="anchored" data-anchor-id="self-consistency-votes-over-answers">Self-consistency votes over answers</h3>
 <p>Self-consistency samples several reasoning paths and selects the most common final answer. It can help when correct paths converge on a shared answer while errors are diverse <span class="citation" data-cites="wang2022self">(<a href="#ref-wang2022self" role="doc-biblioref">Wang et al. 2023</a>)</span>. It fails when candidates share a systematic error, when answer extraction is ambiguous, or when an answer requires evidence rather than a stable vote. The grouping rule for equivalent answers must be explicit.</p>
-<div id="ebadf49a" class="cell" data-execution_count="6">
+<div id="a036ff25" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>answers<span class="op">=</span>[<span class="st">"12"</span>,<span class="st">"12"</span>,<span class="st">"twelve"</span>,<span class="st">"13"</span>,<span class="st">"12"</span>]</span>
@@ -706,7 +706,7 @@ Figure&nbsp;38.2: Candidate coverage and selection accuracy are separate: a corr
 <h3 class="anchored" data-anchor-id="a-scaling-curve-needs-matched-conditions">A scaling curve needs matched conditions</h3>
 <p>Hold the checkpoint, tokenizer, prompt template, task set, maximum candidate length, decoding distribution, and evaluator fixed while changing the compute budget. Then report mean outcome, uncertainty, total generated tokens, model calls, verifier calls, latency, and cost. If a larger budget also uses a different prompt or a stronger verifier, the result does not isolate inference-time scaling.</p>
 <p>Sampling adds randomness, so one run at each budget is a weak basis for a curve. Use repeated draws or record seeds and report variation across them when feasible. The purpose is not to manufacture a precise estimate from a small benchmark; it is to show whether the apparent ordering of budgets persists under the stated sampling policy.</p>
-<div id="713ff979" class="cell" data-execution_count="7">
+<div id="387364af" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>budgets<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">8</span>])<span class="op">;</span> accuracy<span class="op">=</span>np.array([<span class="fl">.51</span>,<span class="fl">.59</span>,<span class="fl">.66</span>,<span class="fl">.69</span>])<span class="op">;</span> tokens<span class="op">=</span>budgets<span class="op">*</span><span class="dv">220</span></span>
@@ -775,7 +775,7 @@ Figure&nbsp;38.4: Marginal accuracy gain per additional candidate can fall as an
 <section id="budgets-should-be-adaptive-only-under-a-declared-rule" class="level3">
 <h3 class="anchored" data-anchor-id="budgets-should-be-adaptive-only-under-a-declared-rule">Budgets should be adaptive only under a declared rule</h3>
 <p>An adaptive system can allocate more samples to uncertain or difficult inputs. It then needs a routing rule and an evaluation that reports performance by route. Sending only failed cases to a large budget after viewing their answers would overstate an online system’s performance. The trigger must use information available before the final answer is known.</p>
-<div id="69bc0a6e" class="cell" data-execution_count="10">
+<div id="47e9c450" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>uncertainty<span class="op">=</span>np.array([<span class="fl">.12</span>,<span class="fl">.66</span>,<span class="fl">.31</span>])</span>
@@ -815,7 +815,7 @@ Figure&nbsp;38.5: An adaptive inference policy routes inputs to smaller or large
 <h3 class="anchored" data-anchor-id="the-audit-record-identifies-the-actual-source-of-gain">The audit record identifies the actual source of gain</h3>
 <p>Record task and item version, model and template, candidate-generation settings and seeds, candidate IDs, selector or verifier version, answer-normalisation rule, budget, tokens, calls, latency, cost, and outcome. Compare direct generation, generation plus selection, and any tool-assisted route. This makes clear whether an improvement came from sampling, a better selector, a tool, or a changed task interface.</p>
 <p>The audit should include unsuccessful scale points. A curve with no gain, a drop after larger budgets, or a high-cost route with little coverage identifies a practical boundary. Removing those points and presenting only the best budget makes it impossible to assess the policy’s trade-off. The result of an inference-time experiment is therefore a measured frontier under a task and system configuration, not a general statement that additional computation improves reasoning.</p>
-<div id="673fdc80" class="cell" data-execution_count="12">
+<div id="36dc614e" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"temperature"</span>:<span class="fl">.7</span>,<span class="st">"selector"</span>:<span class="st">"exact verifier"</span>,<span class="st">"answer_normalisation"</span>:<span class="st">"integer"</span>,<span class="st">"tokens"</span>:<span class="dv">1760</span>,<span class="st">"latency"</span>:<span class="fl">3.3</span>}</span>

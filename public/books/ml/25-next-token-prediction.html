@@ -668,7 +668,7 @@ p(x_1,\ldots,x_T)=\prod_{t=1}^{T}p(x_t\mid x_{&lt;t}).
 p_j=\frac{\exp(z_j)}{\sum_{k=1}^{|V|}\exp(z_k)}.
 \]</span></p>
 <p>Logits are unconstrained real numbers; probabilities are non-negative and sum to one. Adding the same constant to every logit does not alter softmax, which permits a stable implementation that subtracts the largest logit before exponentiating.</p>
-<div id="2463fa2e" class="cell" data-execution_count="3">
+<div id="8e0799bc" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stable_softmax(logits):</span>
@@ -693,7 +693,7 @@ p_j=\frac{\exp(z_j)}{\sum_{k=1}^{|V|}\exp(z_k)}.
 \mathcal{L}=-\frac{1}{N}\sum_{n=1}^{N}\log p_\theta(x_n\mid x_{&lt;n}).
 \]</span></p>
 <p>Here <span class="math inline">\(N\)</span> must count valid predicted tokens, not padded tensor cells. Cross-entropy is a name for the same calculation when the target distribution is one-hot. It compares a target distribution with the model distribution; it does not assess factuality, instruction-following, or downstream usefulness.</p>
-<div id="2aa31362" class="cell" data-execution_count="4">
+<div id="6c63eedf" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>target_id<span class="op">=</span><span class="dv">0</span></span>
@@ -708,7 +708,7 @@ p_j=\frac{\exp(z_j)}{\sum_{k=1}^{|V|}\exp(z_k)}.
 <section id="training-shifts-inputs-and-targets" class="level3">
 <h3 class="anchored" data-anchor-id="training-shifts-inputs-and-targets">Training shifts inputs and targets</h3>
 <p>For a stored sequence <code>[&lt;bos&gt;, the, cat, slept, &lt;eos&gt;]</code>, the model input may be the first four IDs and targets the final four IDs. Each input position produces a distribution for the token one place to the right. The full prefix is supplied to compute those positions efficiently, but the causal mask preserves the conditional information boundary.</p>
-<div id="b46171ba" class="cell" data-execution_count="5">
+<div id="c8e9b1d8" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">11</span>,<span class="dv">34</span>,<span class="dv">58</span>,<span class="dv">3</span>])</span>
@@ -753,7 +753,7 @@ Figure&nbsp;26.3: Teacher-forced language-model batches align each input positio
 <section id="causal-representations-and-the-output-head" class="level3">
 <h3 class="anchored" data-anchor-id="causal-representations-and-the-output-head">Causal representations and the output head</h3>
 <p>Let <span class="math inline">\(h_t\in\mathbb{R}^{d}\)</span> be the decoder representation at position <span class="math inline">\(t\)</span>, computed with causal access to <span class="math inline">\(x_{\leq t}\)</span>. An output head produces <span class="math inline">\(z_t=W h_t+b\)</span>, where <span class="math inline">\(W\)</span> has a vocabulary axis. Softmax turns <span class="math inline">\(z_t\)</span> into <span class="math inline">\(p_\theta(\cdot\mid x_{\leq t})\)</span>. Depending on the indexing convention, this distribution is trained against <span class="math inline">\(x_{t+1}\)</span>. Weight tying can use the input embedding matrix in the output projection, but it does not remove the vocabulary distribution or change the target shift.</p>
-<div id="c99d195a" class="cell" data-execution_count="7">
+<div id="049e8c97" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>hidden<span class="op">=</span>np.array([<span class="fl">.4</span>,<span class="op">-</span><span class="fl">.2</span>,<span class="fl">.6</span>])</span>
@@ -772,7 +772,7 @@ probabilities: [0.199 0.215 0.334 0.252]</code></pre>
 <section id="masks-determine-which-losses-count" class="level3">
 <h3 class="anchored" data-anchor-id="masks-determine-which-losses-count">Masks determine which losses count</h3>
 <p>In a padded batch, valid-token masks usually govern both attention eligibility and loss aggregation, but they are not interchangeable with causal masks. The causal mask forbids future access. The valid-token mask removes artificial positions. An implementation must specify whether it predicts an end token, whether packed documents permit cross-document attention, and whether loss includes special markers.</p>
-<div id="d1665bcd" class="cell" data-execution_count="8">
+<div id="8e9fb8aa" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>logit_batch<span class="op">=</span>np.array([[[<span class="fl">2.</span>,<span class="fl">.5</span>],[<span class="fl">.1</span>,<span class="fl">1.3</span>]],[[<span class="fl">.7</span>,<span class="fl">.2</span>],[<span class="fl">1.1</span>,<span class="fl">.4</span>]]])</span>
@@ -793,7 +793,7 @@ masked mean: 0.313</code></pre>
 <section id="perplexity-is-a-transformed-loss-not-a-general-evaluation" class="level3">
 <h3 class="anchored" data-anchor-id="perplexity-is-a-transformed-loss-not-a-general-evaluation">Perplexity is a transformed loss, not a general evaluation</h3>
 <p>Perplexity is commonly <span class="math inline">\(\exp(\mathcal{L})\)</span> when the loss uses natural logarithms. It can be interpreted as an effective branching factor under the particular tokenisation and evaluation corpus. Comparing perplexity across different tokenizers is generally invalid because one model may make more prediction events per visible string. It also does not measure whether continuations are accurate for a user task, calibrated under distribution shift, or appropriate after decoding.</p>
-<div id="e5789fd1" class="cell" data-execution_count="9">
+<div id="42f6d8b9" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>mean_nll<span class="op">=</span>np.array([<span class="fl">.69</span>,<span class="fl">1.39</span>,<span class="fl">2.30</span>])</span>
@@ -832,7 +832,7 @@ Figure&nbsp;26.4: Perplexity rises exponentially with average negative log likel
 <section id="training-and-generation-have-different-inputs" class="level3">
 <h3 class="anchored" data-anchor-id="training-and-generation-have-different-inputs">Training and generation have different inputs</h3>
 <p>Teacher forcing supplies observed previous tokens at every training position. At inference, the model receives its own selected token from the preceding step. This difference is operational rather than a contradiction in the objective: the same conditional distribution is evaluated repeatedly, but the prefix source changes. A single wrong early selection can therefore move a generation into a prefix region poorly represented in training data.</p>
-<div id="2c21e1f6" class="cell" data-execution_count="11">
+<div id="1188da6a" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>prefix<span class="op">=</span>[<span class="dv">2</span>]</span>
@@ -850,7 +850,7 @@ prefix [2, 11, 34, 58] -&gt; choose 3</code></pre>
 </div>
 </div>
 <p>The objective identifies a probability distribution. A decoding rule chooses from it. Greedy decoding selects the highest-probability token; sampling draws according to some transformed distribution; constrained systems may reject choices or stop at defined markers. Treating an argmax token as the model’s only belief discards the distribution that training actually produced.</p>
-<div id="37e4671c" class="cell" data-execution_count="12">
+<div id="3d39a953" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">4</span>)</span>
@@ -867,7 +867,7 @@ sampled IDs: [3 0 3 1 1 0 3 0]</code></pre>
 <h3 class="anchored" data-anchor-id="a-minimal-audit">A minimal audit</h3>
 <p>An objective audit should record the tokenizer and vocabulary version, position convention, input-target shift, output-head shape, causal-mask orientation, padding convention, loss denominator, document-boundary policy, special-token treatment, precision used for softmax and loss, and the metric corpus. A checkpoint cannot be interpreted from its parameter count alone.</p>
 <p>Tests should include a hand-calculated one-position loss, invariance of an earlier prediction to a changed future token, invariance to additional padding, and agreement between the batch loss and the mean of valid token losses. They should also check that generation begins from the intended start context and that an end marker stops only under the declared generation policy.</p>
-<div id="3b3f8a8c" class="cell" data-execution_count="13">
+<div id="b4006ff8" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.isclose(stable_softmax(logits).<span class="bu">sum</span>(),<span class="fl">1.0</span>)</span>
@@ -914,7 +914,7 @@ Figure&nbsp;26.5: The same visible text can create different numbers of predicti
 <h3 class="anchored" data-anchor-id="context-boundaries-are-part-of-the-example-definition">Context boundaries are part of the example definition</h3>
 <p>The conditional notation hides an operational choice: which earlier tokens count as the prefix. In a document-level corpus, a beginning marker or separator may indicate that one text has ended and another has begun. If preprocessing concatenates documents without a boundary policy, the model can be trained to predict the start of one item from the end of an unrelated item. Packing can improve hardware utilisation, but its attention and loss masks must state whether tokens may attend across packed segments.</p>
 <p>Finite context windows create a second boundary. A position near the end of a long sequence is conditioned on the retained window, not necessarily the entire preceding document. The objective is still a conditional likelihood, but the condition is truncated. This affects claims about long-range dependence and makes maximum length a property of the trained system rather than a deployment-only setting. Chapter 27 examines the inference and systems consequences of finite context in detail.</p>
-<div id="b71492f9" class="cell" data-execution_count="15">
+<div id="371be7a0" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>document<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">11</span>,<span class="dv">34</span>,<span class="dv">58</span>,<span class="dv">71</span>,<span class="dv">89</span>,<span class="dv">3</span>])</span>
@@ -937,7 +937,7 @@ context [34 58 71 89] target 3</code></pre>
 <h3 class="anchored" data-anchor-id="error-analysis-starts-with-the-conditional-event">Error analysis starts with the conditional event</h3>
 <p>An average loss can conceal very different patterns. A model may perform well on frequent punctuation and common short tokens while assigning poor probability to dates, names, a language variety, or a rare formatting sequence. Error analysis should therefore retain token-level events and group them by a declared property: position in the document, token frequency, script, source, length, or task-relevant category. Such groups are descriptive only when their construction and sample sizes are reported.</p>
 <p>The most probable alternative is often informative, but it should not be treated as a diagnosis by itself. If the target <code>slept</code> receives little probability after a clear prefix, the distribution may prefer a semantically related verb, a frequent generic continuation, or a tokenisation-dependent fragment. Inspecting the prefix, target, alternative tokens, and preprocessing records makes the failure analysable. A generated continuation alone does not reveal whether the error began in the model distribution, a decoding decision, or an input-interface mismatch.</p>
-<div id="4a990631" class="cell" data-execution_count="16">
+<div id="03e1239b" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>vocab<span class="op">=</span>np.array([<span class="st">"slept"</span>,<span class="st">"ran"</span>,<span class="st">"ate"</span>,<span class="st">"&lt;eos&gt;"</span>])</span>

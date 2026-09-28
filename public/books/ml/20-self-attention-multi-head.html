@@ -728,7 +728,7 @@ Figure&nbsp;21.4: Two heads can assign different eligible attention patterns to 
 <p>The score matrix is <span class="math inline">\(QK^\top\)</span>. Entry <span class="math inline">\((t,j)\)</span> compares query position <span class="math inline">\(t\)</span> with key position <span class="math inline">\(j\)</span>. Scaled dot-product attention uses</p>
 <p><span class="math display">\[A=\operatorname{softmax}\left(\frac{QK^\top}{\sqrt{D_k}}+M\right),\qquad C=AV,\]</span></p>
 <p>where softmax is applied across keys and <span class="math inline">\(M\)</span> encodes eligibility. The division by <span class="math inline">\(\sqrt{D_k}\)</span> controls score scale as key width changes <span class="citation" data-cites="vaswani2017">(<a href="#ref-vaswani2017" role="doc-biblioref"><span class="nocase">Vaswani et al.</span> 2017</a>)</span>.</p>
-<div id="a847561c" class="cell" data-execution_count="5">
+<div id="9e346df8" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>X<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">.2</span>,<span class="fl">.1</span>],[<span class="fl">.8</span>,<span class="fl">.2</span>,<span class="fl">.1</span>,<span class="fl">.3</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>,<span class="fl">.3</span>,<span class="fl">.2</span>],[<span class="fl">.3</span>,<span class="fl">.4</span>,<span class="fl">.8</span>,<span class="fl">.2</span>],[<span class="fl">.2</span>,<span class="fl">.1</span>,<span class="fl">.6</span>,<span class="fl">.9</span>]])</span>
@@ -756,7 +756,7 @@ row sums: [1. 1. 1. 1. 1.]</code></pre>
 <section id="causal-and-padding-masks-combine-by-exclusion" class="level3">
 <h3 class="anchored" data-anchor-id="causal-and-padding-masks-combine-by-exclusion">Causal and padding masks combine by exclusion</h3>
 <p>A causal mask blocks future key positions. A padding mask blocks positions that do not contain source data. Both act on score entries before softmax. For a batch, the padding mask is broadcast over query positions; the causal mask is broadcast over batch items and heads.</p>
-<div id="82db15f4" class="cell" data-execution_count="6">
+<div id="b9492596" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>causal<span class="op">=</span>np.tril(np.ones((<span class="dv">5</span>,<span class="dv">5</span>),dtype<span class="op">=</span><span class="bu">bool</span>))</span>
@@ -788,7 +788,7 @@ future mass at query 2: 0.0</code></pre>
 <section id="batched-multi-head-shapes-make-the-contracts-explicit" class="level3">
 <h3 class="anchored" data-anchor-id="batched-multi-head-shapes-make-the-contracts-explicit">Batched multi-head shapes make the contracts explicit</h3>
 <p>For <span class="math inline">\(X\in\mathbb{R}^{B\times S\times D}\)</span>, reshape projections into <span class="math inline">\(B\times H\times S\times d_h\)</span>. The score tensor then has shape <span class="math inline">\(B\times H\times S\times S\)</span>. Its last axis is keys; its penultimate axis is queries.</p>
-<div id="dbbdbdae" class="cell" data-execution_count="7">
+<div id="559e0e36" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -847,7 +847,7 @@ Figure&nbsp;21.5: Scaling dot products by the square root of key width keeps typ
 </section>
 <section id="a-module-test-should-assert-information-boundaries" class="level3">
 <h3 class="anchored" data-anchor-id="a-module-test-should-assert-information-boundaries">A module test should assert information boundaries</h3>
-<div id="9c78956d" class="cell" data-execution_count="9">
+<div id="f8574615" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CausalSelfAttention(nn.Module):</span>

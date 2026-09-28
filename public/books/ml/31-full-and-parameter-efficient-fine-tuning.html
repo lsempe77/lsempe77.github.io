@@ -170,6 +170,35 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 })();
 </script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="book-navigation.css">
@@ -485,32 +514,30 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#chapter-orientation" id="toc-chapter-orientation" class="nav-link active" data-scroll-target="#chapter-orientation">Chapter orientation</a>
+  <li><a href="#the-problem" id="toc-the-problem" class="nav-link active" data-scroll-target="#the-problem">The problem</a>
   <ul class="collapse">
-  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters">Why this chapter matters</a></li>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
-  <li><a href="#running-layer" id="toc-running-layer" class="nav-link" data-scroll-target="#running-layer">Running layer</a></li>
+  <li><a href="#one-linear-layer-makes-the-update-visible" id="toc-one-linear-layer-makes-the-update-visible" class="nav-link" data-scroll-target="#one-linear-layer-makes-the-update-visible">One linear layer makes the update visible</a></li>
   </ul></li>
   <li><a href="#level-1---intuition" id="toc-level-1---intuition" class="nav-link" data-scroll-target="#level-1---intuition">Level 1 - Intuition</a>
   <ul class="collapse">
   <li><a href="#adaptation-changes-a-checkpoint-under-a-task-distribution" id="toc-adaptation-changes-a-checkpoint-under-a-task-distribution" class="nav-link" data-scroll-target="#adaptation-changes-a-checkpoint-under-a-task-distribution">Adaptation changes a checkpoint under a task distribution</a></li>
   <li><a href="#frozen-weights-are-still-part-of-the-function" id="toc-frozen-weights-are-still-part-of-the-function" class="nav-link" data-scroll-target="#frozen-weights-are-still-part-of-the-function">Frozen weights are still part of the function</a></li>
   </ul></li>
-  <li><a href="#level-2---lora-mechanics" id="toc-level-2---lora-mechanics" class="nav-link" data-scroll-target="#level-2---lora-mechanics">Level 2 - LoRA mechanics</a>
+  <li><a href="#level-2---mechanics" id="toc-level-2---mechanics" class="nav-link" data-scroll-target="#level-2---mechanics">Level 2 - Mechanics</a>
   <ul class="collapse">
   <li><a href="#low-rank-updates-reduce-trainable-parameter-count" id="toc-low-rank-updates-reduce-trainable-parameter-count" class="nav-link" data-scroll-target="#low-rank-updates-reduce-trainable-parameter-count">Low-rank updates reduce trainable parameter count</a></li>
   <li><a href="#merge-and-unmerge-are-numerical-operations" id="toc-merge-and-unmerge-are-numerical-operations" class="nav-link" data-scroll-target="#merge-and-unmerge-are-numerical-operations">Merge and unmerge are numerical operations</a></li>
   </ul></li>
-  <li><a href="#level-3---resource-and-deployment-accounting" id="toc-level-3---resource-and-deployment-accounting" class="nav-link" data-scroll-target="#level-3---resource-and-deployment-accounting">Level 3 - Resource and deployment accounting</a>
+  <li><a href="#level-3---mathematics-code" id="toc-level-3---mathematics-code" class="nav-link" data-scroll-target="#level-3---mathematics-code">Level 3 - Mathematics &amp; Code</a>
   <ul class="collapse">
   <li><a href="#trainable-parameters-are-not-the-whole-memory-account" id="toc-trainable-parameters-are-not-the-whole-memory-account" class="nav-link" data-scroll-target="#trainable-parameters-are-not-the-whole-memory-account">Trainable parameters are not the whole memory account</a></li>
-  <li><a href="#multi-adapter-serving-creates-routing-decisions" id="toc-multi-adapter-serving-creates-routing-decisions" class="nav-link" data-scroll-target="#multi-adapter-serving-creates-routing-decisions">Multi-adapter serving creates routing decisions</a></li>
   <li><a href="#parameter-scope-is-a-substantive-design-choice" id="toc-parameter-scope-is-a-substantive-design-choice" class="nav-link" data-scroll-target="#parameter-scope-is-a-substantive-design-choice">Parameter scope is a substantive design choice</a></li>
+  </ul></li>
+  <li><a href="#level-4---research-systems" id="toc-level-4---research-systems" class="nav-link" data-scroll-target="#level-4---research-systems">Level 4 - Research &amp; Systems</a>
+  <ul class="collapse">
+  <li><a href="#multi-adapter-serving-creates-routing-decisions" id="toc-multi-adapter-serving-creates-routing-decisions" class="nav-link" data-scroll-target="#multi-adapter-serving-creates-routing-decisions">Multi-adapter serving creates routing decisions</a></li>
   <li><a href="#checkpoint-organisation-determines-recoverability" id="toc-checkpoint-organisation-determines-recoverability" class="nav-link" data-scroll-target="#checkpoint-organisation-determines-recoverability">Checkpoint organisation determines recoverability</a></li>
   <li><a href="#data-volume-and-update-scope-interact" id="toc-data-volume-and-update-scope-interact" class="nav-link" data-scroll-target="#data-volume-and-update-scope-interact">Data volume and update scope interact</a></li>
-  </ul></li>
-  <li><a href="#level-4---audit-and-selection" id="toc-level-4---audit-and-selection" class="nav-link" data-scroll-target="#level-4---audit-and-selection">Level 4 - Audit and selection</a>
-  <ul class="collapse">
   <li><a href="#choose-an-adaptation-method-against-a-declared-constraint" id="toc-choose-an-adaptation-method-against-a-declared-constraint" class="nav-link" data-scroll-target="#choose-an-adaptation-method-against-a-declared-constraint">Choose an adaptation method against a declared constraint</a></li>
   <li><a href="#regression-tests-should-include-the-base-interface" id="toc-regression-tests-should-include-the-base-interface" class="nav-link" data-scroll-target="#regression-tests-should-include-the-base-interface">Regression tests should include the base interface</a></li>
   </ul></li>
@@ -545,29 +572,14 @@ repeatedly: the September 2026 republish stripped them from 33 chapters.
 </header>
 
 
-<section id="chapter-orientation" class="level2">
-<h2 class="anchored" data-anchor-id="chapter-orientation">Chapter orientation</h2>
-<section id="why-this-chapter-matters" class="level3">
-<h3 class="anchored" data-anchor-id="why-this-chapter-matters">Why this chapter matters</h3>
-<p>Fine-tuning adapts a pretrained checkpoint to a declared task or response distribution. Full fine-tuning updates all trainable model parameters. Parameter-efficient fine-tuning (PEFT) freezes most base weights and trains a smaller set of added or selected parameters. The choice affects optimiser memory, checkpoint storage, deployment, multi-task serving, and the kinds of changes a run can represent.</p>
-<p>Neither method removes the need for data documentation or evaluation. A small adapter can overfit, encode an unsafe behaviour, or fail outside its tuning distribution. A full update can improve a target task while degrading retained behaviours. This chapter gives the comparison and the implementation contracts required to make it interpretable.</p>
-</section>
-<section id="learning-objectives" class="level3">
-<h3 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h3>
-<p>By the end of this chapter, you should be able to:</p>
-<ul>
-<li>distinguish full fine-tuning, frozen-base adaptation, and inference-only prompting;</li>
-<li>derive the parameter count of a low-rank update;</li>
-<li>explain LoRA’s update and merge operation;</li>
-<li>compare weight, gradient, optimiser-state, and activation memory;</li>
-<li>identify adapter/checkpoint compatibility requirements;</li>
-<li>evaluate target gains and retained-task regressions; and</li>
-<li>record an adaptation run so that it can be reproduced or served safely.</li>
-</ul>
-</section>
-<section id="running-layer" class="level3">
-<h3 class="anchored" data-anchor-id="running-layer">Running layer</h3>
-<p>For a linear layer with base weight (W), LoRA learns a low-rank update (W = BA). The base weight remains frozen during training, and the update can be applied separately or merged into a copy of the base weight for inference.</p>
+<section id="the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
+<p>The adaptation objectives in Chapters 29 and 30 both update a checkpoint, but neither said which parameters the update may touch. Full fine-tuning updates all trainable model parameters. That freedom has a price: gradients and optimiser state for every weight must fit in memory, every run produces a complete new checkpoint, and serving several task variants means storing several full models.</p>
+<p>Parameter-efficient fine-tuning (PEFT) trades some of that freedom for control over cost. It freezes most base weights and trains a smaller set of added or selected parameters, so task-specific changes can be stored separately and different adaptations can load over one base model. The choice affects optimiser memory, checkpoint storage, deployment, multi-task serving, and the kinds of changes a run can represent. Neither method removes the need for data documentation or evaluation: a small adapter can overfit, encode an unsafe behaviour, or fail outside its tuning distribution, and a full update can improve a target task while degrading retained behaviours. This chapter gives the comparison and the implementation contracts required to make it interpretable.</p>
+<section id="one-linear-layer-makes-the-update-visible" class="level3">
+<h3 class="anchored" data-anchor-id="one-linear-layer-makes-the-update-visible">One linear layer makes the update visible</h3>
+<p>The running example is a linear layer with base weight <span class="math inline">\(W\)</span>. LoRA learns a low-rank update <span class="math inline">\(\Delta W = BA\)</span> instead of a full-size change to <span class="math inline">\(W\)</span>. The base weight remains frozen during training, and the update can be applied separately at inference or merged into a copy of the base weight.</p>
+<p>The first diagram contrasts the two methods on the same stack of layers. In the left panel every base layer is orange: all of them update. In the right panel the base layers stay blue and frozen, and only the small teal modules attached to them are trainable. Notice what the right panel hides: the frozen weights still participate in every forward computation, so freezing changes what is learned, not what is used.</p>
 <div id="cell-fig-full-vs-peft" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
@@ -599,6 +611,7 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 </div>
 </div>
 </div>
+<p>That distinction governs the chapter. The trainable fraction can be a thousandth of the base, yet the base must still be stored, loaded, and executed, and the adapter means nothing apart from the exact base it was trained against.</p>
 <div id="concept-fine-tuning" class="concept-box concept-core" data-term="Fine-tuning and PEFT" data-domain="Large language models">
 <p><strong>Fine-tuning and parameter-efficient fine-tuning.</strong> Fine-tuning updates a pretrained checkpoint for a declared task. Full fine-tuning updates selected base parameters; PEFT retains most base weights and trains a smaller update module.</p>
 </div>
@@ -613,7 +626,7 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <h3 class="anchored" data-anchor-id="adaptation-changes-a-checkpoint-under-a-task-distribution">Adaptation changes a checkpoint under a task distribution</h3>
 <p>Full fine-tuning applies gradients to all selected model weights. It can represent broad changes, but it requires storing gradients and optimiser state for those weights and usually produces a full new checkpoint. Parameter-efficient methods retain the base checkpoint and train a smaller module, such as low-rank matrices, adapters, prompts, or selected bias terms. This makes it possible to store task-specific changes separately and load different adaptations over one base model.</p>
 <p>The methods are not ordered by quality in the abstract. The relevant comparison depends on task complexity, data size, available hardware, update frequency, latency constraints, compatibility requirements, and the cost of keeping several adapted versions. A smaller update reduces trainable parameters; it does not make the task specification or evaluation smaller.</p>
-<div id="9566bcdc" class="cell" data-execution_count="2">
+<div id="0ff62b6a" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>base_parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
@@ -628,7 +641,7 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <section id="frozen-weights-are-still-part-of-the-function" class="level3">
 <h3 class="anchored" data-anchor-id="frozen-weights-are-still-part-of-the-function">Frozen weights are still part of the function</h3>
 <p>A PEFT adapter is not a standalone model. It assumes a particular base checkpoint, architecture, tokenizer, layer naming convention, target modules, rank, scaling rule, and often quantisation configuration. Loading an adapter onto a related model with the same visible size can change or break its function. The serving record must bind the adapter to its compatible base.</p>
-<div id="e8676884" class="cell" data-execution_count="3">
+<div id="ba83286b" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>adapter_metadata<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"checkpoint-v1"</span>,<span class="st">"target_modules"</span>:[<span class="st">"q_proj"</span>,<span class="st">"v_proj"</span>],<span class="st">"rank"</span>:<span class="dv">8</span>,<span class="st">"scale"</span>:<span class="dv">16</span>}</span>
@@ -638,14 +651,15 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <pre><code>{'base': 'checkpoint-v1', 'target_modules': ['q_proj', 'v_proj'], 'rank': 8, 'scale': 16}</code></pre>
 </div>
 </div>
+<p>Level 1 framed adaptation as a choice of what to update and what to freeze. Level 2 makes the low-rank update concrete: its parameter count, its scaling, and the merge operation that prepares it for inference.</p>
 </section>
 </section>
-<section id="level-2---lora-mechanics" class="level2">
-<h2 class="anchored" data-anchor-id="level-2---lora-mechanics">Level 2 - LoRA mechanics</h2>
+<section id="level-2---mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="level-2---mechanics">Level 2 - Mechanics</h2>
 <section id="low-rank-updates-reduce-trainable-parameter-count" class="level3">
 <h3 class="anchored" data-anchor-id="low-rank-updates-reduce-trainable-parameter-count">Low-rank updates reduce trainable parameter count</h3>
-<p>For a layer (W^{d_{out}d_{in}}), a full update contains (d_{out}d_{in}) parameters. A rank-(r) LoRA update uses (A^{rd_{in}}) and (B^{d_{out}r}), for (r(d_{in}+d_{out})) trainable parameters. The update is commonly scaled by a factor such as (/r) <span class="citation" data-cites="hu2021lora">(<a href="#ref-hu2021lora" role="doc-biblioref">Hu et al. 2022</a>)</span>.</p>
-<div id="ee0c7f72" class="cell" data-execution_count="4">
+<p>For a layer <span class="math inline">\(W\in\mathbb{R}^{d_{out}\times d_{in}}\)</span>, a full update contains <span class="math inline">\(d_{out}d_{in}\)</span> parameters. A rank-<span class="math inline">\(r\)</span> LoRA update uses <span class="math inline">\(A\in\mathbb{R}^{r\times d_{in}}\)</span> and <span class="math inline">\(B\in\mathbb{R}^{d_{out}\times r}\)</span>, for <span class="math inline">\(r(d_{in}+d_{out})\)</span> trainable parameters. The update is commonly scaled by a factor such as <span class="math inline">\(\alpha/r\)</span> <span class="citation" data-cites="hu2021lora">(<a href="#ref-hu2021lora" role="doc-biblioref">Hu et al. 2022</a>)</span>.</p>
+<div id="6cdd374f" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d_in,d_out,r<span class="op">=</span><span class="dv">4096</span>,<span class="dv">4096</span>,<span class="dv">8</span></span>
@@ -660,7 +674,7 @@ Figure&nbsp;32.1: Full fine-tuning updates every base parameter, while parameter
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,w,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="fl">1.6</span>,<span class="st">"frozen W</span><span class="ch">\n</span><span class="st">[dout × din]"</span>,blue),(<span class="fl">2.45</span>,<span class="fl">1.25</span>,<span class="st">"A</span><span class="ch">\n</span><span class="st">[r × din]"</span>,teal),(<span class="fl">4.0</span>,<span class="fl">1.25</span>,<span class="st">"B</span><span class="ch">\n</span><span class="st">[dout × r]"</span>,teal),(<span class="fl">5.65</span>,<span class="fl">1.6</span>,<span class="st">"ΔW = BA"</span>,orange),(<span class="fl">7.35</span>,<span class="fl">1.6</span>,<span class="st">"W + ΔW"</span>,purple)]:</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,w,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="fl">1.6</span>,<span class="st">"frozen W</span><span class="ch">\n</span><span class="st">[dout Ã— din]"</span>,blue),(<span class="fl">2.45</span>,<span class="fl">1.25</span>,<span class="st">"A</span><span class="ch">\n</span><span class="st">[r Ã— din]"</span>,teal),(<span class="fl">4.0</span>,<span class="fl">1.25</span>,<span class="st">"B</span><span class="ch">\n</span><span class="st">[dout Ã— r]"</span>,teal),(<span class="fl">5.65</span>,<span class="fl">1.6</span>,<span class="st">"Î”W = BA"</span>,orange),(<span class="fl">7.35</span>,<span class="fl">1.6</span>,<span class="st">"W + Î”W"</span>,purple)]:</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.4</span>,<span class="fl">.55</span>,<span class="st">"The update is low rank; the effective layer still maps din to dout."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -681,8 +695,8 @@ Figure&nbsp;32.2: A low-rank adapter represents a large weight update through tw
 </section>
 <section id="merge-and-unmerge-are-numerical-operations" class="level3">
 <h3 class="anchored" data-anchor-id="merge-and-unmerge-are-numerical-operations">Merge and unmerge are numerical operations</h3>
-<p>At inference, an adapter can be applied as a separate branch or merged by forming (W’ = W + sBA). Merging can reduce runtime overhead, but it creates a new effective weight tensor. Repeated merging, wrong scaling, mismatched dtype, or merging into the wrong base can produce irreversible errors unless the original base and adapter are retained.</p>
-<div id="81eeed7e" class="cell" data-execution_count="6">
+<p>At inference, an adapter can be applied as a separate branch or merged by forming <span class="math inline">\(W' = W + sBA\)</span>. Merging can reduce runtime overhead, but it creates a new effective weight tensor. Repeated merging, wrong scaling, mismatched dtype, or merging into the wrong base can produce irreversible errors unless the original base and adapter are retained.</p>
+<div id="9540d75c" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">2</span>)</span>
@@ -697,14 +711,15 @@ Figure&nbsp;32.2: A low-rank adapter represents a large weight update through tw
 <pre><code>separate and merged adapter outputs agree</code></pre>
 </div>
 </div>
+<p>Level 2 derived the update and verified merge equivalence in arithmetic. Level 3 counts the resources: what training memory actually consists of when the base is frozen, and how module scope changes the trainable family.</p>
 </section>
 </section>
-<section id="level-3---resource-and-deployment-accounting" class="level2">
-<h2 class="anchored" data-anchor-id="level-3---resource-and-deployment-accounting">Level 3 - Resource and deployment accounting</h2>
+<section id="level-3---mathematics-code" class="level2">
+<h2 class="anchored" data-anchor-id="level-3---mathematics-code">Level 3 - Mathematics &amp; Code</h2>
 <section id="trainable-parameters-are-not-the-whole-memory-account" class="level3">
 <h3 class="anchored" data-anchor-id="trainable-parameters-are-not-the-whole-memory-account">Trainable parameters are not the whole memory account</h3>
 <p>Training memory includes base weights, trainable weights, gradients, optimiser states, activations, temporary buffers, and communication state. Freezing a base model can remove its gradient and optimiser-state requirements, but the base weights and many forward activations remain. Quantising frozen weights can lower storage further, while introducing a new numerical configuration that must be evaluated. QLoRA combines quantised base weights with low-rank adapters <span class="citation" data-cites="dettmers2023qlora">(<a href="#ref-dettmers2023qlora" role="doc-biblioref">Dettmers et al. 2023</a>)</span>.</p>
-<div id="e85208ae" class="cell" data-execution_count="7">
+<div id="aa49466d" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>params<span class="op">=</span><span class="dv">7_000_000_000</span><span class="op">;</span> bytes_per_weight<span class="op">=</span><span class="dv">2</span><span class="op">;</span> bytes_per_adam_state<span class="op">=</span><span class="dv">8</span></span>
@@ -737,34 +752,19 @@ Figure&nbsp;32.3: Freezing base weights changes gradient and optimiser-state req
 </div>
 </div>
 </section>
-<section id="multi-adapter-serving-creates-routing-decisions" class="level3">
-<h3 class="anchored" data-anchor-id="multi-adapter-serving-creates-routing-decisions">Multi-adapter serving creates routing decisions</h3>
-<p>Separate adapters can make several task variants cheaper to store than several full checkpoints. Serving still needs a policy for selecting the adapter, ensuring it is compatible with the request, batching requests that use different adapters, and preventing an adapter intended for one task or policy from being silently applied to another. An adapter identifier is part of the request and audit trace.</p>
-<div id="d47eb26d" class="cell" data-execution_count="9">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>routes<span class="op">=</span>{<span class="st">"legal-summary"</span>:<span class="st">"adapter-legal-v2"</span>,<span class="st">"code-review"</span>:<span class="st">"adapter-code-v1"</span>}</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>request_task<span class="op">=</span><span class="st">"code-review"</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected adapter:"</span>,routes[request_task])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>selected adapter: adapter-code-v1</code></pre>
-</div>
-</div>
-</section>
 <section id="parameter-scope-is-a-substantive-design-choice" class="level3">
 <h3 class="anchored" data-anchor-id="parameter-scope-is-a-substantive-design-choice">Parameter scope is a substantive design choice</h3>
 <p>PEFT is a family of methods rather than one fixed architecture. An implementation may target attention projections, feed-forward layers, output heads, selected biases, or inserted adapter blocks. Each scope changes which transformations can adapt and how many new parameters are trained. The scope should be reported at the level of module names and layer coverage, not only as a total trainable-parameter count.</p>
 <p>Targeting all layers can permit a more distributed adaptation than targeting only a final projection. Targeting a small subset can reduce storage and training time while concentrating the burden of adaptation in fewer locations. The appropriate choice is empirical: test candidate scopes on the declared task and retained suite under the same data and optimisation budget.</p>
-<div id="cell-fig-module-scope" class="cell" data-execution_count="10">
+<div id="cell-fig-module-scope" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">3.15</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.72</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.8</span>,y),<span class="fl">2.0</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.8</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="ss">f"Transformer block </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">3.05</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"attn"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">4.1</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.5</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"FFN"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.95</span>,<span class="fl">.25</span>,<span class="st">"Highlighted target modules define where adapter updates are attached."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.05</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">3.15</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.72</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.8</span>,y),<span class="fl">2.0</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.8</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="ss">f"Transformer block </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">3.05</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"attn"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">4.1</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.5</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"FFN"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.95</span>,<span class="fl">.25</span>,<span class="st">"Highlighted target modules define where adapter updates are attached."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.05</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-module-scope" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A stack of Transformer blocks has highlighted adapter locations in attention projections and feed-forward layers.">
@@ -779,11 +779,30 @@ Figure&nbsp;32.4: Adapter placement can target selected attention and feed-forwa
 </div>
 </div>
 </div>
+<p>Level 3 counted the training memory and the trainable update family. Level 4 turns to the operational decisions: adapter routing, checkpoint recoverability, the interaction of data volume and update scope, and the evidence a method selection requires.</p>
+</section>
+</section>
+<section id="level-4---research-systems" class="level2">
+<h2 class="anchored" data-anchor-id="level-4---research-systems">Level 4 - Research &amp; Systems</h2>
+<section id="multi-adapter-serving-creates-routing-decisions" class="level3">
+<h3 class="anchored" data-anchor-id="multi-adapter-serving-creates-routing-decisions">Multi-adapter serving creates routing decisions</h3>
+<p>Separate adapters can make several task variants cheaper to store than several full checkpoints. Serving still needs a policy for selecting the adapter, ensuring it is compatible with the request, batching requests that use different adapters, and preventing an adapter intended for one task or policy from being silently applied to another. An adapter identifier is part of the request and audit trace.</p>
+<div id="a594ebf7" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>routes<span class="op">=</span>{<span class="st">"legal-summary"</span>:<span class="st">"adapter-legal-v2"</span>,<span class="st">"code-review"</span>:<span class="st">"adapter-code-v1"</span>}</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>request_task<span class="op">=</span><span class="st">"code-review"</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected adapter:"</span>,routes[request_task])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>selected adapter: adapter-code-v1</code></pre>
+</div>
+</div>
 </section>
 <section id="checkpoint-organisation-determines-recoverability" class="level3">
 <h3 class="anchored" data-anchor-id="checkpoint-organisation-determines-recoverability">Checkpoint organisation determines recoverability</h3>
 <p>An adaptation run should preserve the immutable base identifier, adapter weights, configuration, tokenizer and template versions, training state where resumption is required, and evaluation records. A merged weight file alone can make a task variant convenient to serve, but it loses the clean separation between base and update unless both original artefacts are retained. A safe workflow treats merging as a reproducible build step with an output hash and an equivalence test.</p>
-<div id="8c752e9a" class="cell" data-execution_count="11">
+<div id="f3518beb" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>checkpoint<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"adapter_hash"</span>:<span class="st">"def"</span>,<span class="st">"merge_scale"</span>:<span class="dv">16</span><span class="op">/</span><span class="dv">8</span>,<span class="st">"merged"</span>:<span class="va">False</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>}</span>
@@ -799,7 +818,7 @@ Figure&nbsp;32.4: Adapter placement can target selected attention and feed-forwa
 <h3 class="anchored" data-anchor-id="data-volume-and-update-scope-interact">Data volume and update scope interact</h3>
 <p>An adapter with few trainable parameters does not imply that many examples are required, nor does a full update imply that a small dataset is necessarily unsuitable. The relevant risk depends on how far the target distribution differs from the base model, how repetitive the data are, how many update tokens and epochs are used, and which evaluation tasks must remain stable. A small, tightly specified adaptation can overfit through either method when the validation split duplicates templates or sources.</p>
 <p>Checkpoint selection should inspect learning curves and held-out behaviour across more than one update count. A model that reaches its best target score early may degrade after additional passes over narrow data. Retaining base and intermediate checkpoints makes it possible to compare the adaptation trajectory rather than selecting only the final artifact.</p>
-<div id="b9789ce0" class="cell" data-execution_count="12">
+<div id="7f57d463" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>history<span class="op">=</span>{<span class="st">"step_100"</span>:{<span class="st">"target"</span>:<span class="fl">.58</span>,<span class="st">"retained"</span>:<span class="fl">.71</span>},<span class="st">"step_500"</span>:{<span class="st">"target"</span>:<span class="fl">.66</span>,<span class="st">"retained"</span>:<span class="fl">.69</span>},<span class="st">"step_900"</span>:{<span class="st">"target"</span>:<span class="fl">.65</span>,<span class="st">"retained"</span>:<span class="fl">.62</span>}}</span>
@@ -812,9 +831,6 @@ step_900 {'target': 0.65, 'retained': 0.62}</code></pre>
 </div>
 </div>
 </section>
-</section>
-<section id="level-4---audit-and-selection" class="level2">
-<h2 class="anchored" data-anchor-id="level-4---audit-and-selection">Level 4 - Audit and selection</h2>
 <section id="choose-an-adaptation-method-against-a-declared-constraint" class="level3">
 <h3 class="anchored" data-anchor-id="choose-an-adaptation-method-against-a-declared-constraint">Choose an adaptation method against a declared constraint</h3>
 <p>An adaptation plan should specify the base checkpoint, task, data provenance, target modules or full parameter scope, rank and scaling where relevant, quantisation and precision, maximum length, optimiser settings, token budget, checkpoint policy, merge status, and serving route. It should report target-task results and a retained-task suite under the same prompt template and decoding policy.</p>
@@ -845,7 +861,7 @@ Figure&nbsp;32.5: Adaptation selection compares full and parameter-efficient met
 <section id="regression-tests-should-include-the-base-interface" class="level3">
 <h3 class="anchored" data-anchor-id="regression-tests-should-include-the-base-interface">Regression tests should include the base interface</h3>
 <p>Adaptation can change outputs for prompts outside the fine-tuning corpus. Retained tests should include general instruction responses, domain tasks that must remain available, formatting or tool contracts, and safety-sensitive inputs where relevant. Tests must specify whether the adapter is active and which system template is used. Comparing a base checkpoint without its standard template to an adapter checkpoint with a richer interface would not isolate the update.</p>
-<div id="11748e85" class="cell" data-execution_count="14">
+<div id="38e8ee75" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{<span class="st">"target"</span>:{<span class="st">"base"</span>:<span class="fl">.48</span>,<span class="st">"adapter"</span>:<span class="fl">.67</span>},<span class="st">"retained"</span>:{<span class="st">"base"</span>:<span class="fl">.72</span>,<span class="st">"adapter"</span>:<span class="fl">.70</span>}}</span>
@@ -1384,258 +1400,254 @@ Hu, Edward J., Yelong Shen, Phillip Wallis, et al. 2022. <span>“Lo<span>RA</sp
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Changing a model for a task while controlling memory, storage, and regressions"</span></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## Chapter orientation</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## The problem</span></span>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why this chapter matters</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>The adaptation objectives in Chapters 29 and 30 both update a checkpoint, but neither said which parameters the update may touch. Full fine-tuning updates all trainable model parameters. That freedom has a price: gradients and optimiser state for every weight must fit in memory, every run produces a complete new checkpoint, and serving several task variants means storing several full models.</span>
 <span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>Fine-tuning adapts a pretrained checkpoint to a declared task or response distribution. Full fine-tuning updates all trainable model parameters. Parameter-efficient fine-tuning (PEFT) freezes most base weights and trains a smaller set of added or selected parameters. The choice affects optimiser memory, checkpoint storage, deployment, multi-task serving, and the kinds of changes a run can represent.</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>Parameter-efficient fine-tuning (PEFT) trades some of that freedom for control over cost. It freezes most base weights and trains a smaller set of added or selected parameters, so task-specific changes can be stored separately and different adaptations can load over one base model. The choice affects optimiser memory, checkpoint storage, deployment, multi-task serving, and the kinds of changes a run can represent. Neither method removes the need for data documentation or evaluation: a small adapter can overfit, encode an unsafe behaviour, or fail outside its tuning distribution, and a full update can improve a target task while degrading retained behaviours. This chapter gives the comparison and the implementation contracts required to make it interpretable.</span>
 <span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>Neither method removes the need for data documentation or evaluation. A small adapter can overfit, encode an unsafe behaviour, or fail outside its tuning distribution. A full update can improve a target task while degrading retained behaviours. This chapter gives the comparison and the implementation contracts required to make it interpretable.</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="fu">### One linear layer makes the update visible</span></span>
 <span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### Learning objectives</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>The running example is a linear layer with base weight $W$. LoRA learns a low-rank update $\Delta W = BA$ instead of a full-size change to $W$. The base weight remains frozen during training, and the update can be applied separately at inference or merged into a copy of the base weight.</span>
 <span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you should be able to:</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>The first diagram contrasts the two methods on the same stack of layers. In the left panel every base layer is orange: all of them update. In the right panel the base layers stay blue and frozen, and only the small teal modules attached to them are trainable. Notice what the right panel hides: the frozen weights still participate in every forward computation, so freezing changes what is learned, not what is used.</span>
 <span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>distinguish full fine-tuning, frozen-base adaptation, and inference-only prompting;</span>
-<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>derive the parameter count of a low-rank update;</span>
-<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>explain LoRA's update and merge operation;</span>
-<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>compare weight, gradient, optimiser-state, and activation memory;</span>
-<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>identify adapter/checkpoint compatibility requirements;</span>
-<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>evaluate target gains and retained-task regressions; and</span>
-<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>record an adaptation run so that it can be reproduced or served safely.</span>
-<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### Running layer</span></span>
-<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>For a linear layer with base weight <span class="sc">\(</span>W<span class="sc">\)</span>, LoRA learns a low-rank update <span class="sc">\(</span>\Delta W = BA<span class="sc">\)</span>. The base weight remains frozen during training, and the update can be applied separately or merged into a copy of the base weight for inference.</span>
-<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-full-vs-peft</span></span>
-<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Full fine-tuning updates every base parameter, while parameter-efficient adaptation freezes the base and trains a smaller update module."</span></span>
-<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two diagrams contrast all layers marked trainable with base layers frozen and small adapter modules marked trainable."</span></span>
-<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
-<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
-<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
-<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))</span>
-<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title,mode <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="st">"full fine-tuning"</span>,<span class="st">"frozen base + PEFT"</span>],[<span class="st">"full"</span>,<span class="st">"peft"</span>]):</span>
-<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.set_title(title)</span>
-<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
-<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.2</span><span class="op">;</span> c<span class="op">=</span>orange <span class="cf">if</span> mode<span class="op">==</span><span class="st">"full"</span> <span class="cf">else</span> blue</span>
-<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((<span class="fl">.22</span>,y),<span class="fl">.56</span>,<span class="fl">.12</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.5</span>,y<span class="op">+</span><span class="fl">.06</span>,<span class="st">"base layer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mode<span class="op">==</span><span class="st">"peft"</span>: ax.add_patch(Rectangle((<span class="fl">.81</span>,y),<span class="fl">.13</span>,<span class="fl">.12</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.875</span>,y<span class="op">+</span><span class="fl">.06</span>,<span class="st">"A"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
-<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.5</span>,<span class="fl">.94</span>,<span class="st">"orange: updated"</span> <span class="cf">if</span> mode<span class="op">==</span><span class="st">"full"</span> <span class="cf">else</span> <span class="st">"blue: frozen; teal: updated"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-full-vs-peft</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Full fine-tuning updates every base parameter, while parameter-efficient adaptation freezes the base and trains a smaller update module."</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two diagrams contrast all layers marked trainable with base layers frozen and small adapter modules marked trainable."</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> Rectangle</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>plt.style.use(<span class="st">"seaborn-v0_8-whitegrid"</span>)</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>blue,teal,orange,purple,grey<span class="op">=</span><span class="st">"#24527a"</span>,<span class="st">"#3a9188"</span>,<span class="st">"#d97745"</span>,<span class="st">"#7655a6"</span>,<span class="st">"#5f6b76"</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>fig,axes<span class="op">=</span>plt.subplots(<span class="dv">1</span>,<span class="dv">2</span>,figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax,title,mode <span class="kw">in</span> <span class="bu">zip</span>(axes,[<span class="st">"full fine-tuning"</span>,<span class="st">"frozen base + PEFT"</span>],[<span class="st">"full"</span>,<span class="st">"peft"</span>]):</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>    ax.axis(<span class="st">"off"</span>)<span class="op">;</span> ax.set_title(title)</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=</span><span class="fl">.15</span><span class="op">+</span>i<span class="op">*</span><span class="fl">.2</span><span class="op">;</span> c<span class="op">=</span>orange <span class="cf">if</span> mode<span class="op">==</span><span class="st">"full"</span> <span class="cf">else</span> blue</span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>        ax.add_patch(Rectangle((<span class="fl">.22</span>,y),<span class="fl">.56</span>,<span class="fl">.12</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.5</span>,y<span class="op">+</span><span class="fl">.06</span>,<span class="st">"base layer"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> mode<span class="op">==</span><span class="st">"peft"</span>: ax.add_patch(Rectangle((<span class="fl">.81</span>,y),<span class="fl">.13</span>,<span class="fl">.12</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">.875</span>,y<span class="op">+</span><span class="fl">.06</span>,<span class="st">"A"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>    ax.text(<span class="fl">.5</span>,<span class="fl">.94</span>,<span class="st">"orange: updated"</span> <span class="cf">if</span> mode<span class="op">==</span><span class="st">"full"</span> <span class="cf">else</span> <span class="st">"blue: frozen; teal: updated"</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey,transform<span class="op">=</span>ax.transAxes,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>That distinction governs the chapter. The trainable fraction can be a thousandth of the base, yet the base must still be stored, loaded, and executed, and the adapter means nothing apart from the exact base it was trained against.</span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-fine-tuning data-term="Fine-tuning and PEFT" data-domain="Large language models"}</span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>**Fine-tuning and parameter-efficient fine-tuning.** Fine-tuning updates a pretrained checkpoint for a declared task. Full fine-tuning updates selected base parameters; PEFT retains most base weights and trains a smaller update module.</span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-full-peft data-term="Full and parameter-efficient fine-tuning" data-domain="Large language models"}</span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>**Full and parameter-efficient fine-tuning.** Full fine-tuning changes broad base-model state. Parameter-efficient methods constrain trainable updates to selected modules or low-rank changes. The comparison includes task outcomes, memory, storage, and serving compatibility.</span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
 <span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-core #concept-fine-tuning data-term="Fine-tuning and PEFT" data-domain="Large language models"}</span>
-<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a>**Fine-tuning and parameter-efficient fine-tuning.** Fine-tuning updates a pretrained checkpoint for a declared task. Full fine-tuning updates selected base parameters; PEFT retains most base weights and trains a smaller update module.</span>
-<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a><span class="fu">### Adaptation changes a checkpoint under a task distribution</span></span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>Full fine-tuning applies gradients to all selected model weights. It can represent broad changes, but it requires storing gradients and optimiser state for those weights and usually produces a full new checkpoint. Parameter-efficient methods retain the base checkpoint and train a smaller module, such as low-rank matrices, adapters, prompts, or selected bias terms. This makes it possible to store task-specific changes separately and load different adaptations over one base model.</span>
 <span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a>::: {.concept-box .concept-distinction #concept-full-peft data-term="Full and parameter-efficient fine-tuning" data-domain="Large language models"}</span>
-<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a>**Full and parameter-efficient fine-tuning.** Full fine-tuning changes broad base-model state. Parameter-efficient methods constrain trainable updates to selected modules or low-rank changes. The comparison includes task outcomes, memory, storage, and serving compatibility.</span>
-<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 1 - Intuition</span></span>
-<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a><span class="fu">### Adaptation changes a checkpoint under a task distribution</span></span>
-<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a>Full fine-tuning applies gradients to all selected model weights. It can represent broad changes, but it requires storing gradients and optimiser state for those weights and usually produces a full new checkpoint. Parameter-efficient methods retain the base checkpoint and train a smaller module, such as low-rank matrices, adapters, prompts, or selected bias terms. This makes it possible to store task-specific changes separately and load different adaptations over one base model.</span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a>The methods are not ordered by quality in the abstract. The relevant comparison depends on task complexity, data size, available hardware, update frequency, latency constraints, compatibility requirements, and the cost of keeping several adapted versions. A smaller update reduces trainable parameters; it does not make the task specification or evaluation smaller.</span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a>base_parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a>adapter_parameters<span class="op">=</span><span class="dv">8_000_000</span></span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"trainable fraction:"</span>,adapter_parameters<span class="op">/</span>base_parameters)</span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a>The methods are not ordered by quality in the abstract. The relevant comparison depends on task complexity, data size, available hardware, update frequency, latency constraints, compatibility requirements, and the cost of keeping several adapted versions. A smaller update reduces trainable parameters; it does not make the task specification or evaluation smaller.</span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### Frozen weights are still part of the function</span></span>
 <span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a>base_parameters<span class="op">=</span><span class="dv">7_000_000_000</span></span>
-<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a>adapter_parameters<span class="op">=</span><span class="dv">8_000_000</span></span>
-<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"trainable fraction:"</span>,adapter_parameters<span class="op">/</span>base_parameters)</span>
-<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a><span class="fu">### Frozen weights are still part of the function</span></span>
-<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-78"><a href="#cb24-78" aria-hidden="true" tabindex="-1"></a>A PEFT adapter is not a standalone model. It assumes a particular base checkpoint, architecture, tokenizer, layer naming convention, target modules, rank, scaling rule, and often quantisation configuration. Loading an adapter onto a related model with the same visible size can change or break its function. The serving record must bind the adapter to its compatible base.</span>
-<span id="cb24-79"><a href="#cb24-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-82"><a href="#cb24-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-83"><a href="#cb24-83" aria-hidden="true" tabindex="-1"></a>adapter_metadata<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"checkpoint-v1"</span>,<span class="st">"target_modules"</span>:[<span class="st">"q_proj"</span>,<span class="st">"v_proj"</span>],<span class="st">"rank"</span>:<span class="dv">8</span>,<span class="st">"scale"</span>:<span class="dv">16</span>}</span>
-<span id="cb24-84"><a href="#cb24-84" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(adapter_metadata)</span>
-<span id="cb24-85"><a href="#cb24-85" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb24-86"><a href="#cb24-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-87"><a href="#cb24-87" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - LoRA mechanics</span></span>
-<span id="cb24-88"><a href="#cb24-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-89"><a href="#cb24-89" aria-hidden="true" tabindex="-1"></a><span class="fu">### Low-rank updates reduce trainable parameter count</span></span>
-<span id="cb24-90"><a href="#cb24-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-91"><a href="#cb24-91" aria-hidden="true" tabindex="-1"></a>For a layer <span class="sc">\(</span>W\in\mathbb{R}^{d_{out}\times d_{in}}<span class="sc">\)</span>, a full update contains <span class="sc">\(</span>d_{out}d_{in}<span class="sc">\)</span> parameters. A rank-<span class="sc">\(</span>r<span class="sc">\)</span> LoRA update uses <span class="sc">\(</span>A\in\mathbb{R}^{r\times d_{in}}<span class="sc">\)</span> and <span class="sc">\(</span>B\in\mathbb{R}^{d_{out}\times r}<span class="sc">\)</span>, for <span class="sc">\(</span>r(d_{in}+d_{out})<span class="sc">\)</span> trainable parameters. The update is commonly scaled by a factor such as <span class="sc">\(</span>\alpha/r<span class="sc">\)</span> <span class="co">[</span><span class="ot">@hu2021lora</span><span class="co">]</span>.</span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a>A PEFT adapter is not a standalone model. It assumes a particular base checkpoint, architecture, tokenizer, layer naming convention, target modules, rank, scaling rule, and often quantisation configuration. Loading an adapter onto a related model with the same visible size can change or break its function. The serving record must bind the adapter to its compatible base.</span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a>adapter_metadata<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"checkpoint-v1"</span>,<span class="st">"target_modules"</span>:[<span class="st">"q_proj"</span>,<span class="st">"v_proj"</span>],<span class="st">"rank"</span>:<span class="dv">8</span>,<span class="st">"scale"</span>:<span class="dv">16</span>}</span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(adapter_metadata)</span>
+<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a>Level 1 framed adaptation as a choice of what to update and what to freeze. Level 2 makes the low-rank update concrete: its parameter count, its scaling, and the merge operation that prepares it for inference.</span>
+<span id="cb24-78"><a href="#cb24-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-79"><a href="#cb24-79" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 2 - Mechanics</span></span>
+<span id="cb24-80"><a href="#cb24-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-81"><a href="#cb24-81" aria-hidden="true" tabindex="-1"></a><span class="fu">### Low-rank updates reduce trainable parameter count</span></span>
+<span id="cb24-82"><a href="#cb24-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-83"><a href="#cb24-83" aria-hidden="true" tabindex="-1"></a>For a layer $W\in\mathbb{R}^{d_{out}\times d_{in}}$, a full update contains $d_{out}d_{in}$ parameters. A rank-$r$ LoRA update uses $A\in\mathbb{R}^{r\times d_{in}}$ and $B\in\mathbb{R}^{d_{out}\times r}$, for $r(d_{in}+d_{out})$ trainable parameters. The update is commonly scaled by a factor such as $\alpha/r$ <span class="co">[</span><span class="ot">@hu2021lora</span><span class="co">]</span>.</span>
+<span id="cb24-84"><a href="#cb24-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-87"><a href="#cb24-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-88"><a href="#cb24-88" aria-hidden="true" tabindex="-1"></a>d_in,d_out,r<span class="op">=</span><span class="dv">4096</span>,<span class="dv">4096</span>,<span class="dv">8</span></span>
+<span id="cb24-89"><a href="#cb24-89" aria-hidden="true" tabindex="-1"></a>full<span class="op">=</span>d_in<span class="op">*</span>d_out<span class="op">;</span> lora<span class="op">=</span>r<span class="op">*</span>(d_in<span class="op">+</span>d_out)</span>
+<span id="cb24-90"><a href="#cb24-90" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"full parameters:"</span>,full,<span class="st">"LoRA parameters:"</span>,lora,<span class="st">"fraction:"</span>,lora<span class="op">/</span>full)</span>
+<span id="cb24-91"><a href="#cb24-91" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb24-92"><a href="#cb24-92" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-95"><a href="#cb24-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-96"><a href="#cb24-96" aria-hidden="true" tabindex="-1"></a>d_in,d_out,r<span class="op">=</span><span class="dv">4096</span>,<span class="dv">4096</span>,<span class="dv">8</span></span>
-<span id="cb24-97"><a href="#cb24-97" aria-hidden="true" tabindex="-1"></a>full<span class="op">=</span>d_in<span class="op">*</span>d_out<span class="op">;</span> lora<span class="op">=</span>r<span class="op">*</span>(d_in<span class="op">+</span>d_out)</span>
-<span id="cb24-98"><a href="#cb24-98" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"full parameters:"</span>,full,<span class="st">"LoRA parameters:"</span>,lora,<span class="st">"fraction:"</span>,lora<span class="op">/</span>full)</span>
-<span id="cb24-99"><a href="#cb24-99" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb24-100"><a href="#cb24-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-103"><a href="#cb24-103" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-104"><a href="#cb24-104" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-low-rank-update</span></span>
-<span id="cb24-105"><a href="#cb24-105" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A low-rank adapter represents a large weight update through two smaller matrices whose product has the base layer's shape."</span></span>
-<span id="cb24-106"><a href="#cb24-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram shows an input dimension through a rank-eight bottleneck to an output dimension, with the product added to a frozen base matrix."</span></span>
-<span id="cb24-107"><a href="#cb24-107" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb24-108"><a href="#cb24-108" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,w,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="fl">1.6</span>,<span class="st">"frozen W</span><span class="ch">\n</span><span class="st">[dout × din]"</span>,blue),(<span class="fl">2.45</span>,<span class="fl">1.25</span>,<span class="st">"A</span><span class="ch">\n</span><span class="st">[r × din]"</span>,teal),(<span class="fl">4.0</span>,<span class="fl">1.25</span>,<span class="st">"B</span><span class="ch">\n</span><span class="st">[dout × r]"</span>,teal),(<span class="fl">5.65</span>,<span class="fl">1.6</span>,<span class="st">"ΔW = BA"</span>,orange),(<span class="fl">7.35</span>,<span class="fl">1.6</span>,<span class="st">"W + ΔW"</span>,purple)]:</span>
-<span id="cb24-109"><a href="#cb24-109" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
-<span id="cb24-110"><a href="#cb24-110" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.4</span>,<span class="fl">.55</span>,<span class="st">"The update is low rank; the effective layer still maps din to dout."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb24-111"><a href="#cb24-111" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb24-112"><a href="#cb24-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-113"><a href="#cb24-113" aria-hidden="true" tabindex="-1"></a>The reduction is largest when rank is much smaller than layer widths. Targeting only some projections reduces it further. These decisions restrict the trainable update family. They can be sufficient for a task, but sufficiency should be demonstrated on target and retained evaluations, not inferred from a low training loss.</span>
-<span id="cb24-114"><a href="#cb24-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-115"><a href="#cb24-115" aria-hidden="true" tabindex="-1"></a><span class="fu">### Merge and unmerge are numerical operations</span></span>
-<span id="cb24-116"><a href="#cb24-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-117"><a href="#cb24-117" aria-hidden="true" tabindex="-1"></a>At inference, an adapter can be applied as a separate branch or merged by forming <span class="sc">\(</span>W' = W + sBA<span class="sc">\)</span>. Merging can reduce runtime overhead, but it creates a new effective weight tensor. Repeated merging, wrong scaling, mismatched dtype, or merging into the wrong base can produce irreversible errors unless the original base and adapter are retained.</span>
-<span id="cb24-118"><a href="#cb24-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-121"><a href="#cb24-121" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-122"><a href="#cb24-122" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">2</span>)</span>
-<span id="cb24-123"><a href="#cb24-123" aria-hidden="true" tabindex="-1"></a>W<span class="op">=</span>np.random.randn(<span class="dv">3</span>,<span class="dv">4</span>)<span class="op">;</span> A<span class="op">=</span>np.random.randn(<span class="dv">2</span>,<span class="dv">4</span>)<span class="op">;</span> B<span class="op">=</span>np.random.randn(<span class="dv">3</span>,<span class="dv">2</span>)<span class="op">;</span> scale<span class="op">=</span><span class="fl">.5</span></span>
-<span id="cb24-124"><a href="#cb24-124" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.random.randn(<span class="dv">4</span>)</span>
-<span id="cb24-125"><a href="#cb24-125" aria-hidden="true" tabindex="-1"></a>separate<span class="op">=</span>W<span class="op">@</span>x<span class="op">+</span>scale<span class="op">*</span>(B<span class="op">@</span>(A<span class="op">@</span>x))</span>
-<span id="cb24-126"><a href="#cb24-126" aria-hidden="true" tabindex="-1"></a>merged<span class="op">=</span>(W<span class="op">+</span>scale<span class="op">*</span>B<span class="op">@</span>A)<span class="op">@</span>x</span>
-<span id="cb24-127"><a href="#cb24-127" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(separate,merged)</span>
-<span id="cb24-128"><a href="#cb24-128" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"separate and merged adapter outputs agree"</span>)</span>
-<span id="cb24-129"><a href="#cb24-129" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-96"><a href="#cb24-96" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-low-rank-update</span></span>
+<span id="cb24-97"><a href="#cb24-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "A low-rank adapter represents a large weight update through two smaller matrices whose product has the base layer's shape."</span></span>
+<span id="cb24-98"><a href="#cb24-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A diagram shows an input dimension through a rank-eight bottleneck to an output dimension, with the product added to a frozen base matrix."</span></span>
+<span id="cb24-99"><a href="#cb24-99" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.3</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb24-100"><a href="#cb24-100" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,w,label,c <span class="kw">in</span> [(<span class="fl">.25</span>,<span class="fl">1.6</span>,<span class="st">"frozen W</span><span class="ch">\n</span><span class="st">[dout Ã— din]"</span>,blue),(<span class="fl">2.45</span>,<span class="fl">1.25</span>,<span class="st">"A</span><span class="ch">\n</span><span class="st">[r Ã— din]"</span>,teal),(<span class="fl">4.0</span>,<span class="fl">1.25</span>,<span class="st">"B</span><span class="ch">\n</span><span class="st">[dout Ã— r]"</span>,teal),(<span class="fl">5.65</span>,<span class="fl">1.6</span>,<span class="st">"Î”W = BA"</span>,orange),(<span class="fl">7.35</span>,<span class="fl">1.6</span>,<span class="st">"W + Î”W"</span>,purple)]:</span>
+<span id="cb24-101"><a href="#cb24-101" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((x,<span class="fl">1.25</span>),w,<span class="fl">.62</span>,facecolor<span class="op">=</span>c,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(x<span class="op">+</span>w<span class="op">/</span><span class="dv">2</span>,<span class="fl">1.56</span>,label,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb24-102"><a href="#cb24-102" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">4.4</span>,<span class="fl">.55</span>,<span class="st">"The update is low rank; the effective layer still maps din to dout."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">9</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.2</span>,<span class="fl">2.3</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb24-103"><a href="#cb24-103" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-104"><a href="#cb24-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-105"><a href="#cb24-105" aria-hidden="true" tabindex="-1"></a>The reduction is largest when rank is much smaller than layer widths. Targeting only some projections reduces it further. These decisions restrict the trainable update family. They can be sufficient for a task, but sufficiency should be demonstrated on target and retained evaluations, not inferred from a low training loss.</span>
+<span id="cb24-106"><a href="#cb24-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-107"><a href="#cb24-107" aria-hidden="true" tabindex="-1"></a><span class="fu">### Merge and unmerge are numerical operations</span></span>
+<span id="cb24-108"><a href="#cb24-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-109"><a href="#cb24-109" aria-hidden="true" tabindex="-1"></a>At inference, an adapter can be applied as a separate branch or merged by forming $W' = W + sBA$. Merging can reduce runtime overhead, but it creates a new effective weight tensor. Repeated merging, wrong scaling, mismatched dtype, or merging into the wrong base can produce irreversible errors unless the original base and adapter are retained.</span>
+<span id="cb24-110"><a href="#cb24-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-113"><a href="#cb24-113" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-114"><a href="#cb24-114" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">2</span>)</span>
+<span id="cb24-115"><a href="#cb24-115" aria-hidden="true" tabindex="-1"></a>W<span class="op">=</span>np.random.randn(<span class="dv">3</span>,<span class="dv">4</span>)<span class="op">;</span> A<span class="op">=</span>np.random.randn(<span class="dv">2</span>,<span class="dv">4</span>)<span class="op">;</span> B<span class="op">=</span>np.random.randn(<span class="dv">3</span>,<span class="dv">2</span>)<span class="op">;</span> scale<span class="op">=</span><span class="fl">.5</span></span>
+<span id="cb24-116"><a href="#cb24-116" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span>np.random.randn(<span class="dv">4</span>)</span>
+<span id="cb24-117"><a href="#cb24-117" aria-hidden="true" tabindex="-1"></a>separate<span class="op">=</span>W<span class="op">@</span>x<span class="op">+</span>scale<span class="op">*</span>(B<span class="op">@</span>(A<span class="op">@</span>x))</span>
+<span id="cb24-118"><a href="#cb24-118" aria-hidden="true" tabindex="-1"></a>merged<span class="op">=</span>(W<span class="op">+</span>scale<span class="op">*</span>B<span class="op">@</span>A)<span class="op">@</span>x</span>
+<span id="cb24-119"><a href="#cb24-119" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> np.allclose(separate,merged)</span>
+<span id="cb24-120"><a href="#cb24-120" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"separate and merged adapter outputs agree"</span>)</span>
+<span id="cb24-121"><a href="#cb24-121" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-122"><a href="#cb24-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-123"><a href="#cb24-123" aria-hidden="true" tabindex="-1"></a>Level 2 derived the update and verified merge equivalence in arithmetic. Level 3 counts the resources: what training memory actually consists of when the base is frozen, and how module scope changes the trainable family.</span>
+<span id="cb24-124"><a href="#cb24-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-125"><a href="#cb24-125" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Mathematics &amp; Code</span></span>
+<span id="cb24-126"><a href="#cb24-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-127"><a href="#cb24-127" aria-hidden="true" tabindex="-1"></a><span class="fu">### Trainable parameters are not the whole memory account</span></span>
+<span id="cb24-128"><a href="#cb24-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-129"><a href="#cb24-129" aria-hidden="true" tabindex="-1"></a>Training memory includes base weights, trainable weights, gradients, optimiser states, activations, temporary buffers, and communication state. Freezing a base model can remove its gradient and optimiser-state requirements, but the base weights and many forward activations remain. Quantising frozen weights can lower storage further, while introducing a new numerical configuration that must be evaluated. QLoRA combines quantised base weights with low-rank adapters <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>.</span>
 <span id="cb24-130"><a href="#cb24-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-131"><a href="#cb24-131" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 3 - Resource and deployment accounting</span></span>
-<span id="cb24-132"><a href="#cb24-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-133"><a href="#cb24-133" aria-hidden="true" tabindex="-1"></a><span class="fu">### Trainable parameters are not the whole memory account</span></span>
-<span id="cb24-134"><a href="#cb24-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-135"><a href="#cb24-135" aria-hidden="true" tabindex="-1"></a>Training memory includes base weights, trainable weights, gradients, optimiser states, activations, temporary buffers, and communication state. Freezing a base model can remove its gradient and optimiser-state requirements, but the base weights and many forward activations remain. Quantising frozen weights can lower storage further, while introducing a new numerical configuration that must be evaluated. QLoRA combines quantised base weights with low-rank adapters <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>.</span>
-<span id="cb24-136"><a href="#cb24-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-139"><a href="#cb24-139" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-140"><a href="#cb24-140" aria-hidden="true" tabindex="-1"></a>params<span class="op">=</span><span class="dv">7_000_000_000</span><span class="op">;</span> bytes_per_weight<span class="op">=</span><span class="dv">2</span><span class="op">;</span> bytes_per_adam_state<span class="op">=</span><span class="dv">8</span></span>
-<span id="cb24-141"><a href="#cb24-141" aria-hidden="true" tabindex="-1"></a>full_weight_gib<span class="op">=</span>params<span class="op">*</span>bytes_per_weight<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
-<span id="cb24-142"><a href="#cb24-142" aria-hidden="true" tabindex="-1"></a>full_adam_gib<span class="op">=</span>params<span class="op">*</span>bytes_per_adam_state<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
-<span id="cb24-143"><a href="#cb24-143" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"base weights GiB:"</span>,<span class="bu">round</span>(full_weight_gib,<span class="dv">1</span>),<span class="st">"Adam moments GiB:"</span>,<span class="bu">round</span>(full_adam_gib,<span class="dv">1</span>))</span>
-<span id="cb24-144"><a href="#cb24-144" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb24-145"><a href="#cb24-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-148"><a href="#cb24-148" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-149"><a href="#cb24-149" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-memory-account</span></span>
-<span id="cb24-150"><a href="#cb24-150" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Freezing base weights changes gradient and optimiser-state requirements, but base-weight and activation memory remain in the training account."</span></span>
-<span id="cb24-151"><a href="#cb24-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Stacked conceptual bars compare full fine-tuning and PEFT memory components: base weights, gradients, optimiser state, and activations."</span></span>
-<span id="cb24-152"><a href="#cb24-152" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> categories<span class="op">=</span>[<span class="st">"base weights"</span>,<span class="st">"gradients"</span>,<span class="st">"optimiser"</span>,<span class="st">"activations"</span>]<span class="op">;</span> full<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">3</span>])<span class="op">;</span> peft<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="fl">.2</span>,<span class="fl">.4</span>,<span class="dv">3</span>])<span class="op">;</span> bottom<span class="op">=</span>np.zeros(<span class="dv">2</span>)</span>
-<span id="cb24-153"><a href="#cb24-153" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> vals,name,c <span class="kw">in</span> <span class="bu">zip</span>([np.array([full[i],peft[i]]) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)],categories,[blue,orange,purple,teal]): ax.bar([<span class="st">"full"</span>,<span class="st">"PEFT"</span>],vals,bottom<span class="op">=</span>bottom,label<span class="op">=</span>name,color<span class="op">=</span>c)<span class="op">;</span> bottom<span class="op">+=</span>vals</span>
-<span id="cb24-154"><a href="#cb24-154" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"relative memory components"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Conceptual training-memory account"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
-<span id="cb24-155"><a href="#cb24-155" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-133"><a href="#cb24-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-134"><a href="#cb24-134" aria-hidden="true" tabindex="-1"></a>params<span class="op">=</span><span class="dv">7_000_000_000</span><span class="op">;</span> bytes_per_weight<span class="op">=</span><span class="dv">2</span><span class="op">;</span> bytes_per_adam_state<span class="op">=</span><span class="dv">8</span></span>
+<span id="cb24-135"><a href="#cb24-135" aria-hidden="true" tabindex="-1"></a>full_weight_gib<span class="op">=</span>params<span class="op">*</span>bytes_per_weight<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
+<span id="cb24-136"><a href="#cb24-136" aria-hidden="true" tabindex="-1"></a>full_adam_gib<span class="op">=</span>params<span class="op">*</span>bytes_per_adam_state<span class="op">/</span><span class="dv">2</span><span class="op">**</span><span class="dv">30</span></span>
+<span id="cb24-137"><a href="#cb24-137" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"base weights GiB:"</span>,<span class="bu">round</span>(full_weight_gib,<span class="dv">1</span>),<span class="st">"Adam moments GiB:"</span>,<span class="bu">round</span>(full_adam_gib,<span class="dv">1</span>))</span>
+<span id="cb24-138"><a href="#cb24-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-139"><a href="#cb24-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-142"><a href="#cb24-142" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-143"><a href="#cb24-143" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-memory-account</span></span>
+<span id="cb24-144"><a href="#cb24-144" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Freezing base weights changes gradient and optimiser-state requirements, but base-weight and activation memory remain in the training account."</span></span>
+<span id="cb24-145"><a href="#cb24-145" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Stacked conceptual bars compare full fine-tuning and PEFT memory components: base weights, gradients, optimiser state, and activations."</span></span>
+<span id="cb24-146"><a href="#cb24-146" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>))<span class="op">;</span> categories<span class="op">=</span>[<span class="st">"base weights"</span>,<span class="st">"gradients"</span>,<span class="st">"optimiser"</span>,<span class="st">"activations"</span>]<span class="op">;</span> full<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">3</span>])<span class="op">;</span> peft<span class="op">=</span>np.array([<span class="dv">4</span>,<span class="fl">.2</span>,<span class="fl">.4</span>,<span class="dv">3</span>])<span class="op">;</span> bottom<span class="op">=</span>np.zeros(<span class="dv">2</span>)</span>
+<span id="cb24-147"><a href="#cb24-147" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> vals,name,c <span class="kw">in</span> <span class="bu">zip</span>([np.array([full[i],peft[i]]) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)],categories,[blue,orange,purple,teal]): ax.bar([<span class="st">"full"</span>,<span class="st">"PEFT"</span>],vals,bottom<span class="op">=</span>bottom,label<span class="op">=</span>name,color<span class="op">=</span>c)<span class="op">;</span> bottom<span class="op">+=</span>vals</span>
+<span id="cb24-148"><a href="#cb24-148" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"relative memory components"</span>)<span class="op">;</span> ax.legend()<span class="op">;</span> ax.set_title(<span class="st">"Conceptual training-memory account"</span>)<span class="op">;</span> plt.tight_layout()<span class="op">;</span> plt.show()</span>
+<span id="cb24-149"><a href="#cb24-149" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-150"><a href="#cb24-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-151"><a href="#cb24-151" aria-hidden="true" tabindex="-1"></a><span class="fu">### Parameter scope is a substantive design choice</span></span>
+<span id="cb24-152"><a href="#cb24-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-153"><a href="#cb24-153" aria-hidden="true" tabindex="-1"></a>PEFT is a family of methods rather than one fixed architecture. An implementation may target attention projections, feed-forward layers, output heads, selected biases, or inserted adapter blocks. Each scope changes which transformations can adapt and how many new parameters are trained. The scope should be reported at the level of module names and layer coverage, not only as a total trainable-parameter count.</span>
+<span id="cb24-154"><a href="#cb24-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-155"><a href="#cb24-155" aria-hidden="true" tabindex="-1"></a>Targeting all layers can permit a more distributed adaptation than targeting only a final projection. Targeting a small subset can reduce storage and training time while concentrating the burden of adaptation in fewer locations. The appropriate choice is empirical: test candidate scopes on the declared task and retained suite under the same data and optimisation budget.</span>
 <span id="cb24-156"><a href="#cb24-156" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-157"><a href="#cb24-157" aria-hidden="true" tabindex="-1"></a><span class="fu">### Multi-adapter serving creates routing decisions</span></span>
-<span id="cb24-158"><a href="#cb24-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-159"><a href="#cb24-159" aria-hidden="true" tabindex="-1"></a>Separate adapters can make several task variants cheaper to store than several full checkpoints. Serving still needs a policy for selecting the adapter, ensuring it is compatible with the request, batching requests that use different adapters, and preventing an adapter intended for one task or policy from being silently applied to another. An adapter identifier is part of the request and audit trace.</span>
-<span id="cb24-160"><a href="#cb24-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-163"><a href="#cb24-163" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-164"><a href="#cb24-164" aria-hidden="true" tabindex="-1"></a>routes<span class="op">=</span>{<span class="st">"legal-summary"</span>:<span class="st">"adapter-legal-v2"</span>,<span class="st">"code-review"</span>:<span class="st">"adapter-code-v1"</span>}</span>
-<span id="cb24-165"><a href="#cb24-165" aria-hidden="true" tabindex="-1"></a>request_task<span class="op">=</span><span class="st">"code-review"</span></span>
-<span id="cb24-166"><a href="#cb24-166" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected adapter:"</span>,routes[request_task])</span>
-<span id="cb24-167"><a href="#cb24-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb24-168"><a href="#cb24-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-169"><a href="#cb24-169" aria-hidden="true" tabindex="-1"></a><span class="fu">### Parameter scope is a substantive design choice</span></span>
+<span id="cb24-159"><a href="#cb24-159" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-160"><a href="#cb24-160" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-module-scope</span></span>
+<span id="cb24-161"><a href="#cb24-161" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Adapter placement can target selected attention and feed-forward projections or every compatible layer; the placement changes the trainable update family."</span></span>
+<span id="cb24-162"><a href="#cb24-162" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A stack of Transformer blocks has highlighted adapter locations in attention projections and feed-forward layers."</span></span>
+<span id="cb24-163"><a href="#cb24-163" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb24-164"><a href="#cb24-164" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb24-165"><a href="#cb24-165" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">3.15</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.72</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.8</span>,y),<span class="fl">2.0</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.8</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="ss">f"Transformer block </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb24-166"><a href="#cb24-166" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">3.05</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"attn"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb24-167"><a href="#cb24-167" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">4.1</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.5</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"FFN"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb24-168"><a href="#cb24-168" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.95</span>,<span class="fl">.25</span>,<span class="st">"Highlighted target modules define where adapter updates are attached."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.05</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb24-169"><a href="#cb24-169" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb24-170"><a href="#cb24-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-171"><a href="#cb24-171" aria-hidden="true" tabindex="-1"></a>PEFT is a family of methods rather than one fixed architecture. An implementation may target attention projections, feed-forward layers, output heads, selected biases, or inserted adapter blocks. Each scope changes which transformations can adapt and how many new parameters are trained. The scope should be reported at the level of module names and layer coverage, not only as a total trainable-parameter count.</span>
+<span id="cb24-171"><a href="#cb24-171" aria-hidden="true" tabindex="-1"></a>Level 3 counted the training memory and the trainable update family. Level 4 turns to the operational decisions: adapter routing, checkpoint recoverability, the interaction of data volume and update scope, and the evidence a method selection requires.</span>
 <span id="cb24-172"><a href="#cb24-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-173"><a href="#cb24-173" aria-hidden="true" tabindex="-1"></a>Targeting all layers can permit a more distributed adaptation than targeting only a final projection. Targeting a small subset can reduce storage and training time while concentrating the burden of adaptation in fewer locations. The appropriate choice is empirical: test candidate scopes on the declared task and retained suite under the same data and optimisation budget.</span>
+<span id="cb24-173"><a href="#cb24-173" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Research &amp; Systems</span></span>
 <span id="cb24-174"><a href="#cb24-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-177"><a href="#cb24-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-178"><a href="#cb24-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-module-scope</span></span>
-<span id="cb24-179"><a href="#cb24-179" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Adapter placement can target selected attention and feed-forward projections or every compatible layer; the placement changes the trainable update family."</span></span>
-<span id="cb24-180"><a href="#cb24-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A stack of Transformer blocks has highlighted adapter locations in attention projections and feed-forward layers."</span></span>
-<span id="cb24-181"><a href="#cb24-181" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>,<span class="dv">4</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb24-182"><a href="#cb24-182" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
-<span id="cb24-183"><a href="#cb24-183" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">3.15</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.72</span><span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">.8</span>,y),<span class="fl">2.0</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>blue,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">1.8</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="ss">f"Transformer block </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb24-184"><a href="#cb24-184" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">3.05</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">3.45</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"attn"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb24-185"><a href="#cb24-185" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(Rectangle((<span class="fl">4.1</span>,y),<span class="fl">.8</span>,<span class="fl">.45</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">4.5</span>,y<span class="op">+</span><span class="fl">.225</span>,<span class="st">"FFN"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb24-186"><a href="#cb24-186" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="fl">3.95</span>,<span class="fl">.25</span>,<span class="st">"Highlighted target modules define where adapter updates are attached."</span>,ha<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.set_xlim(<span class="dv">0</span>,<span class="dv">6</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.05</span>,<span class="fl">3.8</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb24-187"><a href="#cb24-187" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-175"><a href="#cb24-175" aria-hidden="true" tabindex="-1"></a><span class="fu">### Multi-adapter serving creates routing decisions</span></span>
+<span id="cb24-176"><a href="#cb24-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-177"><a href="#cb24-177" aria-hidden="true" tabindex="-1"></a>Separate adapters can make several task variants cheaper to store than several full checkpoints. Serving still needs a policy for selecting the adapter, ensuring it is compatible with the request, batching requests that use different adapters, and preventing an adapter intended for one task or policy from being silently applied to another. An adapter identifier is part of the request and audit trace.</span>
+<span id="cb24-178"><a href="#cb24-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-181"><a href="#cb24-181" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-182"><a href="#cb24-182" aria-hidden="true" tabindex="-1"></a>routes<span class="op">=</span>{<span class="st">"legal-summary"</span>:<span class="st">"adapter-legal-v2"</span>,<span class="st">"code-review"</span>:<span class="st">"adapter-code-v1"</span>}</span>
+<span id="cb24-183"><a href="#cb24-183" aria-hidden="true" tabindex="-1"></a>request_task<span class="op">=</span><span class="st">"code-review"</span></span>
+<span id="cb24-184"><a href="#cb24-184" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"selected adapter:"</span>,routes[request_task])</span>
+<span id="cb24-185"><a href="#cb24-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-186"><a href="#cb24-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-187"><a href="#cb24-187" aria-hidden="true" tabindex="-1"></a><span class="fu">### Checkpoint organisation determines recoverability</span></span>
 <span id="cb24-188"><a href="#cb24-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-189"><a href="#cb24-189" aria-hidden="true" tabindex="-1"></a><span class="fu">### Checkpoint organisation determines recoverability</span></span>
+<span id="cb24-189"><a href="#cb24-189" aria-hidden="true" tabindex="-1"></a>An adaptation run should preserve the immutable base identifier, adapter weights, configuration, tokenizer and template versions, training state where resumption is required, and evaluation records. A merged weight file alone can make a task variant convenient to serve, but it loses the clean separation between base and update unless both original artefacts are retained. A safe workflow treats merging as a reproducible build step with an output hash and an equivalence test.</span>
 <span id="cb24-190"><a href="#cb24-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-191"><a href="#cb24-191" aria-hidden="true" tabindex="-1"></a>An adaptation run should preserve the immutable base identifier, adapter weights, configuration, tokenizer and template versions, training state where resumption is required, and evaluation records. A merged weight file alone can make a task variant convenient to serve, but it loses the clean separation between base and update unless both original artefacts are retained. A safe workflow treats merging as a reproducible build step with an output hash and an equivalence test.</span>
-<span id="cb24-192"><a href="#cb24-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-195"><a href="#cb24-195" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-196"><a href="#cb24-196" aria-hidden="true" tabindex="-1"></a>checkpoint<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"adapter_hash"</span>:<span class="st">"def"</span>,<span class="st">"merge_scale"</span>:<span class="dv">16</span><span class="op">/</span><span class="dv">8</span>,<span class="st">"merged"</span>:<span class="va">False</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>}</span>
-<span id="cb24-197"><a href="#cb24-197" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> checkpoint[<span class="st">"base_hash"</span>] <span class="kw">and</span> checkpoint[<span class="st">"adapter_hash"</span>]</span>
-<span id="cb24-198"><a href="#cb24-198" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"recoverable adapter checkpoint metadata present"</span>)</span>
-<span id="cb24-199"><a href="#cb24-199" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-193"><a href="#cb24-193" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-194"><a href="#cb24-194" aria-hidden="true" tabindex="-1"></a>checkpoint<span class="op">=</span>{<span class="st">"base_hash"</span>:<span class="st">"abc"</span>,<span class="st">"adapter_hash"</span>:<span class="st">"def"</span>,<span class="st">"merge_scale"</span>:<span class="dv">16</span><span class="op">/</span><span class="dv">8</span>,<span class="st">"merged"</span>:<span class="va">False</span>,<span class="st">"template"</span>:<span class="st">"v3"</span>}</span>
+<span id="cb24-195"><a href="#cb24-195" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> checkpoint[<span class="st">"base_hash"</span>] <span class="kw">and</span> checkpoint[<span class="st">"adapter_hash"</span>]</span>
+<span id="cb24-196"><a href="#cb24-196" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"recoverable adapter checkpoint metadata present"</span>)</span>
+<span id="cb24-197"><a href="#cb24-197" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-198"><a href="#cb24-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-199"><a href="#cb24-199" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data volume and update scope interact</span></span>
 <span id="cb24-200"><a href="#cb24-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-201"><a href="#cb24-201" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data volume and update scope interact</span></span>
+<span id="cb24-201"><a href="#cb24-201" aria-hidden="true" tabindex="-1"></a>An adapter with few trainable parameters does not imply that many examples are required, nor does a full update imply that a small dataset is necessarily unsuitable. The relevant risk depends on how far the target distribution differs from the base model, how repetitive the data are, how many update tokens and epochs are used, and which evaluation tasks must remain stable. A small, tightly specified adaptation can overfit through either method when the validation split duplicates templates or sources.</span>
 <span id="cb24-202"><a href="#cb24-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-203"><a href="#cb24-203" aria-hidden="true" tabindex="-1"></a>An adapter with few trainable parameters does not imply that many examples are required, nor does a full update imply that a small dataset is necessarily unsuitable. The relevant risk depends on how far the target distribution differs from the base model, how repetitive the data are, how many update tokens and epochs are used, and which evaluation tasks must remain stable. A small, tightly specified adaptation can overfit through either method when the validation split duplicates templates or sources.</span>
+<span id="cb24-203"><a href="#cb24-203" aria-hidden="true" tabindex="-1"></a>Checkpoint selection should inspect learning curves and held-out behaviour across more than one update count. A model that reaches its best target score early may degrade after additional passes over narrow data. Retaining base and intermediate checkpoints makes it possible to compare the adaptation trajectory rather than selecting only the final artifact.</span>
 <span id="cb24-204"><a href="#cb24-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-205"><a href="#cb24-205" aria-hidden="true" tabindex="-1"></a>Checkpoint selection should inspect learning curves and held-out behaviour across more than one update count. A model that reaches its best target score early may degrade after additional passes over narrow data. Retaining base and intermediate checkpoints makes it possible to compare the adaptation trajectory rather than selecting only the final artifact.</span>
-<span id="cb24-206"><a href="#cb24-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-209"><a href="#cb24-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-210"><a href="#cb24-210" aria-hidden="true" tabindex="-1"></a>history<span class="op">=</span>{<span class="st">"step_100"</span>:{<span class="st">"target"</span>:<span class="fl">.58</span>,<span class="st">"retained"</span>:<span class="fl">.71</span>},<span class="st">"step_500"</span>:{<span class="st">"target"</span>:<span class="fl">.66</span>,<span class="st">"retained"</span>:<span class="fl">.69</span>},<span class="st">"step_900"</span>:{<span class="st">"target"</span>:<span class="fl">.65</span>,<span class="st">"retained"</span>:<span class="fl">.62</span>}}</span>
-<span id="cb24-211"><a href="#cb24-211" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,metrics <span class="kw">in</span> history.items(): <span class="bu">print</span>(step,metrics)</span>
-<span id="cb24-212"><a href="#cb24-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-207"><a href="#cb24-207" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-208"><a href="#cb24-208" aria-hidden="true" tabindex="-1"></a>history<span class="op">=</span>{<span class="st">"step_100"</span>:{<span class="st">"target"</span>:<span class="fl">.58</span>,<span class="st">"retained"</span>:<span class="fl">.71</span>},<span class="st">"step_500"</span>:{<span class="st">"target"</span>:<span class="fl">.66</span>,<span class="st">"retained"</span>:<span class="fl">.69</span>},<span class="st">"step_900"</span>:{<span class="st">"target"</span>:<span class="fl">.65</span>,<span class="st">"retained"</span>:<span class="fl">.62</span>}}</span>
+<span id="cb24-209"><a href="#cb24-209" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> step,metrics <span class="kw">in</span> history.items(): <span class="bu">print</span>(step,metrics)</span>
+<span id="cb24-210"><a href="#cb24-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-211"><a href="#cb24-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-212"><a href="#cb24-212" aria-hidden="true" tabindex="-1"></a><span class="fu">### Choose an adaptation method against a declared constraint</span></span>
 <span id="cb24-213"><a href="#cb24-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-214"><a href="#cb24-214" aria-hidden="true" tabindex="-1"></a><span class="fu">## Level 4 - Audit and selection</span></span>
+<span id="cb24-214"><a href="#cb24-214" aria-hidden="true" tabindex="-1"></a>An adaptation plan should specify the base checkpoint, task, data provenance, target modules or full parameter scope, rank and scaling where relevant, quantisation and precision, maximum length, optimiser settings, token budget, checkpoint policy, merge status, and serving route. It should report target-task results and a retained-task suite under the same prompt template and decoding policy.</span>
 <span id="cb24-215"><a href="#cb24-215" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-216"><a href="#cb24-216" aria-hidden="true" tabindex="-1"></a><span class="fu">### Choose an adaptation method against a declared constraint</span></span>
-<span id="cb24-217"><a href="#cb24-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-218"><a href="#cb24-218" aria-hidden="true" tabindex="-1"></a>An adaptation plan should specify the base checkpoint, task, data provenance, target modules or full parameter scope, rank and scaling where relevant, quantisation and precision, maximum length, optimiser settings, token budget, checkpoint policy, merge status, and serving route. It should report target-task results and a retained-task suite under the same prompt template and decoding policy.</span>
-<span id="cb24-219"><a href="#cb24-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-222"><a href="#cb24-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-223"><a href="#cb24-223" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-selection-audit</span></span>
-<span id="cb24-224"><a href="#cb24-224" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Adaptation selection compares full and parameter-efficient methods against target quality, regressions, training resources, storage, and serving constraints."</span></span>
-<span id="cb24-225"><a href="#cb24-225" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A table-like diagram compares full fine-tuning and PEFT across target evaluation, regression suite, memory account, checkpoint size, and serving route."</span></span>
-<span id="cb24-226"><a href="#cb24-226" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
-<span id="cb24-227"><a href="#cb24-227" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[<span class="st">"target evaluation"</span>,<span class="st">"retained evaluation"</span>,<span class="st">"memory account"</span>,<span class="st">"checkpoint and merge"</span>,<span class="st">"serving route"</span>]</span>
-<span id="cb24-228"><a href="#cb24-228" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,row <span class="kw">in</span> <span class="bu">enumerate</span>(rows):</span>
-<span id="cb24-229"><a href="#cb24-229" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.7</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.48</span><span class="op">;</span> ax.text(<span class="fl">.2</span>,y,row,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">3.0</span>,y<span class="op">-</span><span class="fl">.17</span>),<span class="dv">2</span>,<span class="fl">.34</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="dv">4</span>,y,<span class="st">"full"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.25</span>,y<span class="op">-</span><span class="fl">.17</span>),<span class="dv">2</span>,<span class="fl">.34</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.25</span>,y,<span class="st">"PEFT"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb24-230"><a href="#cb24-230" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
-<span id="cb24-231"><a href="#cb24-231" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-218"><a href="#cb24-218" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-219"><a href="#cb24-219" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-selection-audit</span></span>
+<span id="cb24-220"><a href="#cb24-220" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Adaptation selection compares full and parameter-efficient methods against target quality, regressions, training resources, storage, and serving constraints."</span></span>
+<span id="cb24-221"><a href="#cb24-221" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "A table-like diagram compares full fine-tuning and PEFT across target evaluation, regression suite, memory account, checkpoint size, and serving route."</span></span>
+<span id="cb24-222"><a href="#cb24-222" aria-hidden="true" tabindex="-1"></a>fig,ax<span class="op">=</span>plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>,<span class="fl">3.5</span>))<span class="op">;</span> ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb24-223"><a href="#cb24-223" aria-hidden="true" tabindex="-1"></a>rows<span class="op">=</span>[<span class="st">"target evaluation"</span>,<span class="st">"retained evaluation"</span>,<span class="st">"memory account"</span>,<span class="st">"checkpoint and merge"</span>,<span class="st">"serving route"</span>]</span>
+<span id="cb24-224"><a href="#cb24-224" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i,row <span class="kw">in</span> <span class="bu">enumerate</span>(rows):</span>
+<span id="cb24-225"><a href="#cb24-225" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="fl">2.7</span><span class="op">-</span>i<span class="op">*</span><span class="fl">.48</span><span class="op">;</span> ax.text(<span class="fl">.2</span>,y,row,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span>grey)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">3.0</span>,y<span class="op">-</span><span class="fl">.17</span>),<span class="dv">2</span>,<span class="fl">.34</span>,facecolor<span class="op">=</span>orange,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="dv">4</span>,y,<span class="st">"full"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)<span class="op">;</span> ax.add_patch(Rectangle((<span class="fl">5.25</span>,y<span class="op">-</span><span class="fl">.17</span>),<span class="dv">2</span>,<span class="fl">.34</span>,facecolor<span class="op">=</span>teal,edgecolor<span class="op">=</span><span class="st">"white"</span>))<span class="op">;</span> ax.text(<span class="fl">6.25</span>,y,<span class="st">"PEFT"</span>,ha<span class="op">=</span><span class="st">"center"</span>,va<span class="op">=</span><span class="st">"center"</span>,color<span class="op">=</span><span class="st">"white"</span>,fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb24-226"><a href="#cb24-226" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>,<span class="dv">8</span>)<span class="op">;</span> ax.set_ylim(<span class="fl">.1</span>,<span class="fl">3.2</span>)<span class="op">;</span> plt.show()</span>
+<span id="cb24-227"><a href="#cb24-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-228"><a href="#cb24-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-229"><a href="#cb24-229" aria-hidden="true" tabindex="-1"></a>The method should not be selected solely because it is cheaper or because it reaches the lowest training loss. A full update may be necessary for a target distribution; a low-rank update may be sufficient and operationally preferable. Both conclusions require evidence under the specified task and deployment conditions.</span>
+<span id="cb24-230"><a href="#cb24-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-231"><a href="#cb24-231" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regression tests should include the base interface</span></span>
 <span id="cb24-232"><a href="#cb24-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-233"><a href="#cb24-233" aria-hidden="true" tabindex="-1"></a>The method should not be selected solely because it is cheaper or because it reaches the lowest training loss. A full update may be necessary for a target distribution; a low-rank update may be sufficient and operationally preferable. Both conclusions require evidence under the specified task and deployment conditions.</span>
+<span id="cb24-233"><a href="#cb24-233" aria-hidden="true" tabindex="-1"></a>Adaptation can change outputs for prompts outside the fine-tuning corpus. Retained tests should include general instruction responses, domain tasks that must remain available, formatting or tool contracts, and safety-sensitive inputs where relevant. Tests must specify whether the adapter is active and which system template is used. Comparing a base checkpoint without its standard template to an adapter checkpoint with a richer interface would not isolate the update.</span>
 <span id="cb24-234"><a href="#cb24-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-235"><a href="#cb24-235" aria-hidden="true" tabindex="-1"></a><span class="fu">### Regression tests should include the base interface</span></span>
-<span id="cb24-236"><a href="#cb24-236" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-237"><a href="#cb24-237" aria-hidden="true" tabindex="-1"></a>Adaptation can change outputs for prompts outside the fine-tuning corpus. Retained tests should include general instruction responses, domain tasks that must remain available, formatting or tool contracts, and safety-sensitive inputs where relevant. Tests must specify whether the adapter is active and which system template is used. Comparing a base checkpoint without its standard template to an adapter checkpoint with a richer interface would not isolate the update.</span>
-<span id="cb24-238"><a href="#cb24-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-241"><a href="#cb24-241" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb24-242"><a href="#cb24-242" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{<span class="st">"target"</span>:{<span class="st">"base"</span>:<span class="fl">.48</span>,<span class="st">"adapter"</span>:<span class="fl">.67</span>},<span class="st">"retained"</span>:{<span class="st">"base"</span>:<span class="fl">.72</span>,<span class="st">"adapter"</span>:<span class="fl">.70</span>}}</span>
-<span id="cb24-243"><a href="#cb24-243" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> suite,scores <span class="kw">in</span> results.items(): <span class="bu">print</span>(suite,scores)</span>
-<span id="cb24-244"><a href="#cb24-244" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
-<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PEFT changes only a few values, so it cannot cause a large behavioural change.** Small modules can substantially change the effective function.</span>
-<span id="cb24-249"><a href="#cb24-249" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**An adapter can be used with any model of the same size.** It requires the compatible base and architecture contract.</span>
-<span id="cb24-250"><a href="#cb24-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Freezing the base eliminates training memory demands.** Base weights and activations remain.</span>
-<span id="cb24-251"><a href="#cb24-251" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Merged and separate adapters always give the same result without qualification.** Scaling, dtype, and correct base identity are required.</span>
-<span id="cb24-252"><a href="#cb24-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A lower training loss identifies the best adaptation method.** Target, retained, and systems constraints require separate evidence.</span>
-<span id="cb24-253"><a href="#cb24-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-254"><a href="#cb24-254" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb24-255"><a href="#cb24-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-256"><a href="#cb24-256" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate LoRA parameters for stated layer widths and rank.</span>
-<span id="cb24-257"><a href="#cb24-257" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Compare full-update and low-rank-update parameter counts.</span>
-<span id="cb24-258"><a href="#cb24-258" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Verify merged and separate LoRA outputs on a toy layer.</span>
-<span id="cb24-259"><a href="#cb24-259" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>List adapter metadata needed for safe loading.</span>
-<span id="cb24-260"><a href="#cb24-260" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Explain which training memory components remain when a base is frozen.</span>
-<span id="cb24-261"><a href="#cb24-261" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>State how quantisation changes an adaptation record.</span>
-<span id="cb24-262"><a href="#cb24-262" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Design a multi-adapter routing trace.</span>
-<span id="cb24-263"><a href="#cb24-263" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare adapter storage with a full checkpoint for several tasks.</span>
-<span id="cb24-264"><a href="#cb24-264" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Identify a merge error and a test that detects it.</span>
-<span id="cb24-265"><a href="#cb24-265" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Specify target and retained evaluation suites for an adaptation.</span>
-<span id="cb24-266"><a href="#cb24-266" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Explain why rank is a model-selection parameter.</span>
-<span id="cb24-267"><a href="#cb24-267" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Describe an evaluation for a template mismatch.</span>
-<span id="cb24-268"><a href="#cb24-268" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>State why a PEFT update can still overfit.</span>
-<span id="cb24-269"><a href="#cb24-269" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Compare training and serving implications of merged adapters.</span>
-<span id="cb24-270"><a href="#cb24-270" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>List fields required in an adaptation run record.</span>
-<span id="cb24-271"><a href="#cb24-271" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that treats quantisation and efficient inference.</span>
+<span id="cb24-237"><a href="#cb24-237" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb24-238"><a href="#cb24-238" aria-hidden="true" tabindex="-1"></a>results<span class="op">=</span>{<span class="st">"target"</span>:{<span class="st">"base"</span>:<span class="fl">.48</span>,<span class="st">"adapter"</span>:<span class="fl">.67</span>},<span class="st">"retained"</span>:{<span class="st">"base"</span>:<span class="fl">.72</span>,<span class="st">"adapter"</span>:<span class="fl">.70</span>}}</span>
+<span id="cb24-239"><a href="#cb24-239" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> suite,scores <span class="kw">in</span> results.items(): <span class="bu">print</span>(suite,scores)</span>
+<span id="cb24-240"><a href="#cb24-240" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb24-241"><a href="#cb24-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-242"><a href="#cb24-242" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common misconceptions</span></span>
+<span id="cb24-243"><a href="#cb24-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-244"><a href="#cb24-244" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PEFT changes only a few values, so it cannot cause a large behavioural change.** Small modules can substantially change the effective function.</span>
+<span id="cb24-245"><a href="#cb24-245" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**An adapter can be used with any model of the same size.** It requires the compatible base and architecture contract.</span>
+<span id="cb24-246"><a href="#cb24-246" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Freezing the base eliminates training memory demands.** Base weights and activations remain.</span>
+<span id="cb24-247"><a href="#cb24-247" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Merged and separate adapters always give the same result without qualification.** Scaling, dtype, and correct base identity are required.</span>
+<span id="cb24-248"><a href="#cb24-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**A lower training loss identifies the best adaptation method.** Target, retained, and systems constraints require separate evidence.</span>
+<span id="cb24-249"><a href="#cb24-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-250"><a href="#cb24-250" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb24-251"><a href="#cb24-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-252"><a href="#cb24-252" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Calculate LoRA parameters for stated layer widths and rank.</span>
+<span id="cb24-253"><a href="#cb24-253" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Compare full-update and low-rank-update parameter counts.</span>
+<span id="cb24-254"><a href="#cb24-254" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Verify merged and separate LoRA outputs on a toy layer.</span>
+<span id="cb24-255"><a href="#cb24-255" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>List adapter metadata needed for safe loading.</span>
+<span id="cb24-256"><a href="#cb24-256" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Explain which training memory components remain when a base is frozen.</span>
+<span id="cb24-257"><a href="#cb24-257" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>State how quantisation changes an adaptation record.</span>
+<span id="cb24-258"><a href="#cb24-258" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Design a multi-adapter routing trace.</span>
+<span id="cb24-259"><a href="#cb24-259" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Compare adapter storage with a full checkpoint for several tasks.</span>
+<span id="cb24-260"><a href="#cb24-260" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Identify a merge error and a test that detects it.</span>
+<span id="cb24-261"><a href="#cb24-261" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Specify target and retained evaluation suites for an adaptation.</span>
+<span id="cb24-262"><a href="#cb24-262" aria-hidden="true" tabindex="-1"></a><span class="ss">11. </span>Explain why rank is a model-selection parameter.</span>
+<span id="cb24-263"><a href="#cb24-263" aria-hidden="true" tabindex="-1"></a><span class="ss">12. </span>Describe an evaluation for a template mismatch.</span>
+<span id="cb24-264"><a href="#cb24-264" aria-hidden="true" tabindex="-1"></a><span class="ss">13. </span>State why a PEFT update can still overfit.</span>
+<span id="cb24-265"><a href="#cb24-265" aria-hidden="true" tabindex="-1"></a><span class="ss">14. </span>Compare training and serving implications of merged adapters.</span>
+<span id="cb24-266"><a href="#cb24-266" aria-hidden="true" tabindex="-1"></a><span class="ss">15. </span>List fields required in an adaptation run record.</span>
+<span id="cb24-267"><a href="#cb24-267" aria-hidden="true" tabindex="-1"></a><span class="ss">16. </span>Identify the chapter that treats quantisation and efficient inference.</span>
+<span id="cb24-268"><a href="#cb24-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-269"><a href="#cb24-269" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb24-270"><a href="#cb24-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-271"><a href="#cb24-271" aria-hidden="true" tabindex="-1"></a>Full fine-tuning updates selected base parameters, while parameter-efficient methods train smaller updates over a frozen checkpoint. LoRA represents one such update as a low-rank matrix product. The choice changes trainable parameter count, optimiser state, checkpoint storage, and serving design, but it does not remove the need for task data, compatibility metadata, or regression evaluation.</span>
 <span id="cb24-272"><a href="#cb24-272" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-273"><a href="#cb24-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb24-273"><a href="#cb24-273" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 32</span><span class="co">](32-quantisation-efficient-inference.qmd)</span> examines lower-precision weights and activations as a separate efficiency and accuracy trade-off.</span>
 <span id="cb24-274"><a href="#cb24-274" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-275"><a href="#cb24-275" aria-hidden="true" tabindex="-1"></a>Full fine-tuning updates selected base parameters, while parameter-efficient methods train smaller updates over a frozen checkpoint. LoRA represents one such update as a low-rank matrix product. The choice changes trainable parameter count, optimiser state, checkpoint storage, and serving design, but it does not remove the need for task data, compatibility metadata, or regression evaluation.</span>
+<span id="cb24-275"><a href="#cb24-275" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
 <span id="cb24-276"><a href="#cb24-276" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-277"><a href="#cb24-277" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Chapter 32</span><span class="co">](32-quantisation-efficient-inference.qmd)</span> examines lower-precision weights and activations as a separate efficiency and accuracy trade-off.</span>
+<span id="cb24-277"><a href="#cb24-277" aria-hidden="true" tabindex="-1"></a>Adaptation changes the model or an attached update. <span class="co">[</span><span class="ot">Chapter 32</span><span class="co">](32-quantisation-efficient-inference.qmd)</span> examines how the resulting tensors can be represented and executed under tighter memory and latency constraints.</span>
 <span id="cb24-278"><a href="#cb24-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-279"><a href="#cb24-279" aria-hidden="true" tabindex="-1"></a><span class="fu">## Looking ahead</span></span>
+<span id="cb24-279"><a href="#cb24-279" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
 <span id="cb24-280"><a href="#cb24-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-281"><a href="#cb24-281" aria-hidden="true" tabindex="-1"></a>Adaptation changes the model or an attached update. <span class="co">[</span><span class="ot">Chapter 32</span><span class="co">](32-quantisation-efficient-inference.qmd)</span> examines how the resulting tensors can be represented and executed under tighter memory and latency constraints.</span>
-<span id="cb24-282"><a href="#cb24-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-283"><a href="#cb24-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further reading</span></span>
-<span id="cb24-284"><a href="#cb24-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-285"><a href="#cb24-285" aria-hidden="true" tabindex="-1"></a>LoRA is introduced by @hu2021lora. QLoRA studies low-rank adaptation with quantised base models <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>.</span>
+<span id="cb24-281"><a href="#cb24-281" aria-hidden="true" tabindex="-1"></a>LoRA is introduced by @hu2021lora. QLoRA studies low-rank adaptation with quantised base models <span class="co">[</span><span class="ot">@dettmers2023qlora</span><span class="co">]</span>.</span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

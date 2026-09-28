@@ -605,7 +605,7 @@ Figure&nbsp;41.1: GRPO samples several rollouts for one prompt, evaluates their 
 <section id="relative-rewards-provide-a-local-comparison" class="level3">
 <h3 class="anchored" data-anchor-id="relative-rewards-provide-a-local-comparison">Relative rewards provide a local comparison</h3>
 <p>For a prompt with several rollouts, GRPO gives positive advantage to rewards above the group average and negative advantage to rewards below it. If one candidate is verifier-correct and others are not, the update favours the successful candidate. The signal is prompt-specific: a reward of one can be excellent in a difficult group and uninformative in a group where every rollout succeeds.</p>
-<div id="b33a29b1" class="cell" data-execution_count="2">
+<div id="c47d8085" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rewards<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">1.</span>,<span class="fl">0.</span>])</span>
@@ -648,7 +648,7 @@ Figure&nbsp;41.2: Within a rollout group, rewards above the group mean receive p
 </div>
 </div>
 <p>When every reward is identical, the standard deviation is zero and the group contains no relative learning signal. Adding a small epsilon prevents numerical failure but does not create information. The data pipeline should record such groups and the policy used for skipping or handling them.</p>
-<div id="5a55726c" class="cell" data-execution_count="4">
+<div id="d3c0ed32" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>flat<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>,<span class="fl">1.</span>])</span>
@@ -699,7 +699,7 @@ Figure&nbsp;41.3: Groups with mixed rewards provide relative learning signal, wh
 <section id="updates-are-constrained-relative-to-a-reference" class="level3">
 <h3 class="anchored" data-anchor-id="updates-are-constrained-relative-to-a-reference">Updates are constrained relative to a reference</h3>
 <p>The policy probability ratio compares the updated policy with the rollout or reference policy. Clipping or a KL-style penalty limits large changes that could exploit finite rewards or destabilise training. These controls do not validate the reward; they limit the size of a policy move under a chosen measure.</p>
-<div id="07fee63d" class="cell" data-execution_count="6">
+<div id="e3549b48" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>old_prob<span class="op">=</span>np.array([<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>,<span class="fl">.25</span>])<span class="op">;</span> new_prob<span class="op">=</span>np.array([<span class="fl">.35</span>,<span class="fl">.15</span>,<span class="fl">.35</span>,<span class="fl">.15</span>])</span>
@@ -783,7 +783,7 @@ Figure&nbsp;41.5: Positive and negative group-relative advantages push rollout p
 <p>The evaluation should include component ablations. Hold prompts, rollout counts, reward, and independent task scorer fixed while removing group normalisation, changing group size, or varying the reference constraint one at a time. Compare the resulting policy checkpoints under the same inference budget. These comparisons do not prove that one method is universally preferable; they show which component explains the measured change in the declared training setting.</p>
 <p>Report the checkpoint-selection rule before comparing ablations. Selecting the highest result from each run on the same small development set can turn optimisation noise into a method claim.</p>
 <p>For any sample-efficiency claim, report total rollouts, accepted groups, discarded groups, update steps, and the complete evaluation budget alongside the final outcome.</p>
-<div id="156ddfa6" class="cell" data-execution_count="9">
+<div id="e4576538" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"group_size"</span>:<span class="dv">4</span>,<span class="st">"reward"</span>:<span class="st">"exact verifier"</span>,<span class="st">"epsilon"</span>:<span class="fl">1e-8</span>,<span class="st">"ratio_clip"</span>:<span class="fl">.2</span>,<span class="st">"reference"</span>:<span class="st">"policy-v1"</span>,<span class="st">"flat_groups"</span>:<span class="st">"skip"</span>}</span>

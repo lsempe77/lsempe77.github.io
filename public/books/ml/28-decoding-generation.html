@@ -619,7 +619,7 @@ Figure&nbsp;29.1: A decoder transforms a next-token probability distribution int
 <h3 class="anchored" data-anchor-id="the-model-supplies-options-decoding-makes-a-choice">The model supplies options; decoding makes a choice</h3>
 <p>Greedy decoding selects the highest-probability token at every step. It is deterministic when model computation is deterministic and the prompt is unchanged. It can be appropriate when a task has a narrow expected continuation, but it can also create repetitive or generic sequences because it always commits to the local maximum.</p>
 <p>Sampling selects a token according to the probability distribution, so lower-probability options can appear. Two runs can differ even when the model and prompt are identical. This is not evidence that the model changed; it is a property of the generation policy. A seed can make pseudorandom sampling reproducible for a declared implementation, but it does not make the output uniquely implied by the model.</p>
-<div id="150f4069" class="cell" data-execution_count="2">
+<div id="28d25aaa" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">7</span>)</span>
@@ -636,7 +636,7 @@ samples: ['the' 'cat' 'a' 'cat' '&lt;eos&gt;' 'a' 'a' 'the']</code></pre>
 <section id="stopping-is-also-a-decoding-decision" class="level3">
 <h3 class="anchored" data-anchor-id="stopping-is-also-a-decoding-decision">Stopping is also a decoding decision</h3>
 <p>Many systems stop when an end-of-sequence token is selected, when a maximum new-token length is reached, or when a configured string or token sequence occurs. Each rule can truncate an answer or permit unnecessary continuation. A maximum length is not merely a user-interface setting: it changes which complete sequences can be emitted and may interact with the context budget in Chapter 27.</p>
-<div id="41648c7e" class="cell" data-execution_count="3">
+<div id="d7945d5b" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>generated<span class="op">=</span>[<span class="st">"the"</span>,<span class="st">"cat"</span>,<span class="st">"slept"</span>,<span class="st">"&lt;eos&gt;"</span>]</span>
@@ -661,7 +661,7 @@ stop on end token</code></pre>
 <section id="temperature-changes-relative-concentration" class="level3">
 <h3 class="anchored" data-anchor-id="temperature-changes-relative-concentration">Temperature changes relative concentration</h3>
 <p>Temperature divides logits before softmax. For logits <span class="math inline">\(z\)</span> and temperature <span class="math inline">\(\tau&gt;0\)</span>, the transformed distribution is <span class="math inline">\(\operatorname{softmax}(z/\tau)\)</span>. Values below one sharpen differences between logits; values above one flatten the distribution. Temperature does not add information or identify an appropriate answer. It changes how sharply the decoder follows the model’s existing ranking.</p>
-<div id="ef31747a" class="cell" data-execution_count="4">
+<div id="05c17db7" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>logits<span class="op">=</span>np.log(probs)</span>
@@ -701,7 +701,7 @@ Figure&nbsp;29.2: Lower temperatures concentrate probability on high-logit token
 <section id="top-k-and-top-p-restrict-the-candidate-set" class="level3">
 <h3 class="anchored" data-anchor-id="top-k-and-top-p-restrict-the-candidate-set">Top-k and top-p restrict the candidate set</h3>
 <p>Top-k keeps the <span class="math inline">\(k\)</span> highest-probability entries, sets the rest to zero, and renormalises. Nucleus or top-p sampling keeps the smallest high-probability set whose cumulative mass reaches a threshold <span class="math inline">\(p\)</span>, then renormalises. Top-k has a fixed candidate count; top-p adapts its count to the distribution’s concentration <span class="citation" data-cites="holtzman2020curious">(<a href="#ref-holtzman2020curious" role="doc-biblioref">Holtzman et al. 2020</a>)</span>.</p>
-<div id="d2c2368b" class="cell" data-execution_count="6">
+<div id="74b509d9" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> top_k_distribution(p,k):</span>
@@ -747,7 +747,7 @@ Figure&nbsp;29.3: Top-k keeps a fixed number of candidates, while top-p keeps a 
 <section id="repetition-controls-change-the-sequence-distribution" class="level3">
 <h3 class="anchored" data-anchor-id="repetition-controls-change-the-sequence-distribution">Repetition controls change the sequence distribution</h3>
 <p>Systems sometimes penalise tokens that appeared in the prefix, block repeated n-grams, or alter logits after selected patterns. These controls can reduce some visible loops, but they also can suppress legitimate repetition: names, quotations, structured lists, and code may require the same token or phrase. A repetition setting should therefore be evaluated on examples where repetition is both undesirable and necessary.</p>
-<div id="3c12f053" class="cell" data-execution_count="8">
+<div id="174c0850" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>seen<span class="op">=</span>{<span class="st">"the"</span>,<span class="st">"cat"</span>}<span class="op">;</span> adjusted<span class="op">=</span>logits.copy()</span>
@@ -762,7 +762,7 @@ penalised: [0.28  0.37  0.113 0.148 0.089]</code></pre>
 </div>
 </div>
 <p>Constraints can be hard rather than soft. A JSON grammar, allowed vocabulary, stop sequence, or tool-call schema can make invalid outputs impossible under the decoder, while leaving questions about the correctness of valid content. Constraints operate on form; they do not verify claims unless they are connected to an external validation process.</p>
-<div id="f76bb2fd" class="cell" data-execution_count="9">
+<div id="1de1d2a4" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>allowed<span class="op">=</span>np.array([<span class="va">False</span>,<span class="va">False</span>,<span class="va">True</span>,<span class="va">True</span>,<span class="va">True</span>])</span>
@@ -777,7 +777,7 @@ penalised: [0.28  0.37  0.113 0.148 0.089]</code></pre>
 <section id="beam-search-is-a-search-policy-not-a-probability-objective" class="level3">
 <h3 class="anchored" data-anchor-id="beam-search-is-a-search-policy-not-a-probability-objective">Beam search is a search policy, not a probability objective</h3>
 <p>Beam search retains several partial sequences and expands them, often ranking by accumulated log probability with an optional length adjustment. It can find a higher-probability complete sequence than greedy decoding under its search width, but it is more costly and can favour short or repetitive text without a declared length policy. It is useful to distinguish its search score from a user-facing quality measure.</p>
-<div id="7cb95ac7" class="cell" data-execution_count="10">
+<div id="0f1b8a47" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>beams<span class="op">=</span>[([<span class="st">"the"</span>],np.log(<span class="fl">.42</span>)),([<span class="st">"a"</span>],np.log(<span class="fl">.25</span>))]</span>
@@ -826,7 +826,7 @@ Figure&nbsp;29.4: A length policy can change the ranking of candidate sequences 
 <h3 class="anchored" data-anchor-id="output-diversity-is-not-an-unconditional-good">Output diversity is not an unconditional good</h3>
 <p>Sampling several continuations can be useful when a task permits alternatives, such as brainstorming, creative writing, or producing candidate solutions for a later verifier. Diversity can be harmful when an answer must be stable, precisely formatted, or grounded in a supplied record. Increasing temperature or candidate support changes the distribution of output strings; it does not distinguish useful variation from unsupported variation.</p>
 <p>An evaluation should therefore state whether it values one reproducible best answer, multiple candidates with a selection stage, or variation subject to a constraint. When several samples are generated, report the number of draws and aggregation rule. Selecting the most attractive sample after inspection without recording that selection produces a result that cannot be reproduced or fairly compared with one deterministic output.</p>
-<div id="06e7bd4c" class="cell" data-execution_count="12">
+<div id="12d8a5c3" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">3</span>)</span>
@@ -848,7 +848,7 @@ Figure&nbsp;29.4: A length policy can change the ranking of candidate sequences 
 <h3 class="anchored" data-anchor-id="decoding-must-match-the-consequence-of-an-error">Decoding must match the consequence of an error</h3>
 <p>For a structured extraction task, a system can favour deterministic decoding, an exact schema, and a validator because variation has little value and an incorrect field can cause a downstream error. For exploratory drafting, several sampled candidates may be useful if a reviewer or verifier selects among them. For a question that requires external evidence, sampling cannot compensate for missing or irrelevant context. The selection policy should follow the task’s decision rule and cost of failure.</p>
 <p>This is also why output quality and model probability should not be conflated. A highly probable continuation can be generic, outdated, or unsupported. A low-probability continuation may be correct but should be checked against evidence or a task verifier. Decoding controls the way a model distribution is exposed; it is not an independent source of knowledge.</p>
-<div id="1c37abd9" class="cell" data-execution_count="13">
+<div id="bbfbe956" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>tasks<span class="op">=</span>{<span class="st">"extraction"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"schema and source match"</span>},<span class="st">"drafting"</span>:{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"validator"</span>:<span class="st">"human selection"</span>},<span class="st">"calculation"</span>:{<span class="st">"temperature"</span>:<span class="dv">0</span>,<span class="st">"validator"</span>:<span class="st">"exact check"</span>}}</span>
@@ -891,7 +891,7 @@ Figure&nbsp;29.5: A generation result depends on the model and prompt as well as
 <section id="a-generation-record-supports-reproduction-and-diagnosis" class="level3">
 <h3 class="anchored" data-anchor-id="a-generation-record-supports-reproduction-and-diagnosis">A generation record supports reproduction and diagnosis</h3>
 <p>At minimum, retain the checkpoint and tokenizer versions, prompt template and final token IDs, system messages or tool constraints, context and truncation policy, maximum new tokens, temperature, top-k or top-p convention, seed, repetition controls, stop sequences, beam settings, hardware or numerical settings where determinism matters, output IDs, and stop reason. This record makes it possible to reproduce a result or identify why a boundary case changed after a system update.</p>
-<div id="7e4824f8" class="cell" data-execution_count="15">
+<div id="5c284890" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>generation_record<span class="op">=</span>{<span class="st">"temperature"</span>:<span class="fl">.8</span>,<span class="st">"top_p"</span>:<span class="fl">.9</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">256</span>,<span class="st">"seed"</span>:<span class="dv">17</span>,<span class="st">"stop_reason"</span>:<span class="st">"eos"</span>,<span class="st">"tokenizer"</span>:<span class="st">"versioned"</span>}</span>

@@ -736,7 +736,7 @@ Figure&nbsp;22.4: A learned absolute position table has a finite index range; a 
 <p><span class="math display">\[s_{t,j}=\frac{q_t k_j^\top+q_t r_{j-t}^\top}{\sqrt{D_k}},\]</span></p>
 <p>where <span class="math inline">\(r_{j-t}\)</span> represents the relative displacement. The first term compares content; the second can make the score depend on distance and direction. Shaw, Uszkoreit, and Vaswani add learned relative representations to self-attention, rather than relying only on absolute input positions <span class="citation" data-cites="shaw2018self">(<a href="#ref-shaw2018self" role="doc-biblioref">Shaw et al. 2018</a>)</span>.</p>
 <p>Implementations cannot always store one independent relation for every possible distance. They may clip displacement to a range, map many distances into buckets, or use a formula. Clipping <span class="math inline">\(j-t\)</span> at <span class="math inline">\(\pm K\)</span> makes all distances beyond <span class="math inline">\(K\)</span> share a representation. This saves parameters and can pool sparse evidence, but it removes distinctions among those more distant positions. The chosen boundary is therefore part of the model’s representation, not a neutral memory optimisation.</p>
-<div id="69b6dfc3" class="cell" data-execution_count="5">
+<div id="fdb7d6c2" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>content<span class="op">=</span>np.array([[<span class="fl">.8</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>],[<span class="fl">.6</span>,<span class="fl">.5</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>]])</span>
@@ -765,7 +765,7 @@ same content at another position changes input: False</code></pre>
 <p>Let <span class="math inline">\(F\)</span> denote an attention layer with no positional mechanism and let <span class="math inline">\(\Pi\)</span> be a permutation matrix that reorders sequence rows. For standard self-attention without a position-dependent mask,</p>
 <p><span class="math display">\[F(\Pi X)=\Pi F(X).\]</span></p>
 <p>This is permutation equivariance, not invariance: the output does change, but only by being rearranged in the same manner as the input. If a subsequent task needs different outputs for different orders of the same content, the model requires a position signal.</p>
-<div id="4b5b29e5" class="cell" data-execution_count="6">
+<div id="a4682143" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -786,7 +786,7 @@ same content at another position changes input: False</code></pre>
 </section>
 <section id="a-fixed-positional-module-has-a-clear-input-output-contract" class="level3">
 <h3 class="anchored" data-anchor-id="a-fixed-positional-module-has-a-clear-input-output-contract">A fixed positional module has a clear input-output contract</h3>
-<div id="79a2974d" class="cell" data-execution_count="7">
+<div id="1c4432c4" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SinusoidalPosition(nn.Module):</span>
@@ -817,7 +817,7 @@ same position is shared across batch: True</code></pre>
 </div>
 <p><code>register_buffer</code> stores fixed values with the module so they follow device moves and checkpoint conventions without becoming optimised parameters. The <code>offset</code> argument matters during cached autoregressive inference: a newly generated token must receive its global position, not position zero of a short one-token call.</p>
 <p>The offset contract is easy to state and easy to violate. If a sequence’s first four tokens have already been processed, a one-token continuation has sequence length one in the present call but global position four. Reusing the position-zero vector changes its query and key representation. The error can leave tensor shapes valid while making cached generation disagree with a full forward pass.</p>
-<div id="bbdf7e11" class="cell" data-execution_count="8">
+<div id="e33be67a" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>prefix<span class="op">=</span>torch.zeros(<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">6</span>)<span class="op">;</span> next_token<span class="op">=</span>torch.zeros(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">6</span>)</span>
@@ -838,7 +838,7 @@ reusing position zero disagrees: True</code></pre>
 <p>Rotary position embeddings (RoPE) apply a position-dependent two-dimensional rotation to adjacent query and key coordinates. For a coordinate pair <span class="math inline">\((u,v)\)</span> and angle <span class="math inline">\(\theta_t\)</span>,</p>
 <p><span class="math display">\[R_t\begin{bmatrix}u\\v\end{bmatrix}=\begin{bmatrix}\cos\theta_t&amp;-\sin\theta_t\\ \sin\theta_t&amp;\cos\theta_t\end{bmatrix}\begin{bmatrix}u\\v\end{bmatrix}.\]</span></p>
 <p>Rotating both a query at <span class="math inline">\(t\)</span> and a key at <span class="math inline">\(j\)</span> makes their dot product depend on their relative displacement under the chosen frequency construction. RoPE therefore inserts position into the attention comparison itself <span class="citation" data-cites="su2021roformer">(<a href="#ref-su2021roformer" role="doc-biblioref">Su et al. 2021</a>)</span>.</p>
-<div id="5081f6de" class="cell" data-execution_count="9">
+<div id="e6e407c2" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rotate_pairs(x,positions,base<span class="op">=</span><span class="fl">10000.0</span>):</span>

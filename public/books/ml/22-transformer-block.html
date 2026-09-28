@@ -727,7 +727,7 @@ Figure&nbsp;23.4: Layer normalisation uses the feature coordinates within one to
 </div>
 </div>
 </div>
-<div id="1c6ea757" class="cell" data-execution_count="5">
+<div id="a73f40e5" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>z<span class="op">=</span>np.array([<span class="fl">2.</span>,<span class="fl">4.</span>,<span class="fl">5.</span>,<span class="fl">9.</span>])<span class="op">;</span> mean<span class="op">=</span>z.mean()<span class="op">;</span> var<span class="op">=</span>((z<span class="op">-</span>mean)<span class="op">**</span><span class="dv">2</span>).mean()<span class="op">;</span> epsilon<span class="op">=</span><span class="fl">1e-5</span></span>
@@ -750,7 +750,7 @@ normalised mean and variance: 0.0 0.999998</code></pre>
 <p>A conventional feed-forward network (FFN) has the form</p>
 <p><span class="math display">\[G(h)=W_2\,\phi(W_1h+b_1)+b_2,\]</span></p>
 <p>where <span class="math inline">\(W_1\)</span> expands from <span class="math inline">\(D\)</span> to an internal width <span class="math inline">\(D_{ff}\)</span>, <span class="math inline">\(\phi\)</span> is a nonlinearity, and <span class="math inline">\(W_2\)</span> returns to <span class="math inline">\(D\)</span>. The same weights apply at every sequence position. A position’s FFN output can depend on other tokens only through the contextual representation that attention already supplied.</p>
-<div id="18870394" class="cell" data-execution_count="6">
+<div id="c59080f9" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>sequence<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">.2</span>],[<span class="fl">.5</span>,<span class="fl">.3</span>,<span class="fl">.1</span>],[<span class="fl">.2</span>,<span class="fl">.7</span>,<span class="fl">.4</span>]])</span>
@@ -779,7 +779,7 @@ each output row comes from the matching input row after this FFN: [[ 0.166  0.12
 <p>The original Transformer applied normalisation after each residual addition:</p>
 <p><span class="math display">\[H=\operatorname{LN}_1(X+A(X)),\qquad Y=\operatorname{LN}_2(H+G(H)).\]</span></p>
 <p>This is post-norm. Pre-norm instead applies normalisation before the branches, as in the Level 2 equations. The two arrangements have the same named components but differ in forward values, gradient paths, and training behaviour. A configuration label such as <code>LayerNorm</code> is incomplete without the placement convention <span class="citation" data-cites="vaswani2017 ba2016layernorm">(<a href="#ref-vaswani2017" role="doc-biblioref"><span class="nocase">Vaswani et al.</span> 2017</a>; <a href="#ref-ba2016layernorm" role="doc-biblioref">Ba et al. 2016</a>)</span>.</p>
-<div id="7d7d3725" class="cell" data-execution_count="7">
+<div id="8790a4a4" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -802,7 +802,7 @@ pre-norm and post-norm give different values: True</code></pre>
 </section>
 <section id="a-compact-causal-pre-norm-block-makes-the-branches-visible" class="level3">
 <h3 class="anchored" data-anchor-id="a-compact-causal-pre-norm-block-makes-the-branches-visible">A compact causal pre-norm block makes the branches visible</h3>
-<div id="6a53e282" class="cell" data-execution_count="8">
+<div id="659c0309" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PreNormTransformerBlock(nn.Module):</span>
@@ -836,7 +836,7 @@ future masked mass: 0.0</code></pre>
 </section>
 <section id="tests-should-cover-both-residual-and-causal-contracts" class="level3">
 <h3 class="anchored" data-anchor-id="tests-should-cover-both-residual-and-causal-contracts">Tests should cover both residual and causal contracts</h3>
-<div id="0e3db050" class="cell" data-execution_count="9">
+<div id="6e5753de" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>changed<span class="op">=</span>x.clone()<span class="op">;</span> changed[:,<span class="dv">3</span>]<span class="op">+=</span><span class="dv">100</span></span>

@@ -765,7 +765,7 @@ Figure&nbsp;12.4: The same initialisation scales that alter forward signals also
 \operatorname{Var}(W)\approx\frac{2}{n_{\mathrm{in}}},
 \]</span></p>
 <p>the He rule developed for rectifier networks <span class="citation" data-cites="he2015">(<a href="#ref-he2015" role="doc-biblioref">He et al. 2015</a>)</span>. The derivation assumes independence and idealised distributions. Convolutional sharing, residual additions, attention, gating, and normalisation alter the calculation.</p>
-<div id="59941f11" class="cell" data-execution_count="5">
+<div id="c7df3578" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fan_in,fan_out<span class="op">=</span><span class="dv">128</span>,<span class="dv">256</span></span>
@@ -781,7 +781,7 @@ He standard deviation: 0.1250</code></pre>
 </section>
 <section id="pytorch-makes-the-chosen-convention-explicit" class="level3">
 <h3 class="anchored" data-anchor-id="pytorch-makes-the-chosen-convention-explicit">PyTorch makes the chosen convention explicit</h3>
-<div id="170ed464" class="cell" data-execution_count="6">
+<div id="8165d15c" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -793,7 +793,7 @@ He standard deviation: 0.1250</code></pre>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(layer.weight.std().item(), layer.bias.<span class="bu">abs</span>().<span class="bu">max</span>().item())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.12437990307807922 0.0</code></pre>
+<pre><code>0.12556469440460205 0.0</code></pre>
 </div>
 </div>
 <p>The observed standard deviation is close to the He target but not exact because the matrix is a finite random sample. <code>fan_in</code> prioritises forward variance; <code>fan_out</code> prioritises backward variance. The activation argument determines the gain and should match the operation that follows.</p>
@@ -807,7 +807,7 @@ n_{\mathrm{in}}=C_{\mathrm{in}}k_hk_w,
 n_{\mathrm{out}}=C_{\mathrm{out}}k_hk_w.
 \]</span></p>
 <p>A grouped convolution uses fewer input channels per group. A transposed convolution stores and applies its tensor differently. The correct fan therefore follows the operation, not a guess based on which tensor dimension appears first.</p>
-<div id="8a331af2" class="cell" data-execution_count="7">
+<div id="c7ae85c9" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>examples<span class="op">=</span>[</span>
@@ -828,7 +828,7 @@ Grouped conv 64 -&gt; 64, 8 groups, 3x3        fan_in=  72 fan_out=  72 Xavier s
 </div>
 </div>
 <p>This calculation is part of the model specification. Two implementations can both claim to use He initialisation while using different effective fans because their kernels, groups, or tensor conventions differ.</p>
-<div id="daa00b10" class="cell" data-execution_count="8">
+<div id="808d9b4d" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Hooks can collect per-layer statistics in a dry run.</span></span>
@@ -844,7 +844,7 @@ Grouped conv 64 -&gt; 64, 8 groups, 3x3        fan_in=  72 fan_out=  72 Xavier s
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(records[:<span class="dv">4</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[('0', 0.009045487269759178, 0.5851718783378601), ('1', 0.23733989894390106, 0.3459939956665039), ('2', 0.010856611654162407, 0.2376016080379486), ('3', 0.10006941109895706, 0.1419227123260498)]</code></pre>
+<pre><code>[('0', 0.01425240933895111, 0.5738511681556702), ('1', 0.23528717458248138, 0.34436479210853577), ('2', -0.0014906609430909157, 0.2362845093011856), ('3', 0.09283026307821274, 0.1401718556880951)]</code></pre>
 </div>
 </div>
 <p>Hooks observe actual tensors rather than relying on the intended formula. Similar backward hooks or explicit parameter-gradient summaries can locate the first layer at which gradients vanish, explode, or become non-finite.</p>

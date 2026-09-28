@@ -607,7 +607,7 @@ Figure&nbsp;40.1: An RL-for-reasoning loop samples rollouts, evaluates rewards, 
 <section id="rewards-select-among-sampled-behaviours" class="level3">
 <h3 class="anchored" data-anchor-id="rewards-select-among-sampled-behaviours">Rewards select among sampled behaviours</h3>
 <p>If a task has an exact answer, a verifier can reward a rollout that reaches it and reject one that does not. The policy update increases probability for rewarded trajectories relative to alternatives under the chosen algorithm. For open-ended tasks, a reward may be learned from preferences or process annotations, which introduces the limits of the judge described in Chapter 30.</p>
-<div id="216a2c86" class="cell" data-execution_count="2">
+<div id="a8fa811e" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rollouts<span class="op">=</span>[{<span class="st">"steps"</span>:<span class="dv">3</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"reward"</span>:<span class="fl">1.0</span>},{<span class="st">"steps"</span>:<span class="dv">5</span>,<span class="st">"correct"</span>:<span class="dv">0</span>,<span class="st">"reward"</span>:<span class="fl">0.0</span>},{<span class="st">"steps"</span>:<span class="dv">4</span>,<span class="st">"correct"</span>:<span class="dv">1</span>,<span class="st">"reward"</span>:<span class="fl">1.0</span>}]</span>
@@ -655,7 +655,7 @@ Figure&nbsp;40.2: Outcome rewards score a completed answer, while process reward
 <section id="policy-gradients-weight-sampled-actions-by-return" class="level3">
 <h3 class="anchored" data-anchor-id="policy-gradients-weight-sampled-actions-by-return">Policy gradients weight sampled actions by return</h3>
 <p>For a trajectory () sampled from policy (<em>), a basic policy-gradient estimator increases log probability in proportion to return (R()): (R()</em>_()). In practice a baseline or advantage reduces variance by comparing the return with an expected value. The update does not copy a rewarded sequence exactly; it changes the distribution from which future trajectories are sampled.</p>
-<div id="2e198393" class="cell" data-execution_count="4">
+<div id="a386a43c" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>rewards<span class="op">=</span>np.array([<span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">1.</span>,<span class="fl">0.</span>])<span class="op">;</span> baseline<span class="op">=</span>rewards.mean()<span class="op">;</span> advantages<span class="op">=</span>rewards<span class="op">-</span>baseline</span>
@@ -703,7 +703,7 @@ Figure&nbsp;40.3: A final outcome reward must be assigned across earlier traject
 <section id="a-reward-can-be-exploited" class="level3">
 <h3 class="anchored" data-anchor-id="a-reward-can-be-exploited">A reward can be exploited</h3>
 <p>Optimisation searches for trajectories that obtain high reward, including behaviours that satisfy a proxy without meeting the intended task. A verifier may accept a formatting loophole; a learned reward may prefer confident language or a familiar process style. Fresh tasks, adversarial cases, reward-model diagnostics, and independent outcome checks are needed throughout training.</p>
-<div id="a2ef8ab0" class="cell" data-execution_count="6">
+<div id="b125cec5" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>cases<span class="op">=</span>[{<span class="st">"trajectory"</span>:<span class="st">"correct solution"</span>,<span class="st">"reward"</span>:<span class="dv">1</span>,<span class="st">"task_success"</span>:<span class="dv">1</span>},{<span class="st">"trajectory"</span>:<span class="st">"format exploit"</span>,<span class="st">"reward"</span>:<span class="dv">1</span>,<span class="st">"task_success"</span>:<span class="dv">0</span>}]</span>
@@ -788,7 +788,7 @@ Figure&nbsp;40.5: Training reward and independently scored task accuracy can mov
 </div>
 </div>
 </div>
-<div id="86d7845d" class="cell" data-execution_count="9">
+<div id="494d4965" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>history<span class="op">=</span>{<span class="st">"before"</span>:{<span class="st">"reward"</span>:<span class="fl">.42</span>,<span class="st">"task"</span>:<span class="fl">.51</span>},<span class="st">"after"</span>:{<span class="st">"reward"</span>:<span class="fl">.78</span>,<span class="st">"task"</span>:<span class="fl">.55</span>}}</span>
@@ -803,7 +803,7 @@ Figure&nbsp;40.5: Training reward and independently scored task accuracy can mov
 <h3 class="anchored" data-anchor-id="the-run-record-defines-the-policy-change">The run record defines the policy change</h3>
 <p>Store base policy, rollout prompt and template, sampling settings, reward or verifier implementation, outcome and process labels, baseline or advantage method, update schedule, KL or reference constraint where used, checkpoints, independent evaluations, and cost. This allows a reviewer to distinguish a model improvement from a changed reward, a changed sampler, or a changed benchmark.</p>
 <p>Include the rejected and interrupted portions of the run: rollout counts before filtering, reward and parser failures, policy and tool versions, aborted updates, and the reason for each intervention. This establishes the training distribution actually used by the optimiser and makes later reward-hacking or regression findings traceable to a specific run condition.</p>
-<div id="0cb91192" class="cell" data-execution_count="10">
+<div id="329085a3" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"base"</span>:<span class="st">"instruction-v1"</span>,<span class="st">"rollouts"</span>:<span class="dv">8</span>,<span class="st">"reward"</span>:<span class="st">"exact verifier"</span>,<span class="st">"advantage"</span>:<span class="st">"baseline-subtracted"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out outcome"</span>}</span>

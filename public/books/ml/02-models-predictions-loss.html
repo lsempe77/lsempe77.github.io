@@ -724,7 +724,7 @@ Figure&nbsp;3.3: A loss assigns a penalty to each prediction error and aggregate
 <section id="one-batch-creates-a-vector-of-errors-before-one-scalar-loss" class="level3">
 <h3 class="anchored" data-anchor-id="one-batch-creates-a-vector-of-errors-before-one-scalar-loss">One batch creates a vector of errors before one scalar loss</h3>
 <p>Models normally make many predictions in one batch. The loss is not a mysterious scalar emitted by a framework: it begins with one comparison per observation, then applies a reduction such as a mean or sum. A mean makes the reported scale less sensitive to batch size; a sum gives larger batches more total influence unless another part of the update rule compensates.</p>
-<div id="692fab44" class="cell" data-execution_count="4">
+<div id="ecf6c754" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>batch_target<span class="op">=</span>np.array([<span class="fl">1.0</span>,<span class="fl">3.0</span>,<span class="fl">2.0</span>,<span class="fl">5.0</span>])</span>
@@ -787,7 +787,7 @@ p_i=\sigma(z_i)=\frac{1}{1+e^{-z_i}},
 <p>The purpose of this level is to connect the verbal distinction between model, prediction, target, and loss to calculations that can be checked. We begin with a small regression example, then compare different loss functions and use a baseline to assess whether the fitted model adds predictive information.</p>
 <section id="a-small-regression-problem" class="level3">
 <h3 class="anchored" data-anchor-id="a-small-regression-problem">A small regression problem</h3>
-<div id="7c997983" class="cell" data-execution_count="5">
+<div id="40318308" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -874,7 +874,7 @@ Figure&nbsp;3.5: Squared error and absolute error penalise residuals differently
 </section>
 <section id="numerical-cross-entropy" class="level3">
 <h3 class="anchored" data-anchor-id="numerical-cross-entropy">Numerical cross-entropy</h3>
-<div id="8a9150a9" class="cell" data-execution_count="8">
+<div id="1759589a" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>probabilities <span class="op">=</span> np.linspace(<span class="fl">0.001</span>, <span class="fl">0.999</span>, <span class="dv">400</span>)</span>
@@ -901,7 +901,7 @@ Figure&nbsp;3.5: Squared error and absolute error penalise residuals differently
 <p>The graph also explains why numerical implementations use a small positive constant or stable log-sum-exp operations. Evaluating <span class="math inline">\(\log(0)\)</span> is undefined, and extreme logits can create overflow if the expression is implemented naively.</p>
 <p>The important point is that cross-entropy distinguishes a correct prediction from a well-calibrated probability. Assigning probability 0.51 to the observed class and assigning probability 0.99 both lead to the same class decision, but they receive different losses. The second prediction is rewarded more when it is correct and penalised more severely when it is wrong.</p>
 <p>Frameworks commonly accept logits rather than already rounded probabilities because a combined loss implementation can calculate the required transformation more stably. Rounding a probability before cross-entropy removes the information needed to distinguish a tentative prediction from a confident one and usually breaks useful gradients. The output representation, loss implementation, and reporting scale must be kept aligned.</p>
-<div id="c2de97e5" class="cell" data-execution_count="9">
+<div id="b4ca6ce4" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>logits<span class="op">=</span>np.array([<span class="op">-</span><span class="fl">6.</span>,<span class="op">-</span><span class="fl">1.</span>,<span class="fl">0.</span>,<span class="fl">1.</span>,<span class="fl">6.</span>])</span>
@@ -920,7 +920,7 @@ per-example stable cross-entropy: [0.0025 0.3133 0.6931 0.3133 0.0025]</code></p
 </section>
 <section id="a-baseline-comparison" class="level3">
 <h3 class="anchored" data-anchor-id="a-baseline-comparison">A baseline comparison</h3>
-<div id="6d299c2e" class="cell" data-execution_count="10">
+<div id="b7babc31" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.dummy <span class="im">import</span> DummyRegressor</span>

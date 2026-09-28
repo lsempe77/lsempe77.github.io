@@ -684,7 +684,7 @@ Figure&nbsp;24.2: The three families use different attention eligibility: encode
 <h3 class="anchored" data-anchor-id="decoder-only-stacks-preserve-a-growing-prefix">Decoder-only stacks preserve a growing prefix</h3>
 <p>For target representations <span class="math inline">\(Y\in\mathbb{R}^{B\times T\times D}\)</span>, a causal decoder block uses a triangular target self-attention mask. At position <span class="math inline">\(t\)</span>, the block can use target positions <span class="math inline">\(0,\ldots,t\)</span>. During cached inference, earlier projected keys and values can be retained, while the new query uses the correct global positional offset from Chapter 21.</p>
 <p>Training and inference use the same causal information rule but different inputs. During teacher-forced training, the observed earlier target items form the prefix at every position, making the full shifted target sequence available for parallel masked computation. During generation, the model’s own selected earlier items form the prefix and each new selection changes the next input. A reported training loss therefore does not by itself measure errors accumulated during a long generated sequence.</p>
-<div id="829e4355" class="cell" data-execution_count="3">
+<div id="f80ea9ea" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> causal_eligibility(length):</span>
@@ -734,7 +734,7 @@ Figure&nbsp;24.3: Cross-attention has a target-query axis and a source-key axis;
 </div>
 </div>
 <p>The source encoding may be reused at each decoder step, but its padding mask must be reused with it. If a request batch packs sources of different length, the cross-attention mask is not optional metadata: it defines which memory locations are data and which are fill values.</p>
-<div id="d68d0f5d" class="cell" data-execution_count="5">
+<div id="e07ef56b" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>source<span class="op">=</span>np.array([[<span class="fl">1.</span>,<span class="fl">.2</span>],[<span class="fl">.8</span>,<span class="fl">.5</span>],[<span class="fl">.1</span>,<span class="fl">.9</span>],[<span class="fl">.4</span>,<span class="fl">.3</span>]])</span>
@@ -764,7 +764,7 @@ padded source mass: 0.0</code></pre>
 <p>For conditional generation given a source <span class="math inline">\(x_{1:S}\)</span>, an encoder-decoder model uses</p>
 <p><span class="math display">\[p(y_{1:T}\mid x_{1:S})=\prod_{t=1}^{T}p(y_t\mid y_{&lt;t},x_{1:S}).\]</span></p>
 <p>The equations state available information, not the vocabulary or loss implementation. A decoder-only model may receive a prompt as part of its prefix; an encoder-decoder model separates the conditioning source and generated target through separate streams and cross-attention.</p>
-<div id="befa1402" class="cell" data-execution_count="6">
+<div id="c201e165" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -789,7 +789,7 @@ masked source mass: 0.0</code></pre>
 </section>
 <section id="a-minimal-encoder-decoder-skeleton-exposes-the-two-masks" class="level3">
 <h3 class="anchored" data-anchor-id="a-minimal-encoder-decoder-skeleton-exposes-the-two-masks">A minimal encoder-decoder skeleton exposes the two masks</h3>
-<div id="6b2a9c37" class="cell" data-execution_count="7">
+<div id="7f1dfbf2" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TinyEncoderDecoder(nn.Module):</span>
@@ -815,7 +815,7 @@ masked source mass: 0.0</code></pre>
 </section>
 <section id="perturbation-tests-distinguish-source-from-future-target-information" class="level3">
 <h3 class="anchored" data-anchor-id="perturbation-tests-distinguish-source-from-future-target-information">Perturbation tests distinguish source from future target information</h3>
-<div id="e41731ca" class="cell" data-execution_count="8">
+<div id="7bd8e792" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>changed_future<span class="op">=</span>target.clone()<span class="op">;</span> changed_future[:,<span class="dv">2</span>]<span class="op">+=</span><span class="dv">100</span></span>

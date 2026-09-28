@@ -693,7 +693,7 @@ Figure&nbsp;20.2: Different queries retrieve different mixtures from the same so
 e_i=v_a^\top\tanh(W_q q+W_k k_i+b_a).
 \]</span></p>
 <p>The score has no requirement to lie between zero and one. It is a compatibility value whose scale and distribution depend on the parameterisation and inputs. Bahdanau attention used an additive alignment function in an encoder-decoder model <span class="citation" data-cites="bahdanau2015attention">(<a href="#ref-bahdanau2015attention" role="doc-biblioref">Bahdanau et al. 2015</a>)</span>. Luong and colleagues compared dot-product, general bilinear, and related score functions <span class="citation" data-cites="luong2015attention">(<a href="#ref-luong2015attention" role="doc-biblioref">Luong et al. 2015</a>)</span>.</p>
-<div id="fc7ff256" class="cell" data-execution_count="3">
+<div id="239f0ec5" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>query<span class="op">=</span>np.array([<span class="fl">.8</span>,<span class="op">-</span><span class="fl">.3</span>,<span class="fl">.5</span>])</span>
@@ -719,7 +719,7 @@ bilinear scores:    [ 0.024  1.018  0.394 -0.352  0.4  ]</code></pre>
 \alpha_i=\frac{\exp(e_i)}{\sum_{j=1}^{S}\exp(e_j)}.
 \]</span></p>
 <p>Every <span class="math inline">\(\alpha_i\)</span> is non-negative and the weights sum to one. Raising one score affects all weights through the denominator. Adding the same constant to every score leaves the distribution unchanged, so stable implementations subtract the maximum score before exponentiation.</p>
-<div id="9df4760d" class="cell" data-execution_count="4">
+<div id="30bf1733" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> softmax(scores):</span>
@@ -845,7 +845,7 @@ c=\alpha^\top V.
 \]</span></p>
 <p>Here <span class="math inline">\(Kq\in\mathbb{R}^{S}\)</span> supplies one score per source position, <span class="math inline">\(\alpha\in\mathbb{R}^{S}\)</span> supplies one weight per position, and <span class="math inline">\(c\in\mathbb{R}^{D_v}\)</span> is the context vector. The key dimension and value dimension need not be equal.</p>
 <p>For a batch of decoder queries <span class="math inline">\(Q\in\mathbb{R}^{B\times T\times D_k}\)</span> and source keys <span class="math inline">\(K\in\mathbb{R}^{B\times S\times D_k}\)</span>, the score tensor has shape <span class="math inline">\(B\times T\times S\)</span>. Each target position has its own distribution over source positions.</p>
-<div id="e88bdbfc" class="cell" data-execution_count="8">
+<div id="fbafa9c9" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -872,7 +872,7 @@ contexts: (2, 3, 6)</code></pre>
 </section>
 <section id="masked-softmax-requires-a-stable-fill-value" class="level3">
 <h3 class="anchored" data-anchor-id="masked-softmax-requires-a-stable-fill-value">Masked softmax requires a stable fill value</h3>
-<div id="490483e2" class="cell" data-execution_count="9">
+<div id="cf44d023" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> masked_attention(query,keys,values,valid_positions):</span>
@@ -937,7 +937,7 @@ Figure&nbsp;20.6: A context vector is a weighted mixture of value vectors; movin
 e_{ti}=v_a^\top\tanh(W_q q_t+W_h h_i+b_a).
 \]</span></p>
 <p>The matrices can map decoder and encoder representations with different widths into a shared alignment width. The learned vector <span class="math inline">\(v_a\)</span> reduces the nonlinear comparison to one scalar score. This formulation can express interactions beyond a direct dot product, but it adds parameters and elementwise work for every query-key pair.</p>
-<div id="89c49f5c" class="cell" data-execution_count="11">
+<div id="91de3945" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rng<span class="op">=</span>np.random.default_rng(<span class="dv">19</span>)</span>

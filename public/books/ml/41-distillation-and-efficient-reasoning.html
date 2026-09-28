@@ -603,7 +603,7 @@ Figure&nbsp;42.1: A teacher generates candidates under a larger budget, a select
 <section id="a-teacher-can-spend-more-computation-than-a-student" class="level3">
 <h3 class="anchored" data-anchor-id="a-teacher-can-spend-more-computation-than-a-student">A teacher can spend more computation than a student</h3>
 <p>The teacher may be larger, use more samples, call a verifier, or search longer trajectories. The student is trained to produce a useful answer with fewer parameters, shorter outputs, or one pass. The intended gain is a better accuracy–latency–cost frontier, not necessarily identical outputs.</p>
-<div id="f1d4d231" class="cell" data-execution_count="2">
+<div id="dc37ea50" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"teacher"</span>:{<span class="st">"accuracy"</span>:<span class="fl">.78</span>,<span class="st">"tokens"</span>:<span class="dv">1800</span>,<span class="st">"latency"</span>:<span class="fl">4.1</span>},<span class="st">"student"</span>:{<span class="st">"accuracy"</span>:<span class="fl">.69</span>,<span class="st">"tokens"</span>:<span class="dv">260</span>,<span class="st">"latency"</span>:<span class="fl">.5</span>}}</span>
@@ -650,7 +650,7 @@ Figure&nbsp;42.2: Distillation can target final answers, visible traces, or teac
 <section id="teacher-filtering-determines-what-is-learned" class="level3">
 <h3 class="anchored" data-anchor-id="teacher-filtering-determines-what-is-learned">Teacher filtering determines what is learned</h3>
 <p>Teacher outputs can be retained only when an exact verifier accepts, when several samples agree, when a human reviewer approves, or when a learned score crosses a threshold. Each policy changes coverage. Filtering only easy verified examples can create a clean but narrow student dataset; retaining unverified traces can transfer errors and unsupported claims.</p>
-<div id="bc436489" class="cell" data-execution_count="4">
+<div id="78c8e8ef" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>teacher_outputs<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"verified"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"verified"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"verified"</span>:<span class="va">True</span>}]</span>
@@ -756,7 +756,7 @@ Figure&nbsp;42.5: Adaptive routing has two error types: unnecessary teacher esca
 </div>
 </div>
 </div>
-<div id="f0934bd2" class="cell" data-execution_count="8">
+<div id="a92a3185" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>uncertainty<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.7</span>,<span class="fl">.3</span>])<span class="op">;</span> routes<span class="op">=</span>np.where(uncertainty<span class="op">&gt;</span><span class="fl">.5</span>,<span class="st">"teacher"</span>,<span class="st">"student"</span>)</span>
@@ -784,7 +784,7 @@ Figure&nbsp;42.5: Adaptive routing has two error types: unnecessary teacher esca
 <h3 class="anchored" data-anchor-id="teacherstudent-disagreement-identifies-what-was-and-was-not-transferred">Teacher–student disagreement identifies what was and was not transferred</h3>
 <p>Evaluate cases where teacher and student disagree, including teacher-correct/student-wrong, student-correct/teacher-wrong, both-wrong, and answers that differ only in format or trace. This is more informative than an average imitation loss. A student may improve on a narrow deployment slice by avoiding an expensive teacher habit, while losing performance on tasks that require the teacher’s search or tool use. These outcomes need task scoring, not a presumption that the teacher is always the gold standard.</p>
 <p>Regression tests should cover inputs outside the teacher-target distribution: different lengths, formats, domains, languages where relevant, tool availability, and adversarial or malformed requests. The objective is to identify the scope of transfer and the system conditions under which the student should defer, not to claim that a student contains a compressed copy of all teacher capabilities.</p>
-<div id="8810cb3a" class="cell" data-execution_count="9">
+<div id="c108211e" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"teacher"</span>:<span class="st">"search-v2"</span>,<span class="st">"selection"</span>:<span class="st">"exact verifier"</span>,<span class="st">"target"</span>:<span class="st">"answer only"</span>,<span class="st">"student"</span>:<span class="st">"small-v1"</span>,<span class="st">"routing"</span>:<span class="st">"uncertainty threshold"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out"</span>}</span>

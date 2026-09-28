@@ -649,7 +649,7 @@ Figure&nbsp;28.2: Prompt tokens and generated tokens share a finite total sequen
 <h3 class="anchored" data-anchor-id="prompt-processing-and-generation-are-different-phases">Prompt processing and generation are different phases</h3>
 <p>During prompt processing, a causal Transformer can compute representations for supplied positions in parallel under its causal mask. This is commonly called prefill. Once generation begins, token <span class="math inline">\(t+1\)</span> cannot be selected until the model has processed the selected token <span class="math inline">\(t\)</span>. Output is therefore sequential even on highly parallel hardware.</p>
 <p>The difference helps interpret latency. A long prompt can create a substantial initial wait before the first new token. A long generated answer can be slow because it requires repeated decode steps. Reporting only total tokens per second mixes these phases and obscures the user-facing bottleneck.</p>
-<div id="66f20f04" class="cell" data-execution_count="3">
+<div id="f6746b95" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prompt<span class="op">=</span>np.array([<span class="dv">2</span>,<span class="dv">11</span>,<span class="dv">34</span>,<span class="dv">58</span>,<span class="dv">3</span>])<span class="op">;</span> generated<span class="op">=</span>[]</span>
@@ -705,7 +705,7 @@ Figure&nbsp;28.3: A key-value cache retains keys and values for each layer and e
 2B n_l n_{kv} L d_h
 \]</span></p>
 <p>stored numbers. Multiply by bytes per number to obtain a rough memory estimate. Multi-query and grouped-query attention reduce <span class="math inline">\(n_{kv}\)</span> relative to the number of query heads, lowering cache memory without changing the causal sequence rule.</p>
-<div id="387730a5" class="cell" data-execution_count="5">
+<div id="9251f648" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>B,layers,kv_heads,length,head_dim,bytes_per<span class="op">=</span><span class="dv">1</span>,<span class="dv">32</span>,<span class="dv">8</span>,<span class="dv">8192</span>,<span class="dv">128</span>,<span class="dv">2</span></span>
@@ -721,7 +721,7 @@ Figure&nbsp;28.3: A key-value cache retains keys and values for each layer and e
 <section id="cache-correctness-is-a-model-test" class="level3">
 <h3 class="anchored" data-anchor-id="cache-correctness-is-a-model-test">Cache correctness is a model test</h3>
 <p>Cached decoding should agree with full-prefix decoding for the same model, tokens, position treatment, masks, and numerical precision within an explicit tolerance. Disagreement can arise from wrong cache positions, stale entries, incorrect padding handling, rotary-position implementation, or an inconsistency between prefill and decode code paths.</p>
-<div id="d83c2965" class="cell" data-execution_count="6">
+<div id="7ccc996c" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>full_prefix_logits<span class="op">=</span>np.array([<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="fl">.7</span>])</span>
@@ -765,7 +765,7 @@ Figure&nbsp;28.4: Dense attention score relations during prompt processing grow 
 <section id="retrieval-is-not-identical-to-longer-context" class="level3">
 <h3 class="anchored" data-anchor-id="retrieval-is-not-identical-to-longer-context">Retrieval is not identical to longer context</h3>
 <p>Retrieval can reduce the prompt to passages selected from a larger collection. It changes the inference problem from attending over all supplied text to selecting and using evidence. A large window may contain an entire document; it still must locate and apply the relevant information. Chapter 33 will examine retrieval-augmented generation as a complete system, including indexing and evaluation.</p>
-<div id="ba9ef20a" class="cell" data-execution_count="8">
+<div id="ca122d58" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>document_tokens<span class="op">=</span><span class="dv">20_000</span><span class="op">;</span> retrieved_tokens<span class="op">=</span><span class="dv">1_500</span><span class="op">;</span> window<span class="op">=</span><span class="dv">4_096</span></span>
@@ -816,7 +816,7 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 <section id="serving-constraints-change-the-available-context-per-request" class="level3">
 <h3 class="anchored" data-anchor-id="serving-constraints-change-the-available-context-per-request">Serving constraints change the available context per request</h3>
 <p>At deployment, many requests may share accelerator memory. Each active sequence has a cache length, and a serving scheduler chooses batching, admission, eviction, and output limits. A context limit that fits one request can reduce concurrency or exceed memory under a busy workload. Conversely, aggressively capping prompts can improve latency while discarding evidence needed for a task. These are operating choices that should be measured against the task and service requirement.</p>
-<div id="503d4ee5" class="cell" data-execution_count="10">
+<div id="8cc627fd" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cache_per_request_gib<span class="op">=</span><span class="fl">1.0</span></span>
@@ -836,7 +836,7 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 <section id="long-context-errors-require-traces-not-only-accuracy-totals" class="level3">
 <h3 class="anchored" data-anchor-id="long-context-errors-require-traces-not-only-accuracy-totals">Long-context errors require traces, not only accuracy totals</h3>
 <p>When a model misses evidence in a long prompt, a useful diagnostic records the original document, tokenised length, retained window, evidence span, retrieval or packing decision, generated tokens, and scoring rule. This can separate an error caused by truncation from one caused by poor retrieval, position sensitivity, or an incorrect answer despite available evidence. Aggregate accuracy remains useful, but it cannot make these failure modes distinguishable.</p>
-<div id="ab328562" class="cell" data-execution_count="11">
+<div id="7299436a" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>trace<span class="op">=</span>{<span class="st">"document_tokens"</span>:<span class="dv">9100</span>,<span class="st">"retained_tokens"</span>:<span class="dv">8192</span>,<span class="st">"evidence_position"</span>:<span class="dv">7800</span>,<span class="st">"truncated"</span>:<span class="va">False</span>,<span class="st">"answer_correct"</span>:<span class="va">False</span>}</span>
@@ -852,7 +852,7 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 <h3 class="anchored" data-anchor-id="length-claims-need-tests-that-control-position-and-distraction">Length claims need tests that control position and distraction</h3>
 <p>A useful long-context evaluation places known evidence at several positions, asks a defined question, and compares performance across lengths and numbers of distractors. It should distinguish exact retrieval of a stated item from multi-step use of several items. Repeating a short fact many times, testing only the beginning of a prompt, or scoring a single favourable example cannot establish broad long-context use.</p>
 <p>The evaluation should also record tokenizer, actual valid lengths, truncation and packing policy, prompt template, generation limit, sampling rule, and whether the answer was checked automatically or by people. Changing any of these can change the test. An answer that fails may reflect missing evidence, truncation, retrieval failure, cache error, decoding variation, or the model’s conditional distribution; the trace should make those possibilities distinguishable.</p>
-<div id="820d17f9" class="cell" data-execution_count="12">
+<div id="4c3bcecb" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>positions<span class="op">=</span>[<span class="dv">128</span>,<span class="dv">1024</span>,<span class="dv">4096</span>,<span class="dv">7168</span>]</span>
@@ -868,7 +868,7 @@ Figure&nbsp;28.5: A sliding-window policy retains recent tokens while discarding
 <h3 class="anchored" data-anchor-id="an-inference-record-separates-capacity-from-service-quality">An inference record separates capacity from service quality</h3>
 <p>An inference report should include model and tokenizer version, context limit, maximum output length, prompt and output token distributions, prefill latency, decode latency or tokens per second, cache precision and layout, batch policy, hardware, concurrency, truncation behaviour, and failure policy. At least one cache-equivalence test and one boundary test at the configured maximum length should be retained.</p>
 <p>The record supports operational decisions. It can show whether a system is limited by long-prompt prefill, by per-token decode latency, by memory available for concurrent caches, or by a context policy that discards needed evidence. A model card that says only â€œlong contextâ€ cannot answer those questions.</p>
-<div id="990d093c" class="cell" data-execution_count="13">
+<div id="ff2cf25d" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>inference_record<span class="op">=</span>{<span class="st">"context_limit"</span>:<span class="dv">8192</span>,<span class="st">"prompt_tokens"</span>:<span class="dv">6200</span>,<span class="st">"max_new_tokens"</span>:<span class="dv">512</span>,<span class="st">"prefill_ms"</span>:<span class="dv">740</span>,<span class="st">"decode_tokens_per_second"</span>:<span class="dv">55</span>,<span class="st">"cache_dtype"</span>:<span class="st">"float16"</span>}</span>

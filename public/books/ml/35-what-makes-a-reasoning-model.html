@@ -606,7 +606,7 @@ Figure&nbsp;36.1: A reasoning system can generate candidates, apply a verifier o
 <h3 class="anchored" data-anchor-id="reasoning-is-a-system-property-under-a-task-definition">Reasoning is a system property under a task definition</h3>
 <p>A base model predicts a continuation from its prompt. Instruction tuning changes the response convention. A reasoning-tuned system may additionally be trained to produce intermediate work, reward verifiable outcomes, sample alternative solutions, or use more time before selecting an answer. The label should describe an observed mechanism and task result, not a marketing category.</p>
 <p>For an arithmetic expression, a model can answer immediately, write a calculation, generate several calculations and vote, or use a calculator tool. These may have different accuracy, token cost, and failure patterns. A system that calls a calculator can be reliable on arithmetic without demonstrating a general internal ability to reason about every task. A system that writes a long explanation can be incorrect despite a fluent trace.</p>
-<div id="adc7aa9c" class="cell" data-execution_count="2">
+<div id="6f911ed3" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>strategies<span class="op">=</span>{<span class="st">"direct"</span>:<span class="st">"one answer"</span>,<span class="st">"rationale"</span>:<span class="st">"answer with steps"</span>,<span class="st">"sample-and-select"</span>:<span class="st">"several candidates plus selection"</span>,<span class="st">"tool-assisted"</span>:<span class="st">"external calculation"</span>}</span>
@@ -654,7 +654,7 @@ Figure&nbsp;36.2: A visible rationale, internal model computation, and answer co
 <section id="candidate-generation-and-selection-form-a-basic-search-loop" class="level3">
 <h3 class="anchored" data-anchor-id="candidate-generation-and-selection-form-a-basic-search-loop">Candidate generation and selection form a basic search loop</h3>
 <p>Sampling several completions creates a candidate set. A selection rule can choose the highest model score, a majority answer, a verifier-approved candidate, or an externally checked result. The improvement, if any, comes from the combination of candidate diversity and a selection signal that distinguishes better from worse candidates. More samples without a useful selector can simply add cost and inconsistent answers.</p>
-<div id="8fafc144" class="cell" data-execution_count="4">
+<div id="e3b46eac" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>candidates<span class="op">=</span>[{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>},{<span class="st">"answer"</span>:<span class="dv">13</span>,<span class="st">"valid"</span>:<span class="va">False</span>},{<span class="st">"answer"</span>:<span class="dv">12</span>,<span class="st">"valid"</span>:<span class="va">True</span>}]</span>
@@ -697,7 +697,7 @@ Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use 
 <section id="a-budget-makes-the-trade-off-observable" class="level3">
 <h3 class="anchored" data-anchor-id="a-budget-makes-the-trade-off-observable">A budget makes the trade-off observable</h3>
 <p>Inference-time compute can be counted as generated tokens, model forward passes, samples, verifier calls, tool calls, wall-clock time, energy, or monetary cost. These measures are related but not identical. A system may generate fewer tokens but make more expensive verifier calls, or use a long hidden trace with no user-visible explanation. An evaluation should report the resource definition alongside accuracy.</p>
-<div id="ba255b40" class="cell" data-execution_count="6">
+<div id="b9012266" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>budget<span class="op">=</span>{<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"tokens_per_sample"</span>:<span class="dv">250</span>,<span class="st">"verifier_calls"</span>:<span class="dv">8</span>,<span class="st">"latency_seconds"</span>:<span class="fl">4.2</span>}</span>
@@ -717,7 +717,7 @@ Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use 
 <section id="reasoning-tuning-changes-a-policy-under-selected-signals" class="level3">
 <h3 class="anchored" data-anchor-id="reasoning-tuning-changes-a-policy-under-selected-signals">Reasoning tuning changes a policy under selected signals</h3>
 <p>Reasoning-oriented training may use demonstrations with intermediate steps, outcomes checked by a verifier, preference comparisons among solutions, or reinforcement learning over multi-step trajectories. The system learns from the data and reward signals available; it does not receive a general proof procedure. A reward based only on final answer can favour lucky or opaque trajectories. A process reward can favour steps that look plausible to its judge without guaranteeing they caused the result.</p>
-<div id="ef097681" class="cell" data-execution_count="7">
+<div id="7b7ab73f" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>trajectories<span class="op">=</span>[{<span class="st">"steps"</span>:<span class="dv">4</span>,<span class="st">"answer_correct"</span>:<span class="dv">1</span>,<span class="st">"process_score"</span>:<span class="fl">.7</span>},{<span class="st">"steps"</span>:<span class="dv">8</span>,<span class="st">"answer_correct"</span>:<span class="dv">0</span>,<span class="st">"process_score"</span>:<span class="fl">.9</span>}]</span>
@@ -733,7 +733,7 @@ Figure&nbsp;36.3: Generation, decomposition, search, verification, and tool use 
 <section id="latent-computation-has-an-observability-limit" class="level3">
 <h3 class="anchored" data-anchor-id="latent-computation-has-an-observability-limit">Latent computation has an observability limit</h3>
 <p>Internal activations and any hidden intermediate tokens can influence an answer without being available to the user. This can protect proprietary methods or avoid exposing unsafe detailed work, but it limits direct inspection. A system should not substitute an invented visible rationale for an unavailable trace. It can instead report answer confidence limits, tool outputs, verified constraints, and the inference budget used.</p>
-<div id="a2649a71" class="cell" data-execution_count="8">
+<div id="9c8fe1a4" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>audit<span class="op">=</span>{<span class="st">"model"</span>:<span class="st">"versioned"</span>,<span class="st">"samples"</span>:<span class="dv">4</span>,<span class="st">"selector"</span>:<span class="st">"exact verifier"</span>,<span class="st">"visible_rationale"</span>:<span class="va">False</span>,<span class="st">"verified_constraint"</span>:<span class="st">"answer parses"</span>}</span>
@@ -805,7 +805,7 @@ Figure&nbsp;36.5: A reasoning-system evaluation links each claimed mechanism to 
 <h3 class="anchored" data-anchor-id="scope-claims-should-remain-narrow">Scope claims should remain narrow</h3>
 <p>Reasoning benchmarks can reward answer formats, familiar problem templates, or verifier-compatible outputs. A gain on one set of mathematical problems does not establish general reasoning across science, law, planning, or open-ended advice. Contamination and benchmark-specific optimisation remain concerns from Chapter 34. The module will therefore report task distributions, inference cost, selected mechanisms, and failure cases rather than treating one score or one trace style as a global capability measure.</p>
 <p>An adequate report begins with the base model and task distribution, then states the generator, candidate budget, tools, verifier, selection rule, stopping rule, and answer interface. It reports the outcome measure and resource measures together, followed by examples of false acceptance, false rejection, exhausted budgets, and cases that the system could not verify. That record does not settle whether a system has a general reasoning capability. It does make the narrower claim inspectable and provides the inputs Chapter 36 needs for a valid evaluation.</p>
-<div id="acf5266f" class="cell" data-execution_count="11">
+<div id="3e54e4da" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable arithmetic"</span>,<span class="st">"base"</span>:<span class="st">"checkpoint-v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact answer"</span>,<span class="st">"cost"</span>:<span class="st">"tokens and latency"</span>,<span class="st">"evaluation"</span>:<span class="st">"held-out problems"</span>}</span>

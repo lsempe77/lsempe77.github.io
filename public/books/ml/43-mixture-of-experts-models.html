@@ -612,7 +612,7 @@ Figure&nbsp;44.1: An MoE layer routes each token to a small subset of experts, c
 <h3 class="anchored" data-anchor-id="capacity-can-grow-without-activating-every-parameter">Capacity can grow without activating every parameter</h3>
 <p>The dense layer asks one feed-forward network to process every token. An MoE layer gives the router several such networks and lets it select specialists conditionally. A token associated with code-like text may be routed differently from a token in another language or a mathematical expression. The system does not need a semantic story about each expert for this to be useful; the operational claim is that different tokens activate different parameter subsets.</p>
 <p>Sparse activation changes the comparison. A model with eight experts may store roughly eight feed-forward parameter sets, but a top-2 router only executes two for one token. Parameter count therefore measures stored capacity, while active parameters and communication determine per-token cost. The sparsely gated MoE layer formalised this conditional-computation approach, and subsequent work made routing simple enough to support large Transformer training <span class="citation" data-cites="shazeer2017moe fedus2021switch">(<a href="#ref-shazeer2017moe" role="doc-biblioref">Shazeer et al. 2017</a>; <a href="#ref-fedus2021switch" role="doc-biblioref">Fedus et al. 2022</a>)</span>.</p>
-<div id="a8c48d44" class="cell" data-execution_count="2">
+<div id="b40bb275" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dense_parameters<span class="op">=</span><span class="dv">100</span></span>
@@ -655,7 +655,7 @@ Figure&nbsp;44.2: An MoE layer can increase stored parameter capacity while keep
 <section id="router-scores-become-a-sparse-dispatch-decision" class="level3">
 <h3 class="anchored" data-anchor-id="router-scores-become-a-sparse-dispatch-decision">Router scores become a sparse dispatch decision</h3>
 <p>For token representation (x), a router produces one score per expert. A softmax can turn the scores into non-negative weights. Top-&nbsp;k routing retains only the k largest weights, renormalises them, sends the token to those experts, and combines their outputs. If experts are functions (f_e), the layer output is the weighted sum of the selected (f_e(x)). This is conditional computation: routing determines which parameters participate in this token’s forward and backward pass.</p>
-<div id="19d437cf" class="cell" data-execution_count="4">
+<div id="fe0235fc" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>scores<span class="op">=</span>np.array([<span class="fl">1.8</span>,<span class="fl">.4</span>,<span class="fl">1.2</span>,<span class="op">-</span><span class="fl">.3</span>])</span>
@@ -697,7 +697,7 @@ Figure&nbsp;44.3: Top-k routing retains the largest router weights and renormali
 <section id="capacity-limits-make-dispatch-observable" class="level3">
 <h3 class="anchored" data-anchor-id="capacity-limits-make-dispatch-observable">Capacity limits make dispatch observable</h3>
 <p>Experts cannot process an unlimited number of token assignments in one batch. A capacity factor sets a per-expert quota relative to the average expected load. When an expert is full, the implementation may drop an assignment, send it to a backup expert, or preserve a residual path. Each choice changes the layer output and must be reported. A low capacity limit raises the chance of discarded routes; a high limit reserves memory and can leave accelerator work uneven.</p>
-<div id="623304d9" class="cell" data-execution_count="6">
+<div id="51dd7d04" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>assignments<span class="op">=</span>np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">3</span>])<span class="op">;</span> capacity<span class="op">=</span><span class="dv">2</span></span>
@@ -741,7 +741,7 @@ Figure&nbsp;44.4: Expert capacity limits turn unequal router demand into overflo
 <h3 class="anchored" data-anchor-id="load-balancing-supplies-a-training-signal-and-a-hardware-constraint">Load balancing supplies a training signal and a hardware constraint</h3>
 <p>If a router repeatedly selects one expert, that expert becomes a bottleneck while other experts receive little data or gradient signal. MoE training commonly adds an auxiliary load-balancing objective based on routing probabilities and realised assignments. The objective encourages use of the available experts; it does not prove that expert specialisation is meaningful or that all experts should receive identical traffic.</p>
 <p>The systems consequence is immediate. Tokens assigned to experts on other devices must be exchanged, processed, and returned. The slowest or most overloaded expert can determine the layer’s step time. GShard treated conditional computation and sharding together because large MoE training requires both a routing rule and an execution plan <span class="citation" data-cites="lepikhin2020gshard">(<a href="#ref-lepikhin2020gshard" role="doc-biblioref">Lepikhin et al. 2020</a>)</span>.</p>
-<div id="bf507d8b" class="cell" data-execution_count="8">
+<div id="c46e5768" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>loads<span class="op">=</span>np.array([<span class="dv">47</span>,<span class="dv">26</span>,<span class="dv">17</span>,<span class="dv">10</span>])<span class="op">;</span> uniform<span class="op">=</span>np.repeat(<span class="dv">25</span>,<span class="dv">4</span>)</span>
@@ -780,7 +780,7 @@ Figure&nbsp;44.5: Unequal expert load leaves some experts underused and makes th
 <section id="a-dense-comparison-requires-an-end-to-end-cost-record" class="level3">
 <h3 class="anchored" data-anchor-id="a-dense-comparison-requires-an-end-to-end-cost-record">A dense comparison requires an end-to-end cost record</h3>
 <p>MoE can reduce active feed-forward computation for a given stored capacity, but it can also add router work, dispatch overhead, all-to-all communication, padding to expert capacity, and latency variation across requests. Compare dense and sparse models under the same sequence lengths, batch policy, precision, hardware, and quality metric. A parameter count alone cannot establish a serving advantage.</p>
-<div id="5dd585d6" class="cell" data-execution_count="10">
+<div id="ec1c06f6" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>systems<span class="op">=</span>{<span class="st">"dense"</span>:{<span class="st">"compute"</span>:<span class="dv">100</span>,<span class="st">"communication"</span>:<span class="dv">0</span>,<span class="st">"latency"</span>:<span class="dv">12</span>},<span class="st">"moe"</span>:{<span class="st">"compute"</span>:<span class="dv">35</span>,<span class="st">"communication"</span>:<span class="dv">18</span>,<span class="st">"latency"</span>:<span class="dv">14</span>}}</span>
@@ -830,7 +830,7 @@ Figure&nbsp;44.6: MoE active expert computation can be lower than a dense compar
 <h3 class="anchored" data-anchor-id="evaluate-routing-changes-with-matched-quality-and-workload-slices">Evaluate routing changes with matched quality and workload slices</h3>
 <p>An MoE intervention can change top-k, capacity factor, balance coefficient, overflow fallback, expert count, or device placement. Evaluate one such change at a time under the same checkpoint where possible, input distribution, sequence lengths, batch policy, precision, and quality scorer. Report task outcome together with overflow, routed fraction, per-expert load, communication, p50 and p95 latency, and memory. A throughput gain that relies on dropping more assignments or a quality gain that relies on a larger batch is not a routing result alone.</p>
 <p>Slice the record by properties that plausibly change routing: language, input length, token class, domain, tool-call format, or a declared sensitive workload category. The purpose is not to assign an expert a human-readable identity. It is to discover whether the routing policy creates concentrated overflow, latency, or quality loss for a subset that aggregate results hide. A deployment decision can then adjust capacity, routing, or fallback for the affected workload rather than treating a global average as sufficient evidence.</p>
-<div id="ceeaa69b" class="cell" data-execution_count="12">
+<div id="cbb66ed8" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"experts"</span>:<span class="dv">8</span>,<span class="st">"top_k"</span>:<span class="dv">2</span>,<span class="st">"capacity_factor"</span>:<span class="fl">1.25</span>,<span class="st">"overflow_rate"</span>:<span class="fl">.03</span>,<span class="st">"load_cv"</span>:<span class="fl">.31</span>,<span class="st">"p95_latency_ms"</span>:<span class="dv">28</span>,<span class="st">"quality"</span>:<span class="st">"held-out exact match"</span>}</span>

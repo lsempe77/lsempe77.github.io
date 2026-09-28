@@ -608,7 +608,7 @@ Figure&nbsp;37.1: Reasoning evaluation separates candidate generation, verifier 
 <h3 class="anchored" data-anchor-id="a-final-answer-is-necessary-but-incomplete-evidence">A final answer is necessary but incomplete evidence</h3>
 <p>For a task with one exact answer, outcome accuracy asks whether the selected result is correct. This is often the primary metric. It does not show whether the system used a valid method, whether a visible rationale was accurate, whether a tool call succeeded, or whether the same result would survive a modest change in wording.</p>
 <p>A reasoning system may produce a correct answer through a lucky candidate, a memorised pattern, an external tool, or a verified search process. These mechanisms have different implications for generalisation and cost. Evaluation should not claim more than the measure supports.</p>
-<div id="23014dc0" class="cell" data-execution_count="2">
+<div id="7fdbf759" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>outcomes<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>])</span>
@@ -655,7 +655,7 @@ Figure&nbsp;37.2: Outcome correctness, visible process quality, and faithfulness
 <section id="a-verifier-has-a-defined-acceptance-condition" class="level3">
 <h3 class="anchored" data-anchor-id="a-verifier-has-a-defined-acceptance-condition">A verifier has a defined acceptance condition</h3>
 <p>An exact verifier can check a numeric answer, proof syntax, executable code output, a formal constraint, or a known solution. Its value comes from a clearly specified condition. A verifier can be wrong, incomplete, vulnerable to formatting, or unable to assess the property that matters. A code test suite may accept an implementation that fails an untested case; a symbolic checker may reject a correct answer in an unsupported form.</p>
-<div id="63d3b12e" class="cell" data-execution_count="4">
+<div id="fd566110" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_verifier(candidate,answer):</span>
@@ -667,7 +667,7 @@ Figure&nbsp;37.2: Outcome correctness, visible process quality, and faithfulness
 </div>
 </div>
 <p>Verifier evaluation itself needs labelled cases. Precision asks how often accepted candidates are actually correct; recall asks how often correct candidates are accepted. A selector built on a low-precision verifier can choose attractive errors. A low-recall verifier can discard valid solutions and flatten the gain from candidate generation.</p>
-<div id="4999a9cd" class="cell" data-execution_count="5">
+<div id="16c7d309" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>accepted<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>])<span class="op">;</span> actually_correct<span class="op">=</span>np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>])</span>
@@ -713,7 +713,7 @@ Figure&nbsp;37.3: Verifier quality depends on accepted and rejected candidates r
 <section id="robustness-tests-vary-a-declared-factor" class="level3">
 <h3 class="anchored" data-anchor-id="robustness-tests-vary-a-declared-factor">Robustness tests vary a declared factor</h3>
 <p>Reasoning claims should be tested under controlled variants: paraphrase the prompt while preserving the answer, alter irrelevant numbers or names, move evidence position, change the order of answer options, or generate new instances from a problem family. The purpose is to identify whether performance depends on surface cues rather than the relation the task is intended to measure.</p>
-<div id="fa6eabd1" class="cell" data-execution_count="7">
+<div id="f3212b65" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>variants<span class="op">=</span>{<span class="st">"original"</span>:<span class="dv">1</span>,<span class="st">"paraphrase"</span>:<span class="dv">1</span>,<span class="st">"renamed variables"</span>:<span class="dv">0</span>,<span class="st">"reordered options"</span>:<span class="dv">0</span>}</span>
@@ -761,7 +761,7 @@ Figure&nbsp;37.4: Paired robustness results show whether reasoning-system failur
 <p>If a reasoning system samples ten candidates and calls a verifier ten times, its accuracy cannot be compared fairly with a one-pass answer without reporting the additional tokens, calls, latency, and cost. The relationship may be nonlinear: one extra sample can help substantially, while later samples add little. Chapter 37 will estimate such curves; this chapter establishes the shared denominator.</p>
 <p>Cost records also need a decision rule. Mean latency can conceal a long tail caused by retries, tool calls, or a search budget reached only for difficult prompts. State whether calls were parallel, whether failed calls count, the hardware or service configuration, and whether cost includes verification. These choices determine what a reported token or latency budget means in deployment.</p>
 <p>Comparisons also need uncertainty appropriate to the evaluation unit. When two systems answer the same items, retain their paired outcomes and report how many items changed from wrong to correct and from correct to wrong. A small average difference can be driven by a few cases, especially on a short benchmark or a rare but costly slice. Confidence intervals or resampling summaries can describe sampling uncertainty, but they do not repair an unrepresentative task set or an undeclared change in prompt policy.</p>
-<div id="d0a0af9a" class="cell" data-execution_count="9">
+<div id="40e0c5f1" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>records<span class="op">=</span>[{<span class="st">"n"</span>:<span class="dv">1</span>,<span class="st">"accuracy"</span>:<span class="fl">.54</span>,<span class="st">"tokens"</span>:<span class="dv">180</span>,<span class="st">"latency"</span>:<span class="fl">.4</span>},{<span class="st">"n"</span>:<span class="dv">4</span>,<span class="st">"accuracy"</span>:<span class="fl">.68</span>,<span class="st">"tokens"</span>:<span class="dv">720</span>,<span class="st">"latency"</span>:<span class="fl">1.7</span>},{<span class="st">"n"</span>:<span class="dv">8</span>,<span class="st">"accuracy"</span>:<span class="fl">.72</span>,<span class="st">"tokens"</span>:<span class="dv">1440</span>,<span class="st">"latency"</span>:<span class="fl">3.3</span>}]</span>
@@ -804,7 +804,7 @@ Figure&nbsp;37.5: Reasoning-system comparisons should report accuracy against a 
 <section id="faithfulness-requires-an-intervention-claim" class="level3">
 <h3 class="anchored" data-anchor-id="faithfulness-requires-an-intervention-claim">Faithfulness requires an intervention claim</h3>
 <p>To claim that a visible trace explains an answer, an evaluation needs more than a correlation between plausible steps and correct answers. Interventions can alter, remove, reorder, or replace parts of the trace and test whether the answer changes in the predicted way. These tests are difficult because a model may regenerate a different trace, rely on hidden state, or answer from a shortcut. A negative result should be reported as a limit rather than repaired with a more persuasive explanation.</p>
-<div id="df2ba091" class="cell" data-execution_count="11">
+<div id="0b6790e2" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>trace_test<span class="op">=</span>{<span class="st">"original_answer"</span>:<span class="dv">12</span>,<span class="st">"altered_trace_answer"</span>:<span class="dv">12</span>,<span class="st">"expected_change"</span>:<span class="va">True</span>}</span>
@@ -819,7 +819,7 @@ Figure&nbsp;37.5: Reasoning-system comparisons should report accuracy against a 
 <h3 class="anchored" data-anchor-id="a-reasoning-evaluation-record-joins-components">A reasoning evaluation record joins components</h3>
 <p>The audit should retain task generator or dataset version, answer key or verifier, prompt and template, checkpoint, candidate-generation policy, samples, selection rule, tool and verifier versions, visible-trace policy, token and call counts, latency, outcome scoring, robustness variants, contamination checks, and error categories. It should record whether an item was solved directly, through a verifier, or through a tool. This is the minimum needed to interpret an apparent reasoning gain.</p>
 <p>Evaluation should also distinguish a planned test from a diagnostic added after observing errors. Diagnostic slices are often useful, especially when a failure points to a specific parser, tool, or prompt condition. They should not be folded silently into a confirmatory headline score. Keep a development record, freeze the evaluation policy for the final comparison, and state which analyses were exploratory. The resulting account is less tidy than one number, but it permits another evaluator to reproduce the decision boundary.</p>
-<div id="7c143a22" class="cell" data-execution_count="12">
+<div id="637015a8" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>record<span class="op">=</span>{<span class="st">"task"</span>:<span class="st">"verifiable problems"</span>,<span class="st">"generator"</span>:<span class="st">"v2"</span>,<span class="st">"samples"</span>:<span class="dv">8</span>,<span class="st">"verifier"</span>:<span class="st">"exact-v1"</span>,<span class="st">"selector"</span>:<span class="st">"first accepted"</span>,<span class="st">"tokens"</span>:<span class="dv">1440</span>,<span class="st">"robustness"</span>:<span class="st">"paraphrase set"</span>}</span>

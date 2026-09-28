@@ -681,7 +681,7 @@ Figure&nbsp;27.3: Causal, masked, and sequence-to-sequence pretraining expose di
 <h3 class="anchored" data-anchor-id="a-corpus-record-needs-more-than-a-headline-token-count">A corpus record needs more than a headline token count</h3>
 <p>A reproducible account identifies sources and dates, access conditions, document and token counts, language and domain labels, filtering rules, deduplication method, personally identifiable information policy, and held-out splits. It distinguishes raw collection from retained documents and from the final sampled stream. If sources cannot be fully disclosed because of privacy, licensing, or access restrictions, that limitation should be stated rather than replaced with an imprecise label.</p>
 <p>Deduplication is consequential. Exact removal identifies identical records; near-duplicate removal depends on a similarity rule and threshold. It may retain templated copies or remove legitimate repetition. Evaluation contamination occurs when benchmark items or close variants enter training. A contaminated score does not estimate performance on unseen instances alone.</p>
-<div id="a21edd26" class="cell" data-execution_count="4">
+<div id="dc414c93" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>documents<span class="op">=</span>[<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water quality."</span>,<span class="st">"A short report on water-quality."</span>,<span class="st">"Different document."</span>]</span>
@@ -698,7 +698,7 @@ near duplicates require a declared similarity rule</code></pre>
 <section id="tokens-batches-steps-and-epochs-count-different-things" class="level3">
 <h3 class="anchored" data-anchor-id="tokens-batches-steps-and-epochs-count-different-things">Tokens, batches, steps, and epochs count different things</h3>
 <p>If a run processes <span class="math inline">\(T\)</span> valid tokens with global batch size <span class="math inline">\(B\)</span> tokens, it performs about <span class="math inline">\(T/B\)</span> optimiser updates, subject to packing and gradient accumulation. An epoch means one pass through a defined finite dataset; it becomes ambiguous when a mixture is resampled or repeated.</p>
-<div id="bf3b7f68" class="cell" data-execution_count="5">
+<div id="0f52c8f3" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>training_tokens<span class="op">=</span><span class="dv">300_000_000_000</span></span>
@@ -720,7 +720,7 @@ near duplicates require a declared similarity rule</code></pre>
 <h3 class="anchored" data-anchor-id="objective-choice-determines-the-prediction-task">Objective choice determines the prediction task</h3>
 <p>A decoder-only causal objective predicts targets from a prefix. An encoder objective can form bidirectional representations for a complete input. An encoder-decoder objective predicts a causal target conditioned on a source. Chapter 23 established these architecture boundaries; pretraining selects the sequence task through which parameters are updated. Parameter count does not identify an objective.</p>
 <p>Loss weights can also change the effective data mixture. A run may weight sources, ignore selected targets, or normalise losses per sequence rather than per token. These choices alter gradient contributions and should be reported with the primary cross-entropy.</p>
-<div id="0fae694a" class="cell" data-execution_count="6">
+<div id="a4733e62" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>losses<span class="op">=</span>np.array([<span class="fl">1.1</span>,<span class="fl">1.8</span>,<span class="fl">2.2</span>])</span>
@@ -738,7 +738,7 @@ weighted mixture loss: 1.5300000000000002</code></pre>
 <h3 class="anchored" data-anchor-id="data-repetition-changes-the-meaning-of-a-token-budget">Data repetition changes the meaning of a token budget</h3>
 <p>A headline such as “trained on one trillion tokens” reports processing volume. It does not say how many distinct documents or unique token sequences were available. A smaller, repeatedly sampled corpus and a larger, more diverse corpus can yield the same processed-token count while exposing the model to different evidence. The difference affects both generalisation and memorisation risks. It also affects the interpretation of a scaling comparison: a run can receive more arithmetic without receiving proportionately more independent data.</p>
 <p>Repetition is not always an error. Curated code, mathematical text, or low-resource languages may be deliberately oversampled because raw availability would otherwise leave them nearly absent from the gradient stream. The required record is the sampling rule, the number of effective passes or repetitions, and the reason for the weighting. A report that lists source sizes but not exposure cannot establish whether a small source was protected, ignored, or repeatedly replayed.</p>
-<div id="b87dbffb" class="cell" data-execution_count="7">
+<div id="05f1d092" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>source_tokens<span class="op">=</span>np.array([<span class="dv">800</span>,<span class="dv">120</span>,<span class="dv">40</span>])</span>
@@ -788,7 +788,7 @@ Figure&nbsp;27.4: A conceptual scaling curve shows diminishing held-out loss red
 <h3 class="anchored" data-anchor-id="validation-needs-an-information-boundary-of-its-own">Validation needs an information boundary of its own</h3>
 <p>Training and validation must be separated before duplicate handling and mixture construction are finalised. A random split at the document level can still leak closely related pages, translated versions, template variants, or consecutive records from one source. Time-based and source-based boundaries may be more appropriate when a model will be evaluated on later or distinct material. The appropriate rule depends on the claim, but the rule must be specified.</p>
 <p>For language-model loss, the validation stream should use the same tokenizer and objective convention as training. It should not silently use a different normalisation policy, maximum context, special-token treatment, or padding denominator. Source-stratified results can identify a mixture average that is dominated by common material and conceals poor fit on a smaller intended population.</p>
-<div id="dc862c61" class="cell" data-execution_count="9">
+<div id="f2d27031" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>validation<span class="op">=</span>{<span class="st">"web"</span>:(<span class="dv">10000</span>,<span class="fl">1.55</span>),<span class="st">"reference"</span>:(<span class="dv">3000</span>,<span class="fl">1.32</span>),<span class="st">"multilingual"</span>:(<span class="dv">2000</span>,<span class="fl">2.11</span>)}</span>
@@ -807,7 +807,7 @@ source-specific losses: {'web': (10000, 1.55), 'reference': (3000, 1.32), 'multi
 <h3 class="anchored" data-anchor-id="scale-has-several-bottlenecks">Scale has several bottlenecks</h3>
 <p>Parameter count measures stored learned values, not the full resource requirement. Training tokens measure prediction events under a tokenizer, not the diversity or quality of documents. FLOP estimates measure arithmetic under assumptions, not the wall-clock cost of moving data and synchronising devices. Context length affects attention and activation memory. Batch size affects the number of updates for a fixed token budget and can interact with optimiser settings. These quantities should be reported together because changing one can change the useful allocation of the others.</p>
 <p>The compute-optimal results of Hoffmann and colleagues apply to their measured Transformer family, data, and training setup <span class="citation" data-cites="hoffmann2022training">(<a href="#ref-hoffmann2022training" role="doc-biblioref">Hoffmann et al. 2022</a>)</span>. They provide evidence that model and data allocation matters under a compute budget. They do not provide a universal ratio that can be transferred without checking objective, data mixture, architecture, sequence length, and target deployment constraints. Scaling work is most useful when it leads to smaller controlled runs, documented extrapolations, and tests of the assumptions that support a large run.</p>
-<div id="7d4575bd" class="cell" data-execution_count="10">
+<div id="cca59183" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>parameter_counts<span class="op">=</span>np.array([<span class="fl">1e8</span>,<span class="fl">1e9</span>,<span class="fl">1e10</span>])</span>
@@ -830,7 +830,7 @@ parameters=1e+10, tokens=2e+11, tokens/parameter=20.0</code></pre>
 <section id="a-pretraining-claim-requires-a-data-and-run-record" class="level3">
 <h3 class="anchored" data-anchor-id="a-pretraining-claim-requires-a-data-and-run-record">A pretraining claim requires a data and run record</h3>
 <p>An audit should record architecture and parameter count; tokenizer version; objective and target mask; source list and dates; filtering and deduplication procedures; mixture weights and resampling; raw, retained, and processed tokens; sequence and packing policy; batch and optimiser configuration; precision and hardware; checkpoints; validation construction; contamination checks; and stopping rule.</p>
-<div id="14632e8b" class="cell" data-execution_count="11">
+<div id="a3843c9e" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>run_record<span class="op">=</span>{<span class="st">"tokenizer"</span>:<span class="st">"versioned vocabulary"</span>,<span class="st">"objective"</span>:<span class="st">"causal next-token"</span>,<span class="st">"valid_tokens"</span>:<span class="dv">300_000_000_000</span>,<span class="st">"max_length"</span>:<span class="dv">2048</span>,<span class="st">"mixture"</span>:<span class="st">"documented weights"</span>}</span>
